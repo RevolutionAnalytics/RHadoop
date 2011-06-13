@@ -1,0 +1,10 @@
+*.o
+*~
+*.tmp
+*.py[co]
+.svn
+tmp
+*.jar
+testData
+testData/1987.csv
+.bzr.corrupt

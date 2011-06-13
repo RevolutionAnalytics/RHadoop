@@ -1,0 +1,119 @@
+library(RevoHStream)
+library(RevoHDFS)
+Sys.setenv(HADOOP_BIN=sprintf("%s/bin/",Sys.getenv("HADOOP")))
+Sys.setenv(HADOOP_CONF=sprintf("%s/conf/",Sys.getenv("HADOOP")))
+hdfs.init()
+
+## Example 0.
+## Extract some lines
+map <- function(d){
+  send(c("a",Vec2Text(d[[1]])))
+}
+hdfs.del("/tmp/demo")
+rhstream(map=map,in.folder="/airline/data/1987.csv",
+         out.folder="/tmp/demo",verbose=TRUE,colsep=",+",mapred=list(mapred.job.tracker='local'))
+
+## Example 1.
+## Subset all rows that occur on a Thursday (DayOfWeek == 4)
+## See http://stat-computing.org/dataexpo/2009/the-data.html for field numbers
+## We need the "0" for the separator since Hadoop Streaming will force
+## a tab if it is empty
+map <- function(d){
+  ## a data frame of 29 columns
+  d <- d[d[,4]=="4",]
+  s <- apply(d,1,function(r) send(c("",Vec2Text(r,collapse=","))))
+}
+hdfs.del("/tmp/demo")
+rhstream(map=map,in.folder="/airline/data/1987.csv"
+         ,out.folder="/tmp/demo",verbose=TRUE
+         ,colsep=",+",colspec=rep('character',29)
+         ,mapred=list(mapred.job.tracker='local',mapred.textoutputformat.separator="0"))
+
+## Example 2.
+## Counts the number of lines in a file
+## The reduce="aggregate" enables the use of Sum,Max,Min and Hist
+map <- function(d){
+  k <- length(d)
+  Sum("nrows",k)
+}
+hdfs.del("/tmp/demo")
+rhstream(map=map, reduce="aggregate",in.folder="/airline/data/1987.csv",
+         out.folder="/tmp/demo",verbose=TRUE,mapred=list(mapred.job.tracker='local'))
+
+## Example 3.
+## Subset all rows but keep only 
+## Year,Month, and DayOfMonth
+## To do this we want a data frame, with Year, Month and  DayOfWeek (1,2,4)
+## From: http://stat-computing.org/dataexpo/2009/the-data.html
+map <- function(d){
+    s <- apply(d,1
+               ,function(r){
+                 send(c("",Vec2Text(r,collapse=",")))
+               })
+  }
+colspec <- list("1"='character',"2"='character',"4"='character')
+hdfs.del("/tmp/demo")
+rhstream(map=map,
+         ,in.folder="/airline/data/1987.csv"
+         ,out.folder="/tmp/demo"
+         ,colspec=colspec,colsep=",+"
+         ,verbose=TRUE,mapred=list(mapred.job.tracker='local',mapred.textoutputformat.separator="0"))
+
+
+## Example 4
+## Count # of  rows
+## Year(1),Month(2), and DayOfMonth(4), ArrDelay is the 15'th column
+## All indices in X are converted to Numeric
+## From: http://stat-computing.org/dataexpo/2009/the-data.html
+y <- rhtapply( X=c(15),INDEX=c(1,2,4),FUN=function(k,d)
+             {
+               Sum(k, nrow(d))
+             },data="/airline/data/1987.csv",colsep=",+",mapred=list(mapred.job.tracker='local'))
+## Example 4.1 On all of the data
+y <- rhtapply( X=c(15),INDEX=c(1,2,4),FUN=function(k,d)
+             {
+               Sum(k, nrow(d))
+             },data="/airline/data/",colsep=",+")
+
+
+## Example 4.2 (Histogram Information: Min,Max, Mean, Std)
+## the number of unique values
+## the minimum value
+## the median value
+## the maximum value
+## the average value
+## the standard deviation
+y <- rhtapply( X=c(15),INDEX=c(1,2,4),FUN=function(k,d)
+             {
+               apply(d,1,function(r) Hist(k, r[1]))
+             },data="/tmp/o",colsep=",+")
+
+## Example 5: Sum of Square of ArrDeelay
+y <- rhtapply( X=c(15),INDEX=c(1,2,4),FUN=function(k,d)
+             {
+               Sum(k, sum(d[,1]^2))
+             },data="/airline/data/",colsep=",+")
+
+
+
+## Example 6. Lapply
+rhlapply(10,
+         FUN=function(r) {
+           runif(r)
+         }
+         ,.aggr = function(values,current, indices) {
+           a <- lapply(1:length(values),function(r)
+                       list(as.numeric(indices[[r]]),as.numeric(values[[r]]))
+                       )
+           append(a,current)
+         }
+         ,mapred=list(mapred.job.tracker='local'),debug=TRUE)
+
+rhlapply(10,
+         FUN=function(r) {
+           runif(10)
+         },chunk.size=3
+         ,mapred=list(mapred.job.tracker='local'),debug=TRUE)
+
+
+
