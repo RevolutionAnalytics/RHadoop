@@ -1,0 +1,89 @@
+# YML file
+# Use SPACES, not tabs!!!
+
+# NOTE: Be *very* careful if renaming or removing entries from this file
+#       You must make sure that all scripts no longer need the removed/renamed values
+
+production: 
+  global:
+    hudson:
+      URL: http://seahudson.revolution-computing.com:8080
+      server: seahudson.revolution-computing.com
+      artifacts:
+      UNC:            \\seafile2\hudson_home
+      mapPoint:
+        win: "J:"
+        linux: /mnt/hudsonArtifacts
+      jobBase:        jobs
+      lastSuccessful: lastSuccessful/archive/buildArtifacts
+      lastStable:     lastStable/archive/buildArtifacts
+      cliJar:   c:/opt/hudson/hudson-cli.jar
+    vSphere:
+      server: 192.168.10.114
+      user: Administrator
+      pwd: 3v0>VeDR
+#      powerCLI: C:\Program Files (x86)\VMware\Infrastructure\vSphere PowerCLI\vim.psc1
+#      delaySnapshot: 10
+#      delayPowerOn: 120
+    builder:
+      domain: revolution2
+      user: bob
+      pw: b0bthebuilder
+    R:
+      version: 2.12.2
+    versions:
+      base_r:    2.12
+      full_r:    2.12.2
+      base_revo: 4.3
+      full_revo: 4.3.0
+      base_revoscaler: 1.2
+      full_revoscaler: 1.2-0
+    r4bld: # where to find R executables for building. 
+      win: C:/R4BLD-2.12
+    putty:
+      plinkExe: c:\Program Files (x86)\PuTTY\plink.exe
+      pscpExe: c:\Program Files (x86)\PuTTY\pscp.exe
+  rtoolspath: c:\Rtools-2.12
+  installRevo:
+    installInfoDir:
+      win: C:/RevolutionRInstallInfo
+      linux: /tmp/RevolutionRInstallInfo
+    installJobName:
+      win: R2.12-RevoR_Installer-Win
+    installers:
+      win: 
+        # NOTE: Ensure regEx only matches one file
+        - regEx: "Revo*Ent*.exe"
+          cmd: set VCRUIMODE=/q & set DOTNET_MODE=/passive /norestart & set VSIS_MODE=/passive /norestart & %INSTALLFILE% /exebasicui PIDKEY=9375-3844-8283 /qb /L* %TEMP%\Revo_Enterprise_install.log
+          instDir: C:/Revolution/R-Enterprise-:::revo_base_ver:::/
+          bitness: 64
+          rscriptPath: R-:::full-r:::/bin/Rscript.exe
+      linux:
+        - regEx: "Revo-Ent-[0-9]*.tar.gz"
+          cmd:  tar xzf %INSTALLFILE%; cd RevolutionR_%REVOVER%; ./install.py -n -d
+          instDir: /usr/lib64/Revo-:::revo_base_ver:::/
+          rscriptPath: R-:::full-r:::/bin/Revoscript
+  bigData:
+    UNC: \\seafile2\bigdata
+    RSRAcceptance:  data-RevoScaleR-AcceptanceTest
+    mapPoint: 
+      # deliberately specifying mapPoint without ":" because it is used in both "NET USE K:"  and "/cygdrive/K"
+      win: "K"
+      linux: /mnt/seafile2/bigdata
+    localData: 
+      win: D:\\
+      linux: /data
+  tools:
+    zip:
+      win: build/tools/bin/win/7za.exe
+      linux: p7zip
+    shutdown:
+      win: build/tools/bin/win/psshutdown.exe /accepteula
+    verpatch:
+      win: build/tools/bin/win/verpatch.exe
+  svn:
+    seasvn:
+      URL: http://seasvn.revolution-computing.com
+
+
+

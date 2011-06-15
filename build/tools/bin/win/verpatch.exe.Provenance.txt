@@ -1,0 +1,6 @@
+verpatch.exe downloaded from 
+http://www.codeproject.com/KB/install/VerPatch.aspx?msg=3207401
+
+	http://www.codeproject.com/KB/install/VerPatch/verpatch-bin-06.zip
+	http://www.codeproject.com/KB/install/VerPatch/verpatch-src-06.zip
+

@@ -1,0 +1,4 @@
+export(rhstream)
+export(rhtapply)
+export(rhlapply)
+export(explode)
