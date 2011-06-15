@@ -86,14 +86,32 @@ mapDriver = function(MAP, N, TEXTINPUTFROMAT, TEXTOUTPUTFORMAT){
 
 reduceDriver = function(REDUCE, N, TEXTINPUTFROMAT, TEXTOUTPUTFORMAT){
   k = createReader(N, TEXTINPUTFORMAT)
+  lastKey = NULL
+  lastGroup = NULL
   while( !is.null(d <- k$get())){
     groups = tapply(d, getKeys(d), getValues, simplify = FALSE)
+    if (!is.null(lastKey)) {
+      if(!is.null(groups[[lastKey]])){
+        groups[[lastKey]] = c(groups[[lastKey]], lastGroup)
+      }
+      else {
+        groups = c(groups, list(lastGroup))
+        names(groups)[[length(groups)]] = lastKey
+      }
+    }
+    lastKey =  as.character(d[[length(d)]][[1]])
+    lastGroup = groups[[lastKey]]
+    groups[[lastKey]] = NULL
     lapply(unique(getKeys(d)),
            function(k) {
-             out = REDUCE(k, groups[[as.character(k)]])
-             lapply(out, send)
+             if(k != lastKey) {
+               out = REDUCE(k, groups[[as.character(k)]])
+               lapply(out, send)
+             }
            })
   }
+  out = REDUCE(lastKey, lastGroup)
+  lapply(out, send)
   k$close()
   invisible()
 }
