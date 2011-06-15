@@ -27,7 +27,7 @@ sendKV = function(k, v){
 }
 
 send = function(r){
-  cat(TEXTOUTPUTFORMAT(r[1], r[2]))
+  cat(TEXTOUTPUTFORMAT(r[[1]], r[[2]]))
 }
 
 counter = function(group="r-stream",family, value){
@@ -67,10 +67,32 @@ Hist = function(id,p){
     cat(sprintf("ValueHistogram:%s\t%s\n",id,p))
 }  
 
-driverFunction = function(MAPRED, N, TEXTINPUTFROMAT, TEXTOUTPUTFORMAT){
+getKeys = function(l) sapply(l, function(x) x[[1]])
+
+getValues = function(l) lapply(l, function(x) x[[2]])
+
+mapDriver = function(MAP, N, TEXTINPUTFROMAT, TEXTOUTPUTFORMAT){
   k = createReader(N, TEXTINPUTFORMAT)
   while( !is.null(d <- k$get())){
-    MAPRED(d)
+    lapply(d,
+           function(r) {
+             out = MAP(r[[1]], r[[2]])
+             lapply(out, send)
+           })
+  }
+  k$close()
+  invisible()
+}
+
+reduceDriver = function(REDUCE, N, TEXTINPUTFROMAT, TEXTOUTPUTFORMAT){
+  k = createReader(N, TEXTINPUTFORMAT)
+  while( !is.null(d <- k$get())){
+    groups = tapply(d, getKeys(d), getValues, simplify = FALSE)
+    lapply(unique(getKeys(d)),
+           function(k) {
+             out = REDUCE(k, groups[[as.character(k)]])
+             lapply(out, send)
+           })
   }
   k$close()
   invisible()

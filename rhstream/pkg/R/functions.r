@@ -75,7 +75,7 @@ rhstream = function(
     TEXTINPUTFORMAT = .(TEXTINPUTFORMAT)
     TEXTOUTPUTFORMAT = .(TEXTOUTPUTFORMAT)
     .(ANYPREMAP)
-    driverFunction(MAP, N, TEXTINPUTFORMAT, TEXTOUTPUTFORMAT)
+    mapDriver(MAP, N, TEXTINPUTFORMAT, TEXTOUTPUTFORMAT)
   },
     list(MAP = map,
          N = N,
@@ -91,7 +91,7 @@ rhstream = function(
         TEXTINPUTFORMAT = .(TEXTINPUTFORMAT)
         TEXTOUTPUTFORMAT = .(TEXTOUTPUTFORMAT)
         .(ANYPREREDUCE)
-        driverFunction(REDUCE, N, TEXTINPUTFORMAT, TEXTOUTPUTFORMAT)},
+        reduceDriver(REDUCE, N, TEXTINPUTFORMAT, TEXTOUTPUTFORMAT)},
         list(REDUCE = reduce,
              N = N,
              ANYPREREDUCE = ANYPREREDUCE,
