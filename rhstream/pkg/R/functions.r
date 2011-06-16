@@ -30,7 +30,7 @@ make.input.files = function(infiles){
 
 defaulttextinputformat = function(lines) {
   lapply(strsplit(lines, "\t"),
-         function(x) lapply(x, fromJSON)) }
+         function(x) list(key = fromJSON(x[1]), value = fromJSON(x[2]))) }
 
 defaulttextoutputformat = function(k,v) {
   paste(toJSON(k), "\t", toJSON(v), "\n", sep = "")}
