@@ -182,7 +182,7 @@ rhstream = function(
 options(warn=-1)
 
 library(RevoHStream)
-#load("RevoHStreamData")
+load("RevoHStreamData")
 '
   map.driver = deparse(bquote({
     MAP = .(MAP)
@@ -252,6 +252,9 @@ library(RevoHStream)
   }
   m.fl = sprintf("-file %s ",map.file)
   
+  save.image(file="RevoHStreamData")
+  image.cmd.line = "-file RevoHStreamData"
+  
   if(!missing(numreduces)) numreduces = sprintf("-numReduceTasks %s ", numreduces) else numreduces = " "
   cmds = make.job.conf(otherparams, pfx="cmdenv")
   if(is.null(mapred$mapred.textoutputformat.separator)){
@@ -264,7 +267,7 @@ library(RevoHStream)
   mkjars = if(length(jarfiles)>0) make.cache.files(jarfiles,"-libjars",shorten=FALSE) else " "
 
   verb = if(verbose) "-verbose " else " "
-  finalcommand = sprintf("%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s",
+  finalcommand = sprintf("%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s",
     hadoop.command,
     archives,
     caches,
@@ -277,6 +280,7 @@ library(RevoHStream)
     reduce,
     m.fl,
     r.fl,
+    image.cmd.line,
     cmds,
     numreduces,
     verb)
