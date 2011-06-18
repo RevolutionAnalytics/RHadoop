@@ -14,15 +14,12 @@ createReader = function(N=2000, textinputformat){
   return(list(close = close, get  = readChunk))
 }
 
-sendKV = function(k, v){
-  ## f is data frame, keys, values
-  lapply(1:length(k),function(r){
-    cat(TEXTOUTPUTFORMAT(k,v))
-  })
-}
-
-send = function(r){
-  cat(TEXTOUTPUTFORMAT(r[[1]], r[[2]]))
+send = function(out, textoutputformat = defaulttextoutputformat){
+  if (is.null(attr(out, 'keyval', exact = TRUE))) 
+    lapply(out, function(o) cat(textoutputformat(o$key, o$val)) )
+  else
+    cat(textoutputformat(out$key, out$val))
+  TRUE
 }
 
 counter = function(group="r-stream",family, value){
@@ -66,13 +63,38 @@ getKeys = function(l) sapply(l, function(x) x[[1]])
 
 getValues = function(l) lapply(l, function(x) x[[2]])
 
+keyval = function(k, v = NULL) {
+  if(is.null(v)) {
+    v = k[-1]
+    k = k[[1]]}    
+  kv = list(key = k, val = v)
+  attr(kv, 'keyval') = TRUE
+  kv}
+
+mkMapper = function(fun = identity, keyfun = identity, valfun = identity) {
+  if (!missing(fun)) {
+    function(k,v) keyval(fun(k,v))}
+  else {
+    function(k,v) keyval(keyfun(k), valfun(v))}}
+
+mkReducer = mkMapper
+mkMapRedFun = mkMapper
+
+mkMapRedListFun = function(fun = identity, keyfun = identity, valfun = identity) {
+  if (!missing(fun)) {
+    function(k,v) lapply(fun(k,v), keyval)}
+  else {
+    function(k,v) lapply(as.list(izip(keyfun(k), valfun(v))), keyval)}}
+
+
 mapDriver = function(MAP, N, TEXTINPUTFROMAT, TEXTOUTPUTFORMAT){
   k = createReader(N, TEXTINPUTFORMAT)
   while( !is.null(d <- k$get())){
     lapply(d,
            function(r) {
              out = MAP(r[[1]], r[[2]])
-             lapply(out, send)
+             if(!is.null(out))
+               send(out, TEXTOUTPUTFORMAT)
            })
   }
   k$close()
@@ -93,11 +115,12 @@ reduceDriver = function(REDUCE, N, TEXTINPUTFROMAT, TEXTOUTPUTFORMAT){
     lapply(groups,
            function(g) {
              out = REDUCE(g[[1]][[1]], getValues(g))
-             lapply(out, send)
+             if(!is.null(out))
+               send(out, TEXTOUTPUTFORMAT)
            })
   }
   out = REDUCE(lastKey, getValues(lastGroup))
-  lapply(out, send)
+  send(out, TEXTOUTPUTFORMAT)
   k$close()
   invisible()
 }
