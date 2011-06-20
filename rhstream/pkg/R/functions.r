@@ -6,7 +6,7 @@ createReader = function(N=2000, textinputformat){
   readChunk = function(n=N){
     lines = readLines(con, n = n, warn=FALSE)
     if(length(lines) > 0){
-      return(textinputformat(lines))
+      return(lapply(lines, textinputformat))
     }else{
       return(NULL) 
     }
@@ -111,13 +111,15 @@ reduceDriver = function(reduce, n, textinputformat, textoutputformat){
     groupKeys = getKeys(d)
     lastGroup = d[groupKeys == lastKey]
     d = d[groupKeys != lastKey]
-    groups = tapply(d, getKeys(d), identity, simplify = FALSE)
-    lapply(groups,
-           function(g) {
-             out = reduce(g[[1]][[1]], getValues(g))
-             if(!is.null(out))
-               send(out, textoutputformat)
-           })
+    if(length(d) > 0) {
+      groups = tapply(d, getKeys(d), identity, simplify = FALSE)
+      lapply(groups,
+             function(g) {
+               out = reduce(g[[1]][[1]], getValues(g))
+               if(!is.null(out))
+                 send(out, textoutputformat)
+             })
+    }
   }
   out = reduce(lastKey, getValues(lastGroup))
   send(out, textoutputformat)
@@ -152,9 +154,9 @@ make.input.files = function(infiles){
                  sprintf("-input %s ", r)}),
         collapse=" ")}
 
-defaulttextinputformat = function(lines) {
-  lapply(strsplit(lines, "\t"),
-         function(x) list(key = fromJSON(x[1]), value = fromJSON(x[2]))) }
+defaulttextinputformat = function(line) {
+  x =  strsplit(line, "\t")[[1]]
+  keyval(fromJSON(x[1]), fromJSON(x[2]))}
 
 defaulttextoutputformat = function(k,v) {
   paste(toJSON(k), "\t", toJSON(v), "\n", sep = "")}
