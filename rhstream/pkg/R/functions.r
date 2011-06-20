@@ -1,36 +1,162 @@
+createReader = function(N=2000, textinputformat){
+  con = file("stdin", open="r")
+  close = function(){
+    ## close(con)
+  }
+  readChunk = function(n=N){
+    lines = readLines(con, n = n, warn=FALSE)
+    if(length(lines) > 0){
+      return(lapply(lines, textinputformat))
+    }else{
+      return(NULL) 
+    }
+  }
+  return(list(close = close, get  = readChunk))
+}
+
+send = function(out, textoutputformat = defaulttextoutputformat){
+  if (is.null(attr(out, 'keyval', exact = TRUE))) 
+    lapply(out, function(o) cat(textoutputformat(o$key, o$val)) )
+  else
+    cat(textoutputformat(out$key, out$val))
+  TRUE
+}
+
+counter = function(group="r-stream",family, value){
+  cat(sprintf("report:counter:%s,$s,%s",
+              as.character(group),
+              as.character(family),
+              as.integer(value)),
+      stderr())
+}
+
+status = function(what){
+  cat(sprintf("report:status:%s",
+              as.character(what)),
+      stderr())
+}
+
+Sum = function(id,p=1){
+  if(typeof(p)=='double')
+    cat(sprintf("DoubleValueSum:%s\t%s\n",id,p))
+  else
+    cat(sprintf("LongValueSum:%s\t%s\n",id,p))
+}
+Min = function(id,p){
+  if(typeof(p)=='double')
+    cat(sprintf("DoubleValueMin:%s\t%s\n",id,p))
+  else
+    cat(sprintf("LongValueMin:%s\t%s\n",id,p))
+}
+Max = function(id,p){
+  if(typeof(p)=='double')
+    cat(sprintf("DoubleValueMax:%s\t%s\n",id,p))
+  else
+    cat(sprintf("LongValueMax:%s\t%s\n",id,p))
+}
+Hist = function(id,p){
+  ## No. of Uniq, Min,Median,Max,Average,Std Dev
+    cat(sprintf("ValueHistogram:%s\t%s\n",id,p))
+}  
+
+getKeys = function(l) sapply(l, function(x) x[[1]])
+
+getValues = function(l) lapply(l, function(x) x[[2]])
+
+keyval = function(k, v = NULL) {
+  if(is.null(v)) {
+    v = k[-1]
+    k = k[[1]]}    
+  kv = list(key = k, val = v)
+  attr(kv, 'keyval') = TRUE
+  kv}
+
+mkMapper = function(fun = identity, keyfun = identity, valfun = identity) {
+  if (!missing(fun)) {
+    function(k,v) keyval(fun(k,v))}
+  else {
+    function(k,v) keyval(keyfun(k), valfun(v))}}
+
+mkReducer = mkMapper
+mkMapRedFun = mkMapper
+
+mkMapRedListFun = function(fun = identity, keyfun = identity, valfun = identity) {
+  if (!missing(fun)) {
+    function(k,v) lapply(fun(k,v), keyval)}
+  else {
+    function(k,v) lapply(as.list(izip(keyfun(k), valfun(v))), keyval)}}
+
+
+mapDriver = function(map, n, textinputformat, textoutputformat){
+  k = createReader(n, textinputformat)
+  while( !is.null(d <- k$get())){
+    lapply(d,
+           function(r) {
+             out = map(r[[1]], r[[2]])
+             if(!is.null(out))
+               send(out, textoutputformat)
+           })
+  }
+  k$close()
+  invisible()
+}
+
+reduceDriver = function(reduce, n, textinputformat, textoutputformat){
+  k = createReader(n, textinputformat)
+  lastKey = NULL
+  lastGroup = list()
+  while( !is.null(d <- k$get())){
+    d = c(lastGroup,d)
+    lastKey =  d[[length(d)]][[1]]
+    groupKeys = getKeys(d)
+    lastGroup = d[groupKeys == lastKey]
+    d = d[groupKeys != lastKey]
+    if(length(d) > 0) {
+      groups = tapply(d, getKeys(d), identity, simplify = FALSE)
+      lapply(groups,
+             function(g) {
+               out = reduce(g[[1]][[1]], getValues(g))
+               if(!is.null(out))
+                 send(out, textoutputformat)
+             })
+    }
+  }
+  out = reduce(lastKey, getValues(lastGroup))
+  send(out, textoutputformat)
+  k$close()
+  invisible()
+}
+
+
 make.job.conf = function(m,pfx){
   N = names(m)
   if(length(m) == 0) return(" ")
-  paste(unlist(lapply(1:length(N),function(i){
-    sprintf("%s %s=%s ", pfx, N[[i]],as.character(m[[i]]))
-  })),
-        collapse = " ")
-}
+  paste(unlist(lapply(1:length(N),
+                      function(i){
+                        sprintf("%s %s=%s ", pfx, N[[i]],as.character(m[[i]]))})),
+        collapse = " ")}
 
 make.cache.files = function(caches,pfx,shorten = TRUE){
   if(length(caches) == 0) return(" ")
-  sprintf("%s %s",pfx, paste(sapply(caches,function(r){
-    if(shorten) {
-      path.leaf = tail(strsplit(r,"/")[[1]],1)
-      sprintf("'%s#%s'",r,path.leaf)
-    }else{
-      sprintf("'%s'",r)
-    }
-  }),
-                             collapse = ","))
-}
+  sprintf("%s %s",pfx, paste(sapply(caches,
+                                    function(r){
+                                      if(shorten) {
+                                        path.leaf = tail(strsplit(r,"/")[[1]],1)
+                                        sprintf("'%s#%s'",r,path.leaf)
+                                      }else{
+                                        sprintf("'%s'",r)}}),
+                             collapse = ","))}
 
 make.input.files = function(infiles){
   if(length(infiles) == 0) return(" ")
-  paste(sapply(infiles, function(r){
-    sprintf("-input %s ", r)
-  }),
-        collapse=" ")
-}
+  paste(sapply(infiles,
+               function(r){
+                 sprintf("-input %s ", r)}),
+        collapse=" ")}
 
-defaulttextinputformat = function(lines) {
-  lapply(strsplit(lines, "\t"),
-         function(x) list(key = fromJSON(x[1]), value = fromJSON(x[2]))) }
+defaulttextinputformat = function(line) {
+  x =  strsplit(line, "\t")[[1]]
+  keyval(fromJSON(x[1]), fromJSON(x[2]))}
 
 defaulttextoutputformat = function(k,v) {
   paste(toJSON(k), "\t", toJSON(v), "\n", sep = "")}
@@ -57,58 +183,37 @@ rhstream = function(
   inputformat = NULL,
   textinputformat = defaulttextinputformat,
   textoutputformat = defaulttextoutputformat,
-  debug = FALSE)
+  debug = FALSE) {
+  ## prepare map and reduce executables
+  lines = '#! /usr/bin/env Rscript
+options(warn=-1)
+
+library(RevoHStream)
+load("RevoHStreamParentEnv")
+load("RevoHStreamLocalEnv")
+'
+  mapLine = 'RevoHStream:::mapDriver(map = map,
+              n = n,
+              textinputformat = textinputformat,
+              textoutputformat = if(missing(reduce))
+                                 {textoutputformat}
+                                 else {RevoHStream:::defaulttextoutputformat})'
+  reduceLine  =  'RevoHStream:::reduceDriver(reduce = reduce,
+                 n = n,
+                 textinputformat = RevoHStream:::defaulttextinputformat,
+                 textoutputformat = textoutputformat)'
   
-{
-  on.exit({
-    if(!debug)
-      unlink(map.file)
-  })
-  template.file = paste(
-    system.file(package="RevoHStream"),
-    "ec2mr.r",
-    sep=.Platform$file.sep)
-  lines = readLines(template.file)
-  map.driver = deparse(bquote({
-    MAP = .(MAP)
-    N = .(N)
-    TEXTINPUTFORMAT = .(TEXTINPUTFORMAT)
-    TEXTOUTPUTFORMAT = .(TEXTOUTPUTFORMAT)
-    .(ANYPREMAP)
-    mapDriver(MAP, N, TEXTINPUTFORMAT, TEXTOUTPUTFORMAT)
-  },
-    list(MAP = map,
-         N = N,
-         ANYPREMAP = ANYPREMAP,
-         TEXTINPUTFORMAT = textinputformat,
-         TEXTOUTPUTFORMAT = if(missing(reduce)) {textoutputformat} else {defaulttextoutputformat})))
-  if(!missing(reduce)){
-    if(is.character(reduce) && reduce == "aggregate"){
-    }else{
-      reduce.driver = deparse(bquote({
-        REDUCE = .(REDUCE)
-        N = .(N)
-        TEXTINPUTFORMAT = .(TEXTINPUTFORMAT)
-        TEXTOUTPUTFORMAT = .(TEXTOUTPUTFORMAT)
-        .(ANYPREREDUCE)
-        reduceDriver(REDUCE, N, TEXTINPUTFORMAT, TEXTOUTPUTFORMAT)},
-        list(REDUCE = reduce,
-             N = N,
-             ANYPREREDUCE = ANYPREREDUCE,
-             TEXTINPUTFORMAT = defaulttextinputformat,
-             TEXTOUTPUTFORMAT = textoutputformat)))
-      reduce.file = tempfile(pattern = "rhstr.reduce")
-      writeLines(c(lines, reduce.driver), con = reduce.file)
-      on.exit({
-        if(!debug) unlink(reduce.file)
-      },
-              add = TRUE)
-    }
-  }
   map.file = tempfile(pattern="rhstr.map")
-  if(debug)
-    message(sprintf("Temporary file:%s", map.file))
-  writeLines(c(lines,map.driver), con = map.file)
+  writeLines(c(lines,mapLine), con = map.file)
+  reduce.file = tempfile(pattern = "rhstr.reduce")
+  writeLines(c(lines, reduceLine), con = reduce.file)
+
+  # set up the execution environment for map and reduce
+  save.image(file="RevoHStreamParentEnv")
+  save(list = ls(all = TRUE, envir = environment()), file = "RevoHStreamLocalEnv", envir = environment())
+  image.cmd.line = "-file RevoHStreamParentEnv -file RevoHStreamLocalEnv"
+
+  ## prepare hadoop streaming command
   hadoopHome = Sys.getenv("HADOOP_HOME")
   if(hadoopHome == "") warning("Environment variable HADOOP_HOME is missing")
   hadoopBin = file.path(hadoopHome, "bin")
@@ -149,7 +254,7 @@ rhstream = function(
   mkjars = if(length(jarfiles)>0) make.cache.files(jarfiles,"-libjars",shorten=FALSE) else " "
 
   verb = if(verbose) "-verbose " else " "
-  finalcommand = sprintf("%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s",
+  finalcommand = sprintf("%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s",
     hadoop.command,
     archives,
     caches,
@@ -162,6 +267,7 @@ rhstream = function(
     reduce,
     m.fl,
     r.fl,
+    image.cmd.line,
     cmds,
     numreduces,
     verb)
