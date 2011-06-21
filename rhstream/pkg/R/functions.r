@@ -63,10 +63,16 @@ getKeys = function(l) sapply(l, function(x) x[[1]])
 
 getValues = function(l) lapply(l, function(x) x[[2]])
 
-keyval = function(k, v = NULL) {
+keyval = function(k, v = NULL, i = 1) {
   if(is.null(v)) {
-    v = k[-1]
-    k = k[[1]]}    
+      if(length(k) == 2){
+          v = k[[2]]
+          k = k[[1]]}
+      else {
+          v = k
+          k = v[[i]]
+      }
+  }
   kv = list(key = k, val = v)
   attr(kv, 'keyval') = TRUE
   kv}
@@ -159,7 +165,25 @@ defaulttextinputformat = function(line) {
   keyval(fromJSON(x[1]), fromJSON(x[2]))}
 
 defaulttextoutputformat = function(k,v) {
-  paste(toJSON(k), "\t", toJSON(v), "\n", sep = "")}
+    paste(toJSON(k), "\t", toJSON(v), "\n", sep = "")}
+
+rhwrite = function(object, file, textoutputformat = defaulttextoutputformat){
+    con = hdfs.file(file, 'w')
+    hdfs.write(
+               object =
+               charToRaw
+               (paste
+                (lapply
+                 (object,
+                  function(x) {kv = keyval(x)
+                               textoutputformat(kv$key, kv$val)}),
+                 collapse="")),
+               con=con)
+    hdfs.close(con)
+}
+
+rhread = function(file, textinputformat = defaulttextinputformat){
+    lapply(hdfs.read.text.file(file), textinputformat)}
 
 ## The function to run a map and reduce over a hadoop cluster does not implement
 ## a general combine unless it is one of the streaminga default combine.
@@ -428,7 +452,7 @@ rhlapply = function(NorList,FUN,chunk.size=0,pre=NULL,debug=FALSE,.aggr=NULL,map
 }
 
 explode = function(path, key.sep,field.sep,cnames){
-  ##("/airline/tmp/subset",key.sep="∫",field.sep="\t",colnames=c("dow"="as.character","hod"="as.character","count"="as.numeric"))
+
   textlines = data.frame(stringsAsFactors=FALSE)
   for(x in path)
     textlines = rbind(textlines, hdfs.read.text.file(x))
@@ -447,4 +471,3 @@ explode = function(path, key.sep,field.sep,cnames){
 }
 
 
-## explode("/tmp/RtmpkejWHO/hlapply643c9869",field.sep="∫",cnames=list('x'='as.numeric','y'='as.numeric'))
