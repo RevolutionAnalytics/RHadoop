@@ -1,5 +1,7 @@
 export(rhstream)
 export(rhtapply)
 export(rhlapply)
+export(rhwrite)
+export(rhread)
 export(keyval)
 export(explode)
