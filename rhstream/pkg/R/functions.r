@@ -1,17 +1,17 @@
-createReader = function(N=2000, textinputformat){
+createReader = function(linebufsize = 2000, textinputformat){
   con = file("stdin", open="r")
   close = function(){
     ## close(con)
   }
-  readChunk = function(n=N){
-    lines = readLines(con, n = n, warn=FALSE)
+  readChunk = function(){
+    lines = readLines(con = con, n = linebufsize, warn = FALSE)
     if(length(lines) > 0){
       return(lapply(lines, textinputformat))
     }else{
       return(NULL) 
     }
   }
-  return(list(close = close, get  = readChunk))
+  return(list(close = close, get = readChunk))
 }
 
 send = function(out, textoutputformat = defaulttextoutputformat){
@@ -59,7 +59,8 @@ Hist = function(id,p){
     cat(sprintf("ValueHistogram:%s\t%s\n",id,p))
 }  
 
-getKeys = function(l) sapply(l, function(x) x[[1]])
+## could think of this as a utils section
+getKeys = function(l) lapply(l, function(x) x[[1]])
 
 getValues = function(l) lapply(l, function(x) x[[2]])
 
@@ -92,9 +93,10 @@ mkMapRedListFun = function(fun = identity, keyfun = identity, valfun = identity)
   else {
     function(k,v) lapply(as.list(izip(keyfun(k), valfun(v))), keyval)}}
 
+## end utils
 
-mapDriver = function(map, n, textinputformat, textoutputformat){
-  k = createReader(n, textinputformat)
+mapDriver = function(map, linebufsize, textinputformat, textoutputformat){
+  k = createReader(linebufsize, textinputformat)
   while( !is.null(d <- k$get())){
     lapply(d,
            function(r) {
@@ -107,30 +109,32 @@ mapDriver = function(map, n, textinputformat, textoutputformat){
   invisible()
 }
 
-reduceDriver = function(reduce, n, textinputformat, textoutputformat){
-  k = createReader(n, textinputformat)
-  lastKey = NULL
-  lastGroup = list()
-  while( !is.null(d <- k$get())){
-    d = c(lastGroup,d)
-    lastKey =  d[[length(d)]][[1]]
-    groupKeys = getKeys(d)
-    lastGroup = d[groupKeys == lastKey]
-    d = d[groupKeys != lastKey]
-    if(length(d) > 0) {
-      groups = tapply(d, getKeys(d), identity, simplify = FALSE)
-      lapply(groups,
-             function(g) {
-               out = reduce(g[[1]][[1]], getValues(g))
-               if(!is.null(out))
-                 send(out, textoutputformat)
-             })
+listComp = function(ll,e) sapply(ll, function(l) isTRUE(all.equal(e,l)))
+
+reduceDriver = function(reduce, linebufsize, textinputformat, textoutputformat){
+    k = createReader(linebufsize, textinputformat)
+    lastKey = NULL
+    lastGroup = list()
+    while( !is.null(d <- k$get())){
+        d = c(lastGroup,d)
+        lastKey =  d[[length(d)]][[1]]
+        groupKeys = getKeys(d)
+        lastGroup = d[listComp(groupKeys, lastKey)]
+        d = d[!listComp(groupKeys, lastKey)]
+        if(length(d) > 0) {
+            groups = tapply(d, sapply(getKeys(d), digest), identity, simplify = FALSE)
+            lapply(groups,
+                   function(g) {
+                       out = reduce(g[[1]][[1]], getValues(g))
+                       if(!is.null(out))
+                           send(out, textoutputformat)
+                   })
+        }
     }
-  }
-  out = reduce(lastKey, getValues(lastGroup))
-  send(out, textoutputformat)
-  k$close()
-  invisible()
+    out = reduce(lastKey, getValues(lastGroup))
+    send(out, textoutputformat)
+    k$close()
+    invisible()
 }
 
 
@@ -168,7 +172,7 @@ defaulttextoutputformat = function(k,v) {
     paste(toJSON(k), "\t", toJSON(v), "\n", sep = "")}
 
 rhwrite = function(object, file, textoutputformat = defaulttextoutputformat){
-    con = hdfs.file(file, 'w')
+    con = hdfs.file(paste(file, "part-00000", sep = "/"), 'w')
     hdfs.write(
                object =
                charToRaw
@@ -183,17 +187,37 @@ rhwrite = function(object, file, textoutputformat = defaulttextoutputformat){
 }
 
 rhread = function(file, textinputformat = defaulttextinputformat){
-    lapply(hdfs.read.text.file(file), textinputformat)}
+    do.call(c, lapply(hdfs.ls(path = file)$file, function(f) lapply(hdfs.read.text.file(f), textinputformat)))}
 
 ## The function to run a map and reduce over a hadoop cluster does not implement
 ## a general combine unless it is one of the streaminga default combine.
+
+revoMapReduce = function(
+  map,
+  reduce,
+  infile,
+  outfile,
+  verbose = FALSE,
+  inputformat = NULL,
+  textinputformat = defaulttextinputformat,
+  textoutputformat = defaulttextoutputformat,
+  debug = FALSE) {
+    rhstream(map = map,
+             reduce = reduce,
+             in.folder = infile,
+             out.folder = outfile,
+             verbose = verbose,
+             inputformat = inputformat,
+             textinputformat = textinputformat,
+             textoutputformat = textoutputformat)
+}
 
 rhstream = function(
   map,
   reduce,
   in.folder,
   out.folder, 
-  N = 2000,
+  linebufsize = 2000,
   verbose = FALSE,
   numreduces,
   cachefiles = c(),
@@ -202,8 +226,6 @@ rhstream = function(
   otherparams = list(),
   mapred = list(),
   mpr.out = NULL,
-  ANYPREMAP = {},
-  ANYPREREDUCE = {},
   inputformat = NULL,
   textinputformat = defaulttextinputformat,
   textoutputformat = defaulttextoutputformat,
@@ -217,13 +239,13 @@ load("RevoHStreamParentEnv")
 load("RevoHStreamLocalEnv")
 '
   mapLine = 'RevoHStream:::mapDriver(map = map,
-              n = n,
+              linebufsize = linebufsize,
               textinputformat = textinputformat,
               textoutputformat = if(missing(reduce))
                                  {textoutputformat}
                                  else {RevoHStream:::defaulttextoutputformat})'
   reduceLine  =  'RevoHStream:::reduceDriver(reduce = reduce,
-                 n = n,
+                 linebufsize = linebufsize,
                  textinputformat = RevoHStream:::defaulttextinputformat,
                  textoutputformat = textoutputformat)'
   
@@ -300,8 +322,6 @@ load("RevoHStreamLocalEnv")
   system(finalcommand)
 }
      
-
-
 rhtapply = function(X,
   INDEX,
   FUN,

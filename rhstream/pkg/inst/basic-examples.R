@@ -1,7 +1,7 @@
 rawtextinputformat = function(line) {keyval(NULL, line)}
              
 mrwordcount = function (infile, outfile, pattern = " ") {
-  rhstream(in.folder = infile ,
+  revoMapReduce(in.folder = infile ,
            out.folder = outfile,
            textinputformat = rawtextinputformat,
            map = function(k,v) {
@@ -16,7 +16,7 @@ mrwordcount = function (infile, outfile, pattern = " ") {
 filtermap= function(pred) function(k,v) {if (pred(v)) keyval(k,v) else NULL}
 
 mrfilter = function (infile, outfile, pred) {
-  rhstream(in.folder = infile ,
+  revoMapReduce(in.folder = infile ,
            out.folder = outfile,
            map = filtermap(pred))
          }
