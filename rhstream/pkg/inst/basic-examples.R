@@ -1,8 +1,8 @@
 rawtextinputformat = function(line) {keyval(NULL, line)}
              
 mrwordcount = function (infile, outfile, pattern = " ") {
-  revoMapReduce(in.folder = infile ,
-           out.folder = outfile,
+  revoMapReduce(infile = infile ,
+           outfile = outfile,
            textinputformat = rawtextinputformat,
            map = function(k,v) {
              lapply(

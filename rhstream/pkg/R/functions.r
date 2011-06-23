@@ -110,6 +110,7 @@ mapDriver = function(map, linebufsize, textinputformat, textoutputformat){
 }
 
 listComp = function(ll,e) sapply(ll, function(l) isTRUE(all.equal(e,l)))
+## using isTRUE(all.equal(x)) because identical() was too strict, but on paper it should be it
 
 reduceDriver = function(reduce, linebufsize, textinputformat, textoutputformat){
     k = createReader(linebufsize, textinputformat)
