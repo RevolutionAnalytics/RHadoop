@@ -1,8 +1,8 @@
 rhkmeansiter =
   function(points, distance, ncenters = length(centers), centers = NULL, summaryfun) {
     centerfile = tempfile()
-    revoMapReduce(in.folder = points,
-             out.folder = centerfile,
+    revoMapReduce(infile = points,
+             outfile= centerfile,
              map = function(k,v) {
                if (is.null(centers)) {
                  keyval(sample(1:ncenters,1),v)}
@@ -24,4 +24,4 @@ rhkmeans =
 
   ## sample data, 12 clusters
   ## clustdata = lapply(1:100, function(i) keyval(i, c(rnorm(1, mean = i%%3, sd = sd), rnorm(1, mean = i%%4, sd = sd))))
-  ##  dist =
+
