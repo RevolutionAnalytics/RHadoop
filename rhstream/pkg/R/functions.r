@@ -194,10 +194,10 @@ rhread = function(file, textinputformat = defaulttextinputformat){
 ## a general combine unless it is one of the streaminga default combine.
 
 revoMapReduce = function(
-  map,
-  reduce,
   infile,
   outfile,
+  map,
+  reduce = NULL,
   verbose = FALSE,
   inputformat = NULL,
   textinputformat = defaulttextinputformat,
@@ -215,7 +215,7 @@ revoMapReduce = function(
 
 rhstream = function(
   map,
-  reduce,
+  reduce = NULL,
   in.folder,
   out.folder, 
   linebufsize = 2000,
@@ -242,7 +242,7 @@ load("RevoHStreamLocalEnv")
   mapLine = 'RevoHStream:::mapDriver(map = map,
               linebufsize = linebufsize,
               textinputformat = textinputformat,
-              textoutputformat = if(missing(reduce))
+              textoutputformat = if(is.null(reduce))
                                  {textoutputformat}
                                  else {RevoHStream:::defaulttextoutputformat})'
   reduceLine  =  'RevoHStream:::reduceDriver(reduce = reduce,
@@ -276,7 +276,7 @@ load("RevoHStreamLocalEnv")
   }
   outputformat = 'TextOutputFormat'
   mapper = sprintf('-mapper "Rscript %s -map" ',  tail(strsplit(map.file,"/")[[1]],1))
-  if(!missing(reduce) ){
+  if(!is.null(reduce) ){
     if(is.character(reduce) && reduce=="aggregate"){
       reduce = sprintf('-reducer aggregate ')
       r.fl = " "

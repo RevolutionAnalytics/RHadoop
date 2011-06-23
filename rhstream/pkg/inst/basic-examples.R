@@ -16,7 +16,7 @@ mrwordcount = function (infile, outfile, pattern = " ") {
 filtermap= function(pred) function(k,v) {if (pred(v)) keyval(k,v) else NULL}
 
 mrfilter = function (infile, outfile, pred) {
-  revoMapReduce(in.folder = infile ,
-           out.folder = outfile,
+  revoMapReduce(infile = infile ,
+           outfile = outfile,
            map = filtermap(pred))
          }
