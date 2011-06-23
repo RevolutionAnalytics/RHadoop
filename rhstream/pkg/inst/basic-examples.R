@@ -1,8 +1,9 @@
 rawtextinputformat = function(line) {keyval(NULL, line)}
-             
-mrwordcount = function (infile, outfile, pattern = " ") {
-  revoMapReduce(infile = infile ,
-           outfile = outfile,
+
+##input can be any text file
+mrwordcount = function (input, output, pattern = " ") {
+  revoMapReduce(input = input ,
+           output = output,
            textinputformat = rawtextinputformat,
            map = function(k,v) {
              lapply(
@@ -13,10 +14,16 @@ mrwordcount = function (infile, outfile, pattern = " ") {
            reduce = function(k,vv) {
              keyval(k, sum(unlist(vv)))})}
 
+##input can be any RevoStreaming file (our own format)
+## pred can be function(x) x > 0
+## it will be evaluated on the value only, not on the key
+## test set: rhwrite (lapply (1:10, function(i) keyval(rnorm(2))), "/tmp/filtertest")
+## run with mrfilter("/tmp/filtertest", "/tmp/filterout", function(x) x > 0)
+
 filtermap= function(pred) function(k,v) {if (pred(v)) keyval(k,v) else NULL}
 
-mrfilter = function (infile, outfile, pred) {
-  revoMapReduce(infile = infile ,
-           outfile = outfile,
+mrfilter = function (input, output, pred) {
+  revoMapReduce(input = input,
+           output = output,
            map = filtermap(pred))
          }

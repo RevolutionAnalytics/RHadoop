@@ -194,8 +194,8 @@ rhread = function(file, textinputformat = defaulttextinputformat){
 ## a general combine unless it is one of the streaminga default combine.
 
 revoMapReduce = function(
-  infile,
-  outfile,
+  input,
+  output,
   map,
   reduce = NULL,
   verbose = FALSE,
@@ -205,8 +205,8 @@ revoMapReduce = function(
   debug = FALSE) {
     rhstream(map = map,
              reduce = reduce,
-             in.folder = infile,
-             out.folder = outfile,
+             in.folder = input,
+             out.folder = output,
              verbose = verbose,
              inputformat = inputformat,
              textinputformat = textinputformat,
