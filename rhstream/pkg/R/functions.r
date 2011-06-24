@@ -172,6 +172,8 @@ defaulttextinputformat = function(line) {
 defaulttextoutputformat = function(k,v) {
     paste(toJSON(k), "\t", toJSON(v), "\n", sep = "")}
 
+rawtextinputformat = function(line) {keyval(NULL, line)}
+
 rhwrite = function(object, file, textoutputformat = defaulttextoutputformat){
     con = hdfs.file(paste(file, "part-00000", sep = "/"), 'w')
     hdfs.write(
@@ -195,7 +197,7 @@ rhread = function(file, textinputformat = defaulttextinputformat){
 
 revoMapReduce = function(
   input,
-  output,
+  output = tempfile(),
   map,
   reduce = NULL,
   verbose = FALSE,
@@ -231,6 +233,12 @@ rhstream = function(
   textinputformat = defaulttextinputformat,
   textoutputformat = defaulttextoutputformat,
   debug = FALSE) {
+    if (!is.character(in.folder)) {
+        tmp = tempfile()
+        rhwrite(in.folder, tmp)
+        in.folder = tmp
+    }
+        
   ## prepare map and reduce executables
   lines = '#! /usr/bin/env Rscript
 options(warn=-1)
@@ -321,6 +329,7 @@ load("RevoHStreamLocalEnv")
   if(debug)
     print(finalcommand)
   system(finalcommand)
+  out.folder
 }
      
 rhtapply = function(X,
