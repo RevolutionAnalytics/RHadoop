@@ -1,6 +1,6 @@
 rhkmeansiter =
   function(points, distance, ncenters = length(centers), centers = NULL, summaryfun) {
-    centerfile = tempfile()
+    centerfile = hdfs.tempfile()
     revoMapReduce(input = points,
              output= centerfile,
              map = function(k,v) {

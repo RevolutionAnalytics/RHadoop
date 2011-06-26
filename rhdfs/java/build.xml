@@ -12,10 +12,10 @@
   <property name="javac.args" value=""/>
   <property name="javac.args.warnings" value="-Xlint:unchecked"/>
 
-  <property environment="env"/>
+   <property environment="env"/>
   <path id="classpath">
     <fileset dir="./" includes="**/*.jar"/>
-     <fileset dir="${lib.dir}" includes="*.jar"/>
+    <fileset dir="${lib.dir}" includes="*.jar"/>
     <fileset dir="${env.HADOOP}" includes="*.jar"/>
     <fileset dir="${env.HADOOP}/lib/" includes="**/*.jar"/>
   </path>

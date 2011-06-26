@@ -4,7 +4,7 @@ Title: R and Hadoop Distributed Filesystem
 Version: 0.2
 Date: 2011-04-20
 Author: Revolution Analytics
-Depends: R (>= 2.6.0), methods, rJava (>= 0.8)
+Depends: R (>= 2.6.0), methods, rJava (>= 0.8), utils
 Maintainer: Revolution Analytics <support@revolutionanalytics.com>
 Description: Functions to browse, open, write files to the HDFS
 License: Apache

@@ -78,34 +78,34 @@ keyval = function(k, v = NULL, i = 1) {
   attr(kv, 'keyval') = TRUE
   kv}
 
-mkMapper = function(fun = identity, keyfun = identity, valfun = identity) {
-  if (!missing(fun)) {
-    function(k,v) keyval(fun(k,v))}
+mkMapper = function(fun1 = identity, fun2 = identity) {
+  if (missing(fun2)) {
+    function(k,v) fun1(keyval(k,v))}
   else {
-    function(k,v) keyval(keyfun(k), valfun(v))}}
+    function(k,v) keyval(fun1(k), fun2(v))}}
 
 mkReducer = mkMapper
 mkMapRedFun = mkMapper
 
-mkMapRedListFun = function(fun = identity, keyfun = identity, valfun = identity) {
-  if (!missing(fun)) {
-    function(k,v) lapply(fun(k,v), keyval)}
+mkLapplyMapRed = function(fun1 = identity, fun2 = identity) {
+  if (missing(fun2)) {
+    function(k,vv) lapply(vv, function(v) fun1(keyval(k,v)))}
   else {
-    function(k,v) lapply(as.list(izip(keyfun(k), valfun(v))), keyval)}}
+    function(k,vv) lapply(as.list(izip(fun1(k), fun2(v))), keyval)}}
 
 ## end utils
 
 mapDriver = function(map, linebufsize, textinputformat, textoutputformat){
-  k = createReader(linebufsize, textinputformat)
-  while( !is.null(d <- k$get())){
-    lapply(d,
-           function(r) {
-             out = map(r[[1]], r[[2]])
-             if(!is.null(out))
-               send(out, textoutputformat)
-           })
-  }
-  k$close()
+    k = createReader(linebufsize, textinputformat)
+    while( !is.null(d <- k$get())){
+        lapply(d,
+               function(r) {
+                   out = map(r[[1]], r[[2]])
+                   if(!is.null(out))
+                       send(out, textoutputformat)
+               })
+    }
+    k$close()
   invisible()
 }
 
@@ -190,14 +190,16 @@ rhwrite = function(object, file, textoutputformat = defaulttextoutputformat){
 }
 
 rhread = function(file, textinputformat = defaulttextinputformat){
-    do.call(c, lapply(hdfs.ls(path = file)$file, function(f) lapply(hdfs.read.text.file(f), textinputformat)))}
+    do.call(c,
+            lapply(hdfs.ls(path = if (is.function(file)) file() else file)$file,
+                   function(f) lapply(hdfs.read.text.file(f), textinputformat)))}
 
 ## The function to run a map and reduce over a hadoop cluster does not implement
 ## a general combine unless it is one of the streaminga default combine.
 
 revoMapReduce = function(
   input,
-  output = tempfile(),
+  output = hdfs.tempfile(),
   map,
   reduce = NULL,
   verbose = FALSE,
@@ -208,11 +210,12 @@ revoMapReduce = function(
     rhstream(map = map,
              reduce = reduce,
              in.folder = input,
-             out.folder = output,
+             out.folder = if (is.function(output)) output() else output,
              verbose = verbose,
              inputformat = inputformat,
              textinputformat = textinputformat,
              textoutputformat = textoutputformat)
+    output
 }
 
 rhstream = function(
@@ -234,7 +237,7 @@ rhstream = function(
   textoutputformat = defaulttextoutputformat,
   debug = FALSE) {
     if (!is.character(in.folder)) {
-        tmp = tempfile()
+        tmp = hdfs.tempfile()
         rhwrite(in.folder, tmp)
         in.folder = tmp
     }
@@ -258,7 +261,7 @@ load("RevoHStreamLocalEnv")
                  textinputformat = RevoHStream:::defaulttextinputformat,
                  textoutputformat = textoutputformat)'
   
-  map.file = tempfile(pattern="rhstr.map")
+  map.file = tempfile(pattern = "rhstr.map")
   writeLines(c(lines,mapLine), con = map.file)
   reduce.file = tempfile(pattern = "rhstr.reduce")
   writeLines(c(lines, reduceLine), con = reduce.file)
@@ -329,7 +332,6 @@ load("RevoHStreamLocalEnv")
   if(debug)
     print(finalcommand)
   system(finalcommand)
-  out.folder
 }
      
 rhtapply = function(X,
