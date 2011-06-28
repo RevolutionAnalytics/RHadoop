@@ -1,3 +1,20 @@
+##' <description>
+##'A map reduce implementation of generalized joins
+##' <details>
+##' Provides self, left, right and full outer joins
+##' @title 
+##' @param leftinput the left side input to the join 
+##' @param rightinput the right side input to the join
+##' @param input the only input in case of a self-join
+##' @param output were to store the output (defaults to a tempfile)
+##' @param leftouter whether the join hould be a left outer join
+##' @param rightouter whether the join should be a right outer join
+##' @param fullouter whether th join should be a full outer join
+##' @param map.left.keyval for each record from the left input, generates a key-value pair
+##' @param map.right.keyval for each record from the right input, generates a key-value pair
+##' @param reduce.keyval for each joined record, generates a key-value pair
+##' @return the output filename or a tempfile
+##' @author Antonio Piccolboni
 relationalJoin = function(
   leftinput = NULL,
   rightinput = NULL,
