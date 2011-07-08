@@ -207,6 +207,12 @@ revoMapReduce = function(
   textinputformat = defaulttextinputformat,
   textoutputformat = defaulttextoutputformat,
   debug = FALSE) {
+    if (!is.character(input)) {
+        tmp = hdfs.tempfile()
+        rhwrite(input, tmp)
+        input = tmp
+    }
+        
     rhstream(map = map,
              reduce = reduce,
              in.folder = input,
@@ -236,12 +242,6 @@ rhstream = function(
   textinputformat = defaulttextinputformat,
   textoutputformat = defaulttextoutputformat,
   debug = FALSE) {
-    if (!is.character(in.folder)) {
-        tmp = hdfs.tempfile()
-        rhwrite(in.folder, tmp)
-        in.folder = tmp
-    }
-        
   ## prepare map and reduce executables
   lines = '#! /usr/bin/env Rscript
 options(warn=-1)
