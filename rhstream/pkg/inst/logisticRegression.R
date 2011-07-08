@@ -7,7 +7,7 @@
 ## rhLogisticRegression("/tmp/logreg", 10, 2)
 
 rhLogisticRegression = function(input, iterations, dims, alpha = -0.001){
-  plane = rnorm(dims)
+  plane = rep(0, dims)
   g = function(z) 1/(1 + exp(-z))
   for (i in 1:iterations) {
     gradient = rhread(revoMapReduce(input,
