@@ -1,0 +1,40 @@
+10
+
+dir
+63
+http://seasvn.revolution-computing.com/rhadoop/trunk/rhdfs/pkg/inst
+http://seasvn.revolution-computing.com/rhadoop
+
+
+
+2011-04-25T20:47:00.823186Z
+48
+richcalaway
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+41495f4a-ec4f-4dac-82c6-5b2cdfb358ab
+
+java
+dir
+
+unitTests
+dir
+
+unitTestData
+dir
+
+examples
+dir
+

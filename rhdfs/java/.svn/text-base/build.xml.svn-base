@@ -1,0 +1,68 @@
+<project name="rhdfs" basedir="./" default="main">
+  <property name="src.dir"     value="./"/>
+  <property name="lib.dir"     value="./lib/"/>
+  <property name="build.dir"   value="build"/>
+  <property name="classes.dir" value="${build.dir}/classes"/>
+  <property name="jar.dir"     value="${build.dir}/jar"/>
+  <property name="R.dir"     value="../pkg"/>
+  <property name="javac.debug" value="on"/>
+  <property name="javac.optimize" value="on"/>
+  <property name="javac.deprecation" value="on"/>
+  <property name="javac.version" value="1.6"/>
+  <property name="javac.args" value=""/>
+  <property name="javac.args.warnings" value="-Xlint:unchecked"/>
+
+  <property environment="env"/>
+  <path id="classpath">
+    <fileset dir="./" includes="**/*.jar"/>
+     <fileset dir="${lib.dir}" includes="*.jar"/>
+    <fileset dir="${env.HADOOP}" includes="*.jar"/>
+    <fileset dir="${env.HADOOP}/lib/" includes="**/*.jar"/>
+  </path>
+  <target name="clean">
+    <delete dir="${build.dir}"/>
+  </target>
+
+  <target name="compile">
+  <delete file="${ant.project.name}.jar"/>
+    <mkdir dir="${classes.dir}"/>
+    <javac srcdir="${src.dir}" includes="**/*.java" destdir="${classes.dir}" classpathref="classpath"
+	   optimize="${javac.optimize}"
+	   target="${javac.version}"
+	   source="${javac.version}"
+	   deprecation="${javac.deprecation}"
+	   debug="${javac.debug}"
+	   debuglevel="lines,vars,source">
+      <compilerarg line="${javac.args.warnings}"/>
+    </javac>
+<!--      <unjar dest="${classes.dir}" src="${lib.dir}/protobuf-java-2.2.0.jar"/> -->
+     <unjar dest="${classes.dir}">
+       <fileset dir=".">
+        <include name="**/*.jar"/>
+    </fileset>
+     </unjar>
+  </target>
+
+  <target name="jar" depends="compile">
+    <property name="version.num" value="1"/>
+    <buildnumber file="build.num"/>
+    
+
+    <jar destfile="${ant.project.name}.jar" basedir="${classes.dir}"> 
+      <manifest>
+	<attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Implementation-Version"   value="${version.num}-b${build.number}"/> 
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="cpy" depends="jar">
+       <delete file="${R.dir}/inst/java/${ant.project.name}.jar"/>
+    <copy file="${ant.project.name}.jar" todir="${R.dir}/inst/java/"/> 
+  </target>
+
+  <target name="main-clean" depends="clean,jar"/>
+  <target name="main" depends="jar,cpy"/>
+</project>
+
+

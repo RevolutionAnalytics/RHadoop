@@ -1,0 +1,6 @@
+exportPattern("^hdfs")
+exportPattern("print.hdfsFH")
+exportPattern("print.hdfsFH")
+exportPattern("as.character.hdfsFH")
+export("[[.jobjRef")
+

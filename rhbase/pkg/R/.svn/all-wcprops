@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 39
+/rhadoop/!svn/ver/45/trunk/rhbase/pkg/R
+END
+hbase.r
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/rhadoop/!svn/ver/45/trunk/rhbase/pkg/R/hbase.r
+END
+zzz.R
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/rhadoop/!svn/ver/8/trunk/rhbase/pkg/R/zzz.R
+END
+Makevars.in
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/rhadoop/!svn/ver/8/trunk/rhbase/pkg/R/Makevars.in
+END

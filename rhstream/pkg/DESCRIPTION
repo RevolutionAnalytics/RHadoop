@@ -1,0 +1,10 @@
+Package: RevoHStream
+Type: Package
+Title: R and Hadoop Streaming Connector
+Version: 0.3
+Date: 2011-04-20
+Author: Revolution Analytics
+Depends: R (>= 2.6.0), methods, RevoHDFS 
+Maintainer: Revolution Analytics <support@revolutionanalytics.com>
+Description: Elementary wrappers for simple computations with R, Hadoop and Hadoop Streaming
+License: Apache License (== 2.0)

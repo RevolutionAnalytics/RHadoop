@@ -1,0 +1,2 @@
+library(tools)
+promptPackage("RHDFS")
