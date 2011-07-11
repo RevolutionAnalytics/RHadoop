@@ -1,1 +1,0 @@
-Install p7zip using your distributions package manager

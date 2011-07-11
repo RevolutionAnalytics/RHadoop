@@ -1,2 +1,0 @@
-Updates through 2010-03-06 from
-	http://github.com/agross/rake-me/commits/master

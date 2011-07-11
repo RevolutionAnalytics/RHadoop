@@ -1,8 +1,0 @@
-#!/usr/bin/expect -f
-
-set timeout -1
-spawn rpm --addsign $argv
-match_max 100000
-expect -exact "Enter pass phrase: "
-send -- "\r"
-expect eof
