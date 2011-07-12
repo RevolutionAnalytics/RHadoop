@@ -1,3 +1,8 @@
+importFrom("utils", "packageDescription")
+importFrom("rJava", ".jinit") 
+importFrom("rJava", ".jnew")
+importFrom("rJava", ".jclassLoader") 
+importFrom("rJava", "J") 
 exportPattern("^hdfs")
 exportPattern("print.hdfsFH")
 exportPattern("print.hdfsFH")
