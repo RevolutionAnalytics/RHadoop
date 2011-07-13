@@ -55,16 +55,15 @@ keyval = function(k, v = NULL, i = 1) {
   attr(kv, 'keyval') = TRUE
   kv}
 
-mkMapper = function(fun1 = identity, fun2 = identity) {
+mkMap = function(fun1 = identity, fun2 = identity) {
   if (missing(fun2)) {
     function(k,v) fun1(keyval(k,v))}
   else {
     function(k,v) keyval(fun1(k), fun2(v))}}
 
-mkReducer = mkMapper
-mkMapRedFun = mkMapper
+mkReduce = mkMap
 
-mkLapplyMapRed = function(fun1 = identity, fun2 = identity) {
+mkLapplyReduce = function(fun1 = identity, fun2 = identity) {
   if (missing(fun2)) {
     function(k,vv) lapply(vv, function(v) fun1(keyval(k,v)))}
   else {
