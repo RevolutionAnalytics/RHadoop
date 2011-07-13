@@ -1,0 +1,3 @@
+hadoop dfs -put $1 /tmp
+mkdir -p $(dirname $2)
+cluster-do  hadoop dfs -get /tmp/$(basename $1) $2

@@ -1,0 +1,2 @@
+hadoop dfs -put $1 /tmp
+cluster-do  hadoop dfs -get /tmp/$(basename $1) $2
