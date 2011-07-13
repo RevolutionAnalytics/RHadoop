@@ -1,1 +1,0 @@
-/home/antonio/.bash_profile
