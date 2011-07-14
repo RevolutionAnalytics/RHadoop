@@ -14,3 +14,6 @@ export PATH
 
 export SSH_ASKPASS=""
 export GIT_SSL_NO_VERIFY=true
+export HADOOP_HOME=/usr/lib/hadoop
+export HADOOP_CONF=/etc/hadoop
+export HADOOP=/usr/lib/hadoop
