@@ -23,7 +23,7 @@ rhkmeans =
   }
 
 ## sample data, 12 clusters
-## clustdata = lapply(1:100, function(i) keyval(i, c(rnorm(1, mean = i%%3, sd = 0.01), rnorm(1, mean = i%%4, sd = sd))))
+## clustdata = lapply(1:100, function(i) keyval(i, c(rnorm(1, mean = i%%3, sd = 0.01), rnorm(1, mean = i%%4, sd = 0.01))))
 ## call with
 ## rhwrite(clustdata, "/tmp/clustdata")
 ## rhkmeans ("/tmp/clustdata", 12)
