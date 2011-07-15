@@ -28,7 +28,7 @@ mrfilter = function (input, output = hdfs.tempfile(), pred) {
 }
 
 ## pipeline of two filters, sweet
-rhread(mrfilter(input = mrfilter(
-                  input = "/tmp/filtertest/",
-                  pred = function(x) x > 0),
-                pred = function(x) x < 0.5))
+# rhread(mrfilter(input = mrfilter(
+#                  input = "/tmp/filtertest/",
+#                  pred = function(x) x > 0),
+#                pred = function(x) x < 0.5))
