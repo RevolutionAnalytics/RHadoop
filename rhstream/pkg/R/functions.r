@@ -161,15 +161,15 @@ dfs = function(cmd, ...) {
          intern = T)
 }
 
-hadoop.dfs.match = function(...) {
+dfs.match = function(...) {
   cmd = strsplit(tail(as.character(as.list(match.call())[[1]]), 1), "\\.")[[1]][[2]]
-  hadoop.dfs(cmd, ...)
+  dfs(cmd, ...)
 }
 
-dfs.ls = hadoop.dfs.match
-dfs.get = hadoop.dfs.match
-dfs.put = hadoop.dfs.match
-dfs.rm = hadoop.dfs.match
+dfs.ls = dfs.match
+dfs.get = dfs.match
+dfs.put = dfs.match
+dfs.rm = dfs.match
 
 dfs.exists = function(f) {
   length(dfs.ls(f)) == 0
