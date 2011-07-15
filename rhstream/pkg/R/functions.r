@@ -150,29 +150,67 @@ defaulttextoutputformat = function(k,v) {
 
 rawtextinputformat = function(line) {keyval(NULL, line)}
 
-rhwrite = function(object, file, textoutputformat = defaulttextoutputformat){
-  con = hdfs.file(paste(file, "part-00000", sep = "/"), 'w')
-  hdfs.write(
-             object =
-             charToRaw
-             (paste
-              (lapply
-               (object,
-                function(x) {kv = keyval(x)
-                             textoutputformat(kv$key, kv$val)}),
-               collapse="")),
-             con=con)
-  hdfs.close(con)
+
+dfs = function(cmd, ...) {
+  system(paste(Sys.getenv("HADOOP_HOME"),
+               "/bin/hadoop dfs -",
+               cmd,
+               " ",
+               paste(..., sep = " "),
+               sep = ""),
+         intern = T)
+}
+
+hadoop.dfs.match = function(...) {
+  cmd = strsplit(tail(as.character(as.list(match.call())[[1]]), 1), "\\.")[[1]][[2]]
+  hadoop.dfs(cmd, ...)
+}
+
+dfs.ls = hadoop.dfs.match
+dfs.get = hadoop.dfs.match
+dfs.put = hadoop.dfs.match
+dfs.rm = hadoop.dfs.match
+
+dfs.exists = function(f) {
+  length(dfs.ls(f)) == 0
+}
+
+rhwrite = function(object, file = hdfs.tempfile(), textoutputformat = defaulttextoutputformat){
+  tmp = tempfile()
+  cat(paste
+       (lapply
+        (object,
+         function(x) {kv = keyval(x)
+                      textoutputformat(kv$key, kv$val)}),
+        collapse=""),
+      file = tmp)
+  dfs.put(tmp, file)
+  file.remove(tmp)
+  file
 }
 
 rhread = function(file, textinputformat = defaulttextinputformat){
-  do.call(c,
-          lapply(hdfs.ls(path = if (is.function(file)) file() else file)$file,
-                 function(f) lapply(hdfs.read.text.file(f), textinputformat)))}
+  tmp = tempfile()
+  dfs.get(file, tmp)
+  if(file.info(tmp)[1,'isdir']) {
+    do.call(c,
+            lapply(list.files(tmp, "part*"),
+                   function(f) lapply(readLines(file.path(tmp, f)),
+                                      textinputformat)))}      
+    else {
+      lapply(readLines(tmp), textinputformat)}
+}
 
-## The function to run a map and reduce over a hadoop cluster does not implement
-## a general combine unless it is one of the streaminga default combine.
-
+hdfs.tempfile <- function(pattern = "file", tmpdir = tempdir()) {
+  fname  = tempfile(pattern, tmpdir)
+  namefun = function() {fname}
+  reg.finalizer(environment(namefun),
+                function(e) {
+                  print("finalizing")
+                  fname = eval(expression(fname), envir = e)
+                  if(dfs.exists(fname)) dfs.rm(fname)})
+  namefun
+}
 
 revoMapReduce = function(
   input,
@@ -184,10 +222,15 @@ revoMapReduce = function(
   textinputformat = defaulttextinputformat,
   textoutputformat = defaulttextoutputformat,
   debug = FALSE) {
-  if (!is.character(input)) {
-    tmp = hdfs.tempfile()
-    rhwrite(input, tmp)
-    input = tmp
+
+  actualInput = NULL
+  if (is.character(input)) {
+    actualInput = input}
+  else {
+    if(is.closure(input)) {
+      actualInput = input()}
+    else {
+      actualInput = rhwrite(input)}
   }
         
   rhstream(map = map,
