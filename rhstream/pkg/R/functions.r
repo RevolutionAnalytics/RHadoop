@@ -146,29 +146,29 @@ defaulttextinputformat = function(line) {
   keyval(fromJSON(x[1]), fromJSON(x[2]))}
 
 defaulttextoutputformat = function(k,v) {
-    paste(toJSON(k), "\t", toJSON(v), "\n", sep = "")}
+  paste(toJSON(k), "\t", toJSON(v), "\n", sep = "")}
 
 rawtextinputformat = function(line) {keyval(NULL, line)}
 
 rhwrite = function(object, file, textoutputformat = defaulttextoutputformat){
-    con = hdfs.file(paste(file, "part-00000", sep = "/"), 'w')
-    hdfs.write(
-               object =
-               charToRaw
-               (paste
-                (lapply
-                 (object,
-                  function(x) {kv = keyval(x)
-                               textoutputformat(kv$key, kv$val)}),
-                 collapse="")),
-               con=con)
-    hdfs.close(con)
+  con = hdfs.file(paste(file, "part-00000", sep = "/"), 'w')
+  hdfs.write(
+             object =
+             charToRaw
+             (paste
+              (lapply
+               (object,
+                function(x) {kv = keyval(x)
+                             textoutputformat(kv$key, kv$val)}),
+               collapse="")),
+             con=con)
+  hdfs.close(con)
 }
 
 rhread = function(file, textinputformat = defaulttextinputformat){
-    do.call(c,
-            lapply(hdfs.ls(path = if (is.function(file)) file() else file)$file,
-                   function(f) lapply(hdfs.read.text.file(f), textinputformat)))}
+  do.call(c,
+          lapply(hdfs.ls(path = if (is.function(file)) file() else file)$file,
+                 function(f) lapply(hdfs.read.text.file(f), textinputformat)))}
 
 ## The function to run a map and reduce over a hadoop cluster does not implement
 ## a general combine unless it is one of the streaminga default combine.
@@ -184,21 +184,21 @@ revoMapReduce = function(
   textinputformat = defaulttextinputformat,
   textoutputformat = defaulttextoutputformat,
   debug = FALSE) {
-    if (!is.character(input)) {
-        tmp = hdfs.tempfile()
-        rhwrite(input, tmp)
-        input = tmp
-    }
+  if (!is.character(input)) {
+    tmp = hdfs.tempfile()
+    rhwrite(input, tmp)
+    input = tmp
+  }
         
-    rhstream(map = map,
-             reduce = reduce,
-             in.folder = input,
-             out.folder = if (is.function(output)) output() else output,
-             verbose = verbose,
-             inputformat = inputformat,
-             textinputformat = textinputformat,
-             textoutputformat = textoutputformat)
-    output
+  rhstream(map = map,
+           reduce = reduce,
+           in.folder = input,
+           out.folder = if (is.function(output)) output() else output,
+           verbose = verbose,
+           inputformat = inputformat,
+           textinputformat = textinputformat,
+           textoutputformat = textoutputformat)
+  output
 }
 
 rhstream = function(
@@ -213,14 +213,14 @@ rhstream = function(
   archives = c(),
   jarfiles = c(),
   otherparams = list(HADOOP_HOME = Sys.getenv('HADOOP_HOME'),
-    HADOOP_CONF = Sys.getenv("HADOOP_CONF"),
+    HADOOP_CONF = Sys.getenv("HADOOP_CONF")),
   mapred = list(),
   mpr.out = NULL,
   inputformat = NULL,
   textinputformat = defaulttextinputformat,
   textoutputformat = defaulttextoutputformat,
   debug = FALSE) {
-  ## prepare map and reduce executables
+    ## prepare map and reduce executables
   lines = '#! /usr/bin/env Rscript
 options(warn=-1)
 
@@ -243,13 +243,13 @@ load("RevoHStreamLocalEnv")
   writeLines(c(lines,mapLine), con = map.file)
   reduce.file = tempfile(pattern = "rhstr.reduce")
   writeLines(c(lines, reduceLine), con = reduce.file)
-
-  # set up the execution environment for map and reduce
+  
+                                        # set up the execution environment for map and reduce
   save.image(file="RevoHStreamParentEnv")
   save(list = ls(all = TRUE, envir = environment()), file = "RevoHStreamLocalEnv", envir = environment())
   image.cmd.line = "-file RevoHStreamParentEnv -file RevoHStreamLocalEnv"
-
-  ## prepare hadoop streaming command
+  
+    ## prepare hadoop streaming command
   hadoopHome = Sys.getenv("HADOOP_HOME")
   if(hadoopHome == "") warning("Environment variable HADOOP_HOME is missing")
   hadoopBin = file.path(hadoopHome, "bin")
@@ -263,7 +263,7 @@ load("RevoHStreamLocalEnv")
   }else{
     sprintf(" -inputformat %s", inputformat)
   }
-  outputformat = 'TextOutputFormat'
+    outputformat = 'TextOutputFormat'
   mapper = sprintf('-mapper "Rscript %s -map" ',  tail(strsplit(map.file,"/")[[1]],1))
   if(!is.null(reduce) ){
     if(is.character(reduce) && reduce=="aggregate"){
@@ -273,9 +273,9 @@ load("RevoHStreamLocalEnv")
       reduce = sprintf('-reducer "Rscript %s -reduce" ',  tail(strsplit(reduce.file,"/")[[1]],1))
       r.fl = sprintf("-file %s ",reduce.file)
     }
-  }else {
-    reduce=" ";r.fl = " "
-  }
+    }else {
+      reduce=" ";r.fl = " "
+    }
   m.fl = sprintf("-file %s ",map.file)
   
   if(!missing(numreduces)) numreduces = sprintf("-numReduceTasks %s ", numreduces) else numreduces = " "
@@ -284,11 +284,11 @@ load("RevoHStreamLocalEnv")
     if(!is.null(mpr.out)) mapred$mapred.textoutputformat.separator = sprintf("'%s'",mpr.out)
   }
   jobconfstring = make.job.conf(mapred,pfx="-D")
-
+  
   caches = if(length(cachefiles)>0) make.cache.files(cachefiles,"-files") else " " #<0.21
   archives = if(length(archives)>0) make.cache.files(archives,"-archives") else " "
   mkjars = if(length(jarfiles)>0) make.cache.files(jarfiles,"-libjars",shorten=FALSE) else " "
-
+  
   verb = if(verbose) "-verbose " else " "
   finalcommand = sprintf("%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s",
     hadoop.command,
@@ -311,4 +311,4 @@ load("RevoHStreamLocalEnv")
     print(finalcommand)
   system(finalcommand)
 }
-     
+
