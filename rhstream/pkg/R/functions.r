@@ -264,13 +264,13 @@ load("RevoHStreamLocalEnv")
     sprintf(" -inputformat %s", inputformat)
   }
     outputformat = 'TextOutputFormat'
-  mapper = sprintf('-mapper "Rscript %s -map" ',  tail(strsplit(map.file,"/")[[1]],1))
+  mapper = sprintf('-mapper "Rscript %s" ',  tail(strsplit(map.file,"/")[[1]],1))
   if(!is.null(reduce) ){
     if(is.character(reduce) && reduce=="aggregate"){
       reduce = sprintf('-reducer aggregate ')
       r.fl = " "
     } else{
-      reduce = sprintf('-reducer "Rscript %s -reduce" ',  tail(strsplit(reduce.file,"/")[[1]],1))
+      reduce = sprintf('-reducer "Rscript %s" ',  tail(strsplit(reduce.file,"/")[[1]],1))
       r.fl = sprintf("-file %s ",reduce.file)
     }
     }else {
@@ -279,7 +279,7 @@ load("RevoHStreamLocalEnv")
   m.fl = sprintf("-file %s ",map.file)
   
   if(!missing(numreduces)) numreduces = sprintf("-numReduceTasks %s ", numreduces) else numreduces = " "
-  cmds = make.job.conf(otherparams, pfx="cmdenv")
+  cmds = make.job.conf(otherparams, pfx="-cmdenv")
   if(is.null(mapred$mapred.textoutputformat.separator)){
     if(!is.null(mpr.out)) mapred$mapred.textoutputformat.separator = sprintf("'%s'",mpr.out)
   }
