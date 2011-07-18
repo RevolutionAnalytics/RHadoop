@@ -150,6 +150,7 @@ defaulttextoutputformat = function(k,v) {
 
 rawtextinputformat = function(line) {keyval(NULL, line)}
 
+to.data.frame = function(l) data.frame(do.call(rbind,lapply(l, function(x) if(is.atomic(x)) {x} else {do.call(function(...)c(..., recursive = T),x)})))
 
 dfs = function(cmd, ...) {
   system(paste(Sys.getenv("HADOOP_HOME"),
@@ -170,6 +171,7 @@ dfs.ls = dfs.match
 dfs.get = dfs.match
 dfs.put = dfs.match
 dfs.rm = dfs.match
+dfs.rmr = dfs.match
 
 dfs.exists = function(f) {
   length(dfs.ls(f)) == 0
@@ -221,8 +223,7 @@ revoMapReduce = function(
   verbose = FALSE,
   inputformat = NULL,
   textinputformat = defaulttextinputformat,
-  textoutputformat = defaulttextoutputformat,
-  debug = FALSE) {
+  textoutputformat = defaulttextoutputformat) {
 
   actualInput = NULL
   if (is.character(input)) {
