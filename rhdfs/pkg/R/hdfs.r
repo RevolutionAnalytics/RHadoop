@@ -61,7 +61,7 @@ hdfs.delete <- function(path, cfg=hdfs.defaults("conf"),fs=hdfs.defaults("fs")){
 }
 hdfs.rm <- hdfs.delete
 hdfs.del <- hdfs.delete
-
+hdfs.rmr <- hdfs.delete
 
 hdfs.dircreate <- function(paths,fs=hdfs.defaults("fs")){
   v <- RevoHDFS:::.hdfsEnv[["fu"]]$makeFolder(fs,.jarray(as.character(paths)))
@@ -80,6 +80,8 @@ hdfs.chown <- function(paths,owner="",group="",fs=hdfs.defaults("fs")){
   group <- as.character(rep(group,length(paths))[1:length(paths)])
   v <- RevoHDFS:::.hdfsEnv[["fu"]]$setOwner(fs,.jarray(as.character(paths)), .jarray(owner),.jarray(group))
 }
+
+hdfs.stat <- hdfs.file.info
 
 hdfs.file.info <- function(path,fs=hdfs.defaults("fs")){
   r <- fs$getFileStatus(.jnew("org/apache/hadoop/fs/Path",path))
@@ -110,9 +112,15 @@ hdfs.exists <- function(path, fs=hdfs.defaults("fs")){
 hdfs.copy <- function(src,dest,overwrite=FALSE,srcFS=hdfs.defaults("fs"),dstFS=hdfs.defaults("fs")){
   .hdfsCopy(src=src,dest=dest,srcFS=srcFS,dstFS=dstFS,deleteSource=FALSE,overwrite=as.logical(overwrite))
 }
+
+
+hdfs.cp <- hdfs.copy
+
 hdfs.move <- function(src,dest,srcFS=hdfs.defaults("fs"),dstFS=hdfs.defaults("fs")){
   .hdfsCopy(src=src,dest=dest,srcFS=srcFS,dstFS=dstFS,deleteSource=TRUE,overwrite=TRUE)
 }
+hdfs.mv <- hdfs.move
+
 hdfs.rename <- function(src,dest){
   hdfs.move(src[1],dest[1],srcFS=hdfs.defaults("fs"),dstFS=hdfs.defaults("fs"))
 }
@@ -224,6 +232,8 @@ hdfs.read.text.file <- function(path, ...){
   m$close()
   return(collector)
 }
+
+hdfs.cat <- hdfs.read.text.file
 
 hdfs.tempfile <- function(pattern = "file", tmpdir = tempdir(), fs=hdfs.defaults("fs")) {
   fname  = tempfile(pattern, tmpdir)
