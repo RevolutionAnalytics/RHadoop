@@ -229,7 +229,7 @@ revoMapReduce = function(
   if (is.character(input)) {
     actualInput = input}
   else {
-    if(is.closure(input)) {
+    if(is.function(input)) {
       actualInput = input()}
     else {
       actualInput = rhwrite(input)}
