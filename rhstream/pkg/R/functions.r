@@ -208,7 +208,8 @@ hdfs.tempfile <- function(pattern = "file", tmpdir = tempdir()) {
                 function(e) {
                   print("finalizing")
                   fname = eval(expression(fname), envir = e)
-                  if(dfs.exists(fname)) dfs.rm(fname)})
+         ##         if(dfs.exists(fname)) dfs.rm(fname)
+		})
   namefun
 }
 
