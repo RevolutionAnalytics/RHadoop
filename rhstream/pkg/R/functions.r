@@ -42,15 +42,10 @@ getKeys = function(l) lapply(l, function(x) x[[1]])
 getValues = function(l) lapply(l, function(x) x[[2]])
 
 keyval = function(k, v = NULL, i = 1) {
-  if(is.null(v)) {
-      if(length(k) == 2){
-          v = k[[2]]
-          k = k[[1]]}
-      else {
-          v = k
-          k = v[[i]]
-      }
-  }
+  if(missing(v)) {
+    tmp = k
+    k = tmp[[i]]
+    v = tmp[-i]}
   kv = list(key = k, val = v)
   attr(kv, 'keyval') = TRUE
   kv}
