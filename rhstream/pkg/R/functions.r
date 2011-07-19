@@ -228,6 +228,7 @@ revoMapReduce = function(
   textinputformat = defaulttextinputformat,
   textoutputformat = defaulttextoutputformat) {
 
+  on.exit(expr = gc())
   actualInput = NULL
   if (is.character(input)) {
     actualInput = input}
