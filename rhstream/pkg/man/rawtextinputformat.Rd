@@ -11,6 +11,6 @@ rawtextinputformat(line)
   \item{line}{The line of text to read from stdin}
 }
 
-\details{ }
+\details{The only appropriate use of this function is as the textinputformat argument to revoMapReduce when reading plain text files}
 
 \examples{  }
