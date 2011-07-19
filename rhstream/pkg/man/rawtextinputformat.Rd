@@ -1,4 +1,5 @@
 \name{rawtextinputformat}
+\alias{rawtextinputformat}
 
 \title{Utility function that reads a raw line of text from stdin}
 \description{Utility function that reads a raw line of text from stdin}

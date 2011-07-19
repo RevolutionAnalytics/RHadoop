@@ -1,13 +1,13 @@
 \name{revoMapReduce}
-
+\alias{revoMapReduce}
 
 \title{MapReduce using Hadoop Streaming}
 \description{Defines and executes a map reduce job.
 }
 	
-\usage{
-revoMapReduce <- function(input,output = hdfs.tempfile(), map, reduce = NULL, verbose=FALSE, inputformat=NULL, textinputformat=defaulttextinputformat, textoutputformat=defaulttextoutputformat)
-}
+\usage{ revoMapReduce(input,output = hdfs.tempfile(), map, reduce =
+NULL, verbose = FALSE, inputformat = NULL, textinputformat =
+defaulttextinputformat, textoutputformat = defaulttextoutputformat) }
 
 \arguments{
   \item{input}{A path to the input folder (on HDFS) or the return value of another revoMapReduce call}

@@ -1,4 +1,5 @@
 \name{rhread}
+\alias{rhread}
 \alias{rhwrite}
 
 \title{Read and write R lists to HDFS}

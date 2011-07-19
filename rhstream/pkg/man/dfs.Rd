@@ -1,4 +1,5 @@
 \name{dfs}
+\alias{dfs}
 \alias{dfs.ls}
 \alias{dfs.get}
 \alias{dfs.put}
@@ -11,20 +12,24 @@
 }
 
 \usage{
-	dfs = function(cmd, ...)
-	dfs.ls = dfs.match
-	dfs.get = dfs.match
-	dfs.put = dfs.match
-	dfs.rm = dfs.match
-	dfs.rmr = dfs.match
-	dfs.exists = function(f)
+	dfs(cmd, ...)
+	dfs.ls(...)
+	dfs.get(...)
+	dfs.put(...)
+	dfs.rm(...)
+	dfs.rmr(...)
+	dfs.exists(...)
 }
 
 \arguments{
-  \item{cmd}{HDFS command to execute}
-  \item{f}{path to HDFS file}
+  \item{cmd}{hadoop dfs command to execute}
+  \item{...}{any arguments and options to the corresponding hadoop dfs command}
 }
 
 \details{ }
   
-\examples{  }
+\examples{  
+\code{
+	dfs.rmr("/tmp/oldexamples")
+}
+}

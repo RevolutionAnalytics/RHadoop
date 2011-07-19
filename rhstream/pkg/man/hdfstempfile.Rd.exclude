@@ -1,4 +1,5 @@
 \name{hdfs.tempfile}
+\alias{hdfs.tempfile}
 
 \title{Utility function to create a temporary file on HDFS}
 \description{Utility function to create a temporary file on HDFS
