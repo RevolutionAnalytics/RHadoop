@@ -93,20 +93,24 @@ reduceDriver = function(reduce, linebufsize, textinputformat, textoutputformat){
     lastKey = NULL
     lastGroup = list()
     while( !is.null(d <- k$get())){
-        d = c(lastGroup,d)
-        lastKey =  d[[length(d)]][[1]]
-        groupKeys = getKeys(d)
-        lastGroup = d[listComp(groupKeys, lastKey)]
-        d = d[!listComp(groupKeys, lastKey)]
-        if(length(d) > 0) {
-            groups = tapply(d, sapply(getKeys(d), digest), identity, simplify = FALSE)
-            lapply(groups,
-                   function(g) {
-                       out = reduce(g[[1]][[1]], getValues(g))
-                       if(!is.null(out))
-                           send(out, textoutputformat)
-                   })
-        }
+      d = c(lastGroup,d)
+      lastKey =  d[[length(d)]][[1]]
+      groupKeys = getKeys(d)
+      lastGroup = d[listComp(groupKeys, lastKey)]
+      d = d[!listComp(groupKeys, lastKey)]
+      if(length(d) > 0) {
+        groups = tapply(d, sapply(getKeys(d), digest), identity, simplify = FALSE)
+        lapply(groups,
+               function(g) {
+                 out = NULL
+                 gv = getValues(g)
+                 if (length(gv) > 0) {
+                   out = reduce(g[[1]][[1]], getValues(g))
+                 }
+                 if(!is.null(out))
+                   send(out, textoutputformat)
+               })
+      }
     }
     out = reduce(lastKey, getValues(lastGroup))
     send(out, textoutputformat)
