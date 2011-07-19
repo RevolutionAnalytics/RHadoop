@@ -213,7 +213,7 @@ hdfs.tempfile <- function(pattern = "file", tmpdir = tempdir()) {
                 function(e) {
                   print("finalizing")
                   fname = eval(expression(fname), envir = e)
-         ##         if(dfs.exists(fname)) dfs.rm(fname)
+                  if(Sys.getenv("mapred_task_id") != "" && dfs.exists(fname)) dfs.rm(fname)
 		})
   namefun
 }
