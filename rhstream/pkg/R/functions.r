@@ -103,17 +103,16 @@ reduceDriver = function(reduce, linebufsize, textinputformat, textoutputformat){
         lapply(groups,
                function(g) {
                  out = NULL
-                 gv = getValues(g)
-                 if (length(gv) > 0) {
-                   out = reduce(g[[1]][[1]], getValues(g))
-                 }
+                 out = reduce(g[[1]][[1]], getValues(g))
                  if(!is.null(out))
                    send(out, textoutputformat)
                })
       }
     }
-    out = reduce(lastKey, getValues(lastGroup))
-    send(out, textoutputformat)
+    if (length(lastGroup) > 0) {
+      out = reduce(lastKey, getValues(lastGroup))
+      send(out, textoutputformat)
+    }
     k$close()
     invisible()
 }
