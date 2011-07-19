@@ -1,0 +1,17 @@
+\name{hdfs.tempfile}
+
+\title{Utility function to create a temporary file on HDFS}
+\description{Utility function to create a temporary file on HDFS
+}
+	
+\usage{
+hdfs.tempfile <- function(pattern = "file", tmpdir = tempdir()) 
+}
+
+\arguments{
+\item{pattern}{The prefix pattern for the temporary file}
+\item{tmpdir}{A path to an existing temporary directory on HDFS}
+
+\details{ }
+
+\examples{  }
