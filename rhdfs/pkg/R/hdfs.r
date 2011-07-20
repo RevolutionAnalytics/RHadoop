@@ -81,7 +81,6 @@ hdfs.chown <- function(paths,owner="",group="",fs=hdfs.defaults("fs")){
   v <- RevoHDFS:::.hdfsEnv[["fu"]]$setOwner(fs,.jarray(as.character(paths)), .jarray(owner),.jarray(group))
 }
 
-hdfs.stat <- hdfs.file.info
 
 hdfs.file.info <- function(path,fs=hdfs.defaults("fs")){
   r <- fs$getFileStatus(.jnew("org/apache/hadoop/fs/Path",path))
@@ -95,9 +94,13 @@ hdfs.file.info <- function(path,fs=hdfs.defaults("fs")){
   perms <- r$getPermission()$toString()
   data.frame(perms,isDir,block,replication,owner,group,size,modtime,path)
 }
+
+hdfs.stat <- hdfs.file.info
+
 hdfs.exists <- function(path, fs=hdfs.defaults("fs")){
   fs$exists(.jnew("org.apache.hadoop.fs.Path",path[1]))
 }
+
 .hdfsCopy <- function(src,dest,srcFS=hdfs.defaults("fs"),dstFS=hdfs.defaults("fs"),deleteSource,overwrite,cfg=hdfs.defaults("conf")){
   if(length(dest)!=1) stop(sprintf("Destination must be a scalar"))
   if(length(src)>1 && !hdfsfile.info(dest,dstFS)$isDir){
@@ -119,6 +122,7 @@ hdfs.cp <- hdfs.copy
 hdfs.move <- function(src,dest,srcFS=hdfs.defaults("fs"),dstFS=hdfs.defaults("fs")){
   .hdfsCopy(src=src,dest=dest,srcFS=srcFS,dstFS=dstFS,deleteSource=TRUE,overwrite=TRUE)
 }
+
 hdfs.mv <- hdfs.move
 
 hdfs.rename <- function(src,dest){
