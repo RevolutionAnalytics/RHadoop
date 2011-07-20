@@ -233,22 +233,5 @@ hdfs.read.text.file <- function(path, ...){
   return(collector)
 }
 
-<<<<<<< HEAD
 hdfs.cat <- hdfs.read.text.file
-
-hdfs.tempfile <- function(pattern = "file", tmpdir = tempdir(), fs=hdfs.defaults("fs")) {
-  fname  = tempfile(pattern, tmpdir)
-  namefun = function() {fname}
-  reg.finalizer(environment(namefun),
-                function(e) {
-                  print("finalizing")
-                  fname = eval(expression(fname), envir = e)
-                  if(hdfs.exists(fname, fs = fs)) hdfs.rm(fname, fs = fs)})
-  namefun
-}
-
-
-
-=======
->>>>>>> deadcodenomore
 
