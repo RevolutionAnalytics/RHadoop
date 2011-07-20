@@ -233,6 +233,7 @@ hdfs.read.text.file <- function(path, ...){
   return(collector)
 }
 
+<<<<<<< HEAD
 hdfs.cat <- hdfs.read.text.file
 
 hdfs.tempfile <- function(pattern = "file", tmpdir = tempdir(), fs=hdfs.defaults("fs")) {
@@ -248,4 +249,6 @@ hdfs.tempfile <- function(pattern = "file", tmpdir = tempdir(), fs=hdfs.defaults
 
 
 
+=======
+>>>>>>> deadcodenomore
 

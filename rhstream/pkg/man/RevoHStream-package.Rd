@@ -1,11 +1,9 @@
 \name{RevoHStream-package}
 \alias{RevoHStream-package}
 \docType{package}
-\title{rhstream: Streaming Wrappers for R and Hadoop}
+\title{A package to perform Map Reduce computations in R}
 \description{
-	Provides simple wrappers to compute \code{tapply}and \code{lapply} using Hadoop, along
-with basic map/reduce functionality.
 }
 \seealso{
-rhstream,rhtapply,rhlapply
+
 }

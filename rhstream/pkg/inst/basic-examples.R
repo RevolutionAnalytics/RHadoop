@@ -21,14 +21,14 @@ mrwordcount = function (input, output, pattern = " ") {
 
 filtermap= function(pred) function(k,v) {if (pred(v)) keyval(k,v) else NULL}
 
-mrfilter = function (input, output = hdfs.tempfile(), pred) {
+mrfilter = function (input, output, pred) {
   revoMapReduce(input = input,
            output = output,
            map = filtermap(pred))
 }
 
 ## pipeline of two filters, sweet
-rhread(mrfilter(input = mrfilter(
-                  input = "/tmp/filtertest/",
-                  pred = function(x) x > 0),
-                pred = function(x) x < 0.5))
+# rhread(mrfilter(input = mrfilter(
+#                  input = "/tmp/filtertest/",
+#                  pred = function(x) x > 0),
+#                pred = function(x) x < 0.5))

@@ -1,8 +1,8 @@
 ##' <description>
-##'A map reduce implementation of generalized joins
-##' <details>
 ##' Provides self, left, right and full outer joins
-##' @title 
+##' <details>
+##' 
+##' @title A map reduce implementation of generalized joins
 ##' @param leftinput the left side input to the join 
 ##' @param rightinput the right side input to the join
 ##' @param input the only input in case of a self-join
@@ -13,13 +13,15 @@
 ##' @param map.left.keyval for each record from the left input, generates a key-value pair
 ##' @param map.right.keyval for each record from the right input, generates a key-value pair
 ##' @param reduce.keyval for each joined record, generates a key-value pair
-##' @return the output filename or a tempfile
+##' @return the output filename or an object that can be used as input to other jobs
 ##' @author Antonio Piccolboni
+
+
 relationalJoin = function(
   leftinput = NULL,
   rightinput = NULL,
   input = NULL,
-  output = hdfs.tempfile(),
+  output = NULL,
   leftouter = F,
   rightouter = F,
   fullouter = F,
