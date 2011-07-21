@@ -45,7 +45,8 @@ keyval = function(k, v = NULL, i = 1) {
   if(missing(v)) {
     tmp = k
     k = tmp[[i]]
-    v = tmp[-i]}
+    v = tmp[-i]
+    if (length(v) == 1) v = v[[1]]}
   kv = list(key = k, val = v)
   attr(kv, 'keyval') = TRUE
   kv}
