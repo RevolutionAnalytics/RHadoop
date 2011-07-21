@@ -10,7 +10,7 @@ NULL, verbose = FALSE, inputformat = NULL, textinputformat =
 defaulttextinputformat, textoutputformat = defaulttextoutputformat) }
 
 \arguments{
-  \item{input}{A path to the input folder (on HDFS) or the return value of another revoMapReduce call}
+  \item{input}{A path to the input folder (on HDFS) or vector thereof or or the return value of another revoMapReduce call}
   \item{output}{A path to the destination folder  (on HDFS)}
   \item{map}{An R function(k,v), returning the return value of keyval(k,v) or list thereof, that specifies the map operation to execute as part of a map reduce job}
   \item{reduce}{An optional R function(k,vv), returning the return value of keyval(k,v) or list thereof, that specifies the reduce operation to execute as part of a map reduce  job}
