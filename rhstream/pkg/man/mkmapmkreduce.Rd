@@ -18,5 +18,5 @@
 \details{Sometimes there are functions that we could use almost directly as map or reduce functions but for a bit of boilerplate code, and we hate boilerplate code. If we pass only one argument, that function will be applied to the key-value pair as a list of two elements and the return value will be returned by the map or reduce function. If we pass two arguments, those functions will be applied independently to the key and the value resp and their return values returned as a key-value pair}
 \examples{  
 The identity map: \code{mkMap(identity)} as opposed to \code{function(k,v) keyval(k,v)}
-Replace key with mod 10 of the key and pass the value along: \code{ mkMap(function(x) x %% 10, identity )}
+Replace key with mod 10 of the key and pass the value along: \code{ mkMap(function(x) x \%\% 10, identity )}
 Sum up all the values for the same key: \code{mkReduce(identity, function(vv) sum(unlist(vv)))}}
