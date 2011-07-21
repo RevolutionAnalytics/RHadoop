@@ -4,10 +4,10 @@
 ## create test set as follows
 ## rhwrite(lapply (1:100, function(i) {eps = rnorm(1, sd =10) ; keyval(i, list(x = c(i,i+eps), y = 2 * (eps > 0) - 1))}), "/tmp/logreg")
 ## run as:
-## rhLogisticRegression("/tmp/logreg", 10, 2)
+## rhLogisticRegression("/tmp/logreg", 10, 2, 0.05)
 ## max likelihood solution diverges for separable dataset, (-inf, inf)
 
-rhLogisticRegression = function(input, iterations, dims, alpha = 0.001){
+rhLogisticRegression = function(input, iterations, dims, alpha){
   plane = rep(0, dims)
   g = function(z) 1/(1 + exp(-z))
   for (i in 1:iterations) {
