@@ -27,8 +27,9 @@ rhRelationalJoin = function(
     function(kv, isleft) keyval(kv$key, list(val = kv$val, isleft = isleft))
   isLeftSide = 
     function(leftinput) {
-      cat(paste(leftinput, " == ", Sys.getenv("map_input_file"), "\n", sep = ""), file = stderr())
-      paste("file", sub("//", "/", leftinput), sep = ":") == Sys.getenv("map_input_file")}
+      leftinput = sub("//", "/", leftinput)
+      mapInfile = sub("//", "/", Sys.getenv("map_input_file"))
+      leftinput == substr(mapInfile, nchar(mapInfile) - nchar(leftinput) + 1, nchar(mapInfile))}
   reduce.split =
     function(vv) tapply(lapply(vv, function(v) v$val), sapply(vv, function(v) v$isleft), identity, simplify = FALSE)
   padSide =
