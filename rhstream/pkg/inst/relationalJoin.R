@@ -17,7 +17,7 @@
 ##' @author Antonio Piccolboni
 
 
-relationalJoin = function(
+rhRelationalJoin = function(
   leftinput = NULL,
   rightinput = NULL,
   input = NULL,
@@ -25,21 +25,21 @@ relationalJoin = function(
   leftouter = F,
   rightouter = F,
   fullouter = F,
-  map.left.keyval = mkMapper(identity),
-  map.right.keyval = mkMapper(identity),
+  map.left.keyval = mkMap(identity),
+  map.right.keyval = mkMap(identity),
   reduce.keyval  = function (k, vl, vr) keyval(k, list(left=vl, right=vr)))
 {
-  stopifnot((leftouter && rightouter) == fullouter)
+  stopifnot(xor(!is.null(leftinput), !is.null(input) &&
+                (is.null(leftinput)==is.null(rightinput))))
+  stopifnot(xor(xor(leftouter, rightouter), fullouter) ||
+            !(leftouter || rightouter || fullouter))
   if (is.null(leftinput)) {
     leftinput = input}
   markSide =
     function(kv, isleft) keyval(kv$key, list(val = kv$val, isleft = isleft))
   isLeftSide = 
     function(leftinput) {
-      ee = Sys.getenv()
-      save(ee, file = "/tmp/getenv")
-      length(grep(paste("^file:", leftinput, sep = ""),
-                  Sys.getenv("map_input_file"))) > 0}
+      paste("file", sub("//", "/", leftinput), sep = ":") == Sys.getenv("map_input_file")}
   reduce.split =
     function(vv) tapply(lapply(vv, function(v) v$val), sapply(vv, function(v) v$isleft), identity, simplify = FALSE)
   padSide =
