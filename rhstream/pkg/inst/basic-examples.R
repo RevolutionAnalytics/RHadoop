@@ -1,6 +1,8 @@
 ## classic wordcount 
 ##input can be any text file
-mrwordcount = function (input, output, pattern = " ") {
+## inspect output with rhread(output) -- this will produce an R list watch out with big datasets
+
+rhwordcount = function (input, output, pattern = " ") {
   revoMapReduce(input = input ,
            output = output,
            textinputformat = rawtextinputformat,
@@ -22,7 +24,7 @@ mrwordcount = function (input, output, pattern = " ") {
 
 filtermap= function(pred) function(k,v) {if (pred(v)) keyval(k,v) else NULL}
 
-mrfilter = function (input, output, pred) {
+rhfilter = function (input, output, pred) {
   revoMapReduce(input = input,
            output = output,
            map = filtermap(pred))
