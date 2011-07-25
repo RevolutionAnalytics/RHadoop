@@ -1,17 +1,13 @@
 rhkmeansiter =
   function(points, distfun, ncenters = length(centers), centers = NULL, summaryfun) {
-    centerfile = hdfs.tempfile()
-    revoMapReduce(input = points,
-             output= centerfile,
-             map = function(k,v) {
-               if (is.null(centers)) {
-                 keyval(sample(1:ncenters,1),v)}
-               else {
-                 distances = lapply(centers, function(c) distfun(c,v))
-                 keyval(centers[[which.min(distances)]], v)}},
-             reduce = function(k,vv) keyval(NULL, apply(do.call(rbind, vv), 2, mean)))
-    centers = rhread(centerfile)
-  }
+    rhread(revoMapReduce(input = points,
+                         map = function(k,v) {
+                           if (is.null(centers)) {
+                             keyval(sample(1:ncenters,1),v)}
+                           else {
+                             distances = lapply(centers, function(c) distfun(c,v))
+                             keyval(centers[[which.min(distances)]], v)}},
+                         reduce = function(k,vv) keyval(NULL, apply(do.call(rbind, vv), 2, mean))))}
 
 rhkmeans =
   function(points, ncenters, iterations = 10, distfun = function(a,b) norm(as.matrix(a-b), type = 'F'), summaryfun = mean) {
