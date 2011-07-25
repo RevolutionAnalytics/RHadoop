@@ -18,6 +18,7 @@ mrwordcount = function (input, output, pattern = " ") {
 ## it will be evaluated on the value only, not on the key
 ## test set: rhwrite (lapply (1:10, function(i) keyval(rnorm(2))), "/tmp/filtertest")
 ## run with mrfilter("/tmp/filtertest", "/tmp/filterout", function(x) x > 0)
+## inspect results with rhread("/tmp/filterout")
 
 filtermap= function(pred) function(k,v) {if (pred(v)) keyval(k,v) else NULL}
 
