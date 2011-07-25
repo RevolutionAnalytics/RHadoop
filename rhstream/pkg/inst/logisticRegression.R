@@ -5,7 +5,7 @@
 ## rhwrite(lapply (1:100, function(i) {eps = rnorm(1, sd =10) ; keyval(i, list(x = c(i,i+eps), y = 2 * (eps > 0) - 1))}), "/tmp/logreg")
 ## run as:
 ## rhLogisticRegression("/tmp/logreg", 10, 2, 0.05)
-## max likelihood solution diverges for separable dataset, (-inf, inf)
+## max likelihood solution diverges for separable dataset, (-inf, inf) such as the above
 
 rhLogisticRegression = function(input, iterations, dims, alpha){
   plane = rep(0, dims)
