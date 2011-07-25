@@ -1,3 +1,10 @@
+## a sort of relational join very useful in a variety of map reduce algorithms
+
+## rhwrite (lapply(1:10, function(i) keyval(i, i^2)), "/tmp/reljoin.left")
+## rhwrite (lapply(1:10, function(i) keyval(i, i^3)), "/tmp/reljoin.right")
+## rhRelationalJoin(leftinput="/tmp/reljoin.left", rightinput="/tmp/reljoin.right", output = "/tmp/reljoin.out")
+## rhread("/tmp/reljoin.out")
+
 rhRelationalJoin = function(
   leftinput = NULL,
   rightinput = NULL,
@@ -20,6 +27,7 @@ rhRelationalJoin = function(
     function(kv, isleft) keyval(kv$key, list(val = kv$val, isleft = isleft))
   isLeftSide = 
     function(leftinput) {
+      RevoHStream:::counter(leftinput, Sys.getenv("map_input_file")) 
       paste("file", sub("//", "/", leftinput), sep = ":") == Sys.getenv("map_input_file")}
   reduce.split =
     function(vv) tapply(lapply(vv, function(v) v$val), sapply(vv, function(v) v$isleft), identity, simplify = FALSE)
