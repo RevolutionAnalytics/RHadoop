@@ -149,7 +149,8 @@ defaulttextoutputformat = function(k,v) {
 
 rawtextinputformat = function(line) {keyval(NULL, line)}
 
-to.data.frame = function(l) data.frame(do.call(rbind,lapply(l, function(x) if(is.atomic(x)) {x} else {do.call(function(...)c(..., recursive = T),x)})))
+flatten_list = function(l) if(is.list(l)) do.call(c, lapply(l, flatten_list)) else list(l)
+to.data.frame = function(l) data.frame(do.call(rbind,lapply(l, flatten_list)))
 
 dfs = function(cmd, ...) {
   system(paste(Sys.getenv("HADOOP_HOME"),
@@ -176,8 +177,16 @@ dfs.exists = function(f) {
   length(dfs.ls(f)) == 0
 }
 
-rhwrite = function(object, file = hdfs.tempfile(), textoutputformat = defaulttextoutputformat){
+toHDFSpath = function(input) {
+  if (is.character(input)) {
+    input}
+  else {
+    if(is.function(input)) {
+      input()}}}
+
+rhwrite = function(object, output = hdfs.tempfile(), textoutputformat = defaulttextoutputformat){
   tmp = tempfile()
+  hdfsOutput = toHDFSpath(output)
   cat(paste
        (lapply
         (object,
@@ -185,9 +194,9 @@ rhwrite = function(object, file = hdfs.tempfile(), textoutputformat = defaulttex
                       textoutputformat(kv$key, kv$val)}),
         collapse=""),
       file = tmp)
-  dfs.put(tmp, file)
+  dfs.put(tmp, hdfsOutput)
   file.remove(tmp)
-  file
+  output
 }
 
 rhread = function(file, textinputformat = defaulttextinputformat){
@@ -215,7 +224,7 @@ hdfs.tempfile <- function(pattern = "file", tmpdir = tempdir()) {
 
 revoMapReduce = function(
   input,
-  output = hdfs.tempfile(),
+  output = NULL,
   map,
   reduce = NULL,
   verbose = FALSE,
@@ -224,20 +233,15 @@ revoMapReduce = function(
   textoutputformat = defaulttextoutputformat) {
 
   on.exit(expr = gc())
-  actualInput = NULL
-  if (is.character(input)) {
-    actualInput = input}
-  else {
-    if(is.function(input)) {
-      actualInput = input()}
-    else {
-      actualInput = rhwrite(input)}
-  }
-        
+  if(!is.character(input) && !is.function(input))
+    input = rhwrite(input)
+
+  if (is.null(output)) output = hdfs.tempfile()
+  
   rhstream(map = map,
            reduce = reduce,
-           in.folder = input,
-           out.folder = if (is.function(output)) output() else output,
+           in.folder = toHDFSpath(input),
+           out.folder = toHDFSpath(output),
            verbose = verbose,
            inputformat = inputformat,
            textinputformat = textinputformat,
