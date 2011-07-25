@@ -27,7 +27,7 @@ rhRelationalJoin = function(
     function(kv, isleft) keyval(kv$key, list(val = kv$val, isleft = isleft))
   isLeftSide = 
     function(leftinput) {
-      RevoHStream:::counter(leftinput, Sys.getenv("map_input_file")) 
+      cat(paste(leftinput, " == ", Sys.getenv("map_input_file"), "\n", sep = ""), file = stderr())
       paste("file", sub("//", "/", leftinput), sep = ":") == Sys.getenv("map_input_file")}
   reduce.split =
     function(vv) tapply(lapply(vv, function(v) v$val), sapply(vv, function(v) v$isleft), identity, simplify = FALSE)
