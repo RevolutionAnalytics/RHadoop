@@ -4,16 +4,17 @@
 
 rhwordcount = function (input, output, pattern = " ") {
   revoMapReduce(input = input ,
-           output = output,
-           textinputformat = rawtextinputformat,
-           map = function(k,v) {
-             lapply(
-                    strsplit(
-                             x = v,
-                             split = pattern)[[1]],
-                    function(w) keyval(w,1))},
-           reduce = function(k,vv) {
-             keyval(k, sum(unlist(vv)))})}
+                output = output,
+                textinputformat = rawtextinputformat,
+                map = function(k,v) {
+                  lapply(
+                         strsplit(
+                                  x = v,
+                                  split = pattern)[[1]],
+                         function(w) keyval(w,1))},
+                reduce = function(k,vv) {
+                  keyval(k, sum(unlist(vv)))},
+                combine = T)}
 
 ##input can be any RevoStreaming file (our own format)
 ## pred can be function(x) x > 0

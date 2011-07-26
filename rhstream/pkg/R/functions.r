@@ -227,6 +227,7 @@ revoMapReduce = function(
   output = NULL,
   map,
   reduce = NULL,
+  combine = NULL,
   verbose = FALSE,
   inputformat = NULL,
   textinputformat = defaulttextinputformat,
@@ -240,6 +241,7 @@ revoMapReduce = function(
   
   rhstream(map = map,
            reduce = reduce,
+           combine = combine,
            in.folder = toHDFSpath(input),
            out.folder = toHDFSpath(output),
            verbose = verbose,
@@ -252,6 +254,7 @@ revoMapReduce = function(
 rhstream = function(
   map,
   reduce = NULL,
+  combine = NULL,
   in.folder,
   out.folder, 
   linebufsize = 2000,
@@ -286,18 +289,26 @@ load("RevoHStreamLocalEnv")
                  linebufsize = linebufsize,
                  textinputformat = RevoHStream:::defaulttextinputformat,
                  textoutputformat = textoutputformat)'
+  combineLine = 'RevoHStream:::reduceDriver(reduce = combine,
+                 linebufsize = linebufsize,
+                 textinputformat = RevoHStream:::defaulttextinputformat,
+                 textoutputformat = RevoHStream:::defaulttextoutputformat)'
+
   
   map.file = tempfile(pattern = "rhstr.map")
   writeLines(c(lines,mapLine), con = map.file)
   reduce.file = tempfile(pattern = "rhstr.reduce")
   writeLines(c(lines, reduceLine), con = reduce.file)
-  
-                                        # set up the execution environment for map and reduce
+  combine.file = tempfile(pattern = "rhstr.combine")
+  writeLines(c(lines, combineLine), con = combine.file)
+  ## set up the execution environment for map and reduce
+  if (!is.null(combine) && is.logical(combine) && combine) {
+    combine = reduce}
   save.image(file="RevoHStreamParentEnv")
   save(list = ls(all = TRUE, envir = environment()), file = "RevoHStreamLocalEnv", envir = environment())
   image.cmd.line = "-file RevoHStreamParentEnv -file RevoHStreamLocalEnv"
   
-    ## prepare hadoop streaming command
+  ## prepare hadoop streaming command
   hadoopHome = Sys.getenv("HADOOP_HOME")
   if(hadoopHome == "") warning("Environment variable HADOOP_HOME is missing")
   hadoopBin = file.path(hadoopHome, "bin")
@@ -313,19 +324,24 @@ load("RevoHStreamLocalEnv")
   }
     outputformat = 'TextOutputFormat'
   mapper = sprintf('-mapper "Rscript %s" ',  tail(strsplit(map.file,"/")[[1]],1))
+  m.fl = sprintf("-file %s ",map.file)
   if(!is.null(reduce) ){
     if(is.character(reduce) && reduce=="aggregate"){
-      reduce = sprintf('-reducer aggregate ')
+      reducer = sprintf('-reducer aggregate ')
       r.fl = " "
     } else{
-      reduce = sprintf('-reducer "Rscript %s" ',  tail(strsplit(reduce.file,"/")[[1]],1))
+      reducer = sprintf('-reducer "Rscript %s" ',  tail(strsplit(reduce.file,"/")[[1]],1))
       r.fl = sprintf("-file %s ",reduce.file)
     }
     }else {
-      reduce=" ";r.fl = " "
+      reducer=" ";r.fl = " "
     }
-  m.fl = sprintf("-file %s ",map.file)
-  
+  if(!is.null(combine) && is.function(combine)) {
+    combiner = sprintf('-combiner "Rscript %s" ', tail(strsplit(combine.file, "/")[[1]],1))
+    c.fl = sprintf("-file %s ", combine.file)}
+  else {
+    combiner = " "
+    c.fl = " "}
   if(!missing(numreduces)) numreduces = sprintf("-numReduceTasks %s ", numreduces) else numreduces = " "
   cmds = make.job.conf(otherparams, pfx="-cmdenv")
   if(is.null(mapred$mapred.textoutputformat.separator)){
@@ -348,9 +364,11 @@ load("RevoHStreamLocalEnv")
     input,
     output,
     mapper,
-    reduce,
+    reducer,
+    combiner,
     m.fl,
     r.fl,
+    c.fl,
     image.cmd.line,
     cmds,
     numreduces,
