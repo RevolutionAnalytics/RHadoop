@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+  <property>
+    <name>mapred.map.tasks</name>
+    <value>79</value>
+    <description>The default number of map tasks per job.  Typically set
+    to a prime several times greater than number of available hosts.
+    Ignored when mapred.job.tracker is "local".
+    </description>
+  </property>
+  <property>
+    <name>mapred.reduce.tasks</name>
+    <value>79</value>
+    <description>The default number of map tasks per job.  Typically set
+    to a prime several times greater than number of available hosts.
+    Ignored when mapred.job.tracker is "local".
+    </description>
+  </property>
+  <property>
+    <name>mapred.tasktracker.map.tasks.maximum</name>
+    <value>8</value>
+    <description> max number of map tasks per tasktracker
+    </description>
+  </property>
+  <property>
+    <name>mapred.tasktracker.reduce.tasks.maximum</name>
+    <value>8</value>
+    <description> max number of reduce tasks per tasktracker
+    </description>
+  </property>
+</configuration>
