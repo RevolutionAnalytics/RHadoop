@@ -1,5 +1,5 @@
-\name{RevoHBase-package}
-\alias{RevoHBase-package}
+\name{RevoHBase}
+\alias{RevoHBase}
 \alias{RevoHBase}
 \docType{package}
 \title{RevoHBase: Interact with HBase tables from R}

@@ -29,7 +29,5 @@
 \details{ }
   
 \examples{  
-\code{
 	dfs.rmr("/tmp/oldexamples")
-}
 }

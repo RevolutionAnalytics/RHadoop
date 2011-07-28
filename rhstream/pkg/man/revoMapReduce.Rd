@@ -32,7 +32,6 @@ defaulttextinputformat, textoutputformat = defaulttextoutputformat) }
   cover many examples}
   
 \examples{
-\code{
 ## Example 1:  Word Count
 ## classic wordcount 
 ## input can be any text 
@@ -66,7 +65,7 @@ rhLogisticRegression = function(input, iterations, dims, alpha = -0.001){
   g = function(z) 1/(1 + exp(-z))  
   for (i in 1:iterations) {    
     gradient = rhread(revoMapReduce(input,      
-      map = function(k, v) keyval (1, g(-v$y * (plane %*% v$x)) * v$y * v$x),      
+      map = function(k, v) keyval (1, v$y * v$x * g(-v$y * (plane %*% v$x))),    
       reduce = function(k, vv) keyval(k, apply(do.call(rbind,vv),2,sum))))    
     plane = plane + alpha * gradient[[1]]$val }  
   plane }                        
@@ -103,5 +102,4 @@ rhkmeans =
 ## rhwrite(clustdata, "/tmp/clustdata")
 ## rhkmeans ("/tmp/clustdata", 12) 
 
-}
 }

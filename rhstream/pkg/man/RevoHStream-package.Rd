@@ -1,5 +1,5 @@
-\name{RevoHStream-package}
-\alias{RevoHStream-package}
+\name{RevoHStream}
+\alias{RevoHStream}
 \docType{package}
 \title{A package to perform Map Reduce computations in R}
 \description{

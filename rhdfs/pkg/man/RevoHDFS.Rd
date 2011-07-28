@@ -1,6 +1,5 @@
-\name{RevoHDFS-package}
+\name{RevoHDFS}
 \alias{RevoHDFS}
-\alias{RevoHDFS-package}
 \docType{package}
 \title{RevoHDFS: R and Hadoop Distributed File System}
 \description{
