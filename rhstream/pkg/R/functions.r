@@ -19,7 +19,7 @@ send = function(out, textoutputformat = defaulttextoutputformat){
     lapply(out, function(o) cat(textoutputformat(o$key, o$val)) )
   else
     cat(textoutputformat(out$key, out$val))
-  TRUE
+  TRUE 
 }
 
 counter = function(group="r-stream",family, value){
@@ -67,17 +67,28 @@ mkLapplyReduce = function(fun1 = identity, fun2 = identity) {
 
 ## end utils
 
-mapDriver = function(map, linebufsize, textinputformat, textoutputformat){
-    k = createReader(linebufsize, textinputformat)
-    while( !is.null(d <- k$get())){
-        lapply(d,
-               function(r) {
-                   out = map(r[[1]], r[[2]])
-                   if(!is.null(out))
-                       send(out, textoutputformat)
-               })
-    }
-    k$close()
+activateProfiling = function(){
+  dir = file.path("/tmp/Rprof", Sys.getenv('mapreduce_job_id'), Sys.getenv('mapreduce_task_id'))
+  dir.create(dir, recursive = T)
+  Rprof(file.path(dir, paste(
+                  Sys.getenv('mapreduce_task_attempt_id'),
+                  substr(x=runif(1),start = 2,  stop = 10), sep = ".")))}
+  
+deactivateProfiling = function() Rprof(NULL)
+
+mapDriver = function(map, linebufsize, textinputformat, textoutputformat, profile){
+  if(profile) activateProfiling()
+  k = createReader(linebufsize, textinputformat)
+  while( !is.null(d <- k$get())){
+      lapply(d,
+             function(r) {
+                 out = map(r[[1]], r[[2]])
+                 if(!is.null(out))
+                     send(out, textoutputformat)
+             })
+  }
+  k$close()
+  if(profile) deactivateProfiling()
   invisible()
 }
 
@@ -229,14 +240,14 @@ revoMapReduce = function(
   reduce = NULL,
   combine = NULL,
   verbose = FALSE,
+  profilenodes = NULL,
   inputformat = NULL,
   textinputformat = defaulttextinputformat,
   textoutputformat = defaulttextoutputformat) {
 
-  on.exit(expr = gc())
+  on.exit(expr = gc()) #this is here to trigger cleanup of tempfiles
   if(!is.character(input) && !is.function(input))
     input = rhwrite(input)
-
   if (is.null(output)) output = hdfs.tempfile()
   
   rhstream(map = map,
@@ -245,6 +256,7 @@ revoMapReduce = function(
            in.folder = toHDFSpath(input),
            out.folder = toHDFSpath(output),
            verbose = verbose,
+           profilenodes = profilenodes,
            inputformat = inputformat,
            textinputformat = textinputformat,
            textoutputformat = textoutputformat)
@@ -259,6 +271,7 @@ rhstream = function(
   out.folder, 
   linebufsize = 2000,
   verbose = FALSE,
+  profilenodes = NULL,
   numreduces,
   cachefiles = c(),
   archives = c(),
@@ -279,12 +292,14 @@ library(RevoHStream)
 load("RevoHStreamParentEnv")
 load("RevoHStreamLocalEnv")
 '
+
   mapLine = 'RevoHStream:::mapDriver(map = map,
               linebufsize = linebufsize,
               textinputformat = textinputformat,
               textoutputformat = if(is.null(reduce))
                                  {textoutputformat}
-                                 else {RevoHStream:::defaulttextoutputformat})'
+                                 else {RevoHStream:::defaulttextoutputformat},
+              profile = profilenodes)'
   reduceLine  =  'RevoHStream:::reduceDriver(reduce = reduce,
                  linebufsize = linebufsize,
                  textinputformat = RevoHStream:::defaulttextinputformat,
@@ -294,7 +309,6 @@ load("RevoHStreamLocalEnv")
                  textinputformat = RevoHStream:::defaulttextinputformat,
                  textoutputformat = RevoHStream:::defaulttextoutputformat)'
 
-  
   map.file = tempfile(pattern = "rhstr.map")
   writeLines(c(lines,mapLine), con = map.file)
   reduce.file = tempfile(pattern = "rhstr.reduce")
