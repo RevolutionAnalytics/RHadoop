@@ -68,11 +68,9 @@ mkLapplyReduce = function(fun1 = identity, fun2 = identity) {
 ## end utils
 
 activateProfiling = function(){
-  dir = file.path("/tmp/Rprof", Sys.getenv('mapreduce_job_id'), Sys.getenv('mapreduce_task_id'))
+  dir = file.path("/tmp/Rprof", Sys.getenv('mapred_job_id'), Sys.getenv('mapreduce_tip_id'))
   dir.create(dir, recursive = T)
-  Rprof(file.path(dir, paste(
-                  Sys.getenv('mapreduce_task_attempt_id'),
-                  substr(x=runif(1),start = 2,  stop = 10), sep = ".")))}
+  Rprof(file.path(dir, Sys.getenv('mapred_task_id')))}
   
 deactivateProfiling = function() Rprof(NULL)
 
