@@ -1,12 +1,13 @@
 rhkmeansiter =
   function(points, distfun, ncenters = length(centers), centers = NULL, summaryfun) {
     rhread(revoMapReduce(input = points,
-                         map = function(k,v) {
+                         map = 
                            if (is.null(centers)) {
-                             keyval(sample(1:ncenters,1),v)}
+                             function(k,v) keyval(sample(1:ncenters,1),v)}
                            else {
-                             distances = lapply(centers, function(c) distfun(c,v))
-                             keyval(centers[[which.min(distances)]], v)}},
+                             function(k,v) {
+                               distances = lapply(centers, function(c) distfun(c,v))
+                               keyval(centers[[which.min(distances)]], v)}},
                          reduce = function(k,vv) keyval(NULL, apply(do.call(rbind, vv), 2, mean))))}
 
 rhkmeans =
