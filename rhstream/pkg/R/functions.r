@@ -164,11 +164,31 @@ flatten_list = function(l) if(is.list(l)) do.call(c, lapply(l, flatten_list)) el
 to.data.frame = function(l) data.frame(do.call(rbind,lapply(l, flatten_list)))
 
 dfs = function(cmd, ...) {
+  if (is.null(names(list(...)))) {
+    argnames = sapply(1:length(list(...)), function(i) "")
+  }
+  else {
+    argnames = names(list(...))
+  }
   system(paste(Sys.getenv("HADOOP_HOME"),
-               "/bin/hadoop dfs -",
-               cmd,
-               " ",
-               paste(..., sep = " "),
+              "/bin/hadoop dfs -",
+              cmd,
+              " ",
+              paste(
+                apply(
+                  cbind(
+                    argnames, 
+                    list(...)),
+                  1, 
+                  function(x) paste(
+                    if(x[[1]] == ""){""} else{"-"},
+                    x[[1]], 
+                    " ", 
+                    x[[2]], 
+                    sep = ""))[
+                      order(argnames, 
+                            decreasing = T)], 
+                collapse = " "),
                sep = ""),
          intern = T)
 }
@@ -179,10 +199,42 @@ dfs.match = function(...) {
 }
 
 dfs.ls = dfs.match
+dfs.lsr = dfs.match
+dfs.df = dfs.match
+dfs.du = dfs.match
+dfs.dus = dfs.match
+dfs.count = dfs.match
+dfs.mv = dfs.match
+dfs.cp = dfs.match
+dfs.rm = dfs.match
+dfs.rmr = dfs.match
+dfs.expunge = dfs.match
+dfs.put = dfs.match
+dfs.copyFromLocal = dfs.match
+dfs.moveFromLocal = dfs.match
+dfs.get = dfs.match
+dfs.getmerge = dfs.match
+dfs.cat = dfs.match
+dfs.text = dfs.match
+dfs.copyToLocal = dfs.match
+dfs.moveToLocal = dfs.match
+dfs.mkdir = dfs.match
+dfs.setrep = dfs.match
+dfs.touchz = dfs.match
+dfs.test = dfs.match
+dfs.stat = dfs.match
+dfs.tail = dfs.match
+dfs.chmod = dfs.match
+dfs.chown = dfs.match
+dfs.chgrp = dfs.match
+dfs.help = dfs.match
+
+dfs.ls = dfs.match
 dfs.get = dfs.match
 dfs.put = dfs.match
 dfs.rm = dfs.match
 dfs.rmr = dfs.match
+dfs.cat = dfs.match
 
 dfs.exists = function(f) {
   length(dfs.ls(f)) == 0
@@ -240,7 +292,7 @@ revoMapReduce = function(
   reduce = NULL,
   combine = NULL,
   verbose = FALSE,
-  profilenodes = NULL,
+  profilenodes = FALSE,
   inputformat = NULL,
   textinputformat = defaulttextinputformat,
   textoutputformat = defaulttextoutputformat) {
@@ -271,7 +323,7 @@ rhstream = function(
   out.folder, 
   linebufsize = 2000,
   verbose = FALSE,
-  profilenodes = NULL,
+  profilenodes = FALSE,
   numreduces,
   cachefiles = c(),
   archives = c(),
