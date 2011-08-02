@@ -93,7 +93,8 @@ mapDriver = function(map, linebufsize, textinputformat, textoutputformat, profil
 listComp = function(ll,e) sapply(ll, function(l) isTRUE(all.equal(e,l)))
 ## using isTRUE(all.equal(x)) because identical() was too strict, but on paper it should be it
 
-reduceDriver = function(reduce, linebufsize, textinputformat, textoutputformat, reduceondataframe){
+reduceDriver = function(reduce, linebufsize, textinputformat, textoutputformat, reduceondataframe, profile){
+    if(profile) activateProfiling()
     k = createReader(linebufsize, textinputformat)
     lastKey = NULL
     lastGroup = list()
@@ -122,6 +123,7 @@ reduceDriver = function(reduce, linebufsize, textinputformat, textoutputformat, 
       send(out, textoutputformat)
     }
     k$close()
+    if(profile) deactivateProfiling()
     invisible()
 }
 
@@ -368,12 +370,14 @@ load("RevoHStreamLocalEnv")
                  linebufsize = linebufsize,
                  textinputformat = RevoHStream:::defaulttextinputformat,
                  textoutputformat = textoutputformat,
-                 reduceondataframe = reduceondataframe)'
+                 reduceondataframe = reduceondataframe,
+                 profile = profilenodes)'
   combineLine = 'RevoHStream:::reduceDriver(reduce = combine,
                  linebufsize = linebufsize,
                  textinputformat = RevoHStream:::defaulttextinputformat,
                  textoutputformat = RevoHStream:::defaulttextoutputformat,
-                 reduceondataframe = reduceondataframe)'
+                 reduceondataframe = reduceondataframe,
+                profile = profilenodes)'
 
   map.file = tempfile(pattern = "rhstr.map")
   writeLines(c(lines,mapLine), con = map.file)
