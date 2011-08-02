@@ -303,7 +303,7 @@ revoMapReduce = function(
   combine = NULL,
   verbose = FALSE,
   profilenodes = FALSE,
-  hereinput = F
+  hereinput = F,
   inputformat = NULL,
   textinputformat = defaulttextinputformat,
   textoutputformat = defaulttextoutputformat) {
@@ -329,7 +329,7 @@ revoMapReduce = function(
 rhstream = function(
   map,
   reduce = NULL,
-  reduceondataframe = F.
+  reduceondataframe = F,
   combine = NULL,
   in.folder,
   out.folder, 
