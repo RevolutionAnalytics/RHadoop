@@ -4,7 +4,7 @@ Title: R and Hadoop Streaming Connector
 Version: 2011.7-28
 Date: 2011-07-28
 Author: Revolution Analytics
-Depends: R (>= 2.6.0), methods, rjson, itertools, digest 
+Depends: R (>= 2.6.0), methods, RJSONIO, itertools, digest 
 Maintainer: Revolution Analytics <support@revolutionanalytics.com>
 Description: Supports the map reduce programming model on top of hadoop streaming
 License: Apache License (== 2.0)
