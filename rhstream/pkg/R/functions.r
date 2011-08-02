@@ -160,6 +160,7 @@ rawtextinputformat = function(line) {keyval(NULL, line)}
 
 flatten_list = function(l) if(is.list(l)) do.call(c, lapply(l, flatten_list)) else list(l)
 to.data.frame = function(l) data.frame(do.call(rbind,lapply(l, function(r) as.data.frame(flatten_list(r)))))
+from.data.frame = function(df, keycol = 1) lapply(1:dim(df)[[1]], function(i) keyval(df[i,], i = keycol))
 
 dfs = function(cmd, ...) {
   if (is.null(names(list(...)))) {
@@ -247,7 +248,7 @@ toHDFSpath = function(input) {
 
 rhwrite = function(object, output = hdfs.tempfile(), textoutputformat = defaulttextoutputformat){
   if(is.data.frame(object)) {
-    object = 
+    object = from.data.frame(object)
   }
   tmp = tempfile()
   hdfsOutput = toHDFSpath(output)
@@ -272,8 +273,11 @@ rhread = function(file, textinputformat = defaulttextinputformat, todataframe = 
                  function(f) lapply(readLines(file.path(tmp, f)),
                             textinputformat)))}      
           else {
-      lapply(readLines(tmp), textinputformat)}
-  
+            lapply(readLines(tmp), textinputformat)}
+  if(todataframe) {
+    retval}
+  else{
+    to.data.frame(retval)  }
 }
 
 hdfs.tempfile <- function(pattern = "file", tmpdir = tempdir()) {
@@ -295,19 +299,19 @@ revoMapReduce = function(
   combine = NULL,
   verbose = FALSE,
   profilenodes = FALSE,
+  hereinput = F
   inputformat = NULL,
   textinputformat = defaulttextinputformat,
   textoutputformat = defaulttextoutputformat) {
 
   on.exit(expr = gc()) #this is here to trigger cleanup of tempfiles
-  if(!is.character(input) && !is.function(input))
-    input = rhwrite(input)
+  if(hereinput) input = lapply(input, rhwrite)
   if (is.null(output)) output = hdfs.tempfile()
   
   rhstream(map = map,
            reduce = reduce,
            combine = combine,
-           in.folder = toHDFSpath(input),
+           in.folder = lapply(input, toHDFSpath),
            out.folder = toHDFSpath(output),
            verbose = verbose,
            profilenodes = profilenodes,
