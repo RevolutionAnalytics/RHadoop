@@ -159,7 +159,7 @@ defaulttextoutputformat = function(k,v) {
 rawtextinputformat = function(line) {keyval(NULL, line)}
 
 flatten_list = function(l) if(is.list(l)) do.call(c, lapply(l, flatten_list)) else list(l)
-to.data.frame = function(l) data.frame(do.call(rbind,lapply(l, flatten_list)))
+to.data.frame = function(l) data.frame(do.call(rbind,lapply(l, function(r) as.data.frame(flatten_list(r)))))
 
 dfs = function(cmd, ...) {
   if (is.null(names(list(...)))) {
@@ -246,6 +246,9 @@ toHDFSpath = function(input) {
       input()}}}
 
 rhwrite = function(object, output = hdfs.tempfile(), textoutputformat = defaulttextoutputformat){
+  if(is.data.frame(object)) {
+    object = 
+  }
   tmp = tempfile()
   hdfsOutput = toHDFSpath(output)
   cat(paste
@@ -260,16 +263,17 @@ rhwrite = function(object, output = hdfs.tempfile(), textoutputformat = defaultt
   output
 }
 
-rhread = function(file, textinputformat = defaulttextinputformat){
+rhread = function(file, textinputformat = defaulttextinputformat, todataframe = F){
   tmp = tempfile()
   dfs.get(if(is.function(file)) {file()} else {file}, tmp)
-  if(file.info(tmp)[1,'isdir']) {
-    do.call(c,
-            lapply(list.files(tmp, "part*"),
-                   function(f) lapply(readLines(file.path(tmp, f)),
-                                      textinputformat)))}      
-    else {
+  retval = if(file.info(tmp)[1,'isdir']) {
+             do.call(c,
+               lapply(list.files(tmp, "part*"),
+                 function(f) lapply(readLines(file.path(tmp, f)),
+                            textinputformat)))}      
+          else {
       lapply(readLines(tmp), textinputformat)}
+  
 }
 
 hdfs.tempfile <- function(pattern = "file", tmpdir = tempdir()) {
