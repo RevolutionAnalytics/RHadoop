@@ -279,7 +279,7 @@ rhread = function(file, textinputformat = defaulttextinputformat, todataframe = 
                             textinputformat)))}      
           else {
             lapply(readLines(tmp), textinputformat)}
-  if(todataframe) {
+  if(!todataframe) {
     retval}
   else{
     to.data.frame(retval)  }
@@ -459,6 +459,7 @@ load("RevoHStreamLocalEnv")
     verb)
   if(debug)
     print(finalcommand)
-  system(finalcommand)
+  retval = system(finalcommand)
+if (retval != 0) stop("hadoop streaming failed with error code ", retval, "\n")
 }
 
