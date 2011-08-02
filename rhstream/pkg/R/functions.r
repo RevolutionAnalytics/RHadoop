@@ -93,7 +93,7 @@ mapDriver = function(map, linebufsize, textinputformat, textoutputformat, profil
 listComp = function(ll,e) sapply(ll, function(l) isTRUE(all.equal(e,l)))
 ## using isTRUE(all.equal(x)) because identical() was too strict, but on paper it should be it
 
-reduceDriver = function(reduce, linebufsize, textinputformat, textoutputformat){
+reduceDriver = function(reduce, linebufsize, textinputformat, textoutputformat, reduceondataframe){
     k = createReader(linebufsize, textinputformat)
     lastKey = NULL
     lastGroup = list()
@@ -108,7 +108,10 @@ reduceDriver = function(reduce, linebufsize, textinputformat, textoutputformat){
         lapply(groups,
                function(g) {
                  out = NULL
-                 out = reduce(g[[1]][[1]], getValues(g))
+                 out = reduce(g[[1]][[1]], if(reduceondataframe) {
+                                             to.data.frame(getValues(g))}
+                                          else {
+                                            getValues(g)})
                  if(!is.null(out))
                    send(out, textoutputformat)
                })
@@ -296,6 +299,7 @@ revoMapReduce = function(
   output = NULL,
   map,
   reduce = NULL,
+  reduceondataframe = F,
   combine = NULL,
   verbose = FALSE,
   profilenodes = FALSE,
@@ -310,6 +314,7 @@ revoMapReduce = function(
   
   rhstream(map = map,
            reduce = reduce,
+           reduceondataframe = reduceondataframe,
            combine = combine,
            in.folder = lapply(input, toHDFSpath),
            out.folder = toHDFSpath(output),
@@ -324,6 +329,7 @@ revoMapReduce = function(
 rhstream = function(
   map,
   reduce = NULL,
+  reduceondataframe = F.
   combine = NULL,
   in.folder,
   out.folder, 
@@ -361,11 +367,13 @@ load("RevoHStreamLocalEnv")
   reduceLine  =  'RevoHStream:::reduceDriver(reduce = reduce,
                  linebufsize = linebufsize,
                  textinputformat = RevoHStream:::defaulttextinputformat,
-                 textoutputformat = textoutputformat)'
+                 textoutputformat = textoutputformat,
+                 reduceondataframe = reduceondataframe)'
   combineLine = 'RevoHStream:::reduceDriver(reduce = combine,
                  linebufsize = linebufsize,
                  textinputformat = RevoHStream:::defaulttextinputformat,
-                 textoutputformat = RevoHStream:::defaulttextoutputformat)'
+                 textoutputformat = RevoHStream:::defaulttextoutputformat,
+                 reduceondataframe = reduceondataframe)'
 
   map.file = tempfile(pattern = "rhstr.map")
   writeLines(c(lines,mapLine), con = map.file)
