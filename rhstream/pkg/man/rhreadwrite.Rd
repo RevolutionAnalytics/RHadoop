@@ -21,4 +21,4 @@ rhread(file, textinputformat = defaulttextinputformat)
 These functions allow to move data from RAM to HDFS and back. Keep in mind that the capacity of these two storage media is different by two or three orders of magnitude, roughly speaking, so the conversion will make sense only in specific situations. These functions do not perform any size control, so the responsibility is on the user. Rhread returns the object whose representation is contained in file. Rhwrite returns the file it wrote a representation of the object provided as argument or, when file is missing, an object that can be passed as input to a revoMapReduce call.
 }
 
-\examples{See revoMapReduce for examples  }
+\examples{##See revoMapReduce for examples  }

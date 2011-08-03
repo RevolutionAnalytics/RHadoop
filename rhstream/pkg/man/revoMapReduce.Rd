@@ -65,7 +65,7 @@ rhLogisticRegression = function(input, iterations, dims, alpha = -0.001){
   g = function(z) 1/(1 + exp(-z))  
   for (i in 1:iterations) {    
     gradient = rhread(revoMapReduce(input,      
-      map = function(k, v) keyval (1, v$y * v$x * g(-v$y * (plane %*% v$x))),    
+      map = function(k, v) keyval (1, v$y * v$x * g(-v$y * (plane \%*\% v$x))),    
       reduce = function(k, vv) keyval(k, apply(do.call(rbind,vv),2,sum))))    
     plane = plane + alpha * gradient[[1]]$val }  
   plane }                        
@@ -74,7 +74,7 @@ rhLogisticRegression = function(input, iterations, dims, alpha = -0.001){
 
 rhkmeansiter =  
 function(points, distfun, ncenters = length(centers), centers = NULL, summaryfun) {    
-  centerfile = NULL,
+  centerfile = NULL
   revoMapReduce(input = points,             
   output= centerfile,             
   map = function(k,v) {               
@@ -84,8 +84,7 @@ function(points, distfun, ncenters = length(centers), centers = NULL, summaryfun
       distances = lapply(centers, function(c) distfun(c,v))                 
 	keyval(centers[[which.min(distances)]], v)}},             
     reduce = function(k,vv) keyval(NULL, apply(do.call(rbind, vv), 2, mean)))    
-    centers = rhread(centerfile)  
-  }
+    centers = rhread(centerfile)   }
   
 rhkmeans =  
   function(points, ncenters, iterations = 10, distfun = function(a,b) norm(as.matrix(a-b), type = 'F'), summaryfun = mean) {    

@@ -3,3 +3,4 @@
 build
 
 *.tar.gz
+pkg.Rcheck/*
