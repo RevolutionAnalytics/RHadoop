@@ -29,5 +29,5 @@
 \details{ }
   
 \examples{  
-#	dfs.rmr("/tmp/oldexamples")
+	dfs.rmr("/tmp/oldexamples")
 }

@@ -63,7 +63,7 @@ mkLapplyReduce = function(fun1 = identity, fun2 = identity) {
   if (missing(fun2)) {
     function(k,vv) lapply(vv, function(v) fun1(keyval(k,v)))}
   else {
-    function(k,vv) lapply(vv, function(v) keyval(fun1(k), fun2(v)))}}
+    function(k,vv) lapply(as.list(izip(fun1(k), fun2(v))), keyval)}}
 
 ## end utils
 
@@ -174,30 +174,71 @@ dfs = function(cmd, ...) {
   else {
     argnames = names(list(...))
   }
-  system(paste(Sys.getenv("HADOOP_HOME"), "/bin/hadoop dfs -", cmd, " ",
+  system(paste(Sys.getenv("HADOOP_HOME"),
+              "/bin/hadoop dfs -",
+              cmd,
+              " ",
               paste(
-                apply(cbind(argnames, list(...)),1, 
+                apply(
+                  cbind(
+                    argnames, 
+                    list(...)),
+                  1, 
                   function(x) paste(
                     if(x[[1]] == ""){""} else{"-"},
                     x[[1]], 
                     " ", 
                     x[[2]], 
                     sep = ""))[
-                      order(argnames, decreasing = T)], 
+                      order(argnames, 
+                            decreasing = T)], 
                 collapse = " "),
                sep = ""),
-         intern = T)}
+         intern = T)
+}
 
 dfs.match = function(...) {
   cmd = strsplit(tail(as.character(as.list(match.call())[[1]]), 1), "\\.")[[1]][[2]]
   dfs(cmd, ...)
 }
 
-for (dfscmd in c("ls","lsr","df","du","dus","count","mv","cp","rm","rmr","expunge","put","copyFromLocal",
-                 "moveFromLocal","get","getmerge","cat","text","copyToLocal","moveToLocal","mkdir",
-                 "setrep","touchz","test","stat","tail","chmod","chown","chgrp","help","ls","get",
-                 "put","rm","rmr","cat")) eval(parse(text = paste ("dfs.", dfscmd, " = dfs.match", sep = "")))
+dfs.ls = dfs.match
+dfs.lsr = dfs.match
+dfs.df = dfs.match
+dfs.du = dfs.match
+dfs.dus = dfs.match
+dfs.count = dfs.match
+dfs.mv = dfs.match
+dfs.cp = dfs.match
+dfs.rm = dfs.match
+dfs.rmr = dfs.match
+dfs.expunge = dfs.match
+dfs.put = dfs.match
+dfs.copyFromLocal = dfs.match
+dfs.moveFromLocal = dfs.match
+dfs.get = dfs.match
+dfs.getmerge = dfs.match
+dfs.cat = dfs.match
+dfs.text = dfs.match
+dfs.copyToLocal = dfs.match
+dfs.moveToLocal = dfs.match
+dfs.mkdir = dfs.match
+dfs.setrep = dfs.match
+dfs.touchz = dfs.match
+dfs.test = dfs.match
+dfs.stat = dfs.match
+dfs.tail = dfs.match
+dfs.chmod = dfs.match
+dfs.chown = dfs.match
+dfs.chgrp = dfs.match
+dfs.help = dfs.match
 
+dfs.ls = dfs.match
+dfs.get = dfs.match
+dfs.put = dfs.match
+dfs.rm = dfs.match
+dfs.rmr = dfs.match
+dfs.cat = dfs.match
 
 dfs.exists = function(f) {
   length(dfs.ls(f)) == 0
@@ -230,7 +271,7 @@ rhwrite = function(object, output = hdfs.tempfile(), textoutputformat = defaultt
 
 rhread = function(file, textinputformat = defaulttextinputformat, todataframe = F){
   tmp = tempfile()
-  dfs.get(toHDFSpath, tmp)
+  dfs.get(if(is.function(file)) {file()} else {file}, tmp)
   retval = if(file.info(tmp)[1,'isdir']) {
              do.call(c,
                lapply(list.files(tmp, "part*"),
