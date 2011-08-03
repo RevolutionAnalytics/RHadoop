@@ -210,12 +210,12 @@ toHDFSpath = function(input) {
     if(is.function(input)) {
       input()}}}
 
-rhwrite = function(object, output = hdfs.tempfile(), textoutputformat = defaulttextoutputformat){
+rhwrite = function(object, file = hdfs.tempfile(), textoutputformat = defaulttextoutputformat){
   if(is.data.frame(object)) {
     object = from.data.frame(object)
   }
   tmp = tempfile()
-  hdfsOutput = toHDFSpath(output)
+  hdfsOutput = toHDFSpath(file)
   cat(paste
        (lapply
         (object,
@@ -225,7 +225,7 @@ rhwrite = function(object, output = hdfs.tempfile(), textoutputformat = defaultt
       file = tmp)
   dfs.put(tmp, hdfsOutput)
   file.remove(tmp)
-  output
+  file
 }
 
 rhread = function(file, textinputformat = defaulttextinputformat, todataframe = F){
@@ -260,14 +260,14 @@ revoMapReduce = function(
   output = NULL,
   map,
   reduce = NULL,
-  reduceondataframe = F,
+  reduceondataframe = FALSE,
   combine = NULL,
-  verbose = FALSE,
   profilenodes = FALSE,
-  hereinput = F,
+  hereinput = FALSE,
   inputformat = NULL,
   textinputformat = defaulttextinputformat,
-  textoutputformat = defaulttextoutputformat) {
+  textoutputformat = defaulttextoutputformat,
+  verbose = FALSE) {
 
   on.exit(expr = gc()) #this is here to trigger cleanup of tempfiles
   if(hereinput) input = lapply(input, rhwrite)
@@ -279,11 +279,11 @@ revoMapReduce = function(
            combine = combine,
            in.folder = lapply(input, toHDFSpath),
            out.folder = toHDFSpath(output),
-           verbose = verbose,
            profilenodes = profilenodes,
            inputformat = inputformat,
            textinputformat = textinputformat,
-           textoutputformat = textoutputformat)
+           textoutputformat = textoutputformat,
+           verbose = verbose)
   output
 }
 
@@ -295,7 +295,6 @@ rhstream = function(
   in.folder,
   out.folder, 
   linebufsize = 2000,
-  verbose = FALSE,
   profilenodes = FALSE,
   numreduces,
   cachefiles = c(),
@@ -308,6 +307,7 @@ rhstream = function(
   inputformat = NULL,
   textinputformat = defaulttextinputformat,
   textoutputformat = defaulttextoutputformat,
+  verbose = FALSE,
   debug = FALSE) {
     ## prepare map and reduce executables
   lines = '#! /usr/bin/env Rscript

@@ -11,6 +11,7 @@ test = function(property, iterations=10, condition = function(...) T, generators
 ## random data  generators
 
 constant = function(const) function() const
+rselect = function(l) function() sample(l,1)
 rnumber = function(distribution, ...) function() distr(1,...)
 
 rnumericlist = function(lambda) function() lapply(1:rpois(1,lambda), runif(1))

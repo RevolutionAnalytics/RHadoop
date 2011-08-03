@@ -18,13 +18,13 @@
 	dfs.put(...)
 	dfs.rm(...)
 	dfs.rmr(...)
-	dfs.exists(...)
+	dfs.exists(f)
 }
 
 \arguments{
   \item{cmd}{hadoop dfs command to execute}
   \item{...}{any arguments and options to the corresponding hadoop dfs command}
-}
+  \item{f}{file to be tested}}
 
 \details{ }
   

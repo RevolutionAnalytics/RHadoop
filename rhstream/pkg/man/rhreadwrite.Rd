@@ -7,7 +7,7 @@
 
 \usage{
 rhwrite(object, file = hdfs.tempfile(), textoutputformat = defaulttextoutputformat)
-rhread(file, textinputformat = defaulttextinputformat)
+rhread(file, textinputformat = defaulttextinputformat, todataframe = F)
 }
 
 \arguments{
@@ -15,6 +15,7 @@ rhread(file, textinputformat = defaulttextinputformat)
   \item{file}{A file in HDFS to read from or write to; for rhread, the return value of revoMapReduce}
   \item{textoutputformat}{The output format of the file being written (rhwrite only)}
   \item{textinputformat}{The input format of the file being read (rhread only)}
+  \item{todataframe}{Do what it takes to return a data frame (rhread only). }
 }
 
 \details{ 
