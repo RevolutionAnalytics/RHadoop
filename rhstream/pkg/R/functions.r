@@ -230,7 +230,7 @@ rhwrite = function(object, output = hdfs.tempfile(), textoutputformat = defaultt
 
 rhread = function(file, textinputformat = defaulttextinputformat, todataframe = F){
   tmp = tempfile()
-  dfs.get(toHDFSpath, tmp)
+  dfs.get(toHDFSpath(file), tmp)
   retval = if(file.info(tmp)[1,'isdir']) {
              do.call(c,
                lapply(list.files(tmp, "part*"),
