@@ -1,6 +1,6 @@
 export(revoMapReduce)
 export(rhwrite,rhread)
-exportPattern('^dfs.*')
+#exportPattern('^dfs.*')
 export(keyval, getKeys, getValues)
 export(rawtextinputformat)
 export(mkMap, mkReduce)

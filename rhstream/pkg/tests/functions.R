@@ -2,14 +2,25 @@ library(RevoHStream)
 
 ##main function, should be factored out one day
 
-test = function(property,times, ...) {
+test = function(property, iterations=10, condition = function(...) T, generators = list()) {
   lapply(1:100, function(i) {
-    args = lapply(list(...), function(a) do.call(a, list()))
-    if(!do.call(property, args)) stop(deparse(list(property, args)))})}
+    args = lapply(generators, function(a) do.call(a, list()))
+    if(condition(args) && !do.call(property, args)) stop(deparse(list(property, args)))})
+  paste ("Pass ", paste(deparse(property), collapse = " "))}
 
-## random data structure generators
+## random data  generators
+
+constant = function(const) function() const
+rnumber = function(distribution, ...) function() distr(1,...)
+
 rnumericlist = function(lambda) function() lapply(1:rpois(1,lambda), runif(1))
 
 rnumerickeyvallist = function(lambda) function() lapply(1:rpois(1,lambda), function(i) keyval(runif(2)))
 
-test(function(kvl) all.equal(kvl, apply(cbind(getKeys(kvl), getValues(kvl)),1,keyval)), 10, rnumerickeyvallist(10))
+
+## actual tests
+test(function(kvl) all.equal(kvl, 
+                             apply(cbind(getKeys(kvl), 
+                                         getValues(kvl)),1,keyval)), 
+     iterations = 10, 
+     generators = list(rnumerickeyvallist(10)))
