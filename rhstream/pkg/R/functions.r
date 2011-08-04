@@ -65,6 +65,9 @@ mkLapplyReduce = function(fun1 = identity, fun2 = identity) {
   else {
     function(k,vv) lapply(vv, function(v) keyval(fun1(k), fun2(v)))}}
 
+mkSeriesMap = function(map1, map2) function(k,v) do.call(map2, map1(k,v))
+mkParallelMap = function(...) function (k,v) lapply(list(...), function(map) map(k,v))
+
 ## end utils
 
 activateProfiling = function(){
