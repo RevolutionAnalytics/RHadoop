@@ -2,11 +2,15 @@ library(RevoHStream)
 
 ##main function, should be factored out one day
 
-unittest = function(property, iterations=10, condition = function(...) T, generators = list()) {
+unittest = function(property, generators, iterations=10, condition = function(...) T) {
   set.seed(0)
   lapply(1:100, function(i) {
     args = lapply(generators, function(a) a())
-    if(do.call(condition, args) && !do.call(property, args)) stop(deparse(list(property, args)))})
+    if(do.call(condition, args) && !do.call(property, args)){
+      stop(paste("FAIL: property:",
+                 paste(deparse(property), collapse = " "),
+                 "args:",
+                 paste(args, collapse = " ")))}})
   paste ("Pass ", paste(deparse(property), collapse = " "))}
 
 ## random data  generators
@@ -39,19 +43,18 @@ library(RevoHStream)
 ##createReader
 ##pending input redirect issue
 ## send
-unittest(function(kv) RevoHStream:::defaulttextoutputformat(kv$key, kv$value) == 
-                      catch.out(RevoHStream:::send(kv))),
-         iterations = 10,
-         generators = list(rdgkeyval()))
+unittest(function(kv) RevoHStream:::defaulttextoutputformat(kv$key, kv$val) == 
+                      paste(catch.out(RevoHStream:::send(kv)),"\n", sep = ""),
+                  generators = list(rdgkeyval()))
 unittest(function(lkv) {
-  catch.out(lapply(lkv,RevoHStream:::send)) ==
+  all(catch.out(lapply(lkv,RevoHStream:::send)) ==
   catch.out(RevoHStream:::send(lkv)))
-})
+},
+        generators = list(rdgnumerickeyvallist(10)))
 ##counter and status -- unused for now
 ##getKeys and getValues
 unittest(function(kvl) all.equal(kvl, 
                              apply(cbind(getKeys(kvl), 
                                          getValues(kvl)),1,keyval)), 
-     iterations = 10, 
-     generators = list(rdgnumerickeyvallist(10)))
+         generators = list(rdgnumerickeyvallist(10)))
 ##keyval
