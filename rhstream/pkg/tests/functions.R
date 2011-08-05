@@ -1,4 +1,16 @@
-library(RevoHStream)
+# Copyright 2011 Revolution Analytics
+#    
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#      http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 ##main function, should be factored out one day
 
@@ -27,6 +39,7 @@ tdgcharacter = function(len = 8) function() substr(
   1, len)
 tdgraw = function(len = 8) function() charToRaw(tdgcharacter(len)())
 tdgfixedlist = function(...) function() lapply(list(...), function(tdg) tdg())
+tdgmonomorphiclist = function(tdg, len) function() replicate(len(),tdg()) 
 
 ## special distributions
 tdgconstant = function(const) function() const
@@ -38,10 +51,10 @@ tdgmixture = function(...) function() sample(list(...),1)[[1]]()
 
 ##app-specific generators
 tdgnumericlist = function(lambda) function() lapply(1:rpois(1,lambda), function(i) runif(1))
-tdgkeyval = function() function() keyval(runif(1), runif(1))
-tdgnumerickeyvallist = function(lambda) function() lapply(1:rpois(1,lambda), function(i) keyval(runif(2)))
+tdgkeyval = function() function() keyval(runif(1), runif(1)) #we can do better than this
+tdgkeyvallist = function(lambda) function() lapply(1:rpois(1,lambda), function(i) keyval(runif(2))) #this one needs work too
 
-## generators test thyself
+## generator test thyself
 ##tdglogical
 unittest(function(ptrue) {
   binom.test(
@@ -70,6 +83,20 @@ unittest(function(d) {
 ## for short
 catch.out = function(...) capture.output(invisible(...))
 ## actual tests
+# Copyright 2011 Revolution Analytics
+#    
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#      http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 library(RevoHStream)
 ##createReader
 ##pending input redirect issue
@@ -81,11 +108,24 @@ unittest(function(lkv) {
   all(catch.out(lapply(lkv,RevoHStream:::send)) ==
   catch.out(RevoHStream:::send(lkv)))
 },
-        generators = list(tdgnumerickeyvallist(10)))
+        generators = list(tdgkeyvallist(10)))
 ##counter and status -- unused for now
 ##getKeys and getValues
-unittest(function(kvl) all.equal(kvl, 
+unittest(function(kvl) isTRUE(all.equal(kvl, 
                              apply(cbind(getKeys(kvl), 
-                                         getValues(kvl)),1,keyval)), 
-         generators = list(tdgnumerickeyvallist(10)))
+                                         getValues(kvl)),1,keyval))), 
+         generators = list(tdgkeyvallist(10)))
 ##keyval
+unittest(function(kv) {
+  isTRUE(all.equal(kv,keyval(kv$key,kv$val))) &&      
+  attr(kv, "keyval")},
+  generators = list(tdgkeyval()))
+
+##rhread rhwrite #use better generator when available
+unittest(function(kvl) {
+  isTRUE(all.equal(kvl, rhread(rhwrite(kvl)), tolerance=1e-4))
+},
+        generators = list(tdgkeyvallist(100)),
+         iterations = 10)
+
+                                         
