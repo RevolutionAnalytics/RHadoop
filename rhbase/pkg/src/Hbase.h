@@ -31,6 +31,10 @@ class HbaseIf {
   virtual void getRowWithColumns(std::vector<TRowResult> & _return, const Text& tableName, const Text& row, const std::vector<Text> & columns) = 0;
   virtual void getRowTs(std::vector<TRowResult> & _return, const Text& tableName, const Text& row, const int64_t timestamp) = 0;
   virtual void getRowWithColumnsTs(std::vector<TRowResult> & _return, const Text& tableName, const Text& row, const std::vector<Text> & columns, const int64_t timestamp) = 0;
+  virtual void getRows(std::vector<TRowResult> & _return, const Text& tableName, const std::vector<Text> & rows) = 0;
+  virtual void getRowsWithColumns(std::vector<TRowResult> & _return, const Text& tableName, const std::vector<Text> & rows, const std::vector<Text> & columns) = 0;
+  virtual void getRowsTs(std::vector<TRowResult> & _return, const Text& tableName, const std::vector<Text> & rows, const int64_t timestamp) = 0;
+  virtual void getRowsWithColumnsTs(std::vector<TRowResult> & _return, const Text& tableName, const std::vector<Text> & rows, const std::vector<Text> & columns, const int64_t timestamp) = 0;
   virtual void mutateRow(const Text& tableName, const Text& row, const std::vector<Mutation> & mutations) = 0;
   virtual void mutateRowTs(const Text& tableName, const Text& row, const std::vector<Mutation> & mutations, const int64_t timestamp) = 0;
   virtual void mutateRows(const Text& tableName, const std::vector<BatchMutation> & rowBatches) = 0;
@@ -40,6 +44,7 @@ class HbaseIf {
   virtual void deleteAllTs(const Text& tableName, const Text& row, const Text& column, const int64_t timestamp) = 0;
   virtual void deleteAllRow(const Text& tableName, const Text& row) = 0;
   virtual void deleteAllRowTs(const Text& tableName, const Text& row, const int64_t timestamp) = 0;
+  virtual ScannerID scannerOpenWithScan(const Text& tableName, const TScan& scan) = 0;
   virtual ScannerID scannerOpen(const Text& tableName, const Text& startRow, const std::vector<Text> & columns) = 0;
   virtual ScannerID scannerOpenWithStop(const Text& tableName, const Text& startRow, const Text& stopRow, const std::vector<Text> & columns) = 0;
   virtual ScannerID scannerOpenWithPrefix(const Text& tableName, const Text& startAndPrefix, const std::vector<Text> & columns) = 0;
@@ -105,6 +110,18 @@ class HbaseNull : virtual public HbaseIf {
   void getRowWithColumnsTs(std::vector<TRowResult> & /* _return */, const Text& /* tableName */, const Text& /* row */, const std::vector<Text> & /* columns */, const int64_t /* timestamp */) {
     return;
   }
+  void getRows(std::vector<TRowResult> & /* _return */, const Text& /* tableName */, const std::vector<Text> & /* rows */) {
+    return;
+  }
+  void getRowsWithColumns(std::vector<TRowResult> & /* _return */, const Text& /* tableName */, const std::vector<Text> & /* rows */, const std::vector<Text> & /* columns */) {
+    return;
+  }
+  void getRowsTs(std::vector<TRowResult> & /* _return */, const Text& /* tableName */, const std::vector<Text> & /* rows */, const int64_t /* timestamp */) {
+    return;
+  }
+  void getRowsWithColumnsTs(std::vector<TRowResult> & /* _return */, const Text& /* tableName */, const std::vector<Text> & /* rows */, const std::vector<Text> & /* columns */, const int64_t /* timestamp */) {
+    return;
+  }
   void mutateRow(const Text& /* tableName */, const Text& /* row */, const std::vector<Mutation> & /* mutations */) {
     return;
   }
@@ -132,6 +149,10 @@ class HbaseNull : virtual public HbaseIf {
   }
   void deleteAllRowTs(const Text& /* tableName */, const Text& /* row */, const int64_t /* timestamp */) {
     return;
+  }
+  ScannerID scannerOpenWithScan(const Text& /* tableName */, const TScan& /* scan */) {
+    ScannerID _return = 0;
+    return _return;
   }
   ScannerID scannerOpen(const Text& /* tableName */, const Text& /* startRow */, const std::vector<Text> & /* columns */) {
     ScannerID _return = 0;
@@ -2022,6 +2043,470 @@ class Hbase_getRowWithColumnsTs_presult {
 
 };
 
+typedef struct _Hbase_getRows_args__isset {
+  _Hbase_getRows_args__isset() : tableName(false), rows(false) {}
+  bool tableName;
+  bool rows;
+} _Hbase_getRows_args__isset;
+
+class Hbase_getRows_args {
+ public:
+
+  Hbase_getRows_args() : tableName("") {
+  }
+
+  virtual ~Hbase_getRows_args() throw() {}
+
+  Text tableName;
+  std::vector<Text>  rows;
+
+  _Hbase_getRows_args__isset __isset;
+
+  bool operator == (const Hbase_getRows_args & rhs) const
+  {
+    if (!(tableName == rhs.tableName))
+      return false;
+    if (!(rows == rhs.rows))
+      return false;
+    return true;
+  }
+  bool operator != (const Hbase_getRows_args &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Hbase_getRows_args & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+
+class Hbase_getRows_pargs {
+ public:
+
+
+  virtual ~Hbase_getRows_pargs() throw() {}
+
+  const Text* tableName;
+  const std::vector<Text> * rows;
+
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Hbase_getRows_result__isset {
+  _Hbase_getRows_result__isset() : success(false), io(false) {}
+  bool success;
+  bool io;
+} _Hbase_getRows_result__isset;
+
+class Hbase_getRows_result {
+ public:
+
+  Hbase_getRows_result() {
+  }
+
+  virtual ~Hbase_getRows_result() throw() {}
+
+  std::vector<TRowResult>  success;
+  IOError io;
+
+  _Hbase_getRows_result__isset __isset;
+
+  bool operator == (const Hbase_getRows_result & rhs) const
+  {
+    if (!(success == rhs.success))
+      return false;
+    if (!(io == rhs.io))
+      return false;
+    return true;
+  }
+  bool operator != (const Hbase_getRows_result &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Hbase_getRows_result & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Hbase_getRows_presult__isset {
+  _Hbase_getRows_presult__isset() : success(false), io(false) {}
+  bool success;
+  bool io;
+} _Hbase_getRows_presult__isset;
+
+class Hbase_getRows_presult {
+ public:
+
+
+  virtual ~Hbase_getRows_presult() throw() {}
+
+  std::vector<TRowResult> * success;
+  IOError io;
+
+  _Hbase_getRows_presult__isset __isset;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+
+};
+
+typedef struct _Hbase_getRowsWithColumns_args__isset {
+  _Hbase_getRowsWithColumns_args__isset() : tableName(false), rows(false), columns(false) {}
+  bool tableName;
+  bool rows;
+  bool columns;
+} _Hbase_getRowsWithColumns_args__isset;
+
+class Hbase_getRowsWithColumns_args {
+ public:
+
+  Hbase_getRowsWithColumns_args() : tableName("") {
+  }
+
+  virtual ~Hbase_getRowsWithColumns_args() throw() {}
+
+  Text tableName;
+  std::vector<Text>  rows;
+  std::vector<Text>  columns;
+
+  _Hbase_getRowsWithColumns_args__isset __isset;
+
+  bool operator == (const Hbase_getRowsWithColumns_args & rhs) const
+  {
+    if (!(tableName == rhs.tableName))
+      return false;
+    if (!(rows == rhs.rows))
+      return false;
+    if (!(columns == rhs.columns))
+      return false;
+    return true;
+  }
+  bool operator != (const Hbase_getRowsWithColumns_args &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Hbase_getRowsWithColumns_args & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+
+class Hbase_getRowsWithColumns_pargs {
+ public:
+
+
+  virtual ~Hbase_getRowsWithColumns_pargs() throw() {}
+
+  const Text* tableName;
+  const std::vector<Text> * rows;
+  const std::vector<Text> * columns;
+
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Hbase_getRowsWithColumns_result__isset {
+  _Hbase_getRowsWithColumns_result__isset() : success(false), io(false) {}
+  bool success;
+  bool io;
+} _Hbase_getRowsWithColumns_result__isset;
+
+class Hbase_getRowsWithColumns_result {
+ public:
+
+  Hbase_getRowsWithColumns_result() {
+  }
+
+  virtual ~Hbase_getRowsWithColumns_result() throw() {}
+
+  std::vector<TRowResult>  success;
+  IOError io;
+
+  _Hbase_getRowsWithColumns_result__isset __isset;
+
+  bool operator == (const Hbase_getRowsWithColumns_result & rhs) const
+  {
+    if (!(success == rhs.success))
+      return false;
+    if (!(io == rhs.io))
+      return false;
+    return true;
+  }
+  bool operator != (const Hbase_getRowsWithColumns_result &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Hbase_getRowsWithColumns_result & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Hbase_getRowsWithColumns_presult__isset {
+  _Hbase_getRowsWithColumns_presult__isset() : success(false), io(false) {}
+  bool success;
+  bool io;
+} _Hbase_getRowsWithColumns_presult__isset;
+
+class Hbase_getRowsWithColumns_presult {
+ public:
+
+
+  virtual ~Hbase_getRowsWithColumns_presult() throw() {}
+
+  std::vector<TRowResult> * success;
+  IOError io;
+
+  _Hbase_getRowsWithColumns_presult__isset __isset;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+
+};
+
+typedef struct _Hbase_getRowsTs_args__isset {
+  _Hbase_getRowsTs_args__isset() : tableName(false), rows(false), timestamp(false) {}
+  bool tableName;
+  bool rows;
+  bool timestamp;
+} _Hbase_getRowsTs_args__isset;
+
+class Hbase_getRowsTs_args {
+ public:
+
+  Hbase_getRowsTs_args() : tableName(""), timestamp(0) {
+  }
+
+  virtual ~Hbase_getRowsTs_args() throw() {}
+
+  Text tableName;
+  std::vector<Text>  rows;
+  int64_t timestamp;
+
+  _Hbase_getRowsTs_args__isset __isset;
+
+  bool operator == (const Hbase_getRowsTs_args & rhs) const
+  {
+    if (!(tableName == rhs.tableName))
+      return false;
+    if (!(rows == rhs.rows))
+      return false;
+    if (!(timestamp == rhs.timestamp))
+      return false;
+    return true;
+  }
+  bool operator != (const Hbase_getRowsTs_args &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Hbase_getRowsTs_args & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+
+class Hbase_getRowsTs_pargs {
+ public:
+
+
+  virtual ~Hbase_getRowsTs_pargs() throw() {}
+
+  const Text* tableName;
+  const std::vector<Text> * rows;
+  const int64_t* timestamp;
+
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Hbase_getRowsTs_result__isset {
+  _Hbase_getRowsTs_result__isset() : success(false), io(false) {}
+  bool success;
+  bool io;
+} _Hbase_getRowsTs_result__isset;
+
+class Hbase_getRowsTs_result {
+ public:
+
+  Hbase_getRowsTs_result() {
+  }
+
+  virtual ~Hbase_getRowsTs_result() throw() {}
+
+  std::vector<TRowResult>  success;
+  IOError io;
+
+  _Hbase_getRowsTs_result__isset __isset;
+
+  bool operator == (const Hbase_getRowsTs_result & rhs) const
+  {
+    if (!(success == rhs.success))
+      return false;
+    if (!(io == rhs.io))
+      return false;
+    return true;
+  }
+  bool operator != (const Hbase_getRowsTs_result &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Hbase_getRowsTs_result & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Hbase_getRowsTs_presult__isset {
+  _Hbase_getRowsTs_presult__isset() : success(false), io(false) {}
+  bool success;
+  bool io;
+} _Hbase_getRowsTs_presult__isset;
+
+class Hbase_getRowsTs_presult {
+ public:
+
+
+  virtual ~Hbase_getRowsTs_presult() throw() {}
+
+  std::vector<TRowResult> * success;
+  IOError io;
+
+  _Hbase_getRowsTs_presult__isset __isset;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+
+};
+
+typedef struct _Hbase_getRowsWithColumnsTs_args__isset {
+  _Hbase_getRowsWithColumnsTs_args__isset() : tableName(false), rows(false), columns(false), timestamp(false) {}
+  bool tableName;
+  bool rows;
+  bool columns;
+  bool timestamp;
+} _Hbase_getRowsWithColumnsTs_args__isset;
+
+class Hbase_getRowsWithColumnsTs_args {
+ public:
+
+  Hbase_getRowsWithColumnsTs_args() : tableName(""), timestamp(0) {
+  }
+
+  virtual ~Hbase_getRowsWithColumnsTs_args() throw() {}
+
+  Text tableName;
+  std::vector<Text>  rows;
+  std::vector<Text>  columns;
+  int64_t timestamp;
+
+  _Hbase_getRowsWithColumnsTs_args__isset __isset;
+
+  bool operator == (const Hbase_getRowsWithColumnsTs_args & rhs) const
+  {
+    if (!(tableName == rhs.tableName))
+      return false;
+    if (!(rows == rhs.rows))
+      return false;
+    if (!(columns == rhs.columns))
+      return false;
+    if (!(timestamp == rhs.timestamp))
+      return false;
+    return true;
+  }
+  bool operator != (const Hbase_getRowsWithColumnsTs_args &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Hbase_getRowsWithColumnsTs_args & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+
+class Hbase_getRowsWithColumnsTs_pargs {
+ public:
+
+
+  virtual ~Hbase_getRowsWithColumnsTs_pargs() throw() {}
+
+  const Text* tableName;
+  const std::vector<Text> * rows;
+  const std::vector<Text> * columns;
+  const int64_t* timestamp;
+
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Hbase_getRowsWithColumnsTs_result__isset {
+  _Hbase_getRowsWithColumnsTs_result__isset() : success(false), io(false) {}
+  bool success;
+  bool io;
+} _Hbase_getRowsWithColumnsTs_result__isset;
+
+class Hbase_getRowsWithColumnsTs_result {
+ public:
+
+  Hbase_getRowsWithColumnsTs_result() {
+  }
+
+  virtual ~Hbase_getRowsWithColumnsTs_result() throw() {}
+
+  std::vector<TRowResult>  success;
+  IOError io;
+
+  _Hbase_getRowsWithColumnsTs_result__isset __isset;
+
+  bool operator == (const Hbase_getRowsWithColumnsTs_result & rhs) const
+  {
+    if (!(success == rhs.success))
+      return false;
+    if (!(io == rhs.io))
+      return false;
+    return true;
+  }
+  bool operator != (const Hbase_getRowsWithColumnsTs_result &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Hbase_getRowsWithColumnsTs_result & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Hbase_getRowsWithColumnsTs_presult__isset {
+  _Hbase_getRowsWithColumnsTs_presult__isset() : success(false), io(false) {}
+  bool success;
+  bool io;
+} _Hbase_getRowsWithColumnsTs_presult__isset;
+
+class Hbase_getRowsWithColumnsTs_presult {
+ public:
+
+
+  virtual ~Hbase_getRowsWithColumnsTs_presult() throw() {}
+
+  std::vector<TRowResult> * success;
+  IOError io;
+
+  _Hbase_getRowsWithColumnsTs_presult__isset __isset;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+
+};
+
 typedef struct _Hbase_mutateRow_args__isset {
   _Hbase_mutateRow_args__isset() : tableName(false), row(false), mutations(false) {}
   bool tableName;
@@ -3053,6 +3538,117 @@ class Hbase_deleteAllRowTs_presult {
 
 };
 
+typedef struct _Hbase_scannerOpenWithScan_args__isset {
+  _Hbase_scannerOpenWithScan_args__isset() : tableName(false), scan(false) {}
+  bool tableName;
+  bool scan;
+} _Hbase_scannerOpenWithScan_args__isset;
+
+class Hbase_scannerOpenWithScan_args {
+ public:
+
+  Hbase_scannerOpenWithScan_args() : tableName("") {
+  }
+
+  virtual ~Hbase_scannerOpenWithScan_args() throw() {}
+
+  Text tableName;
+  TScan scan;
+
+  _Hbase_scannerOpenWithScan_args__isset __isset;
+
+  bool operator == (const Hbase_scannerOpenWithScan_args & rhs) const
+  {
+    if (!(tableName == rhs.tableName))
+      return false;
+    if (!(scan == rhs.scan))
+      return false;
+    return true;
+  }
+  bool operator != (const Hbase_scannerOpenWithScan_args &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Hbase_scannerOpenWithScan_args & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+
+class Hbase_scannerOpenWithScan_pargs {
+ public:
+
+
+  virtual ~Hbase_scannerOpenWithScan_pargs() throw() {}
+
+  const Text* tableName;
+  const TScan* scan;
+
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Hbase_scannerOpenWithScan_result__isset {
+  _Hbase_scannerOpenWithScan_result__isset() : success(false), io(false) {}
+  bool success;
+  bool io;
+} _Hbase_scannerOpenWithScan_result__isset;
+
+class Hbase_scannerOpenWithScan_result {
+ public:
+
+  Hbase_scannerOpenWithScan_result() : success(0) {
+  }
+
+  virtual ~Hbase_scannerOpenWithScan_result() throw() {}
+
+  ScannerID success;
+  IOError io;
+
+  _Hbase_scannerOpenWithScan_result__isset __isset;
+
+  bool operator == (const Hbase_scannerOpenWithScan_result & rhs) const
+  {
+    if (!(success == rhs.success))
+      return false;
+    if (!(io == rhs.io))
+      return false;
+    return true;
+  }
+  bool operator != (const Hbase_scannerOpenWithScan_result &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Hbase_scannerOpenWithScan_result & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Hbase_scannerOpenWithScan_presult__isset {
+  _Hbase_scannerOpenWithScan_presult__isset() : success(false), io(false) {}
+  bool success;
+  bool io;
+} _Hbase_scannerOpenWithScan_presult__isset;
+
+class Hbase_scannerOpenWithScan_presult {
+ public:
+
+
+  virtual ~Hbase_scannerOpenWithScan_presult() throw() {}
+
+  ScannerID* success;
+  IOError io;
+
+  _Hbase_scannerOpenWithScan_presult__isset __isset;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+
+};
+
 typedef struct _Hbase_scannerOpen_args__isset {
   _Hbase_scannerOpen_args__isset() : tableName(false), startRow(false), columns(false) {}
   bool tableName;
@@ -4059,6 +4655,18 @@ class HbaseClient : virtual public HbaseIf {
   void getRowWithColumnsTs(std::vector<TRowResult> & _return, const Text& tableName, const Text& row, const std::vector<Text> & columns, const int64_t timestamp);
   void send_getRowWithColumnsTs(const Text& tableName, const Text& row, const std::vector<Text> & columns, const int64_t timestamp);
   void recv_getRowWithColumnsTs(std::vector<TRowResult> & _return);
+  void getRows(std::vector<TRowResult> & _return, const Text& tableName, const std::vector<Text> & rows);
+  void send_getRows(const Text& tableName, const std::vector<Text> & rows);
+  void recv_getRows(std::vector<TRowResult> & _return);
+  void getRowsWithColumns(std::vector<TRowResult> & _return, const Text& tableName, const std::vector<Text> & rows, const std::vector<Text> & columns);
+  void send_getRowsWithColumns(const Text& tableName, const std::vector<Text> & rows, const std::vector<Text> & columns);
+  void recv_getRowsWithColumns(std::vector<TRowResult> & _return);
+  void getRowsTs(std::vector<TRowResult> & _return, const Text& tableName, const std::vector<Text> & rows, const int64_t timestamp);
+  void send_getRowsTs(const Text& tableName, const std::vector<Text> & rows, const int64_t timestamp);
+  void recv_getRowsTs(std::vector<TRowResult> & _return);
+  void getRowsWithColumnsTs(std::vector<TRowResult> & _return, const Text& tableName, const std::vector<Text> & rows, const std::vector<Text> & columns, const int64_t timestamp);
+  void send_getRowsWithColumnsTs(const Text& tableName, const std::vector<Text> & rows, const std::vector<Text> & columns, const int64_t timestamp);
+  void recv_getRowsWithColumnsTs(std::vector<TRowResult> & _return);
   void mutateRow(const Text& tableName, const Text& row, const std::vector<Mutation> & mutations);
   void send_mutateRow(const Text& tableName, const Text& row, const std::vector<Mutation> & mutations);
   void recv_mutateRow();
@@ -4086,6 +4694,9 @@ class HbaseClient : virtual public HbaseIf {
   void deleteAllRowTs(const Text& tableName, const Text& row, const int64_t timestamp);
   void send_deleteAllRowTs(const Text& tableName, const Text& row, const int64_t timestamp);
   void recv_deleteAllRowTs();
+  ScannerID scannerOpenWithScan(const Text& tableName, const TScan& scan);
+  void send_scannerOpenWithScan(const Text& tableName, const TScan& scan);
+  ScannerID recv_scannerOpenWithScan();
   ScannerID scannerOpen(const Text& tableName, const Text& startRow, const std::vector<Text> & columns);
   void send_scannerOpen(const Text& tableName, const Text& startRow, const std::vector<Text> & columns);
   ScannerID recv_scannerOpen();
@@ -4120,43 +4731,48 @@ class HbaseClient : virtual public HbaseIf {
 class HbaseProcessor : virtual public ::apache::thrift::TProcessor {
  protected:
   boost::shared_ptr<HbaseIf> iface_;
-  virtual bool process_fn(::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, std::string& fname, int32_t seqid);
+  virtual bool process_fn(::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, std::string& fname, int32_t seqid, void* callContext);
  private:
-  std::map<std::string, void (HbaseProcessor::*)(int32_t, ::apache::thrift::protocol::TProtocol*, ::apache::thrift::protocol::TProtocol*)> processMap_;
-  void process_enableTable(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_disableTable(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_isTableEnabled(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_compact(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_majorCompact(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_getTableNames(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_getColumnDescriptors(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_getTableRegions(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_createTable(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_deleteTable(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_get(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_getVer(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_getVerTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_getRow(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_getRowWithColumns(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_getRowTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_getRowWithColumnsTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_mutateRow(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_mutateRowTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_mutateRows(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_mutateRowsTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_atomicIncrement(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_deleteAll(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_deleteAllTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_deleteAllRow(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_deleteAllRowTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_scannerOpen(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_scannerOpenWithStop(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_scannerOpenWithPrefix(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_scannerOpenTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_scannerOpenWithStopTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_scannerGet(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_scannerGetList(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_scannerClose(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
+  std::map<std::string, void (HbaseProcessor::*)(int32_t, ::apache::thrift::protocol::TProtocol*, ::apache::thrift::protocol::TProtocol*, void*)> processMap_;
+  void process_enableTable(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_disableTable(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_isTableEnabled(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_compact(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_majorCompact(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_getTableNames(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_getColumnDescriptors(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_getTableRegions(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_createTable(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_deleteTable(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_get(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_getVer(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_getVerTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_getRow(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_getRowWithColumns(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_getRowTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_getRowWithColumnsTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_getRows(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_getRowsWithColumns(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_getRowsTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_getRowsWithColumnsTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_mutateRow(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_mutateRowTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_mutateRows(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_mutateRowsTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_atomicIncrement(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_deleteAll(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_deleteAllTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_deleteAllRow(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_deleteAllRowTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_scannerOpenWithScan(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_scannerOpen(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_scannerOpenWithStop(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_scannerOpenWithPrefix(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_scannerOpenTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_scannerOpenWithStopTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_scannerGet(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_scannerGetList(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_scannerClose(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
  public:
   HbaseProcessor(boost::shared_ptr<HbaseIf> iface) :
     iface_(iface) {
@@ -4177,6 +4793,10 @@ class HbaseProcessor : virtual public ::apache::thrift::TProcessor {
     processMap_["getRowWithColumns"] = &HbaseProcessor::process_getRowWithColumns;
     processMap_["getRowTs"] = &HbaseProcessor::process_getRowTs;
     processMap_["getRowWithColumnsTs"] = &HbaseProcessor::process_getRowWithColumnsTs;
+    processMap_["getRows"] = &HbaseProcessor::process_getRows;
+    processMap_["getRowsWithColumns"] = &HbaseProcessor::process_getRowsWithColumns;
+    processMap_["getRowsTs"] = &HbaseProcessor::process_getRowsTs;
+    processMap_["getRowsWithColumnsTs"] = &HbaseProcessor::process_getRowsWithColumnsTs;
     processMap_["mutateRow"] = &HbaseProcessor::process_mutateRow;
     processMap_["mutateRowTs"] = &HbaseProcessor::process_mutateRowTs;
     processMap_["mutateRows"] = &HbaseProcessor::process_mutateRows;
@@ -4186,6 +4806,7 @@ class HbaseProcessor : virtual public ::apache::thrift::TProcessor {
     processMap_["deleteAllTs"] = &HbaseProcessor::process_deleteAllTs;
     processMap_["deleteAllRow"] = &HbaseProcessor::process_deleteAllRow;
     processMap_["deleteAllRowTs"] = &HbaseProcessor::process_deleteAllRowTs;
+    processMap_["scannerOpenWithScan"] = &HbaseProcessor::process_scannerOpenWithScan;
     processMap_["scannerOpen"] = &HbaseProcessor::process_scannerOpen;
     processMap_["scannerOpenWithStop"] = &HbaseProcessor::process_scannerOpenWithStop;
     processMap_["scannerOpenWithPrefix"] = &HbaseProcessor::process_scannerOpenWithPrefix;
@@ -4196,8 +4817,7 @@ class HbaseProcessor : virtual public ::apache::thrift::TProcessor {
     processMap_["scannerClose"] = &HbaseProcessor::process_scannerClose;
   }
 
-  virtual bool process(boost::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot, boost::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot);
-  virtual bool process(boost::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot, boost::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot, void*);
+  virtual bool process(boost::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot, boost::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot, void* callContext);
   virtual ~HbaseProcessor() {}
 };
 
@@ -4386,6 +5006,54 @@ class HbaseMultiface : virtual public HbaseIf {
     }
   }
 
+  void getRows(std::vector<TRowResult> & _return, const Text& tableName, const std::vector<Text> & rows) {
+    uint32_t sz = ifaces_.size();
+    for (uint32_t i = 0; i < sz; ++i) {
+      if (i == sz - 1) {
+        ifaces_[i]->getRows(_return, tableName, rows);
+        return;
+      } else {
+        ifaces_[i]->getRows(_return, tableName, rows);
+      }
+    }
+  }
+
+  void getRowsWithColumns(std::vector<TRowResult> & _return, const Text& tableName, const std::vector<Text> & rows, const std::vector<Text> & columns) {
+    uint32_t sz = ifaces_.size();
+    for (uint32_t i = 0; i < sz; ++i) {
+      if (i == sz - 1) {
+        ifaces_[i]->getRowsWithColumns(_return, tableName, rows, columns);
+        return;
+      } else {
+        ifaces_[i]->getRowsWithColumns(_return, tableName, rows, columns);
+      }
+    }
+  }
+
+  void getRowsTs(std::vector<TRowResult> & _return, const Text& tableName, const std::vector<Text> & rows, const int64_t timestamp) {
+    uint32_t sz = ifaces_.size();
+    for (uint32_t i = 0; i < sz; ++i) {
+      if (i == sz - 1) {
+        ifaces_[i]->getRowsTs(_return, tableName, rows, timestamp);
+        return;
+      } else {
+        ifaces_[i]->getRowsTs(_return, tableName, rows, timestamp);
+      }
+    }
+  }
+
+  void getRowsWithColumnsTs(std::vector<TRowResult> & _return, const Text& tableName, const std::vector<Text> & rows, const std::vector<Text> & columns, const int64_t timestamp) {
+    uint32_t sz = ifaces_.size();
+    for (uint32_t i = 0; i < sz; ++i) {
+      if (i == sz - 1) {
+        ifaces_[i]->getRowsWithColumnsTs(_return, tableName, rows, columns, timestamp);
+        return;
+      } else {
+        ifaces_[i]->getRowsWithColumnsTs(_return, tableName, rows, columns, timestamp);
+      }
+    }
+  }
+
   void mutateRow(const Text& tableName, const Text& row, const std::vector<Mutation> & mutations) {
     uint32_t sz = ifaces_.size();
     for (uint32_t i = 0; i < sz; ++i) {
@@ -4450,6 +5118,17 @@ class HbaseMultiface : virtual public HbaseIf {
     uint32_t sz = ifaces_.size();
     for (uint32_t i = 0; i < sz; ++i) {
       ifaces_[i]->deleteAllRowTs(tableName, row, timestamp);
+    }
+  }
+
+  ScannerID scannerOpenWithScan(const Text& tableName, const TScan& scan) {
+    uint32_t sz = ifaces_.size();
+    for (uint32_t i = 0; i < sz; ++i) {
+      if (i == sz - 1) {
+        return ifaces_[i]->scannerOpenWithScan(tableName, scan);
+      } else {
+        ifaces_[i]->scannerOpenWithScan(tableName, scan);
+      }
     }
   }
 
