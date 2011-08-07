@@ -178,7 +178,7 @@ defaulttextinputformat = function(line) {
   keyval(fromJSON(x[1]), fromJSON(x[2]))}
 
 defaulttextoutputformat = function(k,v) {
-  paste(toJSON(k), "\t", toJSON(v), "\n", sep = "")}
+  paste(encodeString(toJSON(k, collapse = "")), "\t", encodeString(toJSON(v, collapse = "")), "\n", sep = "")}
 
 rawtextinputformat = function(line) {keyval(NULL, line)}
 
