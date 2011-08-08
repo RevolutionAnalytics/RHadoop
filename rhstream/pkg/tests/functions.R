@@ -53,6 +53,7 @@ tdgmixture = function(...) function() sample(list(...),1)[[1]]()
 tdgnumericlist = function(lambda) function() lapply(1:rpois(1,lambda), function(i) runif(1))
 tdgkeyval = function() function() keyval(runif(1), runif(1)) #we can do better than this
 tdgkeyvallist = function(lambda) function() lapply(1:rpois(1,lambda), function(i) keyval(runif(2))) #this one needs work too
+tdgnestedkeyvallist = function(lambda) function() lapply(1:rpois(1,lambda), function(i) keyval(runif(1), list(list(runif(2), "a", list("b", 1)))))
 
 ## generator test thyself
 ##tdglogical
@@ -110,10 +111,15 @@ unittest(function(kv) {
   generators = list(tdgkeyval()))
 
 ##rhread rhwrite
-unittest(function(kvl) {
-  isTRUE(all.equal(kvl, rhread(rhwrite(kvl)), tolerance=1e-4))
-},
-        generators = list(tdgkeyvallist(100)),
-         iterations = 10)
+rhreadwritetest = function(generator) {
+  unittest(function(kvl) {
+    isTRUE(all.equal(kvl, rhread(rhwrite(kvl)), tolerance=1e-4))},
+    generators = list(generator),
+    iterations = 10)}
+
+rhreadwritetest(tdgkeyvallist(10))
+rhreadwritetest(tdgnestedkeyvallist(10))
+
+
 
                                          
