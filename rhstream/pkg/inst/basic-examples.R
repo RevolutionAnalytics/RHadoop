@@ -12,7 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
- 
+## lapply like job, first intro
+
+
+small.ints = 1:10
+lapply(small.ints, function(x) x^2)
+
+small.ints = rhwrite(1:10)
+revoMapReduce(input=small.ints, map = function(k,v) keyval(k^2))
+
+rhread(revoMapReduce(input=small.ints, map = function(k,v) keyval(k^2)))
+
+
+
 ## classic wordcount 
 ##input can be any text file
 ## inspect output with rhread(output) -- this will produce an R list watch out with big datasets
