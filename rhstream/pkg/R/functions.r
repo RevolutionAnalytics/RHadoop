@@ -277,7 +277,7 @@ hdfs.tempfile <- function(pattern = "file", tmpdir = tempdir()) {
 revoMapReduce = function(
   input,
   output = NULL,
-  map,
+  map = mkMap(identity),
   reduce = NULL,
   reduceondataframe = FALSE,
   combine = NULL,
