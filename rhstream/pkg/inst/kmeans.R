@@ -14,7 +14,7 @@
 
  
 rhkmeansiter =
-  function(points, distfun, ncenters = length(centers), centers = NULL, summaryfun) {
+  function(points, distfun, ncenters = length(centers), centers = NULL) {
     rhread(revoMapReduce(input = points,
                          map = 
                            if (is.null(centers)) {
@@ -26,8 +26,8 @@ rhkmeansiter =
                          reduce = function(k,vv) keyval(NULL, apply(do.call(rbind, vv), 2, mean))))}
 
 rhkmeans =
-  function(points, ncenters, iterations = 10, distfun = function(a,b) norm(as.matrix(a-b), type = 'F'), summaryfun = mean) {
-    newCenters = rhkmeansiter(points, distfun = distfun, ncenters = ncenters, summaryfun = summaryfun)
+  function(points, ncenters, iterations = 10, distfun = function(a,b) norm(as.matrix(a-b), type = 'F')) {
+    newCenters = rhkmeansiter(points, distfun = distfun, ncenters = ncenters)
     for(i in 1:iterations) {
       newCenters = lapply(RevoHStream:::getValues(newCenters), unlist)
       newCenters = rhkmeansiter(points, distfun, centers=newCenters)}
