@@ -1,4 +1,0 @@
-for node in ec2-50-19-185-58.compute-1.amazonaws.com ec2-67-202-47-1.compute-1.amazonaws.com ec2-50-17-150-163.compute-1.amazonaws.com ec2-184-73-57-32.compute-1.amazonaws.com ec2-174-129-129-32.compute-1.amazonaws.com
-  do 
-  ssh $node $*
-done
