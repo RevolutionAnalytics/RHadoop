@@ -173,9 +173,11 @@ make.input.files = function(infiles){
                  sprintf("-input %s ", r)}),
         collapse=" ")}
 
+decodeString = function(s) gsub("\\\\n","\\\n", s)
+
 defaulttextinputformat = function(line) {
   x =  strsplit(line, "\t")[[1]]
-  keyval(fromJSON(x[1]), fromJSON(x[2]))}
+  keyval(fromJSON(decodeString(x[1])), fromJSON(decodeString(x[2])))}
 
 defaulttextoutputformat = function(k,v) {
   paste(encodeString(toJSON(k, collapse = "")), "\t", encodeString(toJSON(v, collapse = "")), "\n", sep = "")}
