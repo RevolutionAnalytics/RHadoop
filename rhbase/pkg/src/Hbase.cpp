@@ -889,14 +889,14 @@ uint32_t Hbase_getTableNames_result::read(::apache::thrift::protocol::TProtocol*
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size14;
-            ::apache::thrift::protocol::TType _etype17;
-            iprot->readListBegin(_etype17, _size14);
-            this->success.resize(_size14);
-            uint32_t _i18;
-            for (_i18 = 0; _i18 < _size14; ++_i18)
+            uint32_t _size20;
+            ::apache::thrift::protocol::TType _etype23;
+            iprot->readListBegin(_etype23, _size20);
+            this->success.resize(_size20);
+            uint32_t _i24;
+            for (_i24 = 0; _i24 < _size20; ++_i24)
             {
-              xfer += iprot->readBinary(this->success[_i18]);
+              xfer += iprot->readBinary(this->success[_i24]);
             }
             iprot->readListEnd();
           }
@@ -935,10 +935,10 @@ uint32_t Hbase_getTableNames_result::write(::apache::thrift::protocol::TProtocol
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, this->success.size());
-      std::vector<Text> ::const_iterator _iter19;
-      for (_iter19 = this->success.begin(); _iter19 != this->success.end(); ++_iter19)
+      std::vector<Text> ::const_iterator _iter25;
+      for (_iter25 = this->success.begin(); _iter25 != this->success.end(); ++_iter25)
       {
-        xfer += oprot->writeBinary((*_iter19));
+        xfer += oprot->writeBinary((*_iter25));
       }
       xfer += oprot->writeListEnd();
     }
@@ -977,14 +977,14 @@ uint32_t Hbase_getTableNames_presult::read(::apache::thrift::protocol::TProtocol
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size20;
-            ::apache::thrift::protocol::TType _etype23;
-            iprot->readListBegin(_etype23, _size20);
-            (*(this->success)).resize(_size20);
-            uint32_t _i24;
-            for (_i24 = 0; _i24 < _size20; ++_i24)
+            uint32_t _size26;
+            ::apache::thrift::protocol::TType _etype29;
+            iprot->readListBegin(_etype29, _size26);
+            (*(this->success)).resize(_size26);
+            uint32_t _i30;
+            for (_i30 = 0; _i30 < _size26; ++_i30)
             {
-              xfer += iprot->readBinary((*(this->success))[_i24]);
+              xfer += iprot->readBinary((*(this->success))[_i30]);
             }
             iprot->readListEnd();
           }
@@ -1099,17 +1099,17 @@ uint32_t Hbase_getColumnDescriptors_result::read(::apache::thrift::protocol::TPr
         if (ftype == ::apache::thrift::protocol::T_MAP) {
           {
             this->success.clear();
-            uint32_t _size25;
-            ::apache::thrift::protocol::TType _ktype26;
-            ::apache::thrift::protocol::TType _vtype27;
-            iprot->readMapBegin(_ktype26, _vtype27, _size25);
-            uint32_t _i29;
-            for (_i29 = 0; _i29 < _size25; ++_i29)
+            uint32_t _size31;
+            ::apache::thrift::protocol::TType _ktype32;
+            ::apache::thrift::protocol::TType _vtype33;
+            iprot->readMapBegin(_ktype32, _vtype33, _size31);
+            uint32_t _i35;
+            for (_i35 = 0; _i35 < _size31; ++_i35)
             {
-              Text _key30;
-              xfer += iprot->readBinary(_key30);
-              ColumnDescriptor& _val31 = this->success[_key30];
-              xfer += _val31.read(iprot);
+              Text _key36;
+              xfer += iprot->readBinary(_key36);
+              ColumnDescriptor& _val37 = this->success[_key36];
+              xfer += _val37.read(iprot);
             }
             iprot->readMapEnd();
           }
@@ -1148,11 +1148,11 @@ uint32_t Hbase_getColumnDescriptors_result::write(::apache::thrift::protocol::TP
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_MAP, 0);
     {
       xfer += oprot->writeMapBegin(::apache::thrift::protocol::T_STRING, ::apache::thrift::protocol::T_STRUCT, this->success.size());
-      std::map<Text, ColumnDescriptor> ::const_iterator _iter32;
-      for (_iter32 = this->success.begin(); _iter32 != this->success.end(); ++_iter32)
+      std::map<Text, ColumnDescriptor> ::const_iterator _iter38;
+      for (_iter38 = this->success.begin(); _iter38 != this->success.end(); ++_iter38)
       {
-        xfer += oprot->writeBinary(_iter32->first);
-        xfer += _iter32->second.write(oprot);
+        xfer += oprot->writeBinary(_iter38->first);
+        xfer += _iter38->second.write(oprot);
       }
       xfer += oprot->writeMapEnd();
     }
@@ -1191,17 +1191,17 @@ uint32_t Hbase_getColumnDescriptors_presult::read(::apache::thrift::protocol::TP
         if (ftype == ::apache::thrift::protocol::T_MAP) {
           {
             (*(this->success)).clear();
-            uint32_t _size33;
-            ::apache::thrift::protocol::TType _ktype34;
-            ::apache::thrift::protocol::TType _vtype35;
-            iprot->readMapBegin(_ktype34, _vtype35, _size33);
-            uint32_t _i37;
-            for (_i37 = 0; _i37 < _size33; ++_i37)
+            uint32_t _size39;
+            ::apache::thrift::protocol::TType _ktype40;
+            ::apache::thrift::protocol::TType _vtype41;
+            iprot->readMapBegin(_ktype40, _vtype41, _size39);
+            uint32_t _i43;
+            for (_i43 = 0; _i43 < _size39; ++_i43)
             {
-              Text _key38;
-              xfer += iprot->readBinary(_key38);
-              ColumnDescriptor& _val39 = (*(this->success))[_key38];
-              xfer += _val39.read(iprot);
+              Text _key44;
+              xfer += iprot->readBinary(_key44);
+              ColumnDescriptor& _val45 = (*(this->success))[_key44];
+              xfer += _val45.read(iprot);
             }
             iprot->readMapEnd();
           }
@@ -1316,14 +1316,14 @@ uint32_t Hbase_getTableRegions_result::read(::apache::thrift::protocol::TProtoco
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size40;
-            ::apache::thrift::protocol::TType _etype43;
-            iprot->readListBegin(_etype43, _size40);
-            this->success.resize(_size40);
-            uint32_t _i44;
-            for (_i44 = 0; _i44 < _size40; ++_i44)
+            uint32_t _size46;
+            ::apache::thrift::protocol::TType _etype49;
+            iprot->readListBegin(_etype49, _size46);
+            this->success.resize(_size46);
+            uint32_t _i50;
+            for (_i50 = 0; _i50 < _size46; ++_i50)
             {
-              xfer += this->success[_i44].read(iprot);
+              xfer += this->success[_i50].read(iprot);
             }
             iprot->readListEnd();
           }
@@ -1362,10 +1362,10 @@ uint32_t Hbase_getTableRegions_result::write(::apache::thrift::protocol::TProtoc
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, this->success.size());
-      std::vector<TRegionInfo> ::const_iterator _iter45;
-      for (_iter45 = this->success.begin(); _iter45 != this->success.end(); ++_iter45)
+      std::vector<TRegionInfo> ::const_iterator _iter51;
+      for (_iter51 = this->success.begin(); _iter51 != this->success.end(); ++_iter51)
       {
-        xfer += (*_iter45).write(oprot);
+        xfer += (*_iter51).write(oprot);
       }
       xfer += oprot->writeListEnd();
     }
@@ -1404,14 +1404,14 @@ uint32_t Hbase_getTableRegions_presult::read(::apache::thrift::protocol::TProtoc
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size46;
-            ::apache::thrift::protocol::TType _etype49;
-            iprot->readListBegin(_etype49, _size46);
-            (*(this->success)).resize(_size46);
-            uint32_t _i50;
-            for (_i50 = 0; _i50 < _size46; ++_i50)
+            uint32_t _size52;
+            ::apache::thrift::protocol::TType _etype55;
+            iprot->readListBegin(_etype55, _size52);
+            (*(this->success)).resize(_size52);
+            uint32_t _i56;
+            for (_i56 = 0; _i56 < _size52; ++_i56)
             {
-              xfer += (*(this->success))[_i50].read(iprot);
+              xfer += (*(this->success))[_i56].read(iprot);
             }
             iprot->readListEnd();
           }
@@ -1472,14 +1472,14 @@ uint32_t Hbase_createTable_args::read(::apache::thrift::protocol::TProtocol* ipr
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->columnFamilies.clear();
-            uint32_t _size51;
-            ::apache::thrift::protocol::TType _etype54;
-            iprot->readListBegin(_etype54, _size51);
-            this->columnFamilies.resize(_size51);
-            uint32_t _i55;
-            for (_i55 = 0; _i55 < _size51; ++_i55)
+            uint32_t _size57;
+            ::apache::thrift::protocol::TType _etype60;
+            iprot->readListBegin(_etype60, _size57);
+            this->columnFamilies.resize(_size57);
+            uint32_t _i61;
+            for (_i61 = 0; _i61 < _size57; ++_i61)
             {
-              xfer += this->columnFamilies[_i55].read(iprot);
+              xfer += this->columnFamilies[_i61].read(iprot);
             }
             iprot->readListEnd();
           }
@@ -1509,10 +1509,10 @@ uint32_t Hbase_createTable_args::write(::apache::thrift::protocol::TProtocol* op
   xfer += oprot->writeFieldBegin("columnFamilies", ::apache::thrift::protocol::T_LIST, 2);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, this->columnFamilies.size());
-    std::vector<ColumnDescriptor> ::const_iterator _iter56;
-    for (_iter56 = this->columnFamilies.begin(); _iter56 != this->columnFamilies.end(); ++_iter56)
+    std::vector<ColumnDescriptor> ::const_iterator _iter62;
+    for (_iter62 = this->columnFamilies.begin(); _iter62 != this->columnFamilies.end(); ++_iter62)
     {
-      xfer += (*_iter56).write(oprot);
+      xfer += (*_iter62).write(oprot);
     }
     xfer += oprot->writeListEnd();
   }
@@ -1531,10 +1531,10 @@ uint32_t Hbase_createTable_pargs::write(::apache::thrift::protocol::TProtocol* o
   xfer += oprot->writeFieldBegin("columnFamilies", ::apache::thrift::protocol::T_LIST, 2);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, (*(this->columnFamilies)).size());
-    std::vector<ColumnDescriptor> ::const_iterator _iter57;
-    for (_iter57 = (*(this->columnFamilies)).begin(); _iter57 != (*(this->columnFamilies)).end(); ++_iter57)
+    std::vector<ColumnDescriptor> ::const_iterator _iter63;
+    for (_iter63 = (*(this->columnFamilies)).begin(); _iter63 != (*(this->columnFamilies)).end(); ++_iter63)
     {
-      xfer += (*_iter57).write(oprot);
+      xfer += (*_iter63).write(oprot);
     }
     xfer += oprot->writeListEnd();
   }
@@ -1952,14 +1952,14 @@ uint32_t Hbase_get_result::read(::apache::thrift::protocol::TProtocol* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size58;
-            ::apache::thrift::protocol::TType _etype61;
-            iprot->readListBegin(_etype61, _size58);
-            this->success.resize(_size58);
-            uint32_t _i62;
-            for (_i62 = 0; _i62 < _size58; ++_i62)
+            uint32_t _size64;
+            ::apache::thrift::protocol::TType _etype67;
+            iprot->readListBegin(_etype67, _size64);
+            this->success.resize(_size64);
+            uint32_t _i68;
+            for (_i68 = 0; _i68 < _size64; ++_i68)
             {
-              xfer += this->success[_i62].read(iprot);
+              xfer += this->success[_i68].read(iprot);
             }
             iprot->readListEnd();
           }
@@ -1998,10 +1998,10 @@ uint32_t Hbase_get_result::write(::apache::thrift::protocol::TProtocol* oprot) c
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, this->success.size());
-      std::vector<TCell> ::const_iterator _iter63;
-      for (_iter63 = this->success.begin(); _iter63 != this->success.end(); ++_iter63)
+      std::vector<TCell> ::const_iterator _iter69;
+      for (_iter69 = this->success.begin(); _iter69 != this->success.end(); ++_iter69)
       {
-        xfer += (*_iter63).write(oprot);
+        xfer += (*_iter69).write(oprot);
       }
       xfer += oprot->writeListEnd();
     }
@@ -2040,14 +2040,14 @@ uint32_t Hbase_get_presult::read(::apache::thrift::protocol::TProtocol* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size64;
-            ::apache::thrift::protocol::TType _etype67;
-            iprot->readListBegin(_etype67, _size64);
-            (*(this->success)).resize(_size64);
-            uint32_t _i68;
-            for (_i68 = 0; _i68 < _size64; ++_i68)
+            uint32_t _size70;
+            ::apache::thrift::protocol::TType _etype73;
+            iprot->readListBegin(_etype73, _size70);
+            (*(this->success)).resize(_size70);
+            uint32_t _i74;
+            for (_i74 = 0; _i74 < _size70; ++_i74)
             {
-              xfer += (*(this->success))[_i68].read(iprot);
+              xfer += (*(this->success))[_i74].read(iprot);
             }
             iprot->readListEnd();
           }
@@ -2204,14 +2204,14 @@ uint32_t Hbase_getVer_result::read(::apache::thrift::protocol::TProtocol* iprot)
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size69;
-            ::apache::thrift::protocol::TType _etype72;
-            iprot->readListBegin(_etype72, _size69);
-            this->success.resize(_size69);
-            uint32_t _i73;
-            for (_i73 = 0; _i73 < _size69; ++_i73)
+            uint32_t _size75;
+            ::apache::thrift::protocol::TType _etype78;
+            iprot->readListBegin(_etype78, _size75);
+            this->success.resize(_size75);
+            uint32_t _i79;
+            for (_i79 = 0; _i79 < _size75; ++_i79)
             {
-              xfer += this->success[_i73].read(iprot);
+              xfer += this->success[_i79].read(iprot);
             }
             iprot->readListEnd();
           }
@@ -2250,10 +2250,10 @@ uint32_t Hbase_getVer_result::write(::apache::thrift::protocol::TProtocol* oprot
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, this->success.size());
-      std::vector<TCell> ::const_iterator _iter74;
-      for (_iter74 = this->success.begin(); _iter74 != this->success.end(); ++_iter74)
+      std::vector<TCell> ::const_iterator _iter80;
+      for (_iter80 = this->success.begin(); _iter80 != this->success.end(); ++_iter80)
       {
-        xfer += (*_iter74).write(oprot);
+        xfer += (*_iter80).write(oprot);
       }
       xfer += oprot->writeListEnd();
     }
@@ -2292,14 +2292,14 @@ uint32_t Hbase_getVer_presult::read(::apache::thrift::protocol::TProtocol* iprot
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size75;
-            ::apache::thrift::protocol::TType _etype78;
-            iprot->readListBegin(_etype78, _size75);
-            (*(this->success)).resize(_size75);
-            uint32_t _i79;
-            for (_i79 = 0; _i79 < _size75; ++_i79)
+            uint32_t _size81;
+            ::apache::thrift::protocol::TType _etype84;
+            iprot->readListBegin(_etype84, _size81);
+            (*(this->success)).resize(_size81);
+            uint32_t _i85;
+            for (_i85 = 0; _i85 < _size81; ++_i85)
             {
-              xfer += (*(this->success))[_i79].read(iprot);
+              xfer += (*(this->success))[_i85].read(iprot);
             }
             iprot->readListEnd();
           }
@@ -2470,14 +2470,14 @@ uint32_t Hbase_getVerTs_result::read(::apache::thrift::protocol::TProtocol* ipro
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size80;
-            ::apache::thrift::protocol::TType _etype83;
-            iprot->readListBegin(_etype83, _size80);
-            this->success.resize(_size80);
-            uint32_t _i84;
-            for (_i84 = 0; _i84 < _size80; ++_i84)
+            uint32_t _size86;
+            ::apache::thrift::protocol::TType _etype89;
+            iprot->readListBegin(_etype89, _size86);
+            this->success.resize(_size86);
+            uint32_t _i90;
+            for (_i90 = 0; _i90 < _size86; ++_i90)
             {
-              xfer += this->success[_i84].read(iprot);
+              xfer += this->success[_i90].read(iprot);
             }
             iprot->readListEnd();
           }
@@ -2516,10 +2516,10 @@ uint32_t Hbase_getVerTs_result::write(::apache::thrift::protocol::TProtocol* opr
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, this->success.size());
-      std::vector<TCell> ::const_iterator _iter85;
-      for (_iter85 = this->success.begin(); _iter85 != this->success.end(); ++_iter85)
+      std::vector<TCell> ::const_iterator _iter91;
+      for (_iter91 = this->success.begin(); _iter91 != this->success.end(); ++_iter91)
       {
-        xfer += (*_iter85).write(oprot);
+        xfer += (*_iter91).write(oprot);
       }
       xfer += oprot->writeListEnd();
     }
@@ -2558,14 +2558,14 @@ uint32_t Hbase_getVerTs_presult::read(::apache::thrift::protocol::TProtocol* ipr
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size86;
-            ::apache::thrift::protocol::TType _etype89;
-            iprot->readListBegin(_etype89, _size86);
-            (*(this->success)).resize(_size86);
-            uint32_t _i90;
-            for (_i90 = 0; _i90 < _size86; ++_i90)
+            uint32_t _size92;
+            ::apache::thrift::protocol::TType _etype95;
+            iprot->readListBegin(_etype95, _size92);
+            (*(this->success)).resize(_size92);
+            uint32_t _i96;
+            for (_i96 = 0; _i96 < _size92; ++_i96)
             {
-              xfer += (*(this->success))[_i90].read(iprot);
+              xfer += (*(this->success))[_i96].read(iprot);
             }
             iprot->readListEnd();
           }
@@ -2694,14 +2694,14 @@ uint32_t Hbase_getRow_result::read(::apache::thrift::protocol::TProtocol* iprot)
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size91;
-            ::apache::thrift::protocol::TType _etype94;
-            iprot->readListBegin(_etype94, _size91);
-            this->success.resize(_size91);
-            uint32_t _i95;
-            for (_i95 = 0; _i95 < _size91; ++_i95)
+            uint32_t _size97;
+            ::apache::thrift::protocol::TType _etype100;
+            iprot->readListBegin(_etype100, _size97);
+            this->success.resize(_size97);
+            uint32_t _i101;
+            for (_i101 = 0; _i101 < _size97; ++_i101)
             {
-              xfer += this->success[_i95].read(iprot);
+              xfer += this->success[_i101].read(iprot);
             }
             iprot->readListEnd();
           }
@@ -2740,10 +2740,10 @@ uint32_t Hbase_getRow_result::write(::apache::thrift::protocol::TProtocol* oprot
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, this->success.size());
-      std::vector<TRowResult> ::const_iterator _iter96;
-      for (_iter96 = this->success.begin(); _iter96 != this->success.end(); ++_iter96)
+      std::vector<TRowResult> ::const_iterator _iter102;
+      for (_iter102 = this->success.begin(); _iter102 != this->success.end(); ++_iter102)
       {
-        xfer += (*_iter96).write(oprot);
+        xfer += (*_iter102).write(oprot);
       }
       xfer += oprot->writeListEnd();
     }
@@ -2782,14 +2782,14 @@ uint32_t Hbase_getRow_presult::read(::apache::thrift::protocol::TProtocol* iprot
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size97;
-            ::apache::thrift::protocol::TType _etype100;
-            iprot->readListBegin(_etype100, _size97);
-            (*(this->success)).resize(_size97);
-            uint32_t _i101;
-            for (_i101 = 0; _i101 < _size97; ++_i101)
+            uint32_t _size103;
+            ::apache::thrift::protocol::TType _etype106;
+            iprot->readListBegin(_etype106, _size103);
+            (*(this->success)).resize(_size103);
+            uint32_t _i107;
+            for (_i107 = 0; _i107 < _size103; ++_i107)
             {
-              xfer += (*(this->success))[_i101].read(iprot);
+              xfer += (*(this->success))[_i107].read(iprot);
             }
             iprot->readListEnd();
           }
@@ -2858,14 +2858,14 @@ uint32_t Hbase_getRowWithColumns_args::read(::apache::thrift::protocol::TProtoco
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->columns.clear();
-            uint32_t _size102;
-            ::apache::thrift::protocol::TType _etype105;
-            iprot->readListBegin(_etype105, _size102);
-            this->columns.resize(_size102);
-            uint32_t _i106;
-            for (_i106 = 0; _i106 < _size102; ++_i106)
+            uint32_t _size108;
+            ::apache::thrift::protocol::TType _etype111;
+            iprot->readListBegin(_etype111, _size108);
+            this->columns.resize(_size108);
+            uint32_t _i112;
+            for (_i112 = 0; _i112 < _size108; ++_i112)
             {
-              xfer += iprot->readBinary(this->columns[_i106]);
+              xfer += iprot->readBinary(this->columns[_i112]);
             }
             iprot->readListEnd();
           }
@@ -2898,10 +2898,10 @@ uint32_t Hbase_getRowWithColumns_args::write(::apache::thrift::protocol::TProtoc
   xfer += oprot->writeFieldBegin("columns", ::apache::thrift::protocol::T_LIST, 3);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, this->columns.size());
-    std::vector<Text> ::const_iterator _iter107;
-    for (_iter107 = this->columns.begin(); _iter107 != this->columns.end(); ++_iter107)
+    std::vector<Text> ::const_iterator _iter113;
+    for (_iter113 = this->columns.begin(); _iter113 != this->columns.end(); ++_iter113)
     {
-      xfer += oprot->writeBinary((*_iter107));
+      xfer += oprot->writeBinary((*_iter113));
     }
     xfer += oprot->writeListEnd();
   }
@@ -2923,10 +2923,10 @@ uint32_t Hbase_getRowWithColumns_pargs::write(::apache::thrift::protocol::TProto
   xfer += oprot->writeFieldBegin("columns", ::apache::thrift::protocol::T_LIST, 3);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, (*(this->columns)).size());
-    std::vector<Text> ::const_iterator _iter108;
-    for (_iter108 = (*(this->columns)).begin(); _iter108 != (*(this->columns)).end(); ++_iter108)
+    std::vector<Text> ::const_iterator _iter114;
+    for (_iter114 = (*(this->columns)).begin(); _iter114 != (*(this->columns)).end(); ++_iter114)
     {
-      xfer += oprot->writeBinary((*_iter108));
+      xfer += oprot->writeBinary((*_iter114));
     }
     xfer += oprot->writeListEnd();
   }
@@ -2960,14 +2960,14 @@ uint32_t Hbase_getRowWithColumns_result::read(::apache::thrift::protocol::TProto
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size109;
-            ::apache::thrift::protocol::TType _etype112;
-            iprot->readListBegin(_etype112, _size109);
-            this->success.resize(_size109);
-            uint32_t _i113;
-            for (_i113 = 0; _i113 < _size109; ++_i113)
+            uint32_t _size115;
+            ::apache::thrift::protocol::TType _etype118;
+            iprot->readListBegin(_etype118, _size115);
+            this->success.resize(_size115);
+            uint32_t _i119;
+            for (_i119 = 0; _i119 < _size115; ++_i119)
             {
-              xfer += this->success[_i113].read(iprot);
+              xfer += this->success[_i119].read(iprot);
             }
             iprot->readListEnd();
           }
@@ -3006,10 +3006,10 @@ uint32_t Hbase_getRowWithColumns_result::write(::apache::thrift::protocol::TProt
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, this->success.size());
-      std::vector<TRowResult> ::const_iterator _iter114;
-      for (_iter114 = this->success.begin(); _iter114 != this->success.end(); ++_iter114)
+      std::vector<TRowResult> ::const_iterator _iter120;
+      for (_iter120 = this->success.begin(); _iter120 != this->success.end(); ++_iter120)
       {
-        xfer += (*_iter114).write(oprot);
+        xfer += (*_iter120).write(oprot);
       }
       xfer += oprot->writeListEnd();
     }
@@ -3048,14 +3048,14 @@ uint32_t Hbase_getRowWithColumns_presult::read(::apache::thrift::protocol::TProt
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size115;
-            ::apache::thrift::protocol::TType _etype118;
-            iprot->readListBegin(_etype118, _size115);
-            (*(this->success)).resize(_size115);
-            uint32_t _i119;
-            for (_i119 = 0; _i119 < _size115; ++_i119)
+            uint32_t _size121;
+            ::apache::thrift::protocol::TType _etype124;
+            iprot->readListBegin(_etype124, _size121);
+            (*(this->success)).resize(_size121);
+            uint32_t _i125;
+            for (_i125 = 0; _i125 < _size121; ++_i125)
             {
-              xfer += (*(this->success))[_i119].read(iprot);
+              xfer += (*(this->success))[_i125].read(iprot);
             }
             iprot->readListEnd();
           }
@@ -3198,14 +3198,14 @@ uint32_t Hbase_getRowTs_result::read(::apache::thrift::protocol::TProtocol* ipro
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size120;
-            ::apache::thrift::protocol::TType _etype123;
-            iprot->readListBegin(_etype123, _size120);
-            this->success.resize(_size120);
-            uint32_t _i124;
-            for (_i124 = 0; _i124 < _size120; ++_i124)
+            uint32_t _size126;
+            ::apache::thrift::protocol::TType _etype129;
+            iprot->readListBegin(_etype129, _size126);
+            this->success.resize(_size126);
+            uint32_t _i130;
+            for (_i130 = 0; _i130 < _size126; ++_i130)
             {
-              xfer += this->success[_i124].read(iprot);
+              xfer += this->success[_i130].read(iprot);
             }
             iprot->readListEnd();
           }
@@ -3244,10 +3244,10 @@ uint32_t Hbase_getRowTs_result::write(::apache::thrift::protocol::TProtocol* opr
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, this->success.size());
-      std::vector<TRowResult> ::const_iterator _iter125;
-      for (_iter125 = this->success.begin(); _iter125 != this->success.end(); ++_iter125)
+      std::vector<TRowResult> ::const_iterator _iter131;
+      for (_iter131 = this->success.begin(); _iter131 != this->success.end(); ++_iter131)
       {
-        xfer += (*_iter125).write(oprot);
+        xfer += (*_iter131).write(oprot);
       }
       xfer += oprot->writeListEnd();
     }
@@ -3286,14 +3286,14 @@ uint32_t Hbase_getRowTs_presult::read(::apache::thrift::protocol::TProtocol* ipr
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size126;
-            ::apache::thrift::protocol::TType _etype129;
-            iprot->readListBegin(_etype129, _size126);
-            (*(this->success)).resize(_size126);
-            uint32_t _i130;
-            for (_i130 = 0; _i130 < _size126; ++_i130)
+            uint32_t _size132;
+            ::apache::thrift::protocol::TType _etype135;
+            iprot->readListBegin(_etype135, _size132);
+            (*(this->success)).resize(_size132);
+            uint32_t _i136;
+            for (_i136 = 0; _i136 < _size132; ++_i136)
             {
-              xfer += (*(this->success))[_i130].read(iprot);
+              xfer += (*(this->success))[_i136].read(iprot);
             }
             iprot->readListEnd();
           }
@@ -3362,14 +3362,14 @@ uint32_t Hbase_getRowWithColumnsTs_args::read(::apache::thrift::protocol::TProto
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->columns.clear();
-            uint32_t _size131;
-            ::apache::thrift::protocol::TType _etype134;
-            iprot->readListBegin(_etype134, _size131);
-            this->columns.resize(_size131);
-            uint32_t _i135;
-            for (_i135 = 0; _i135 < _size131; ++_i135)
+            uint32_t _size137;
+            ::apache::thrift::protocol::TType _etype140;
+            iprot->readListBegin(_etype140, _size137);
+            this->columns.resize(_size137);
+            uint32_t _i141;
+            for (_i141 = 0; _i141 < _size137; ++_i141)
             {
-              xfer += iprot->readBinary(this->columns[_i135]);
+              xfer += iprot->readBinary(this->columns[_i141]);
             }
             iprot->readListEnd();
           }
@@ -3410,10 +3410,10 @@ uint32_t Hbase_getRowWithColumnsTs_args::write(::apache::thrift::protocol::TProt
   xfer += oprot->writeFieldBegin("columns", ::apache::thrift::protocol::T_LIST, 3);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, this->columns.size());
-    std::vector<Text> ::const_iterator _iter136;
-    for (_iter136 = this->columns.begin(); _iter136 != this->columns.end(); ++_iter136)
+    std::vector<Text> ::const_iterator _iter142;
+    for (_iter142 = this->columns.begin(); _iter142 != this->columns.end(); ++_iter142)
     {
-      xfer += oprot->writeBinary((*_iter136));
+      xfer += oprot->writeBinary((*_iter142));
     }
     xfer += oprot->writeListEnd();
   }
@@ -3438,10 +3438,10 @@ uint32_t Hbase_getRowWithColumnsTs_pargs::write(::apache::thrift::protocol::TPro
   xfer += oprot->writeFieldBegin("columns", ::apache::thrift::protocol::T_LIST, 3);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, (*(this->columns)).size());
-    std::vector<Text> ::const_iterator _iter137;
-    for (_iter137 = (*(this->columns)).begin(); _iter137 != (*(this->columns)).end(); ++_iter137)
+    std::vector<Text> ::const_iterator _iter143;
+    for (_iter143 = (*(this->columns)).begin(); _iter143 != (*(this->columns)).end(); ++_iter143)
     {
-      xfer += oprot->writeBinary((*_iter137));
+      xfer += oprot->writeBinary((*_iter143));
     }
     xfer += oprot->writeListEnd();
   }
@@ -3478,14 +3478,14 @@ uint32_t Hbase_getRowWithColumnsTs_result::read(::apache::thrift::protocol::TPro
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size138;
-            ::apache::thrift::protocol::TType _etype141;
-            iprot->readListBegin(_etype141, _size138);
-            this->success.resize(_size138);
-            uint32_t _i142;
-            for (_i142 = 0; _i142 < _size138; ++_i142)
+            uint32_t _size144;
+            ::apache::thrift::protocol::TType _etype147;
+            iprot->readListBegin(_etype147, _size144);
+            this->success.resize(_size144);
+            uint32_t _i148;
+            for (_i148 = 0; _i148 < _size144; ++_i148)
             {
-              xfer += this->success[_i142].read(iprot);
+              xfer += this->success[_i148].read(iprot);
             }
             iprot->readListEnd();
           }
@@ -3524,10 +3524,10 @@ uint32_t Hbase_getRowWithColumnsTs_result::write(::apache::thrift::protocol::TPr
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, this->success.size());
-      std::vector<TRowResult> ::const_iterator _iter143;
-      for (_iter143 = this->success.begin(); _iter143 != this->success.end(); ++_iter143)
+      std::vector<TRowResult> ::const_iterator _iter149;
+      for (_iter149 = this->success.begin(); _iter149 != this->success.end(); ++_iter149)
       {
-        xfer += (*_iter143).write(oprot);
+        xfer += (*_iter149).write(oprot);
       }
       xfer += oprot->writeListEnd();
     }
@@ -3566,14 +3566,1134 @@ uint32_t Hbase_getRowWithColumnsTs_presult::read(::apache::thrift::protocol::TPr
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size144;
-            ::apache::thrift::protocol::TType _etype147;
-            iprot->readListBegin(_etype147, _size144);
-            (*(this->success)).resize(_size144);
-            uint32_t _i148;
-            for (_i148 = 0; _i148 < _size144; ++_i148)
+            uint32_t _size150;
+            ::apache::thrift::protocol::TType _etype153;
+            iprot->readListBegin(_etype153, _size150);
+            (*(this->success)).resize(_size150);
+            uint32_t _i154;
+            for (_i154 = 0; _i154 < _size150; ++_i154)
             {
-              xfer += (*(this->success))[_i148].read(iprot);
+              xfer += (*(this->success))[_i154].read(iprot);
+            }
+            iprot->readListEnd();
+          }
+          this->__isset.success = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->io.read(iprot);
+          this->__isset.io = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Hbase_getRows_args::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readBinary(this->tableName);
+          this->__isset.tableName = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 2:
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            this->rows.clear();
+            uint32_t _size155;
+            ::apache::thrift::protocol::TType _etype158;
+            iprot->readListBegin(_etype158, _size155);
+            this->rows.resize(_size155);
+            uint32_t _i159;
+            for (_i159 = 0; _i159 < _size155; ++_i159)
+            {
+              xfer += iprot->readBinary(this->rows[_i159]);
+            }
+            iprot->readListEnd();
+          }
+          this->__isset.rows = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Hbase_getRows_args::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("Hbase_getRows_args");
+  xfer += oprot->writeFieldBegin("tableName", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeBinary(this->tableName);
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldBegin("rows", ::apache::thrift::protocol::T_LIST, 2);
+  {
+    xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, this->rows.size());
+    std::vector<Text> ::const_iterator _iter160;
+    for (_iter160 = this->rows.begin(); _iter160 != this->rows.end(); ++_iter160)
+    {
+      xfer += oprot->writeBinary((*_iter160));
+    }
+    xfer += oprot->writeListEnd();
+  }
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Hbase_getRows_pargs::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("Hbase_getRows_pargs");
+  xfer += oprot->writeFieldBegin("tableName", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeBinary((*(this->tableName)));
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldBegin("rows", ::apache::thrift::protocol::T_LIST, 2);
+  {
+    xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, (*(this->rows)).size());
+    std::vector<Text> ::const_iterator _iter161;
+    for (_iter161 = (*(this->rows)).begin(); _iter161 != (*(this->rows)).end(); ++_iter161)
+    {
+      xfer += oprot->writeBinary((*_iter161));
+    }
+    xfer += oprot->writeListEnd();
+  }
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Hbase_getRows_result::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            this->success.clear();
+            uint32_t _size162;
+            ::apache::thrift::protocol::TType _etype165;
+            iprot->readListBegin(_etype165, _size162);
+            this->success.resize(_size162);
+            uint32_t _i166;
+            for (_i166 = 0; _i166 < _size162; ++_i166)
+            {
+              xfer += this->success[_i166].read(iprot);
+            }
+            iprot->readListEnd();
+          }
+          this->__isset.success = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->io.read(iprot);
+          this->__isset.io = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Hbase_getRows_result::write(::apache::thrift::protocol::TProtocol* oprot) const {
+
+  uint32_t xfer = 0;
+
+  xfer += oprot->writeStructBegin("Hbase_getRows_result");
+
+  if (this->__isset.success) {
+    xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
+    {
+      xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, this->success.size());
+      std::vector<TRowResult> ::const_iterator _iter167;
+      for (_iter167 = this->success.begin(); _iter167 != this->success.end(); ++_iter167)
+      {
+        xfer += (*_iter167).write(oprot);
+      }
+      xfer += oprot->writeListEnd();
+    }
+    xfer += oprot->writeFieldEnd();
+  } else if (this->__isset.io) {
+    xfer += oprot->writeFieldBegin("io", ::apache::thrift::protocol::T_STRUCT, 1);
+    xfer += this->io.write(oprot);
+    xfer += oprot->writeFieldEnd();
+  }
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Hbase_getRows_presult::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            (*(this->success)).clear();
+            uint32_t _size168;
+            ::apache::thrift::protocol::TType _etype171;
+            iprot->readListBegin(_etype171, _size168);
+            (*(this->success)).resize(_size168);
+            uint32_t _i172;
+            for (_i172 = 0; _i172 < _size168; ++_i172)
+            {
+              xfer += (*(this->success))[_i172].read(iprot);
+            }
+            iprot->readListEnd();
+          }
+          this->__isset.success = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->io.read(iprot);
+          this->__isset.io = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Hbase_getRowsWithColumns_args::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readBinary(this->tableName);
+          this->__isset.tableName = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 2:
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            this->rows.clear();
+            uint32_t _size173;
+            ::apache::thrift::protocol::TType _etype176;
+            iprot->readListBegin(_etype176, _size173);
+            this->rows.resize(_size173);
+            uint32_t _i177;
+            for (_i177 = 0; _i177 < _size173; ++_i177)
+            {
+              xfer += iprot->readBinary(this->rows[_i177]);
+            }
+            iprot->readListEnd();
+          }
+          this->__isset.rows = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 3:
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            this->columns.clear();
+            uint32_t _size178;
+            ::apache::thrift::protocol::TType _etype181;
+            iprot->readListBegin(_etype181, _size178);
+            this->columns.resize(_size178);
+            uint32_t _i182;
+            for (_i182 = 0; _i182 < _size178; ++_i182)
+            {
+              xfer += iprot->readBinary(this->columns[_i182]);
+            }
+            iprot->readListEnd();
+          }
+          this->__isset.columns = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Hbase_getRowsWithColumns_args::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("Hbase_getRowsWithColumns_args");
+  xfer += oprot->writeFieldBegin("tableName", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeBinary(this->tableName);
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldBegin("rows", ::apache::thrift::protocol::T_LIST, 2);
+  {
+    xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, this->rows.size());
+    std::vector<Text> ::const_iterator _iter183;
+    for (_iter183 = this->rows.begin(); _iter183 != this->rows.end(); ++_iter183)
+    {
+      xfer += oprot->writeBinary((*_iter183));
+    }
+    xfer += oprot->writeListEnd();
+  }
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldBegin("columns", ::apache::thrift::protocol::T_LIST, 3);
+  {
+    xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, this->columns.size());
+    std::vector<Text> ::const_iterator _iter184;
+    for (_iter184 = this->columns.begin(); _iter184 != this->columns.end(); ++_iter184)
+    {
+      xfer += oprot->writeBinary((*_iter184));
+    }
+    xfer += oprot->writeListEnd();
+  }
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Hbase_getRowsWithColumns_pargs::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("Hbase_getRowsWithColumns_pargs");
+  xfer += oprot->writeFieldBegin("tableName", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeBinary((*(this->tableName)));
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldBegin("rows", ::apache::thrift::protocol::T_LIST, 2);
+  {
+    xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, (*(this->rows)).size());
+    std::vector<Text> ::const_iterator _iter185;
+    for (_iter185 = (*(this->rows)).begin(); _iter185 != (*(this->rows)).end(); ++_iter185)
+    {
+      xfer += oprot->writeBinary((*_iter185));
+    }
+    xfer += oprot->writeListEnd();
+  }
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldBegin("columns", ::apache::thrift::protocol::T_LIST, 3);
+  {
+    xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, (*(this->columns)).size());
+    std::vector<Text> ::const_iterator _iter186;
+    for (_iter186 = (*(this->columns)).begin(); _iter186 != (*(this->columns)).end(); ++_iter186)
+    {
+      xfer += oprot->writeBinary((*_iter186));
+    }
+    xfer += oprot->writeListEnd();
+  }
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Hbase_getRowsWithColumns_result::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            this->success.clear();
+            uint32_t _size187;
+            ::apache::thrift::protocol::TType _etype190;
+            iprot->readListBegin(_etype190, _size187);
+            this->success.resize(_size187);
+            uint32_t _i191;
+            for (_i191 = 0; _i191 < _size187; ++_i191)
+            {
+              xfer += this->success[_i191].read(iprot);
+            }
+            iprot->readListEnd();
+          }
+          this->__isset.success = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->io.read(iprot);
+          this->__isset.io = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Hbase_getRowsWithColumns_result::write(::apache::thrift::protocol::TProtocol* oprot) const {
+
+  uint32_t xfer = 0;
+
+  xfer += oprot->writeStructBegin("Hbase_getRowsWithColumns_result");
+
+  if (this->__isset.success) {
+    xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
+    {
+      xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, this->success.size());
+      std::vector<TRowResult> ::const_iterator _iter192;
+      for (_iter192 = this->success.begin(); _iter192 != this->success.end(); ++_iter192)
+      {
+        xfer += (*_iter192).write(oprot);
+      }
+      xfer += oprot->writeListEnd();
+    }
+    xfer += oprot->writeFieldEnd();
+  } else if (this->__isset.io) {
+    xfer += oprot->writeFieldBegin("io", ::apache::thrift::protocol::T_STRUCT, 1);
+    xfer += this->io.write(oprot);
+    xfer += oprot->writeFieldEnd();
+  }
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Hbase_getRowsWithColumns_presult::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            (*(this->success)).clear();
+            uint32_t _size193;
+            ::apache::thrift::protocol::TType _etype196;
+            iprot->readListBegin(_etype196, _size193);
+            (*(this->success)).resize(_size193);
+            uint32_t _i197;
+            for (_i197 = 0; _i197 < _size193; ++_i197)
+            {
+              xfer += (*(this->success))[_i197].read(iprot);
+            }
+            iprot->readListEnd();
+          }
+          this->__isset.success = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->io.read(iprot);
+          this->__isset.io = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Hbase_getRowsTs_args::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readBinary(this->tableName);
+          this->__isset.tableName = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 2:
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            this->rows.clear();
+            uint32_t _size198;
+            ::apache::thrift::protocol::TType _etype201;
+            iprot->readListBegin(_etype201, _size198);
+            this->rows.resize(_size198);
+            uint32_t _i202;
+            for (_i202 = 0; _i202 < _size198; ++_i202)
+            {
+              xfer += iprot->readBinary(this->rows[_i202]);
+            }
+            iprot->readListEnd();
+          }
+          this->__isset.rows = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 3:
+        if (ftype == ::apache::thrift::protocol::T_I64) {
+          xfer += iprot->readI64(this->timestamp);
+          this->__isset.timestamp = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Hbase_getRowsTs_args::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("Hbase_getRowsTs_args");
+  xfer += oprot->writeFieldBegin("tableName", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeBinary(this->tableName);
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldBegin("rows", ::apache::thrift::protocol::T_LIST, 2);
+  {
+    xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, this->rows.size());
+    std::vector<Text> ::const_iterator _iter203;
+    for (_iter203 = this->rows.begin(); _iter203 != this->rows.end(); ++_iter203)
+    {
+      xfer += oprot->writeBinary((*_iter203));
+    }
+    xfer += oprot->writeListEnd();
+  }
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldBegin("timestamp", ::apache::thrift::protocol::T_I64, 3);
+  xfer += oprot->writeI64(this->timestamp);
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Hbase_getRowsTs_pargs::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("Hbase_getRowsTs_pargs");
+  xfer += oprot->writeFieldBegin("tableName", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeBinary((*(this->tableName)));
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldBegin("rows", ::apache::thrift::protocol::T_LIST, 2);
+  {
+    xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, (*(this->rows)).size());
+    std::vector<Text> ::const_iterator _iter204;
+    for (_iter204 = (*(this->rows)).begin(); _iter204 != (*(this->rows)).end(); ++_iter204)
+    {
+      xfer += oprot->writeBinary((*_iter204));
+    }
+    xfer += oprot->writeListEnd();
+  }
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldBegin("timestamp", ::apache::thrift::protocol::T_I64, 3);
+  xfer += oprot->writeI64((*(this->timestamp)));
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Hbase_getRowsTs_result::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            this->success.clear();
+            uint32_t _size205;
+            ::apache::thrift::protocol::TType _etype208;
+            iprot->readListBegin(_etype208, _size205);
+            this->success.resize(_size205);
+            uint32_t _i209;
+            for (_i209 = 0; _i209 < _size205; ++_i209)
+            {
+              xfer += this->success[_i209].read(iprot);
+            }
+            iprot->readListEnd();
+          }
+          this->__isset.success = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->io.read(iprot);
+          this->__isset.io = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Hbase_getRowsTs_result::write(::apache::thrift::protocol::TProtocol* oprot) const {
+
+  uint32_t xfer = 0;
+
+  xfer += oprot->writeStructBegin("Hbase_getRowsTs_result");
+
+  if (this->__isset.success) {
+    xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
+    {
+      xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, this->success.size());
+      std::vector<TRowResult> ::const_iterator _iter210;
+      for (_iter210 = this->success.begin(); _iter210 != this->success.end(); ++_iter210)
+      {
+        xfer += (*_iter210).write(oprot);
+      }
+      xfer += oprot->writeListEnd();
+    }
+    xfer += oprot->writeFieldEnd();
+  } else if (this->__isset.io) {
+    xfer += oprot->writeFieldBegin("io", ::apache::thrift::protocol::T_STRUCT, 1);
+    xfer += this->io.write(oprot);
+    xfer += oprot->writeFieldEnd();
+  }
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Hbase_getRowsTs_presult::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            (*(this->success)).clear();
+            uint32_t _size211;
+            ::apache::thrift::protocol::TType _etype214;
+            iprot->readListBegin(_etype214, _size211);
+            (*(this->success)).resize(_size211);
+            uint32_t _i215;
+            for (_i215 = 0; _i215 < _size211; ++_i215)
+            {
+              xfer += (*(this->success))[_i215].read(iprot);
+            }
+            iprot->readListEnd();
+          }
+          this->__isset.success = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->io.read(iprot);
+          this->__isset.io = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Hbase_getRowsWithColumnsTs_args::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readBinary(this->tableName);
+          this->__isset.tableName = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 2:
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            this->rows.clear();
+            uint32_t _size216;
+            ::apache::thrift::protocol::TType _etype219;
+            iprot->readListBegin(_etype219, _size216);
+            this->rows.resize(_size216);
+            uint32_t _i220;
+            for (_i220 = 0; _i220 < _size216; ++_i220)
+            {
+              xfer += iprot->readBinary(this->rows[_i220]);
+            }
+            iprot->readListEnd();
+          }
+          this->__isset.rows = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 3:
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            this->columns.clear();
+            uint32_t _size221;
+            ::apache::thrift::protocol::TType _etype224;
+            iprot->readListBegin(_etype224, _size221);
+            this->columns.resize(_size221);
+            uint32_t _i225;
+            for (_i225 = 0; _i225 < _size221; ++_i225)
+            {
+              xfer += iprot->readBinary(this->columns[_i225]);
+            }
+            iprot->readListEnd();
+          }
+          this->__isset.columns = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 4:
+        if (ftype == ::apache::thrift::protocol::T_I64) {
+          xfer += iprot->readI64(this->timestamp);
+          this->__isset.timestamp = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Hbase_getRowsWithColumnsTs_args::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("Hbase_getRowsWithColumnsTs_args");
+  xfer += oprot->writeFieldBegin("tableName", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeBinary(this->tableName);
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldBegin("rows", ::apache::thrift::protocol::T_LIST, 2);
+  {
+    xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, this->rows.size());
+    std::vector<Text> ::const_iterator _iter226;
+    for (_iter226 = this->rows.begin(); _iter226 != this->rows.end(); ++_iter226)
+    {
+      xfer += oprot->writeBinary((*_iter226));
+    }
+    xfer += oprot->writeListEnd();
+  }
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldBegin("columns", ::apache::thrift::protocol::T_LIST, 3);
+  {
+    xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, this->columns.size());
+    std::vector<Text> ::const_iterator _iter227;
+    for (_iter227 = this->columns.begin(); _iter227 != this->columns.end(); ++_iter227)
+    {
+      xfer += oprot->writeBinary((*_iter227));
+    }
+    xfer += oprot->writeListEnd();
+  }
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldBegin("timestamp", ::apache::thrift::protocol::T_I64, 4);
+  xfer += oprot->writeI64(this->timestamp);
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Hbase_getRowsWithColumnsTs_pargs::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("Hbase_getRowsWithColumnsTs_pargs");
+  xfer += oprot->writeFieldBegin("tableName", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeBinary((*(this->tableName)));
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldBegin("rows", ::apache::thrift::protocol::T_LIST, 2);
+  {
+    xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, (*(this->rows)).size());
+    std::vector<Text> ::const_iterator _iter228;
+    for (_iter228 = (*(this->rows)).begin(); _iter228 != (*(this->rows)).end(); ++_iter228)
+    {
+      xfer += oprot->writeBinary((*_iter228));
+    }
+    xfer += oprot->writeListEnd();
+  }
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldBegin("columns", ::apache::thrift::protocol::T_LIST, 3);
+  {
+    xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, (*(this->columns)).size());
+    std::vector<Text> ::const_iterator _iter229;
+    for (_iter229 = (*(this->columns)).begin(); _iter229 != (*(this->columns)).end(); ++_iter229)
+    {
+      xfer += oprot->writeBinary((*_iter229));
+    }
+    xfer += oprot->writeListEnd();
+  }
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldBegin("timestamp", ::apache::thrift::protocol::T_I64, 4);
+  xfer += oprot->writeI64((*(this->timestamp)));
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Hbase_getRowsWithColumnsTs_result::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            this->success.clear();
+            uint32_t _size230;
+            ::apache::thrift::protocol::TType _etype233;
+            iprot->readListBegin(_etype233, _size230);
+            this->success.resize(_size230);
+            uint32_t _i234;
+            for (_i234 = 0; _i234 < _size230; ++_i234)
+            {
+              xfer += this->success[_i234].read(iprot);
+            }
+            iprot->readListEnd();
+          }
+          this->__isset.success = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->io.read(iprot);
+          this->__isset.io = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Hbase_getRowsWithColumnsTs_result::write(::apache::thrift::protocol::TProtocol* oprot) const {
+
+  uint32_t xfer = 0;
+
+  xfer += oprot->writeStructBegin("Hbase_getRowsWithColumnsTs_result");
+
+  if (this->__isset.success) {
+    xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
+    {
+      xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, this->success.size());
+      std::vector<TRowResult> ::const_iterator _iter235;
+      for (_iter235 = this->success.begin(); _iter235 != this->success.end(); ++_iter235)
+      {
+        xfer += (*_iter235).write(oprot);
+      }
+      xfer += oprot->writeListEnd();
+    }
+    xfer += oprot->writeFieldEnd();
+  } else if (this->__isset.io) {
+    xfer += oprot->writeFieldBegin("io", ::apache::thrift::protocol::T_STRUCT, 1);
+    xfer += this->io.write(oprot);
+    xfer += oprot->writeFieldEnd();
+  }
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Hbase_getRowsWithColumnsTs_presult::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            (*(this->success)).clear();
+            uint32_t _size236;
+            ::apache::thrift::protocol::TType _etype239;
+            iprot->readListBegin(_etype239, _size236);
+            (*(this->success)).resize(_size236);
+            uint32_t _i240;
+            for (_i240 = 0; _i240 < _size236; ++_i240)
+            {
+              xfer += (*(this->success))[_i240].read(iprot);
             }
             iprot->readListEnd();
           }
@@ -3642,14 +4762,14 @@ uint32_t Hbase_mutateRow_args::read(::apache::thrift::protocol::TProtocol* iprot
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->mutations.clear();
-            uint32_t _size149;
-            ::apache::thrift::protocol::TType _etype152;
-            iprot->readListBegin(_etype152, _size149);
-            this->mutations.resize(_size149);
-            uint32_t _i153;
-            for (_i153 = 0; _i153 < _size149; ++_i153)
+            uint32_t _size241;
+            ::apache::thrift::protocol::TType _etype244;
+            iprot->readListBegin(_etype244, _size241);
+            this->mutations.resize(_size241);
+            uint32_t _i245;
+            for (_i245 = 0; _i245 < _size241; ++_i245)
             {
-              xfer += this->mutations[_i153].read(iprot);
+              xfer += this->mutations[_i245].read(iprot);
             }
             iprot->readListEnd();
           }
@@ -3682,10 +4802,10 @@ uint32_t Hbase_mutateRow_args::write(::apache::thrift::protocol::TProtocol* opro
   xfer += oprot->writeFieldBegin("mutations", ::apache::thrift::protocol::T_LIST, 3);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, this->mutations.size());
-    std::vector<Mutation> ::const_iterator _iter154;
-    for (_iter154 = this->mutations.begin(); _iter154 != this->mutations.end(); ++_iter154)
+    std::vector<Mutation> ::const_iterator _iter246;
+    for (_iter246 = this->mutations.begin(); _iter246 != this->mutations.end(); ++_iter246)
     {
-      xfer += (*_iter154).write(oprot);
+      xfer += (*_iter246).write(oprot);
     }
     xfer += oprot->writeListEnd();
   }
@@ -3707,10 +4827,10 @@ uint32_t Hbase_mutateRow_pargs::write(::apache::thrift::protocol::TProtocol* opr
   xfer += oprot->writeFieldBegin("mutations", ::apache::thrift::protocol::T_LIST, 3);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, (*(this->mutations)).size());
-    std::vector<Mutation> ::const_iterator _iter155;
-    for (_iter155 = (*(this->mutations)).begin(); _iter155 != (*(this->mutations)).end(); ++_iter155)
+    std::vector<Mutation> ::const_iterator _iter247;
+    for (_iter247 = (*(this->mutations)).begin(); _iter247 != (*(this->mutations)).end(); ++_iter247)
     {
-      xfer += (*_iter155).write(oprot);
+      xfer += (*_iter247).write(oprot);
     }
     xfer += oprot->writeListEnd();
   }
@@ -3876,14 +4996,14 @@ uint32_t Hbase_mutateRowTs_args::read(::apache::thrift::protocol::TProtocol* ipr
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->mutations.clear();
-            uint32_t _size156;
-            ::apache::thrift::protocol::TType _etype159;
-            iprot->readListBegin(_etype159, _size156);
-            this->mutations.resize(_size156);
-            uint32_t _i160;
-            for (_i160 = 0; _i160 < _size156; ++_i160)
+            uint32_t _size248;
+            ::apache::thrift::protocol::TType _etype251;
+            iprot->readListBegin(_etype251, _size248);
+            this->mutations.resize(_size248);
+            uint32_t _i252;
+            for (_i252 = 0; _i252 < _size248; ++_i252)
             {
-              xfer += this->mutations[_i160].read(iprot);
+              xfer += this->mutations[_i252].read(iprot);
             }
             iprot->readListEnd();
           }
@@ -3924,10 +5044,10 @@ uint32_t Hbase_mutateRowTs_args::write(::apache::thrift::protocol::TProtocol* op
   xfer += oprot->writeFieldBegin("mutations", ::apache::thrift::protocol::T_LIST, 3);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, this->mutations.size());
-    std::vector<Mutation> ::const_iterator _iter161;
-    for (_iter161 = this->mutations.begin(); _iter161 != this->mutations.end(); ++_iter161)
+    std::vector<Mutation> ::const_iterator _iter253;
+    for (_iter253 = this->mutations.begin(); _iter253 != this->mutations.end(); ++_iter253)
     {
-      xfer += (*_iter161).write(oprot);
+      xfer += (*_iter253).write(oprot);
     }
     xfer += oprot->writeListEnd();
   }
@@ -3952,10 +5072,10 @@ uint32_t Hbase_mutateRowTs_pargs::write(::apache::thrift::protocol::TProtocol* o
   xfer += oprot->writeFieldBegin("mutations", ::apache::thrift::protocol::T_LIST, 3);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, (*(this->mutations)).size());
-    std::vector<Mutation> ::const_iterator _iter162;
-    for (_iter162 = (*(this->mutations)).begin(); _iter162 != (*(this->mutations)).end(); ++_iter162)
+    std::vector<Mutation> ::const_iterator _iter254;
+    for (_iter254 = (*(this->mutations)).begin(); _iter254 != (*(this->mutations)).end(); ++_iter254)
     {
-      xfer += (*_iter162).write(oprot);
+      xfer += (*_iter254).write(oprot);
     }
     xfer += oprot->writeListEnd();
   }
@@ -4116,14 +5236,14 @@ uint32_t Hbase_mutateRows_args::read(::apache::thrift::protocol::TProtocol* ipro
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->rowBatches.clear();
-            uint32_t _size163;
-            ::apache::thrift::protocol::TType _etype166;
-            iprot->readListBegin(_etype166, _size163);
-            this->rowBatches.resize(_size163);
-            uint32_t _i167;
-            for (_i167 = 0; _i167 < _size163; ++_i167)
+            uint32_t _size255;
+            ::apache::thrift::protocol::TType _etype258;
+            iprot->readListBegin(_etype258, _size255);
+            this->rowBatches.resize(_size255);
+            uint32_t _i259;
+            for (_i259 = 0; _i259 < _size255; ++_i259)
             {
-              xfer += this->rowBatches[_i167].read(iprot);
+              xfer += this->rowBatches[_i259].read(iprot);
             }
             iprot->readListEnd();
           }
@@ -4153,10 +5273,10 @@ uint32_t Hbase_mutateRows_args::write(::apache::thrift::protocol::TProtocol* opr
   xfer += oprot->writeFieldBegin("rowBatches", ::apache::thrift::protocol::T_LIST, 2);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, this->rowBatches.size());
-    std::vector<BatchMutation> ::const_iterator _iter168;
-    for (_iter168 = this->rowBatches.begin(); _iter168 != this->rowBatches.end(); ++_iter168)
+    std::vector<BatchMutation> ::const_iterator _iter260;
+    for (_iter260 = this->rowBatches.begin(); _iter260 != this->rowBatches.end(); ++_iter260)
     {
-      xfer += (*_iter168).write(oprot);
+      xfer += (*_iter260).write(oprot);
     }
     xfer += oprot->writeListEnd();
   }
@@ -4175,10 +5295,10 @@ uint32_t Hbase_mutateRows_pargs::write(::apache::thrift::protocol::TProtocol* op
   xfer += oprot->writeFieldBegin("rowBatches", ::apache::thrift::protocol::T_LIST, 2);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, (*(this->rowBatches)).size());
-    std::vector<BatchMutation> ::const_iterator _iter169;
-    for (_iter169 = (*(this->rowBatches)).begin(); _iter169 != (*(this->rowBatches)).end(); ++_iter169)
+    std::vector<BatchMutation> ::const_iterator _iter261;
+    for (_iter261 = (*(this->rowBatches)).begin(); _iter261 != (*(this->rowBatches)).end(); ++_iter261)
     {
-      xfer += (*_iter169).write(oprot);
+      xfer += (*_iter261).write(oprot);
     }
     xfer += oprot->writeListEnd();
   }
@@ -4336,14 +5456,14 @@ uint32_t Hbase_mutateRowsTs_args::read(::apache::thrift::protocol::TProtocol* ip
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->rowBatches.clear();
-            uint32_t _size170;
-            ::apache::thrift::protocol::TType _etype173;
-            iprot->readListBegin(_etype173, _size170);
-            this->rowBatches.resize(_size170);
-            uint32_t _i174;
-            for (_i174 = 0; _i174 < _size170; ++_i174)
+            uint32_t _size262;
+            ::apache::thrift::protocol::TType _etype265;
+            iprot->readListBegin(_etype265, _size262);
+            this->rowBatches.resize(_size262);
+            uint32_t _i266;
+            for (_i266 = 0; _i266 < _size262; ++_i266)
             {
-              xfer += this->rowBatches[_i174].read(iprot);
+              xfer += this->rowBatches[_i266].read(iprot);
             }
             iprot->readListEnd();
           }
@@ -4381,10 +5501,10 @@ uint32_t Hbase_mutateRowsTs_args::write(::apache::thrift::protocol::TProtocol* o
   xfer += oprot->writeFieldBegin("rowBatches", ::apache::thrift::protocol::T_LIST, 2);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, this->rowBatches.size());
-    std::vector<BatchMutation> ::const_iterator _iter175;
-    for (_iter175 = this->rowBatches.begin(); _iter175 != this->rowBatches.end(); ++_iter175)
+    std::vector<BatchMutation> ::const_iterator _iter267;
+    for (_iter267 = this->rowBatches.begin(); _iter267 != this->rowBatches.end(); ++_iter267)
     {
-      xfer += (*_iter175).write(oprot);
+      xfer += (*_iter267).write(oprot);
     }
     xfer += oprot->writeListEnd();
   }
@@ -4406,10 +5526,10 @@ uint32_t Hbase_mutateRowsTs_pargs::write(::apache::thrift::protocol::TProtocol* 
   xfer += oprot->writeFieldBegin("rowBatches", ::apache::thrift::protocol::T_LIST, 2);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, (*(this->rowBatches)).size());
-    std::vector<BatchMutation> ::const_iterator _iter176;
-    for (_iter176 = (*(this->rowBatches)).begin(); _iter176 != (*(this->rowBatches)).end(); ++_iter176)
+    std::vector<BatchMutation> ::const_iterator _iter268;
+    for (_iter268 = (*(this->rowBatches)).begin(); _iter268 != (*(this->rowBatches)).end(); ++_iter268)
     {
-      xfer += (*_iter176).write(oprot);
+      xfer += (*_iter268).write(oprot);
     }
     xfer += oprot->writeListEnd();
   }
@@ -5522,6 +6642,198 @@ uint32_t Hbase_deleteAllRowTs_presult::read(::apache::thrift::protocol::TProtoco
   return xfer;
 }
 
+uint32_t Hbase_scannerOpenWithScan_args::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readBinary(this->tableName);
+          this->__isset.tableName = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 2:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->scan.read(iprot);
+          this->__isset.scan = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Hbase_scannerOpenWithScan_args::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("Hbase_scannerOpenWithScan_args");
+  xfer += oprot->writeFieldBegin("tableName", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeBinary(this->tableName);
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldBegin("scan", ::apache::thrift::protocol::T_STRUCT, 2);
+  xfer += this->scan.write(oprot);
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Hbase_scannerOpenWithScan_pargs::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("Hbase_scannerOpenWithScan_pargs");
+  xfer += oprot->writeFieldBegin("tableName", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeBinary((*(this->tableName)));
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldBegin("scan", ::apache::thrift::protocol::T_STRUCT, 2);
+  xfer += (*(this->scan)).write(oprot);
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Hbase_scannerOpenWithScan_result::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          xfer += iprot->readI32(this->success);
+          this->__isset.success = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->io.read(iprot);
+          this->__isset.io = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t Hbase_scannerOpenWithScan_result::write(::apache::thrift::protocol::TProtocol* oprot) const {
+
+  uint32_t xfer = 0;
+
+  xfer += oprot->writeStructBegin("Hbase_scannerOpenWithScan_result");
+
+  if (this->__isset.success) {
+    xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_I32, 0);
+    xfer += oprot->writeI32(this->success);
+    xfer += oprot->writeFieldEnd();
+  } else if (this->__isset.io) {
+    xfer += oprot->writeFieldBegin("io", ::apache::thrift::protocol::T_STRUCT, 1);
+    xfer += this->io.write(oprot);
+    xfer += oprot->writeFieldEnd();
+  }
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t Hbase_scannerOpenWithScan_presult::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          xfer += iprot->readI32((*(this->success)));
+          this->__isset.success = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->io.read(iprot);
+          this->__isset.io = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
 uint32_t Hbase_scannerOpen_args::read(::apache::thrift::protocol::TProtocol* iprot) {
 
   uint32_t xfer = 0;
@@ -5562,14 +6874,14 @@ uint32_t Hbase_scannerOpen_args::read(::apache::thrift::protocol::TProtocol* ipr
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->columns.clear();
-            uint32_t _size177;
-            ::apache::thrift::protocol::TType _etype180;
-            iprot->readListBegin(_etype180, _size177);
-            this->columns.resize(_size177);
-            uint32_t _i181;
-            for (_i181 = 0; _i181 < _size177; ++_i181)
+            uint32_t _size269;
+            ::apache::thrift::protocol::TType _etype272;
+            iprot->readListBegin(_etype272, _size269);
+            this->columns.resize(_size269);
+            uint32_t _i273;
+            for (_i273 = 0; _i273 < _size269; ++_i273)
             {
-              xfer += iprot->readBinary(this->columns[_i181]);
+              xfer += iprot->readBinary(this->columns[_i273]);
             }
             iprot->readListEnd();
           }
@@ -5602,10 +6914,10 @@ uint32_t Hbase_scannerOpen_args::write(::apache::thrift::protocol::TProtocol* op
   xfer += oprot->writeFieldBegin("columns", ::apache::thrift::protocol::T_LIST, 3);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, this->columns.size());
-    std::vector<Text> ::const_iterator _iter182;
-    for (_iter182 = this->columns.begin(); _iter182 != this->columns.end(); ++_iter182)
+    std::vector<Text> ::const_iterator _iter274;
+    for (_iter274 = this->columns.begin(); _iter274 != this->columns.end(); ++_iter274)
     {
-      xfer += oprot->writeBinary((*_iter182));
+      xfer += oprot->writeBinary((*_iter274));
     }
     xfer += oprot->writeListEnd();
   }
@@ -5627,10 +6939,10 @@ uint32_t Hbase_scannerOpen_pargs::write(::apache::thrift::protocol::TProtocol* o
   xfer += oprot->writeFieldBegin("columns", ::apache::thrift::protocol::T_LIST, 3);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, (*(this->columns)).size());
-    std::vector<Text> ::const_iterator _iter183;
-    for (_iter183 = (*(this->columns)).begin(); _iter183 != (*(this->columns)).end(); ++_iter183)
+    std::vector<Text> ::const_iterator _iter275;
+    for (_iter275 = (*(this->columns)).begin(); _iter275 != (*(this->columns)).end(); ++_iter275)
     {
-      xfer += oprot->writeBinary((*_iter183));
+      xfer += oprot->writeBinary((*_iter275));
     }
     xfer += oprot->writeListEnd();
   }
@@ -5804,14 +7116,14 @@ uint32_t Hbase_scannerOpenWithStop_args::read(::apache::thrift::protocol::TProto
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->columns.clear();
-            uint32_t _size184;
-            ::apache::thrift::protocol::TType _etype187;
-            iprot->readListBegin(_etype187, _size184);
-            this->columns.resize(_size184);
-            uint32_t _i188;
-            for (_i188 = 0; _i188 < _size184; ++_i188)
+            uint32_t _size276;
+            ::apache::thrift::protocol::TType _etype279;
+            iprot->readListBegin(_etype279, _size276);
+            this->columns.resize(_size276);
+            uint32_t _i280;
+            for (_i280 = 0; _i280 < _size276; ++_i280)
             {
-              xfer += iprot->readBinary(this->columns[_i188]);
+              xfer += iprot->readBinary(this->columns[_i280]);
             }
             iprot->readListEnd();
           }
@@ -5847,10 +7159,10 @@ uint32_t Hbase_scannerOpenWithStop_args::write(::apache::thrift::protocol::TProt
   xfer += oprot->writeFieldBegin("columns", ::apache::thrift::protocol::T_LIST, 4);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, this->columns.size());
-    std::vector<Text> ::const_iterator _iter189;
-    for (_iter189 = this->columns.begin(); _iter189 != this->columns.end(); ++_iter189)
+    std::vector<Text> ::const_iterator _iter281;
+    for (_iter281 = this->columns.begin(); _iter281 != this->columns.end(); ++_iter281)
     {
-      xfer += oprot->writeBinary((*_iter189));
+      xfer += oprot->writeBinary((*_iter281));
     }
     xfer += oprot->writeListEnd();
   }
@@ -5875,10 +7187,10 @@ uint32_t Hbase_scannerOpenWithStop_pargs::write(::apache::thrift::protocol::TPro
   xfer += oprot->writeFieldBegin("columns", ::apache::thrift::protocol::T_LIST, 4);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, (*(this->columns)).size());
-    std::vector<Text> ::const_iterator _iter190;
-    for (_iter190 = (*(this->columns)).begin(); _iter190 != (*(this->columns)).end(); ++_iter190)
+    std::vector<Text> ::const_iterator _iter282;
+    for (_iter282 = (*(this->columns)).begin(); _iter282 != (*(this->columns)).end(); ++_iter282)
     {
-      xfer += oprot->writeBinary((*_iter190));
+      xfer += oprot->writeBinary((*_iter282));
     }
     xfer += oprot->writeListEnd();
   }
@@ -6044,14 +7356,14 @@ uint32_t Hbase_scannerOpenWithPrefix_args::read(::apache::thrift::protocol::TPro
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->columns.clear();
-            uint32_t _size191;
-            ::apache::thrift::protocol::TType _etype194;
-            iprot->readListBegin(_etype194, _size191);
-            this->columns.resize(_size191);
-            uint32_t _i195;
-            for (_i195 = 0; _i195 < _size191; ++_i195)
+            uint32_t _size283;
+            ::apache::thrift::protocol::TType _etype286;
+            iprot->readListBegin(_etype286, _size283);
+            this->columns.resize(_size283);
+            uint32_t _i287;
+            for (_i287 = 0; _i287 < _size283; ++_i287)
             {
-              xfer += iprot->readBinary(this->columns[_i195]);
+              xfer += iprot->readBinary(this->columns[_i287]);
             }
             iprot->readListEnd();
           }
@@ -6084,10 +7396,10 @@ uint32_t Hbase_scannerOpenWithPrefix_args::write(::apache::thrift::protocol::TPr
   xfer += oprot->writeFieldBegin("columns", ::apache::thrift::protocol::T_LIST, 3);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, this->columns.size());
-    std::vector<Text> ::const_iterator _iter196;
-    for (_iter196 = this->columns.begin(); _iter196 != this->columns.end(); ++_iter196)
+    std::vector<Text> ::const_iterator _iter288;
+    for (_iter288 = this->columns.begin(); _iter288 != this->columns.end(); ++_iter288)
     {
-      xfer += oprot->writeBinary((*_iter196));
+      xfer += oprot->writeBinary((*_iter288));
     }
     xfer += oprot->writeListEnd();
   }
@@ -6109,10 +7421,10 @@ uint32_t Hbase_scannerOpenWithPrefix_pargs::write(::apache::thrift::protocol::TP
   xfer += oprot->writeFieldBegin("columns", ::apache::thrift::protocol::T_LIST, 3);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, (*(this->columns)).size());
-    std::vector<Text> ::const_iterator _iter197;
-    for (_iter197 = (*(this->columns)).begin(); _iter197 != (*(this->columns)).end(); ++_iter197)
+    std::vector<Text> ::const_iterator _iter289;
+    for (_iter289 = (*(this->columns)).begin(); _iter289 != (*(this->columns)).end(); ++_iter289)
     {
-      xfer += oprot->writeBinary((*_iter197));
+      xfer += oprot->writeBinary((*_iter289));
     }
     xfer += oprot->writeListEnd();
   }
@@ -6278,14 +7590,14 @@ uint32_t Hbase_scannerOpenTs_args::read(::apache::thrift::protocol::TProtocol* i
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->columns.clear();
-            uint32_t _size198;
-            ::apache::thrift::protocol::TType _etype201;
-            iprot->readListBegin(_etype201, _size198);
-            this->columns.resize(_size198);
-            uint32_t _i202;
-            for (_i202 = 0; _i202 < _size198; ++_i202)
+            uint32_t _size290;
+            ::apache::thrift::protocol::TType _etype293;
+            iprot->readListBegin(_etype293, _size290);
+            this->columns.resize(_size290);
+            uint32_t _i294;
+            for (_i294 = 0; _i294 < _size290; ++_i294)
             {
-              xfer += iprot->readBinary(this->columns[_i202]);
+              xfer += iprot->readBinary(this->columns[_i294]);
             }
             iprot->readListEnd();
           }
@@ -6326,10 +7638,10 @@ uint32_t Hbase_scannerOpenTs_args::write(::apache::thrift::protocol::TProtocol* 
   xfer += oprot->writeFieldBegin("columns", ::apache::thrift::protocol::T_LIST, 3);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, this->columns.size());
-    std::vector<Text> ::const_iterator _iter203;
-    for (_iter203 = this->columns.begin(); _iter203 != this->columns.end(); ++_iter203)
+    std::vector<Text> ::const_iterator _iter295;
+    for (_iter295 = this->columns.begin(); _iter295 != this->columns.end(); ++_iter295)
     {
-      xfer += oprot->writeBinary((*_iter203));
+      xfer += oprot->writeBinary((*_iter295));
     }
     xfer += oprot->writeListEnd();
   }
@@ -6354,10 +7666,10 @@ uint32_t Hbase_scannerOpenTs_pargs::write(::apache::thrift::protocol::TProtocol*
   xfer += oprot->writeFieldBegin("columns", ::apache::thrift::protocol::T_LIST, 3);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, (*(this->columns)).size());
-    std::vector<Text> ::const_iterator _iter204;
-    for (_iter204 = (*(this->columns)).begin(); _iter204 != (*(this->columns)).end(); ++_iter204)
+    std::vector<Text> ::const_iterator _iter296;
+    for (_iter296 = (*(this->columns)).begin(); _iter296 != (*(this->columns)).end(); ++_iter296)
     {
-      xfer += oprot->writeBinary((*_iter204));
+      xfer += oprot->writeBinary((*_iter296));
     }
     xfer += oprot->writeListEnd();
   }
@@ -6534,14 +7846,14 @@ uint32_t Hbase_scannerOpenWithStopTs_args::read(::apache::thrift::protocol::TPro
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->columns.clear();
-            uint32_t _size205;
-            ::apache::thrift::protocol::TType _etype208;
-            iprot->readListBegin(_etype208, _size205);
-            this->columns.resize(_size205);
-            uint32_t _i209;
-            for (_i209 = 0; _i209 < _size205; ++_i209)
+            uint32_t _size297;
+            ::apache::thrift::protocol::TType _etype300;
+            iprot->readListBegin(_etype300, _size297);
+            this->columns.resize(_size297);
+            uint32_t _i301;
+            for (_i301 = 0; _i301 < _size297; ++_i301)
             {
-              xfer += iprot->readBinary(this->columns[_i209]);
+              xfer += iprot->readBinary(this->columns[_i301]);
             }
             iprot->readListEnd();
           }
@@ -6585,10 +7897,10 @@ uint32_t Hbase_scannerOpenWithStopTs_args::write(::apache::thrift::protocol::TPr
   xfer += oprot->writeFieldBegin("columns", ::apache::thrift::protocol::T_LIST, 4);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, this->columns.size());
-    std::vector<Text> ::const_iterator _iter210;
-    for (_iter210 = this->columns.begin(); _iter210 != this->columns.end(); ++_iter210)
+    std::vector<Text> ::const_iterator _iter302;
+    for (_iter302 = this->columns.begin(); _iter302 != this->columns.end(); ++_iter302)
     {
-      xfer += oprot->writeBinary((*_iter210));
+      xfer += oprot->writeBinary((*_iter302));
     }
     xfer += oprot->writeListEnd();
   }
@@ -6616,10 +7928,10 @@ uint32_t Hbase_scannerOpenWithStopTs_pargs::write(::apache::thrift::protocol::TP
   xfer += oprot->writeFieldBegin("columns", ::apache::thrift::protocol::T_LIST, 4);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, (*(this->columns)).size());
-    std::vector<Text> ::const_iterator _iter211;
-    for (_iter211 = (*(this->columns)).begin(); _iter211 != (*(this->columns)).end(); ++_iter211)
+    std::vector<Text> ::const_iterator _iter303;
+    for (_iter303 = (*(this->columns)).begin(); _iter303 != (*(this->columns)).end(); ++_iter303)
     {
-      xfer += oprot->writeBinary((*_iter211));
+      xfer += oprot->writeBinary((*_iter303));
     }
     xfer += oprot->writeListEnd();
   }
@@ -6834,14 +8146,14 @@ uint32_t Hbase_scannerGet_result::read(::apache::thrift::protocol::TProtocol* ip
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size212;
-            ::apache::thrift::protocol::TType _etype215;
-            iprot->readListBegin(_etype215, _size212);
-            this->success.resize(_size212);
-            uint32_t _i216;
-            for (_i216 = 0; _i216 < _size212; ++_i216)
+            uint32_t _size304;
+            ::apache::thrift::protocol::TType _etype307;
+            iprot->readListBegin(_etype307, _size304);
+            this->success.resize(_size304);
+            uint32_t _i308;
+            for (_i308 = 0; _i308 < _size304; ++_i308)
             {
-              xfer += this->success[_i216].read(iprot);
+              xfer += this->success[_i308].read(iprot);
             }
             iprot->readListEnd();
           }
@@ -6888,10 +8200,10 @@ uint32_t Hbase_scannerGet_result::write(::apache::thrift::protocol::TProtocol* o
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, this->success.size());
-      std::vector<TRowResult> ::const_iterator _iter217;
-      for (_iter217 = this->success.begin(); _iter217 != this->success.end(); ++_iter217)
+      std::vector<TRowResult> ::const_iterator _iter309;
+      for (_iter309 = this->success.begin(); _iter309 != this->success.end(); ++_iter309)
       {
-        xfer += (*_iter217).write(oprot);
+        xfer += (*_iter309).write(oprot);
       }
       xfer += oprot->writeListEnd();
     }
@@ -6934,14 +8246,14 @@ uint32_t Hbase_scannerGet_presult::read(::apache::thrift::protocol::TProtocol* i
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size218;
-            ::apache::thrift::protocol::TType _etype221;
-            iprot->readListBegin(_etype221, _size218);
-            (*(this->success)).resize(_size218);
-            uint32_t _i222;
-            for (_i222 = 0; _i222 < _size218; ++_i222)
+            uint32_t _size310;
+            ::apache::thrift::protocol::TType _etype313;
+            iprot->readListBegin(_etype313, _size310);
+            (*(this->success)).resize(_size310);
+            uint32_t _i314;
+            for (_i314 = 0; _i314 < _size310; ++_i314)
             {
-              xfer += (*(this->success))[_i222].read(iprot);
+              xfer += (*(this->success))[_i314].read(iprot);
             }
             iprot->readListEnd();
           }
@@ -7078,14 +8390,14 @@ uint32_t Hbase_scannerGetList_result::read(::apache::thrift::protocol::TProtocol
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size223;
-            ::apache::thrift::protocol::TType _etype226;
-            iprot->readListBegin(_etype226, _size223);
-            this->success.resize(_size223);
-            uint32_t _i227;
-            for (_i227 = 0; _i227 < _size223; ++_i227)
+            uint32_t _size315;
+            ::apache::thrift::protocol::TType _etype318;
+            iprot->readListBegin(_etype318, _size315);
+            this->success.resize(_size315);
+            uint32_t _i319;
+            for (_i319 = 0; _i319 < _size315; ++_i319)
             {
-              xfer += this->success[_i227].read(iprot);
+              xfer += this->success[_i319].read(iprot);
             }
             iprot->readListEnd();
           }
@@ -7132,10 +8444,10 @@ uint32_t Hbase_scannerGetList_result::write(::apache::thrift::protocol::TProtoco
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, this->success.size());
-      std::vector<TRowResult> ::const_iterator _iter228;
-      for (_iter228 = this->success.begin(); _iter228 != this->success.end(); ++_iter228)
+      std::vector<TRowResult> ::const_iterator _iter320;
+      for (_iter320 = this->success.begin(); _iter320 != this->success.end(); ++_iter320)
       {
-        xfer += (*_iter228).write(oprot);
+        xfer += (*_iter320).write(oprot);
       }
       xfer += oprot->writeListEnd();
     }
@@ -7178,14 +8490,14 @@ uint32_t Hbase_scannerGetList_presult::read(::apache::thrift::protocol::TProtoco
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size229;
-            ::apache::thrift::protocol::TType _etype232;
-            iprot->readListBegin(_etype232, _size229);
-            (*(this->success)).resize(_size229);
-            uint32_t _i233;
-            for (_i233 = 0; _i233 < _size229; ++_i233)
+            uint32_t _size321;
+            ::apache::thrift::protocol::TType _etype324;
+            iprot->readListBegin(_etype324, _size321);
+            (*(this->success)).resize(_size321);
+            uint32_t _i325;
+            for (_i325 = 0; _i325 < _size321; ++_i325)
             {
-              xfer += (*(this->success))[_i233].read(iprot);
+              xfer += (*(this->success))[_i325].read(iprot);
             }
             iprot->readListEnd();
           }
@@ -7416,8 +8728,8 @@ void HbaseClient::send_enableTable(const Bytes& tableName)
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void HbaseClient::recv_enableTable()
@@ -7439,13 +8751,11 @@ void HbaseClient::recv_enableTable()
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("enableTable") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   Hbase_enableTable_presult result;
   result.read(iprot_);
@@ -7474,8 +8784,8 @@ void HbaseClient::send_disableTable(const Bytes& tableName)
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void HbaseClient::recv_disableTable()
@@ -7497,13 +8807,11 @@ void HbaseClient::recv_disableTable()
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("disableTable") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   Hbase_disableTable_presult result;
   result.read(iprot_);
@@ -7532,8 +8840,8 @@ void HbaseClient::send_isTableEnabled(const Bytes& tableName)
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 bool HbaseClient::recv_isTableEnabled()
@@ -7555,13 +8863,11 @@ bool HbaseClient::recv_isTableEnabled()
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("isTableEnabled") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   bool _return;
   Hbase_isTableEnabled_presult result;
@@ -7595,8 +8901,8 @@ void HbaseClient::send_compact(const Bytes& tableNameOrRegionName)
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void HbaseClient::recv_compact()
@@ -7618,13 +8924,11 @@ void HbaseClient::recv_compact()
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("compact") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   Hbase_compact_presult result;
   result.read(iprot_);
@@ -7653,8 +8957,8 @@ void HbaseClient::send_majorCompact(const Bytes& tableNameOrRegionName)
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void HbaseClient::recv_majorCompact()
@@ -7676,13 +8980,11 @@ void HbaseClient::recv_majorCompact()
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("majorCompact") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   Hbase_majorCompact_presult result;
   result.read(iprot_);
@@ -7710,8 +9012,8 @@ void HbaseClient::send_getTableNames()
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void HbaseClient::recv_getTableNames(std::vector<Text> & _return)
@@ -7733,13 +9035,11 @@ void HbaseClient::recv_getTableNames(std::vector<Text> & _return)
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("getTableNames") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   Hbase_getTableNames_presult result;
   result.success = &_return;
@@ -7773,8 +9073,8 @@ void HbaseClient::send_getColumnDescriptors(const Text& tableName)
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void HbaseClient::recv_getColumnDescriptors(std::map<Text, ColumnDescriptor> & _return)
@@ -7796,13 +9096,11 @@ void HbaseClient::recv_getColumnDescriptors(std::map<Text, ColumnDescriptor> & _
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("getColumnDescriptors") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   Hbase_getColumnDescriptors_presult result;
   result.success = &_return;
@@ -7836,8 +9134,8 @@ void HbaseClient::send_getTableRegions(const Text& tableName)
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void HbaseClient::recv_getTableRegions(std::vector<TRegionInfo> & _return)
@@ -7859,13 +9157,11 @@ void HbaseClient::recv_getTableRegions(std::vector<TRegionInfo> & _return)
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("getTableRegions") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   Hbase_getTableRegions_presult result;
   result.success = &_return;
@@ -7900,8 +9196,8 @@ void HbaseClient::send_createTable(const Text& tableName, const std::vector<Colu
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void HbaseClient::recv_createTable()
@@ -7923,13 +9219,11 @@ void HbaseClient::recv_createTable()
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("createTable") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   Hbase_createTable_presult result;
   result.read(iprot_);
@@ -7964,8 +9258,8 @@ void HbaseClient::send_deleteTable(const Text& tableName)
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void HbaseClient::recv_deleteTable()
@@ -7987,13 +9281,11 @@ void HbaseClient::recv_deleteTable()
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("deleteTable") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   Hbase_deleteTable_presult result;
   result.read(iprot_);
@@ -8024,8 +9316,8 @@ void HbaseClient::send_get(const Text& tableName, const Text& row, const Text& c
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void HbaseClient::recv_get(std::vector<TCell> & _return)
@@ -8047,13 +9339,11 @@ void HbaseClient::recv_get(std::vector<TCell> & _return)
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("get") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   Hbase_get_presult result;
   result.success = &_return;
@@ -8090,8 +9380,8 @@ void HbaseClient::send_getVer(const Text& tableName, const Text& row, const Text
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void HbaseClient::recv_getVer(std::vector<TCell> & _return)
@@ -8113,13 +9403,11 @@ void HbaseClient::recv_getVer(std::vector<TCell> & _return)
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("getVer") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   Hbase_getVer_presult result;
   result.success = &_return;
@@ -8157,8 +9445,8 @@ void HbaseClient::send_getVerTs(const Text& tableName, const Text& row, const Te
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void HbaseClient::recv_getVerTs(std::vector<TCell> & _return)
@@ -8180,13 +9468,11 @@ void HbaseClient::recv_getVerTs(std::vector<TCell> & _return)
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("getVerTs") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   Hbase_getVerTs_presult result;
   result.success = &_return;
@@ -8221,8 +9507,8 @@ void HbaseClient::send_getRow(const Text& tableName, const Text& row)
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void HbaseClient::recv_getRow(std::vector<TRowResult> & _return)
@@ -8244,13 +9530,11 @@ void HbaseClient::recv_getRow(std::vector<TRowResult> & _return)
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("getRow") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   Hbase_getRow_presult result;
   result.success = &_return;
@@ -8286,8 +9570,8 @@ void HbaseClient::send_getRowWithColumns(const Text& tableName, const Text& row,
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void HbaseClient::recv_getRowWithColumns(std::vector<TRowResult> & _return)
@@ -8309,13 +9593,11 @@ void HbaseClient::recv_getRowWithColumns(std::vector<TRowResult> & _return)
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("getRowWithColumns") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   Hbase_getRowWithColumns_presult result;
   result.success = &_return;
@@ -8351,8 +9633,8 @@ void HbaseClient::send_getRowTs(const Text& tableName, const Text& row, const in
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void HbaseClient::recv_getRowTs(std::vector<TRowResult> & _return)
@@ -8374,13 +9656,11 @@ void HbaseClient::recv_getRowTs(std::vector<TRowResult> & _return)
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("getRowTs") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   Hbase_getRowTs_presult result;
   result.success = &_return;
@@ -8417,8 +9697,8 @@ void HbaseClient::send_getRowWithColumnsTs(const Text& tableName, const Text& ro
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void HbaseClient::recv_getRowWithColumnsTs(std::vector<TRowResult> & _return)
@@ -8440,13 +9720,11 @@ void HbaseClient::recv_getRowWithColumnsTs(std::vector<TRowResult> & _return)
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("getRowWithColumnsTs") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   Hbase_getRowWithColumnsTs_presult result;
   result.success = &_return;
@@ -8462,6 +9740,258 @@ void HbaseClient::recv_getRowWithColumnsTs(std::vector<TRowResult> & _return)
     throw result.io;
   }
   throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "getRowWithColumnsTs failed: unknown result");
+}
+
+void HbaseClient::getRows(std::vector<TRowResult> & _return, const Text& tableName, const std::vector<Text> & rows)
+{
+  send_getRows(tableName, rows);
+  recv_getRows(_return);
+}
+
+void HbaseClient::send_getRows(const Text& tableName, const std::vector<Text> & rows)
+{
+  int32_t cseqid = 0;
+  oprot_->writeMessageBegin("getRows", ::apache::thrift::protocol::T_CALL, cseqid);
+
+  Hbase_getRows_pargs args;
+  args.tableName = &tableName;
+  args.rows = &rows;
+  args.write(oprot_);
+
+  oprot_->writeMessageEnd();
+  oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
+}
+
+void HbaseClient::recv_getRows(std::vector<TRowResult> & _return)
+{
+
+  int32_t rseqid = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TMessageType mtype;
+
+  iprot_->readMessageBegin(fname, mtype, rseqid);
+  if (mtype == ::apache::thrift::protocol::T_EXCEPTION) {
+    ::apache::thrift::TApplicationException x;
+    x.read(iprot_);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+    throw x;
+  }
+  if (mtype != ::apache::thrift::protocol::T_REPLY) {
+    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+  }
+  if (fname.compare("getRows") != 0) {
+    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+  }
+  Hbase_getRows_presult result;
+  result.success = &_return;
+  result.read(iprot_);
+  iprot_->readMessageEnd();
+  iprot_->getTransport()->readEnd();
+
+  if (result.__isset.success) {
+    // _return pointer has now been filled
+    return;
+  }
+  if (result.__isset.io) {
+    throw result.io;
+  }
+  throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "getRows failed: unknown result");
+}
+
+void HbaseClient::getRowsWithColumns(std::vector<TRowResult> & _return, const Text& tableName, const std::vector<Text> & rows, const std::vector<Text> & columns)
+{
+  send_getRowsWithColumns(tableName, rows, columns);
+  recv_getRowsWithColumns(_return);
+}
+
+void HbaseClient::send_getRowsWithColumns(const Text& tableName, const std::vector<Text> & rows, const std::vector<Text> & columns)
+{
+  int32_t cseqid = 0;
+  oprot_->writeMessageBegin("getRowsWithColumns", ::apache::thrift::protocol::T_CALL, cseqid);
+
+  Hbase_getRowsWithColumns_pargs args;
+  args.tableName = &tableName;
+  args.rows = &rows;
+  args.columns = &columns;
+  args.write(oprot_);
+
+  oprot_->writeMessageEnd();
+  oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
+}
+
+void HbaseClient::recv_getRowsWithColumns(std::vector<TRowResult> & _return)
+{
+
+  int32_t rseqid = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TMessageType mtype;
+
+  iprot_->readMessageBegin(fname, mtype, rseqid);
+  if (mtype == ::apache::thrift::protocol::T_EXCEPTION) {
+    ::apache::thrift::TApplicationException x;
+    x.read(iprot_);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+    throw x;
+  }
+  if (mtype != ::apache::thrift::protocol::T_REPLY) {
+    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+  }
+  if (fname.compare("getRowsWithColumns") != 0) {
+    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+  }
+  Hbase_getRowsWithColumns_presult result;
+  result.success = &_return;
+  result.read(iprot_);
+  iprot_->readMessageEnd();
+  iprot_->getTransport()->readEnd();
+
+  if (result.__isset.success) {
+    // _return pointer has now been filled
+    return;
+  }
+  if (result.__isset.io) {
+    throw result.io;
+  }
+  throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "getRowsWithColumns failed: unknown result");
+}
+
+void HbaseClient::getRowsTs(std::vector<TRowResult> & _return, const Text& tableName, const std::vector<Text> & rows, const int64_t timestamp)
+{
+  send_getRowsTs(tableName, rows, timestamp);
+  recv_getRowsTs(_return);
+}
+
+void HbaseClient::send_getRowsTs(const Text& tableName, const std::vector<Text> & rows, const int64_t timestamp)
+{
+  int32_t cseqid = 0;
+  oprot_->writeMessageBegin("getRowsTs", ::apache::thrift::protocol::T_CALL, cseqid);
+
+  Hbase_getRowsTs_pargs args;
+  args.tableName = &tableName;
+  args.rows = &rows;
+  args.timestamp = &timestamp;
+  args.write(oprot_);
+
+  oprot_->writeMessageEnd();
+  oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
+}
+
+void HbaseClient::recv_getRowsTs(std::vector<TRowResult> & _return)
+{
+
+  int32_t rseqid = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TMessageType mtype;
+
+  iprot_->readMessageBegin(fname, mtype, rseqid);
+  if (mtype == ::apache::thrift::protocol::T_EXCEPTION) {
+    ::apache::thrift::TApplicationException x;
+    x.read(iprot_);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+    throw x;
+  }
+  if (mtype != ::apache::thrift::protocol::T_REPLY) {
+    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+  }
+  if (fname.compare("getRowsTs") != 0) {
+    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+  }
+  Hbase_getRowsTs_presult result;
+  result.success = &_return;
+  result.read(iprot_);
+  iprot_->readMessageEnd();
+  iprot_->getTransport()->readEnd();
+
+  if (result.__isset.success) {
+    // _return pointer has now been filled
+    return;
+  }
+  if (result.__isset.io) {
+    throw result.io;
+  }
+  throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "getRowsTs failed: unknown result");
+}
+
+void HbaseClient::getRowsWithColumnsTs(std::vector<TRowResult> & _return, const Text& tableName, const std::vector<Text> & rows, const std::vector<Text> & columns, const int64_t timestamp)
+{
+  send_getRowsWithColumnsTs(tableName, rows, columns, timestamp);
+  recv_getRowsWithColumnsTs(_return);
+}
+
+void HbaseClient::send_getRowsWithColumnsTs(const Text& tableName, const std::vector<Text> & rows, const std::vector<Text> & columns, const int64_t timestamp)
+{
+  int32_t cseqid = 0;
+  oprot_->writeMessageBegin("getRowsWithColumnsTs", ::apache::thrift::protocol::T_CALL, cseqid);
+
+  Hbase_getRowsWithColumnsTs_pargs args;
+  args.tableName = &tableName;
+  args.rows = &rows;
+  args.columns = &columns;
+  args.timestamp = &timestamp;
+  args.write(oprot_);
+
+  oprot_->writeMessageEnd();
+  oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
+}
+
+void HbaseClient::recv_getRowsWithColumnsTs(std::vector<TRowResult> & _return)
+{
+
+  int32_t rseqid = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TMessageType mtype;
+
+  iprot_->readMessageBegin(fname, mtype, rseqid);
+  if (mtype == ::apache::thrift::protocol::T_EXCEPTION) {
+    ::apache::thrift::TApplicationException x;
+    x.read(iprot_);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+    throw x;
+  }
+  if (mtype != ::apache::thrift::protocol::T_REPLY) {
+    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+  }
+  if (fname.compare("getRowsWithColumnsTs") != 0) {
+    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+  }
+  Hbase_getRowsWithColumnsTs_presult result;
+  result.success = &_return;
+  result.read(iprot_);
+  iprot_->readMessageEnd();
+  iprot_->getTransport()->readEnd();
+
+  if (result.__isset.success) {
+    // _return pointer has now been filled
+    return;
+  }
+  if (result.__isset.io) {
+    throw result.io;
+  }
+  throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "getRowsWithColumnsTs failed: unknown result");
 }
 
 void HbaseClient::mutateRow(const Text& tableName, const Text& row, const std::vector<Mutation> & mutations)
@@ -8482,8 +10012,8 @@ void HbaseClient::send_mutateRow(const Text& tableName, const Text& row, const s
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void HbaseClient::recv_mutateRow()
@@ -8505,13 +10035,11 @@ void HbaseClient::recv_mutateRow()
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("mutateRow") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   Hbase_mutateRow_presult result;
   result.read(iprot_);
@@ -8546,8 +10074,8 @@ void HbaseClient::send_mutateRowTs(const Text& tableName, const Text& row, const
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void HbaseClient::recv_mutateRowTs()
@@ -8569,13 +10097,11 @@ void HbaseClient::recv_mutateRowTs()
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("mutateRowTs") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   Hbase_mutateRowTs_presult result;
   result.read(iprot_);
@@ -8608,8 +10134,8 @@ void HbaseClient::send_mutateRows(const Text& tableName, const std::vector<Batch
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void HbaseClient::recv_mutateRows()
@@ -8631,13 +10157,11 @@ void HbaseClient::recv_mutateRows()
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("mutateRows") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   Hbase_mutateRows_presult result;
   result.read(iprot_);
@@ -8671,8 +10195,8 @@ void HbaseClient::send_mutateRowsTs(const Text& tableName, const std::vector<Bat
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void HbaseClient::recv_mutateRowsTs()
@@ -8694,13 +10218,11 @@ void HbaseClient::recv_mutateRowsTs()
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("mutateRowsTs") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   Hbase_mutateRowsTs_presult result;
   result.read(iprot_);
@@ -8735,8 +10257,8 @@ void HbaseClient::send_atomicIncrement(const Text& tableName, const Text& row, c
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 int64_t HbaseClient::recv_atomicIncrement()
@@ -8758,13 +10280,11 @@ int64_t HbaseClient::recv_atomicIncrement()
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("atomicIncrement") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   int64_t _return;
   Hbase_atomicIncrement_presult result;
@@ -8803,8 +10323,8 @@ void HbaseClient::send_deleteAll(const Text& tableName, const Text& row, const T
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void HbaseClient::recv_deleteAll()
@@ -8826,13 +10346,11 @@ void HbaseClient::recv_deleteAll()
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("deleteAll") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   Hbase_deleteAll_presult result;
   result.read(iprot_);
@@ -8864,8 +10382,8 @@ void HbaseClient::send_deleteAllTs(const Text& tableName, const Text& row, const
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void HbaseClient::recv_deleteAllTs()
@@ -8887,13 +10405,11 @@ void HbaseClient::recv_deleteAllTs()
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("deleteAllTs") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   Hbase_deleteAllTs_presult result;
   result.read(iprot_);
@@ -8923,8 +10439,8 @@ void HbaseClient::send_deleteAllRow(const Text& tableName, const Text& row)
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void HbaseClient::recv_deleteAllRow()
@@ -8946,13 +10462,11 @@ void HbaseClient::recv_deleteAllRow()
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("deleteAllRow") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   Hbase_deleteAllRow_presult result;
   result.read(iprot_);
@@ -8983,8 +10497,8 @@ void HbaseClient::send_deleteAllRowTs(const Text& tableName, const Text& row, co
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void HbaseClient::recv_deleteAllRowTs()
@@ -9006,13 +10520,11 @@ void HbaseClient::recv_deleteAllRowTs()
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("deleteAllRowTs") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   Hbase_deleteAllRowTs_presult result;
   result.read(iprot_);
@@ -9023,6 +10535,68 @@ void HbaseClient::recv_deleteAllRowTs()
     throw result.io;
   }
   return;
+}
+
+ScannerID HbaseClient::scannerOpenWithScan(const Text& tableName, const TScan& scan)
+{
+  send_scannerOpenWithScan(tableName, scan);
+  return recv_scannerOpenWithScan();
+}
+
+void HbaseClient::send_scannerOpenWithScan(const Text& tableName, const TScan& scan)
+{
+  int32_t cseqid = 0;
+  oprot_->writeMessageBegin("scannerOpenWithScan", ::apache::thrift::protocol::T_CALL, cseqid);
+
+  Hbase_scannerOpenWithScan_pargs args;
+  args.tableName = &tableName;
+  args.scan = &scan;
+  args.write(oprot_);
+
+  oprot_->writeMessageEnd();
+  oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
+}
+
+ScannerID HbaseClient::recv_scannerOpenWithScan()
+{
+
+  int32_t rseqid = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TMessageType mtype;
+
+  iprot_->readMessageBegin(fname, mtype, rseqid);
+  if (mtype == ::apache::thrift::protocol::T_EXCEPTION) {
+    ::apache::thrift::TApplicationException x;
+    x.read(iprot_);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+    throw x;
+  }
+  if (mtype != ::apache::thrift::protocol::T_REPLY) {
+    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+  }
+  if (fname.compare("scannerOpenWithScan") != 0) {
+    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+  }
+  ScannerID _return;
+  Hbase_scannerOpenWithScan_presult result;
+  result.success = &_return;
+  result.read(iprot_);
+  iprot_->readMessageEnd();
+  iprot_->getTransport()->readEnd();
+
+  if (result.__isset.success) {
+    return _return;
+  }
+  if (result.__isset.io) {
+    throw result.io;
+  }
+  throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "scannerOpenWithScan failed: unknown result");
 }
 
 ScannerID HbaseClient::scannerOpen(const Text& tableName, const Text& startRow, const std::vector<Text> & columns)
@@ -9043,8 +10617,8 @@ void HbaseClient::send_scannerOpen(const Text& tableName, const Text& startRow, 
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 ScannerID HbaseClient::recv_scannerOpen()
@@ -9066,13 +10640,11 @@ ScannerID HbaseClient::recv_scannerOpen()
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("scannerOpen") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   ScannerID _return;
   Hbase_scannerOpen_presult result;
@@ -9109,8 +10681,8 @@ void HbaseClient::send_scannerOpenWithStop(const Text& tableName, const Text& st
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 ScannerID HbaseClient::recv_scannerOpenWithStop()
@@ -9132,13 +10704,11 @@ ScannerID HbaseClient::recv_scannerOpenWithStop()
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("scannerOpenWithStop") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   ScannerID _return;
   Hbase_scannerOpenWithStop_presult result;
@@ -9174,8 +10744,8 @@ void HbaseClient::send_scannerOpenWithPrefix(const Text& tableName, const Text& 
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 ScannerID HbaseClient::recv_scannerOpenWithPrefix()
@@ -9197,13 +10767,11 @@ ScannerID HbaseClient::recv_scannerOpenWithPrefix()
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("scannerOpenWithPrefix") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   ScannerID _return;
   Hbase_scannerOpenWithPrefix_presult result;
@@ -9240,8 +10808,8 @@ void HbaseClient::send_scannerOpenTs(const Text& tableName, const Text& startRow
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 ScannerID HbaseClient::recv_scannerOpenTs()
@@ -9263,13 +10831,11 @@ ScannerID HbaseClient::recv_scannerOpenTs()
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("scannerOpenTs") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   ScannerID _return;
   Hbase_scannerOpenTs_presult result;
@@ -9307,8 +10873,8 @@ void HbaseClient::send_scannerOpenWithStopTs(const Text& tableName, const Text& 
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 ScannerID HbaseClient::recv_scannerOpenWithStopTs()
@@ -9330,13 +10896,11 @@ ScannerID HbaseClient::recv_scannerOpenWithStopTs()
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("scannerOpenWithStopTs") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   ScannerID _return;
   Hbase_scannerOpenWithStopTs_presult result;
@@ -9370,8 +10934,8 @@ void HbaseClient::send_scannerGet(const ScannerID id)
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void HbaseClient::recv_scannerGet(std::vector<TRowResult> & _return)
@@ -9393,13 +10957,11 @@ void HbaseClient::recv_scannerGet(std::vector<TRowResult> & _return)
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("scannerGet") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   Hbase_scannerGet_presult result;
   result.success = &_return;
@@ -9437,8 +10999,8 @@ void HbaseClient::send_scannerGetList(const ScannerID id, const int32_t nbRows)
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void HbaseClient::recv_scannerGetList(std::vector<TRowResult> & _return)
@@ -9460,13 +11022,11 @@ void HbaseClient::recv_scannerGetList(std::vector<TRowResult> & _return)
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("scannerGetList") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   Hbase_scannerGetList_presult result;
   result.success = &_return;
@@ -9503,8 +11063,8 @@ void HbaseClient::send_scannerClose(const ScannerID id)
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void HbaseClient::recv_scannerClose()
@@ -9526,13 +11086,11 @@ void HbaseClient::recv_scannerClose()
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("scannerClose") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   Hbase_scannerClose_presult result;
   result.read(iprot_);
@@ -9548,11 +11106,7 @@ void HbaseClient::recv_scannerClose()
   return;
 }
 
-bool HbaseProcessor::process(boost::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot, boost::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot, void* ptr) {
-	return process(piprot, poprot);
-}
-
-bool HbaseProcessor::process(boost::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot, boost::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot) {
+bool HbaseProcessor::process(boost::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot, boost::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot, void* callContext) {
 
   ::apache::thrift::protocol::TProtocol* iprot = piprot.get();
   ::apache::thrift::protocol::TProtocol* oprot = poprot.get();
@@ -9570,16 +11124,16 @@ bool HbaseProcessor::process(boost::shared_ptr< ::apache::thrift::protocol::TPro
     oprot->writeMessageBegin(fname, ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return true;
   }
 
-  return process_fn(iprot, oprot, fname, seqid);
+  return process_fn(iprot, oprot, fname, seqid, callContext);
 }
 
-bool HbaseProcessor::process_fn(::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, std::string& fname, int32_t seqid) {
-  std::map<std::string, void (HbaseProcessor::*)(int32_t, ::apache::thrift::protocol::TProtocol*, ::apache::thrift::protocol::TProtocol*)>::iterator pfn;
+bool HbaseProcessor::process_fn(::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, std::string& fname, int32_t seqid, void* callContext) {
+  std::map<std::string, void (HbaseProcessor::*)(int32_t, ::apache::thrift::protocol::TProtocol*, ::apache::thrift::protocol::TProtocol*, void*)>::iterator pfn;
   pfn = processMap_.find(fname);
   if (pfn == processMap_.end()) {
     iprot->skip(::apache::thrift::protocol::T_STRUCT);
@@ -9589,20 +11143,34 @@ bool HbaseProcessor::process_fn(::apache::thrift::protocol::TProtocol* iprot, ::
     oprot->writeMessageBegin(fname, ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return true;
   }
-  (this->*(pfn->second))(seqid, iprot, oprot);
+  (this->*(pfn->second))(seqid, iprot, oprot, callContext);
   return true;
 }
 
-void HbaseProcessor::process_enableTable(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_enableTable(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.enableTable", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.enableTable");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.enableTable");
+  }
+
   Hbase_enableTable_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.enableTable", bytes);
+  }
 
   Hbase_enableTable_result result;
   try {
@@ -9611,28 +11179,54 @@ void HbaseProcessor::process_enableTable(int32_t seqid, ::apache::thrift::protoc
     result.io = io;
     result.__isset.io = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.enableTable");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("enableTable", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.enableTable");
   }
 
   oprot->writeMessageBegin("enableTable", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.enableTable", bytes);
+  }
 }
 
-void HbaseProcessor::process_disableTable(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_disableTable(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.disableTable", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.disableTable");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.disableTable");
+  }
+
   Hbase_disableTable_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.disableTable", bytes);
+  }
 
   Hbase_disableTable_result result;
   try {
@@ -9641,28 +11235,54 @@ void HbaseProcessor::process_disableTable(int32_t seqid, ::apache::thrift::proto
     result.io = io;
     result.__isset.io = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.disableTable");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("disableTable", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.disableTable");
   }
 
   oprot->writeMessageBegin("disableTable", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.disableTable", bytes);
+  }
 }
 
-void HbaseProcessor::process_isTableEnabled(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_isTableEnabled(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.isTableEnabled", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.isTableEnabled");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.isTableEnabled");
+  }
+
   Hbase_isTableEnabled_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.isTableEnabled", bytes);
+  }
 
   Hbase_isTableEnabled_result result;
   try {
@@ -9672,28 +11292,54 @@ void HbaseProcessor::process_isTableEnabled(int32_t seqid, ::apache::thrift::pro
     result.io = io;
     result.__isset.io = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.isTableEnabled");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("isTableEnabled", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.isTableEnabled");
   }
 
   oprot->writeMessageBegin("isTableEnabled", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.isTableEnabled", bytes);
+  }
 }
 
-void HbaseProcessor::process_compact(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_compact(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.compact", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.compact");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.compact");
+  }
+
   Hbase_compact_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.compact", bytes);
+  }
 
   Hbase_compact_result result;
   try {
@@ -9702,28 +11348,54 @@ void HbaseProcessor::process_compact(int32_t seqid, ::apache::thrift::protocol::
     result.io = io;
     result.__isset.io = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.compact");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("compact", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.compact");
   }
 
   oprot->writeMessageBegin("compact", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.compact", bytes);
+  }
 }
 
-void HbaseProcessor::process_majorCompact(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_majorCompact(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.majorCompact", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.majorCompact");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.majorCompact");
+  }
+
   Hbase_majorCompact_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.majorCompact", bytes);
+  }
 
   Hbase_majorCompact_result result;
   try {
@@ -9732,28 +11404,54 @@ void HbaseProcessor::process_majorCompact(int32_t seqid, ::apache::thrift::proto
     result.io = io;
     result.__isset.io = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.majorCompact");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("majorCompact", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.majorCompact");
   }
 
   oprot->writeMessageBegin("majorCompact", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.majorCompact", bytes);
+  }
 }
 
-void HbaseProcessor::process_getTableNames(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_getTableNames(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.getTableNames", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.getTableNames");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.getTableNames");
+  }
+
   Hbase_getTableNames_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.getTableNames", bytes);
+  }
 
   Hbase_getTableNames_result result;
   try {
@@ -9763,28 +11461,54 @@ void HbaseProcessor::process_getTableNames(int32_t seqid, ::apache::thrift::prot
     result.io = io;
     result.__isset.io = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.getTableNames");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("getTableNames", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.getTableNames");
   }
 
   oprot->writeMessageBegin("getTableNames", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.getTableNames", bytes);
+  }
 }
 
-void HbaseProcessor::process_getColumnDescriptors(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_getColumnDescriptors(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.getColumnDescriptors", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.getColumnDescriptors");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.getColumnDescriptors");
+  }
+
   Hbase_getColumnDescriptors_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.getColumnDescriptors", bytes);
+  }
 
   Hbase_getColumnDescriptors_result result;
   try {
@@ -9794,28 +11518,54 @@ void HbaseProcessor::process_getColumnDescriptors(int32_t seqid, ::apache::thrif
     result.io = io;
     result.__isset.io = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.getColumnDescriptors");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("getColumnDescriptors", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.getColumnDescriptors");
   }
 
   oprot->writeMessageBegin("getColumnDescriptors", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.getColumnDescriptors", bytes);
+  }
 }
 
-void HbaseProcessor::process_getTableRegions(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_getTableRegions(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.getTableRegions", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.getTableRegions");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.getTableRegions");
+  }
+
   Hbase_getTableRegions_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.getTableRegions", bytes);
+  }
 
   Hbase_getTableRegions_result result;
   try {
@@ -9825,28 +11575,54 @@ void HbaseProcessor::process_getTableRegions(int32_t seqid, ::apache::thrift::pr
     result.io = io;
     result.__isset.io = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.getTableRegions");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("getTableRegions", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.getTableRegions");
   }
 
   oprot->writeMessageBegin("getTableRegions", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.getTableRegions", bytes);
+  }
 }
 
-void HbaseProcessor::process_createTable(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_createTable(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.createTable", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.createTable");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.createTable");
+  }
+
   Hbase_createTable_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.createTable", bytes);
+  }
 
   Hbase_createTable_result result;
   try {
@@ -9861,28 +11637,54 @@ void HbaseProcessor::process_createTable(int32_t seqid, ::apache::thrift::protoc
     result.exist = exist;
     result.__isset.exist = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.createTable");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("createTable", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.createTable");
   }
 
   oprot->writeMessageBegin("createTable", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.createTable", bytes);
+  }
 }
 
-void HbaseProcessor::process_deleteTable(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_deleteTable(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.deleteTable", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.deleteTable");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.deleteTable");
+  }
+
   Hbase_deleteTable_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.deleteTable", bytes);
+  }
 
   Hbase_deleteTable_result result;
   try {
@@ -9891,28 +11693,54 @@ void HbaseProcessor::process_deleteTable(int32_t seqid, ::apache::thrift::protoc
     result.io = io;
     result.__isset.io = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.deleteTable");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("deleteTable", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.deleteTable");
   }
 
   oprot->writeMessageBegin("deleteTable", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.deleteTable", bytes);
+  }
 }
 
-void HbaseProcessor::process_get(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_get(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.get", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.get");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.get");
+  }
+
   Hbase_get_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.get", bytes);
+  }
 
   Hbase_get_result result;
   try {
@@ -9922,28 +11750,54 @@ void HbaseProcessor::process_get(int32_t seqid, ::apache::thrift::protocol::TPro
     result.io = io;
     result.__isset.io = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.get");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("get", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.get");
   }
 
   oprot->writeMessageBegin("get", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.get", bytes);
+  }
 }
 
-void HbaseProcessor::process_getVer(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_getVer(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.getVer", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.getVer");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.getVer");
+  }
+
   Hbase_getVer_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.getVer", bytes);
+  }
 
   Hbase_getVer_result result;
   try {
@@ -9953,28 +11807,54 @@ void HbaseProcessor::process_getVer(int32_t seqid, ::apache::thrift::protocol::T
     result.io = io;
     result.__isset.io = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.getVer");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("getVer", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.getVer");
   }
 
   oprot->writeMessageBegin("getVer", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.getVer", bytes);
+  }
 }
 
-void HbaseProcessor::process_getVerTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_getVerTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.getVerTs", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.getVerTs");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.getVerTs");
+  }
+
   Hbase_getVerTs_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.getVerTs", bytes);
+  }
 
   Hbase_getVerTs_result result;
   try {
@@ -9984,28 +11864,54 @@ void HbaseProcessor::process_getVerTs(int32_t seqid, ::apache::thrift::protocol:
     result.io = io;
     result.__isset.io = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.getVerTs");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("getVerTs", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.getVerTs");
   }
 
   oprot->writeMessageBegin("getVerTs", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.getVerTs", bytes);
+  }
 }
 
-void HbaseProcessor::process_getRow(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_getRow(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.getRow", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.getRow");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.getRow");
+  }
+
   Hbase_getRow_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.getRow", bytes);
+  }
 
   Hbase_getRow_result result;
   try {
@@ -10015,28 +11921,54 @@ void HbaseProcessor::process_getRow(int32_t seqid, ::apache::thrift::protocol::T
     result.io = io;
     result.__isset.io = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.getRow");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("getRow", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.getRow");
   }
 
   oprot->writeMessageBegin("getRow", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.getRow", bytes);
+  }
 }
 
-void HbaseProcessor::process_getRowWithColumns(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_getRowWithColumns(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.getRowWithColumns", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.getRowWithColumns");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.getRowWithColumns");
+  }
+
   Hbase_getRowWithColumns_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.getRowWithColumns", bytes);
+  }
 
   Hbase_getRowWithColumns_result result;
   try {
@@ -10046,28 +11978,54 @@ void HbaseProcessor::process_getRowWithColumns(int32_t seqid, ::apache::thrift::
     result.io = io;
     result.__isset.io = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.getRowWithColumns");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("getRowWithColumns", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.getRowWithColumns");
   }
 
   oprot->writeMessageBegin("getRowWithColumns", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.getRowWithColumns", bytes);
+  }
 }
 
-void HbaseProcessor::process_getRowTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_getRowTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.getRowTs", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.getRowTs");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.getRowTs");
+  }
+
   Hbase_getRowTs_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.getRowTs", bytes);
+  }
 
   Hbase_getRowTs_result result;
   try {
@@ -10077,28 +12035,54 @@ void HbaseProcessor::process_getRowTs(int32_t seqid, ::apache::thrift::protocol:
     result.io = io;
     result.__isset.io = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.getRowTs");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("getRowTs", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.getRowTs");
   }
 
   oprot->writeMessageBegin("getRowTs", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.getRowTs", bytes);
+  }
 }
 
-void HbaseProcessor::process_getRowWithColumnsTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_getRowWithColumnsTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.getRowWithColumnsTs", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.getRowWithColumnsTs");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.getRowWithColumnsTs");
+  }
+
   Hbase_getRowWithColumnsTs_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.getRowWithColumnsTs", bytes);
+  }
 
   Hbase_getRowWithColumnsTs_result result;
   try {
@@ -10108,28 +12092,282 @@ void HbaseProcessor::process_getRowWithColumnsTs(int32_t seqid, ::apache::thrift
     result.io = io;
     result.__isset.io = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.getRowWithColumnsTs");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("getRowWithColumnsTs", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.getRowWithColumnsTs");
   }
 
   oprot->writeMessageBegin("getRowWithColumnsTs", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.getRowWithColumnsTs", bytes);
+  }
 }
 
-void HbaseProcessor::process_mutateRow(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_getRows(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.getRows", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.getRows");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.getRows");
+  }
+
+  Hbase_getRows_args args;
+  args.read(iprot);
+  iprot->readMessageEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.getRows", bytes);
+  }
+
+  Hbase_getRows_result result;
+  try {
+    iface_->getRows(result.success, args.tableName, args.rows);
+    result.__isset.success = true;
+  } catch (IOError &io) {
+    result.io = io;
+    result.__isset.io = true;
+  } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.getRows");
+    }
+
+    ::apache::thrift::TApplicationException x(e.what());
+    oprot->writeMessageBegin("getRows", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    x.write(oprot);
+    oprot->writeMessageEnd();
+    oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
+    return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.getRows");
+  }
+
+  oprot->writeMessageBegin("getRows", ::apache::thrift::protocol::T_REPLY, seqid);
+  result.write(oprot);
+  oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
+  oprot->getTransport()->flush();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.getRows", bytes);
+  }
+}
+
+void HbaseProcessor::process_getRowsWithColumns(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
+{
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.getRowsWithColumns", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.getRowsWithColumns");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.getRowsWithColumns");
+  }
+
+  Hbase_getRowsWithColumns_args args;
+  args.read(iprot);
+  iprot->readMessageEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.getRowsWithColumns", bytes);
+  }
+
+  Hbase_getRowsWithColumns_result result;
+  try {
+    iface_->getRowsWithColumns(result.success, args.tableName, args.rows, args.columns);
+    result.__isset.success = true;
+  } catch (IOError &io) {
+    result.io = io;
+    result.__isset.io = true;
+  } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.getRowsWithColumns");
+    }
+
+    ::apache::thrift::TApplicationException x(e.what());
+    oprot->writeMessageBegin("getRowsWithColumns", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    x.write(oprot);
+    oprot->writeMessageEnd();
+    oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
+    return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.getRowsWithColumns");
+  }
+
+  oprot->writeMessageBegin("getRowsWithColumns", ::apache::thrift::protocol::T_REPLY, seqid);
+  result.write(oprot);
+  oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
+  oprot->getTransport()->flush();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.getRowsWithColumns", bytes);
+  }
+}
+
+void HbaseProcessor::process_getRowsTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
+{
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.getRowsTs", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.getRowsTs");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.getRowsTs");
+  }
+
+  Hbase_getRowsTs_args args;
+  args.read(iprot);
+  iprot->readMessageEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.getRowsTs", bytes);
+  }
+
+  Hbase_getRowsTs_result result;
+  try {
+    iface_->getRowsTs(result.success, args.tableName, args.rows, args.timestamp);
+    result.__isset.success = true;
+  } catch (IOError &io) {
+    result.io = io;
+    result.__isset.io = true;
+  } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.getRowsTs");
+    }
+
+    ::apache::thrift::TApplicationException x(e.what());
+    oprot->writeMessageBegin("getRowsTs", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    x.write(oprot);
+    oprot->writeMessageEnd();
+    oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
+    return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.getRowsTs");
+  }
+
+  oprot->writeMessageBegin("getRowsTs", ::apache::thrift::protocol::T_REPLY, seqid);
+  result.write(oprot);
+  oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
+  oprot->getTransport()->flush();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.getRowsTs", bytes);
+  }
+}
+
+void HbaseProcessor::process_getRowsWithColumnsTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
+{
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.getRowsWithColumnsTs", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.getRowsWithColumnsTs");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.getRowsWithColumnsTs");
+  }
+
+  Hbase_getRowsWithColumnsTs_args args;
+  args.read(iprot);
+  iprot->readMessageEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.getRowsWithColumnsTs", bytes);
+  }
+
+  Hbase_getRowsWithColumnsTs_result result;
+  try {
+    iface_->getRowsWithColumnsTs(result.success, args.tableName, args.rows, args.columns, args.timestamp);
+    result.__isset.success = true;
+  } catch (IOError &io) {
+    result.io = io;
+    result.__isset.io = true;
+  } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.getRowsWithColumnsTs");
+    }
+
+    ::apache::thrift::TApplicationException x(e.what());
+    oprot->writeMessageBegin("getRowsWithColumnsTs", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    x.write(oprot);
+    oprot->writeMessageEnd();
+    oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
+    return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.getRowsWithColumnsTs");
+  }
+
+  oprot->writeMessageBegin("getRowsWithColumnsTs", ::apache::thrift::protocol::T_REPLY, seqid);
+  result.write(oprot);
+  oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
+  oprot->getTransport()->flush();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.getRowsWithColumnsTs", bytes);
+  }
+}
+
+void HbaseProcessor::process_mutateRow(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
+{
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.mutateRow", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.mutateRow");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.mutateRow");
+  }
+
   Hbase_mutateRow_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.mutateRow", bytes);
+  }
 
   Hbase_mutateRow_result result;
   try {
@@ -10141,28 +12379,54 @@ void HbaseProcessor::process_mutateRow(int32_t seqid, ::apache::thrift::protocol
     result.ia = ia;
     result.__isset.ia = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.mutateRow");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("mutateRow", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.mutateRow");
   }
 
   oprot->writeMessageBegin("mutateRow", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.mutateRow", bytes);
+  }
 }
 
-void HbaseProcessor::process_mutateRowTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_mutateRowTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.mutateRowTs", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.mutateRowTs");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.mutateRowTs");
+  }
+
   Hbase_mutateRowTs_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.mutateRowTs", bytes);
+  }
 
   Hbase_mutateRowTs_result result;
   try {
@@ -10174,28 +12438,54 @@ void HbaseProcessor::process_mutateRowTs(int32_t seqid, ::apache::thrift::protoc
     result.ia = ia;
     result.__isset.ia = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.mutateRowTs");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("mutateRowTs", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.mutateRowTs");
   }
 
   oprot->writeMessageBegin("mutateRowTs", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.mutateRowTs", bytes);
+  }
 }
 
-void HbaseProcessor::process_mutateRows(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_mutateRows(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.mutateRows", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.mutateRows");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.mutateRows");
+  }
+
   Hbase_mutateRows_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.mutateRows", bytes);
+  }
 
   Hbase_mutateRows_result result;
   try {
@@ -10207,28 +12497,54 @@ void HbaseProcessor::process_mutateRows(int32_t seqid, ::apache::thrift::protoco
     result.ia = ia;
     result.__isset.ia = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.mutateRows");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("mutateRows", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.mutateRows");
   }
 
   oprot->writeMessageBegin("mutateRows", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.mutateRows", bytes);
+  }
 }
 
-void HbaseProcessor::process_mutateRowsTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_mutateRowsTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.mutateRowsTs", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.mutateRowsTs");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.mutateRowsTs");
+  }
+
   Hbase_mutateRowsTs_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.mutateRowsTs", bytes);
+  }
 
   Hbase_mutateRowsTs_result result;
   try {
@@ -10240,28 +12556,54 @@ void HbaseProcessor::process_mutateRowsTs(int32_t seqid, ::apache::thrift::proto
     result.ia = ia;
     result.__isset.ia = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.mutateRowsTs");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("mutateRowsTs", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.mutateRowsTs");
   }
 
   oprot->writeMessageBegin("mutateRowsTs", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.mutateRowsTs", bytes);
+  }
 }
 
-void HbaseProcessor::process_atomicIncrement(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_atomicIncrement(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.atomicIncrement", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.atomicIncrement");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.atomicIncrement");
+  }
+
   Hbase_atomicIncrement_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.atomicIncrement", bytes);
+  }
 
   Hbase_atomicIncrement_result result;
   try {
@@ -10274,28 +12616,54 @@ void HbaseProcessor::process_atomicIncrement(int32_t seqid, ::apache::thrift::pr
     result.ia = ia;
     result.__isset.ia = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.atomicIncrement");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("atomicIncrement", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.atomicIncrement");
   }
 
   oprot->writeMessageBegin("atomicIncrement", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.atomicIncrement", bytes);
+  }
 }
 
-void HbaseProcessor::process_deleteAll(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_deleteAll(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.deleteAll", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.deleteAll");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.deleteAll");
+  }
+
   Hbase_deleteAll_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.deleteAll", bytes);
+  }
 
   Hbase_deleteAll_result result;
   try {
@@ -10304,28 +12672,54 @@ void HbaseProcessor::process_deleteAll(int32_t seqid, ::apache::thrift::protocol
     result.io = io;
     result.__isset.io = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.deleteAll");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("deleteAll", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.deleteAll");
   }
 
   oprot->writeMessageBegin("deleteAll", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.deleteAll", bytes);
+  }
 }
 
-void HbaseProcessor::process_deleteAllTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_deleteAllTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.deleteAllTs", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.deleteAllTs");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.deleteAllTs");
+  }
+
   Hbase_deleteAllTs_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.deleteAllTs", bytes);
+  }
 
   Hbase_deleteAllTs_result result;
   try {
@@ -10334,28 +12728,54 @@ void HbaseProcessor::process_deleteAllTs(int32_t seqid, ::apache::thrift::protoc
     result.io = io;
     result.__isset.io = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.deleteAllTs");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("deleteAllTs", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.deleteAllTs");
   }
 
   oprot->writeMessageBegin("deleteAllTs", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.deleteAllTs", bytes);
+  }
 }
 
-void HbaseProcessor::process_deleteAllRow(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_deleteAllRow(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.deleteAllRow", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.deleteAllRow");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.deleteAllRow");
+  }
+
   Hbase_deleteAllRow_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.deleteAllRow", bytes);
+  }
 
   Hbase_deleteAllRow_result result;
   try {
@@ -10364,28 +12784,54 @@ void HbaseProcessor::process_deleteAllRow(int32_t seqid, ::apache::thrift::proto
     result.io = io;
     result.__isset.io = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.deleteAllRow");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("deleteAllRow", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.deleteAllRow");
   }
 
   oprot->writeMessageBegin("deleteAllRow", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.deleteAllRow", bytes);
+  }
 }
 
-void HbaseProcessor::process_deleteAllRowTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_deleteAllRowTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.deleteAllRowTs", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.deleteAllRowTs");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.deleteAllRowTs");
+  }
+
   Hbase_deleteAllRowTs_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.deleteAllRowTs", bytes);
+  }
 
   Hbase_deleteAllRowTs_result result;
   try {
@@ -10394,28 +12840,111 @@ void HbaseProcessor::process_deleteAllRowTs(int32_t seqid, ::apache::thrift::pro
     result.io = io;
     result.__isset.io = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.deleteAllRowTs");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("deleteAllRowTs", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.deleteAllRowTs");
   }
 
   oprot->writeMessageBegin("deleteAllRowTs", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.deleteAllRowTs", bytes);
+  }
 }
 
-void HbaseProcessor::process_scannerOpen(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_scannerOpenWithScan(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.scannerOpenWithScan", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.scannerOpenWithScan");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.scannerOpenWithScan");
+  }
+
+  Hbase_scannerOpenWithScan_args args;
+  args.read(iprot);
+  iprot->readMessageEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.scannerOpenWithScan", bytes);
+  }
+
+  Hbase_scannerOpenWithScan_result result;
+  try {
+    result.success = iface_->scannerOpenWithScan(args.tableName, args.scan);
+    result.__isset.success = true;
+  } catch (IOError &io) {
+    result.io = io;
+    result.__isset.io = true;
+  } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.scannerOpenWithScan");
+    }
+
+    ::apache::thrift::TApplicationException x(e.what());
+    oprot->writeMessageBegin("scannerOpenWithScan", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    x.write(oprot);
+    oprot->writeMessageEnd();
+    oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
+    return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.scannerOpenWithScan");
+  }
+
+  oprot->writeMessageBegin("scannerOpenWithScan", ::apache::thrift::protocol::T_REPLY, seqid);
+  result.write(oprot);
+  oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
+  oprot->getTransport()->flush();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.scannerOpenWithScan", bytes);
+  }
+}
+
+void HbaseProcessor::process_scannerOpen(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
+{
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.scannerOpen", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.scannerOpen");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.scannerOpen");
+  }
+
   Hbase_scannerOpen_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.scannerOpen", bytes);
+  }
 
   Hbase_scannerOpen_result result;
   try {
@@ -10425,28 +12954,54 @@ void HbaseProcessor::process_scannerOpen(int32_t seqid, ::apache::thrift::protoc
     result.io = io;
     result.__isset.io = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.scannerOpen");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("scannerOpen", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.scannerOpen");
   }
 
   oprot->writeMessageBegin("scannerOpen", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.scannerOpen", bytes);
+  }
 }
 
-void HbaseProcessor::process_scannerOpenWithStop(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_scannerOpenWithStop(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.scannerOpenWithStop", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.scannerOpenWithStop");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.scannerOpenWithStop");
+  }
+
   Hbase_scannerOpenWithStop_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.scannerOpenWithStop", bytes);
+  }
 
   Hbase_scannerOpenWithStop_result result;
   try {
@@ -10456,28 +13011,54 @@ void HbaseProcessor::process_scannerOpenWithStop(int32_t seqid, ::apache::thrift
     result.io = io;
     result.__isset.io = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.scannerOpenWithStop");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("scannerOpenWithStop", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.scannerOpenWithStop");
   }
 
   oprot->writeMessageBegin("scannerOpenWithStop", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.scannerOpenWithStop", bytes);
+  }
 }
 
-void HbaseProcessor::process_scannerOpenWithPrefix(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_scannerOpenWithPrefix(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.scannerOpenWithPrefix", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.scannerOpenWithPrefix");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.scannerOpenWithPrefix");
+  }
+
   Hbase_scannerOpenWithPrefix_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.scannerOpenWithPrefix", bytes);
+  }
 
   Hbase_scannerOpenWithPrefix_result result;
   try {
@@ -10487,28 +13068,54 @@ void HbaseProcessor::process_scannerOpenWithPrefix(int32_t seqid, ::apache::thri
     result.io = io;
     result.__isset.io = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.scannerOpenWithPrefix");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("scannerOpenWithPrefix", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.scannerOpenWithPrefix");
   }
 
   oprot->writeMessageBegin("scannerOpenWithPrefix", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.scannerOpenWithPrefix", bytes);
+  }
 }
 
-void HbaseProcessor::process_scannerOpenTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_scannerOpenTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.scannerOpenTs", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.scannerOpenTs");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.scannerOpenTs");
+  }
+
   Hbase_scannerOpenTs_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.scannerOpenTs", bytes);
+  }
 
   Hbase_scannerOpenTs_result result;
   try {
@@ -10518,28 +13125,54 @@ void HbaseProcessor::process_scannerOpenTs(int32_t seqid, ::apache::thrift::prot
     result.io = io;
     result.__isset.io = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.scannerOpenTs");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("scannerOpenTs", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.scannerOpenTs");
   }
 
   oprot->writeMessageBegin("scannerOpenTs", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.scannerOpenTs", bytes);
+  }
 }
 
-void HbaseProcessor::process_scannerOpenWithStopTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_scannerOpenWithStopTs(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.scannerOpenWithStopTs", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.scannerOpenWithStopTs");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.scannerOpenWithStopTs");
+  }
+
   Hbase_scannerOpenWithStopTs_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.scannerOpenWithStopTs", bytes);
+  }
 
   Hbase_scannerOpenWithStopTs_result result;
   try {
@@ -10549,28 +13182,54 @@ void HbaseProcessor::process_scannerOpenWithStopTs(int32_t seqid, ::apache::thri
     result.io = io;
     result.__isset.io = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.scannerOpenWithStopTs");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("scannerOpenWithStopTs", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.scannerOpenWithStopTs");
   }
 
   oprot->writeMessageBegin("scannerOpenWithStopTs", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.scannerOpenWithStopTs", bytes);
+  }
 }
 
-void HbaseProcessor::process_scannerGet(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_scannerGet(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.scannerGet", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.scannerGet");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.scannerGet");
+  }
+
   Hbase_scannerGet_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.scannerGet", bytes);
+  }
 
   Hbase_scannerGet_result result;
   try {
@@ -10583,28 +13242,54 @@ void HbaseProcessor::process_scannerGet(int32_t seqid, ::apache::thrift::protoco
     result.ia = ia;
     result.__isset.ia = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.scannerGet");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("scannerGet", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.scannerGet");
   }
 
   oprot->writeMessageBegin("scannerGet", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.scannerGet", bytes);
+  }
 }
 
-void HbaseProcessor::process_scannerGetList(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_scannerGetList(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.scannerGetList", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.scannerGetList");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.scannerGetList");
+  }
+
   Hbase_scannerGetList_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.scannerGetList", bytes);
+  }
 
   Hbase_scannerGetList_result result;
   try {
@@ -10617,28 +13302,54 @@ void HbaseProcessor::process_scannerGetList(int32_t seqid, ::apache::thrift::pro
     result.ia = ia;
     result.__isset.ia = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.scannerGetList");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("scannerGetList", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.scannerGetList");
   }
 
   oprot->writeMessageBegin("scannerGetList", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.scannerGetList", bytes);
+  }
 }
 
-void HbaseProcessor::process_scannerClose(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void HbaseProcessor::process_scannerClose(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("Hbase.scannerClose", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "Hbase.scannerClose");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "Hbase.scannerClose");
+  }
+
   Hbase_scannerClose_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "Hbase.scannerClose", bytes);
+  }
 
   Hbase_scannerClose_result result;
   try {
@@ -10650,20 +13361,32 @@ void HbaseProcessor::process_scannerClose(int32_t seqid, ::apache::thrift::proto
     result.ia = ia;
     result.__isset.ia = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "Hbase.scannerClose");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("scannerClose", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "Hbase.scannerClose");
   }
 
   oprot->writeMessageBegin("scannerClose", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "Hbase.scannerClose", bytes);
+  }
 }
 
 }}}} // namespace

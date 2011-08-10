@@ -311,6 +311,69 @@ class TRowResult {
 
 };
 
+typedef struct _TScan__isset {
+  _TScan__isset() : startRow(false), stopRow(false), timestamp(false), columns(false), caching(false) {}
+  bool startRow;
+  bool stopRow;
+  bool timestamp;
+  bool columns;
+  bool caching;
+} _TScan__isset;
+
+class TScan {
+ public:
+
+  static const char* ascii_fingerprint; // = "9D6E50D60FFA1821CB7AE5E6461F60F9";
+  static const uint8_t binary_fingerprint[16]; // = {0x9D,0x6E,0x50,0xD6,0x0F,0xFA,0x18,0x21,0xCB,0x7A,0xE5,0xE6,0x46,0x1F,0x60,0xF9};
+
+  TScan() : startRow(""), stopRow(""), timestamp(0), caching(0) {
+  }
+
+  virtual ~TScan() throw() {}
+
+  Text startRow;
+  Text stopRow;
+  int64_t timestamp;
+  std::vector<Text>  columns;
+  int32_t caching;
+
+  _TScan__isset __isset;
+
+  bool operator == (const TScan & rhs) const
+  {
+    if (__isset.startRow != rhs.__isset.startRow)
+      return false;
+    else if (__isset.startRow && !(startRow == rhs.startRow))
+      return false;
+    if (__isset.stopRow != rhs.__isset.stopRow)
+      return false;
+    else if (__isset.stopRow && !(stopRow == rhs.stopRow))
+      return false;
+    if (__isset.timestamp != rhs.__isset.timestamp)
+      return false;
+    else if (__isset.timestamp && !(timestamp == rhs.timestamp))
+      return false;
+    if (__isset.columns != rhs.__isset.columns)
+      return false;
+    else if (__isset.columns && !(columns == rhs.columns))
+      return false;
+    if (__isset.caching != rhs.__isset.caching)
+      return false;
+    else if (__isset.caching && !(caching == rhs.caching))
+      return false;
+    return true;
+  }
+  bool operator != (const TScan &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const TScan & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
 typedef struct _IOError__isset {
   _IOError__isset() : message(false) {}
   bool message;
