@@ -23,7 +23,13 @@ revoMapReduce(input=small.ints, map = function(k,v) keyval(k^2))
 
 rhread(revoMapReduce(input=small.ints, map = function(k,v) keyval(k^2)))
 
+## tapply like job
 
+groups = rbinom(32, n = 50, prob = 0.4)
+tapply(groups, groups, length)
+
+groups = rhwrite(groups)
+rhread(revoMapReduce(input = groups, map = mkMap(identity), reduce = function(k,vv) keyval(k, length(vv))))
 
 ## classic wordcount 
 ##input can be any text file
