@@ -28,8 +28,14 @@ rhkmeansiter =
 rhkmeans =
   function(points, ncenters, iterations = 10, distfun = function(a,b) norm(as.matrix(a-b), type = 'F'), plot = FALSE) {
     newCenters = rhkmeansiter(points, distfun = distfun, ncenters = ncenters)
+    if(plot) pdf = RevoHStream:::to.data.frame(rhread(points))
     for(i in 1:iterations) {
       newCenters = lapply(RevoHStream:::getValues(newCenters), unlist)
+      if(plot) {
+        dev.new()
+        print(ggplot(data=pdf, aes(x=val1, y=val2) ) + 
+          geom_jitter() +
+          geom_jitter(data=RevoHStream:::to.data.frame(newCenters), aes(x=X.1, y = X.2), color = "red"))}
       newCenters = rhkmeansiter(points, distfun, centers=newCenters)}
     newCenters
   }
