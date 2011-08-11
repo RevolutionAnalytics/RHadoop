@@ -120,6 +120,14 @@ rhreadwritetest = function(generator) {
 rhreadwritetest(tdgkeyvallist(10))
 rhreadwritetest(tdgnestedkeyvallist(10))
 
+##revoMapReduce
 
+unittest(function(kvl) {
+  kvl = kvl[order(unlist(getKeys(kvl)))]
+  kvl1 = rhread(revoMapReduce(input=rhwrite(kvl)))
+  kvl1 = kvl1[order(unlist(getKeys(kvl1)))]
+  isTRUE(all.equal(kvl, kvl1, tolerance=1e-4))},
+  generators = list(tdgkeyvallist(10)),
+  iterations = 10)
 
                                          
