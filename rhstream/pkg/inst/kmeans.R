@@ -31,11 +31,13 @@ rhkmeans =
     if(plot) pdf = RevoHStream:::to.data.frame(rhread(points))
     for(i in 1:iterations) {
       newCenters = lapply(RevoHStream:::getValues(newCenters), unlist)
+      newCenters = c(newCenters, lapply(sample(newCenters, ncenters-length(newCenters)), function(x)x+rnorm(2,sd = 0.001)))
       if(plot) {
-        dev.new()
+        png(paste(Sys.time(), "png", sep = "."))
         print(ggplot(data=pdf, aes(x=val1, y=val2) ) + 
           geom_jitter() +
-          geom_jitter(data=RevoHStream:::to.data.frame(newCenters), aes(x=X.1, y = X.2), color = "red"))}
+          geom_jitter(data=RevoHStream:::to.data.frame(newCenters), aes(x=X.1, y = X.2), color = "red"))
+        dev.off()}
       newCenters = rhkmeansiter(points, distfun, centers=newCenters)}
     newCenters
   }
