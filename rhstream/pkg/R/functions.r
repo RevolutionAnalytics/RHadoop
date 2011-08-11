@@ -284,14 +284,12 @@ revoMapReduce = function(
   reduceondataframe = FALSE,
   combine = NULL,
   profilenodes = FALSE,
-  hereinput = FALSE,
   inputformat = NULL,
   textinputformat = defaulttextinputformat,
   textoutputformat = defaulttextoutputformat,
   verbose = FALSE) {
 
   on.exit(expr = gc()) #this is here to trigger cleanup of tempfiles
-  if(hereinput) input = lapply(input, rhwrite)
   if (is.null(output)) output = hdfs.tempfile()
   
   rhstream(map = map,
