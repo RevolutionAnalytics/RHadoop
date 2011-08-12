@@ -16,6 +16,7 @@
 
 unittest = function(predicate, generators, iterations=10, condition = function(...) T) {
   set.seed(0)
+  options(warning.length = 8125)
   lapply(1:100, function(i) {
     args = lapply(generators, function(a) a())
     if(do.call(condition, args) && !do.call(predicate, args)){
@@ -111,13 +112,13 @@ unittest(function(lkv) {
   all(catch.out(lapply(lkv,RevoHStream:::send)) ==
   catch.out(RevoHStream:::send(lkv)))
 },
-        generators = list(tdggkeyvallist(10)))
+        generators = list(tdggkeyvallist()))
 ##counter and status -- unused for now
 ##getKeys and getValues
 unittest(function(kvl) isTRUE(all.equal(kvl, 
                              apply(cbind(getKeys(kvl), 
                                          getValues(kvl)),1,keyval))), 
-         generators = list(tdggkeyvallist(10)))
+         generators = list(tdggkeyvallist()))
 ##keyval
 unittest(function(kv) {
   isTRUE(all.equal(kv,keyval(kv$key,kv$val))) &&      
@@ -127,20 +128,22 @@ unittest(function(kv) {
 ##rhread rhwrite
 rhreadwritetest = function(generator) {
   unittest(function(kvl) {
-    isTRUE(all.equal(kvl, rhread(rhwrite(kvl)), tolerance=1e-4))},
+    isTRUE(all.equal(kvl, rhread(rhwrite(kvl)), tolerance=1e-4, check.attributes=FALSE))},
     generators = list(generator),
     iterations = 10)}
 
-rhreadwritetest(tdggkeyvallist(10))
+rhreadwritetest(tdggkeyvallist())
 
 ##revoMapReduce
 
 unittest(function(kvl) {
-  kvl = kvl[order(unlist(getKeys(kvl)))]
-  kvl1 = rhread(revoMapReduce(input=rhwrite(kvl)))
-  kvl1 = kvl1[order(unlist(getKeys(kvl1)))]
-  isTRUE(all.equal(kvl, kvl1, tolerance=1e-4))},
-  generators = list(tdggkeyvallist()),
+  if(length(kvl)==0) TRUE
+  else {
+    kvl = kvl[order(unlist(getKeys(kvl)))]
+    kvl1 = rhread(revoMapReduce(input=rhwrite(kvl)))
+    kvl1 = kvl1[order(unlist(getKeys(kvl1)))]
+    isTRUE(all.equal(kvl, kvl1, tolerance=1e-4, check.attributes=FALSE))}},
+  generators = list(tdggkeyvallist(lambda=10)),
   iterations = 10)
 
                                          

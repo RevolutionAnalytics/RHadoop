@@ -173,7 +173,8 @@ make.input.files = function(infiles){
                  sprintf("-input %s ", r)}),
         collapse=" ")}
 
-decodeString = function(s) gsub("\\\\n","\\\n", s)
+encodeString = function(s) gsub("\\\n","\\\\n", gsub("\\\t","\\\\t", s))
+decodeString = function(s) gsub("\\\\n","\\\n", gsub("\\\\t","\\\t", s))
 
 defaulttextinputformat = function(line) {
   x =  strsplit(line, "\t")[[1]]
