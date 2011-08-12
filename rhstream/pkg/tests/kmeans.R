@@ -26,16 +26,29 @@ rhkmeansiter =
                          reduce = function(k,vv) keyval(NULL, apply(do.call(rbind, vv), 2, mean))))}
 
 rhkmeans =
-  function(points, ncenters, iterations = 10, distfun = function(a,b) norm(as.matrix(a-b), type = 'F')) {
+  function(points, ncenters, iterations = 10, distfun = function(a,b) norm(as.matrix(a-b), type = 'F'), plot = FALSE) {
     newCenters = rhkmeansiter(points, distfun = distfun, ncenters = ncenters)
+    if(plot) pdf = RevoHStream:::to.data.frame(rhread(points))
     for(i in 1:iterations) {
       newCenters = lapply(RevoHStream:::getValues(newCenters), unlist)
+      newCenters = c(newCenters, lapply(sample(newCenters, ncenters-length(newCenters)), function(x)x+rnorm(2,sd = 0.001)))
+      if(plot) {
+        png(paste(Sys.time(), "png", sep = "."))
+        print(ggplot(data=pdf, aes(x=val1, y=val2) ) + 
+          geom_jitter() +
+          geom_jitter(data=RevoHStream:::to.data.frame(newCenters), aes(x=X.1, y = X.2), color = "red"))
+        dev.off()}
       newCenters = rhkmeansiter(points, distfun, centers=newCenters)}
     newCenters
   }
 
-## sample data, 12 clusters
-## clustdata = lapply(1:100, function(i) keyval(i, c(rnorm(1, mean = i%%3, sd = 0.01), rnorm(1, mean = i%%4, sd = 0.01))))
-## call with
-## rhwrite(clustdata, "/tmp/clustdata")
-## rhkmeans ("/tmp/clustdata", 12)
+## sample data, 12 cluster
+## 
+rhkmeans(
+  rhwrite(
+    lapply(
+      1:100,
+      function(i) keyval(
+        i, c(rnorm(1, mean = i%%3, sd = 0.01), 
+             rnorm(1, mean = i%%4, sd = 0.01))))),
+  12)
