@@ -13,7 +13,6 @@
   reduceondataframe = FALSE,
   combine = NULL,
   profilenodes = FALSE,
-  hereinput = FALSE,
   inputformat = NULL,
   textinputformat = defaulttextinputformat,
   textoutputformat = defaulttextoutputformat,
@@ -30,7 +29,6 @@
   \item{reduceondataframe}{flatten the list of values to a data frame in the reduce call}
   \item{combine}{turn on the combiner; if TRUE the reduce function is used, or specify your own}
   \item{profilenodes}{turn on the profiler on the mapper and reducer; output in /tmp/Rprof/<job_id>/<attempt_id>}
-  \item{hereinput}{specify the input as in memory objects (equivalent to wrapping them in an rhwrite call)}
   \item{verbose}{Run hadoop in verbose mode}}
 
 \details{Defines and executes a map reduce job. Returns the value of
