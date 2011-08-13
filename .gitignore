@@ -2,4 +2,5 @@
 *~
 build
 
-RevoHStream_master_2011.7-27.tar.gz
+*.tar.gz
+pkg.Rcheck/*

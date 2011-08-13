@@ -1,3 +1,36 @@
+# Copyright 2011 Revolution Analytics
+#    
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#      http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+## lapply like job, first intro
+
+
+small.ints = 1:10
+lapply(small.ints, function(x) x^2)
+
+small.ints = rhwrite(1:10)
+revoMapReduce(input=small.ints, map = function(k,v) keyval(k^2))
+
+rhread(revoMapReduce(input=small.ints, map = function(k,v) keyval(k^2)))
+
+## tapply like job
+
+groups = rbinom(32, n = 50, prob = 0.4)
+tapply(groups, groups, length)
+
+groups = rhwrite(groups)
+rhread(revoMapReduce(input = groups, map = mkMap(identity), reduce = function(k,vv) keyval(k, length(vv))))
+
 ## classic wordcount 
 ##input can be any text file
 ## inspect output with rhread(output) -- this will produce an R list watch out with big datasets
