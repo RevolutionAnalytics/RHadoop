@@ -3,4 +3,5 @@
 build
 *.tar.gz
 pkg.Rcheck/*
-.#*
++.#*
+.Rhistory
