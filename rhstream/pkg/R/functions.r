@@ -185,11 +185,11 @@ defaulttextoutputformat = function(k,v) {
 
 rawtextinputformat = function(line) {keyval(NULL, line)}
 
-flatten_list = function(l) if(length(l) > 1) do.call(c, lapply(l, flatten_list)) else list(l) # can probably be replaced with as.data.frame, but watch out names
 to.data.frame = function(l) data.frame(do.call(rbind,lapply(l, function(r) {
-  fr = flatten_list(r)
-  if(is.null(names(fr))) names(fr) = paste("X", 1:length(fr))
-  as.data.frame(fr)})))
+  fr = as.data.frame(r)
+  badNames = grep("^X.", names(fr))
+  names(fr)[badNames] = paste("X", 1:length(badNames), sep = ".")
+  fr})))
 from.data.frame = function(df, keycol = 1) lapply(1:dim(df)[[1]], function(i) keyval(df[i,], i = keycol))
 
 dfs = function(cmd, ...) {
