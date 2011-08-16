@@ -1,8 +1,8 @@
 Package: RevoHStream
 Type: Package
 Title: R and Hadoop Streaming Connector
-Version: 2011.7-28
-Date: 2011-07-28
+Version: 1.0
+Date: 2011-08-16
 Author: Revolution Analytics
 Depends: R (>= 2.6.0), methods, RJSONIO, itertools, digest 
 Maintainer: Revolution Analytics <support@revolutionanalytics.com>
