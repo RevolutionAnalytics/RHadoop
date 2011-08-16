@@ -45,6 +45,8 @@ tdggvector = function(tdg, lambda) {ltdg = tdgglist(tdg, lambda); function() unl
 
 ## special distributions
 tdggfixedlist = function(...) function() lapply(list(...), function(tdg) tdg())
+tdggprototype = function(prototype) function() rapply(prototype, function(tdg) tdg(), how = "list")
+tdggprototypelist = function(prototype, lambda) {tdg = tdggprototype(prototype); function() replicate(rpois(1, lambda), tdg(), simplify = FALSE)}
 tdggconstant = function(const) function() const
 tdggselect = function(l) function() sample(l,1)[[1]]
 tdggdistribution = function(distribution, ...) function() distribution(1, ...)
