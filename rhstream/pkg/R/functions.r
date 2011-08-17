@@ -185,7 +185,7 @@ defaulttextoutputformat = function(k,v) {
 rawtextinputformat = function(line) {keyval(NULL, line)}
 
 flatten = function(x) unlist(list(name = as.name("name"), x))[-1]
-to.data.frame = function(l) data.frame(do.call(rbind,lapply(l, flatten)))
+to.data.frame = function(l) data.frame(lapply(data.frame(do.call(rbind,lapply(l, flatten))), unlist))
 from.data.frame = function(df, keycol = 1) lapply(1:dim(df)[[1]], function(i) keyval(df[i,], i = keycol))
 
 dfs = function(cmd, ...) {
