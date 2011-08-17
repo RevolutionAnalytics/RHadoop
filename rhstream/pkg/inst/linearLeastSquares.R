@@ -21,16 +21,14 @@ swap = function(x) list(x[[2]], x[[1]])
 transposeMap = mkMap(swap, identity)
 
 # test matrix
-# X = do.call(c, lapply(1:2, function(i) lapply(1:2, function(j) keyval(c(i,j), rnorm(1)))))
+# X = do.call(c, lapply(1:3, function(i) lapply(1:4, function(j) keyval(c(i,j), 10*1+j))))
 rhTranspose = function(input, output = NULL){
-  warning("This examples is neither finished nor tested, please do not run")
   revoMapReduce(input = input, output = output, map = transposeMap)
 }
 
 matMulMap = function(i) function(k,v) keyval(k[[i]], list(pos = k, elem = v))
 
 rhMatMult = function(left, right, result = NULL) {
-  warning("This examples is neither finished nor tested, please do not run")
   revoMapReduce(
                 input =
                 rhRelationalJoin(leftinput = left, rightinput = right,
@@ -44,5 +42,5 @@ rhMatMult = function(left, right, result = NULL) {
 rhLinearLeastSquares = function(X,y) {
   warning("This examples is neither finished nor tested, please do not run")
   XtX = rhread(rhMatMult(rhTranspose(X), X))
-  Xty = rhread(rhMatMul(rhTranspose(X), y))
+  Xty = rhread(rhMatMult(rhTranspose(X), y))
   solve(XtX,Xty)}
