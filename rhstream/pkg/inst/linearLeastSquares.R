@@ -39,8 +39,10 @@ rhMatMult = function(left, right, result = NULL) {
                 map = mkMap(identity),
                 reduce = mkReduce(identity, function(x) sum(unlist(x))))}
 
+to.matrix = function(df) as.matrix(sparseMatrix(i=df$key1, j=df$key2, x=df$val))
+
 rhLinearLeastSquares = function(X,y) {
-  warning("This examples is neither finished nor tested, please do not run")
-  XtX = rhread(rhMatMult(rhTranspose(X), X))
-  Xty = rhread(rhMatMult(rhTranspose(X), y))
-  solve(XtX,Xty)}
+  library(Matrix)
+  XtX = rhread(rhMatMult(rhTranspose(X), X), todataframe = TRUE)
+  Xty = rhread(rhMatMult(rhTranspose(X), y), todataframe = TRUE)
+  solve(to.matrix(XtX),to.matrix(Xty))}
