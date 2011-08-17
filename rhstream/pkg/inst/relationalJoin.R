@@ -42,9 +42,9 @@ rhRelationalJoin = function(
     function(kv, isleft) keyval(kv$key, list(val = kv$val, isleft = isleft))
   isLeftSide = 
     function(leftinput) {
-      leftinput = sub("//", "/", leftinput)
+      leftinput = sub("//", "/", RevoHStream:::toHDFSpath(leftinput))
       mapInfile = sub("//", "/", Sys.getenv("map_input_file"))
-      leftinput == substr(mapInfile, nchar(mapInfile) - nchar(leftinput) + 1, nchar(mapInfile))}
+      leftinput == substr(mapInfile, 6, 5 + nchar(leftinput))}
   reduce.split =
     function(vv) tapply(lapply(vv, function(v) v$val), sapply(vv, function(v) v$isleft), identity, simplify = FALSE)
   padSide =
@@ -64,9 +64,7 @@ rhRelationalJoin = function(
   revoMapReduce(map = map,
                 reduce =
                 function(k, vv) {
-                  save(vv, file = paste("/tmp/reduce_vv", k, sep = "_"))
                   rs = reduce.split(vv)
-                  save(rs, file = paste("/tmp/reduce_rs", k, sep = "_"))
                   values.left = padSide(rs$`TRUE`, rightouter, fullouter)
                   values.right = padSide(rs$`FALSE`, leftouter, fullouter)
                   do.call(c,
