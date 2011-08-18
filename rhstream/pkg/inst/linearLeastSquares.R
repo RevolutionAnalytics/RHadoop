@@ -37,9 +37,9 @@ rhMatMult = function(left, right, result = NULL) {
   revoMapReduce(
                 input =
                 rhRelationalJoin(leftinput = left, rightinput = right,
-                                 map.left.keyval = matMulMap(2),
-                                 map.right.keyval = matMulMap(1), 
-                                 reduce.keyval = function(k, vl, vr) keyval(c(vl$pos[[1]], vr$pos[[2]]), vl$elem*vr$elem)),
+                                 map.left = matMulMap(2),
+                                 map.right = matMulMap(1), 
+                                 reduce = function(k, vl, vr) keyval(c(vl$pos[[1]], vr$pos[[2]]), vl$elem*vr$elem)),
                 output = result,
                 reduce = mkReduce(identity, function(x) sum(unlist(x))))}
 

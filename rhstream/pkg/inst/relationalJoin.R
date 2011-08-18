@@ -28,9 +28,9 @@ rhRelationalJoin = function(
   leftouter = F,
   rightouter = F,
   fullouter = F,
-  map.left.keyval = mkMap(identity),
-  map.right.keyval = mkMap(identity),
-  reduce.keyval  = function (k, vl, vr) keyval(k, list(left=vl, right=vr)))
+  map.left = mkMap(identity),
+  map.right = mkMap(identity),
+  reduce  = function (k, vl, vr) keyval(k, list(left=vl, right=vr)))
 {
   stopifnot(xor(!is.null(leftinput), !is.null(input) &&
                 (is.null(leftinput)==is.null(rightinput))))
@@ -52,13 +52,13 @@ rhRelationalJoin = function(
   map = if (is.null(input)) {
     function(k,v) {
       ils = isLeftSide(leftinput)
-      markSide(if(ils) map.left.keyval(k,v) else map.right.keyval(k,v), ils)
+      markSide(if(ils) map.left(k,v) else map.right(k,v), ils)
     }
   }
   else {
     function(k,v) {
-      list(markSide(map.left.keyval(k,v), TRUE),
-           markSide(map.right.keyval(k,v), FALSE))
+      list(markSide(map.left(k,v), TRUE),
+           markSide(map.right(k,v), FALSE))
     }
   }
   revoMapReduce(map = map,
@@ -70,7 +70,7 @@ rhRelationalJoin = function(
                   do.call(c,
                           lapply(values.left,
                                  function(x) lapply(values.right,
-                                                    function(y) reduce.keyval(k, x, y))))},
+                                                    function(y) reduce(k, x, y))))},
                 ## combiner = F,
                 input = c(leftinput,rightinput),
                 output = output)
