@@ -12,16 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# this is just an example, not part of a math library
+# matrix A_{ij} representation is a list of keyval(c(i,j), A_{ij})
+# vectors are column matrices
+
+# test data
+# X = do.call(c, lapply(1:4, function(i) lapply(1:3, function(j) keyval(c(i,j), rnorm(1)))))
+# y = do.call(c, lapply(1:4, function(i) lapply(1:1, function(j) keyval(c(i,j), rnorm(1)))))
  
-##input is X: k = (i,j) , v = x_{ij}
-##
+library(Matrix)
+library(RevoHStream)
 
 swap = function(x) list(x[[2]], x[[1]])
 
 transposeMap = mkMap(swap, identity)
 
-# test matrix
-# X = do.call(c, lapply(1:3, function(i) lapply(1:4, function(j) keyval(c(i,j), 10*1+j))))
 rhTranspose = function(input, output = NULL){
   revoMapReduce(input = input, output = output, map = transposeMap)
 }
@@ -36,13 +41,12 @@ rhMatMult = function(left, right, result = NULL) {
                                  map.right.keyval = matMulMap(1), 
                                  reduce.keyval = function(k, vl, vr) keyval(c(vl$pos[[1]], vr$pos[[2]]), vl$elem*vr$elem)),
                 output = result,
-                map = mkMap(identity),
                 reduce = mkReduce(identity, function(x) sum(unlist(x))))}
 
 to.matrix = function(df) as.matrix(sparseMatrix(i=df$key1, j=df$key2, x=df$val))
 
 rhLinearLeastSquares = function(X,y) {
-  library(Matrix)
-  XtX = rhread(rhMatMult(rhTranspose(X), X), todataframe = TRUE)
-  Xty = rhread(rhMatMult(rhTranspose(X), y), todataframe = TRUE)
+  Xt = rhTranspose(X)
+  XtX = rhread(rhMatMult(Xt, X), todataframe = TRUE)
+  Xty = rhread(rhMatMult(Xt, y), todataframe = TRUE)
   solve(to.matrix(XtX),to.matrix(Xty))}
