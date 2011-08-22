@@ -285,6 +285,7 @@ revoMapReduce = function(
   combine = NULL,
   profilenodes = FALSE,
   inputformat = NULL,
+  outputformat = NULL,
   textinputformat = defaulttextinputformat,
   textoutputformat = defaulttextoutputformat,
   verbose = FALSE) {
@@ -300,6 +301,7 @@ revoMapReduce = function(
            out.folder = toHDFSpath(output),
            profilenodes = profilenodes,
            inputformat = inputformat,
+           outputformat = outputformat,
            textinputformat = textinputformat,
            textoutputformat = textoutputformat,
            verbose = verbose)
@@ -324,6 +326,7 @@ rhstream = function(
   mapred = list(),
   mpr.out = NULL,
   inputformat = NULL,
+  outputformat = NULL,
   textinputformat = defaulttextinputformat,
   textoutputformat = defaulttextoutputformat,
   verbose = FALSE,
@@ -385,7 +388,11 @@ load("RevoHStreamLocalEnv")
   }else{
     sprintf(" -inputformat %s", inputformat)
   }
-    outputformat = 'TextOutputFormat'
+  outputformat = if(is.null(outputformat)){
+    ' '}
+  else {
+    sprintf(" -outputformat %s", outputformat)
+  }
   mapper = sprintf('-mapper "Rscript %s" ',  tail(strsplit(map.file,"/")[[1]],1))
   m.fl = sprintf("-file %s ",map.file)
   if(!is.null(reduce) ){
