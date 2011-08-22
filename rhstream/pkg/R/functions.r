@@ -81,7 +81,7 @@ mkLapplyReduce = function(fun1 = identity, fun2 = identity) {
   else {
     function(k,vv) lapply(vv, function(v) keyval(fun1(k), fun2(v)))}}
 
-mkSeriesMap = function(map1, map2) function(k,v) do.call(map2, map1(k,v))
+mkSeriesMap = function(map1, map2) function(k,v) {out = map1(k,v); map2(out$key, out$val)}
 mkParallelMap = function(...) function (k,v) lapply(list(...), function(map) map(k,v))
 
 ## end utils
@@ -366,9 +366,11 @@ load("RevoHStreamLocalEnv")
   ## set up the execution environment for map and reduce
   if (!is.null(combine) && is.logical(combine) && combine) {
     combine = reduce}
-  save.image(file="RevoHStreamParentEnv")
-  save(list = ls(all = TRUE, envir = environment()), file = "RevoHStreamLocalEnv", envir = environment())
-  image.cmd.line = "-file RevoHStreamParentEnv -file RevoHStreamLocalEnv"
+  revoHStreamParentEnv = file.path(tempdir(), "RevoHStreamParentEnv")
+  revoHStreamLocalEnv = file.path(tempdir(), "RevoHStreamLocalEnv")
+  save.image(file = revoHStreamParentEnv)
+  save(list = ls(all = TRUE, envir = environment()), file = revoHStreamLocalEnv, envir = environment())
+  image.cmd.line = paste("-file", revoHStreamParentEnv, "-file", revoHStreamLocalEnv)
   
   ## prepare hadoop streaming command
   hadoopHome = Sys.getenv("HADOOP_HOME")
@@ -378,7 +380,6 @@ load("RevoHStreamLocalEnv")
   hadoop.command = sprintf("%s/hadoop jar %s ", hadoopBin,stream.jar)
   input =  make.input.files(in.folder)
   output = if(!missing(out.folder)) sprintf("-output %s",out.folder) else " "
-  file = map.file
   inputformat = if(is.null(inputformat)){
     ' ' # default is TextInputFormat
   }else{
