@@ -58,7 +58,7 @@ rhwordcount = function (input, output, pattern = " ") {
 
 filtermap= function(pred) function(k,v) {if (pred(v)) keyval(k,v) else NULL}
 
-rhfilter = function (input, output, pred) {
+rhfilter = function (input, output = NULL, pred) {
   revoMapReduce(input = input,
            output = output,
            map = filtermap(pred))
