@@ -53,9 +53,9 @@ status = function(what){
 }
 
 ## could think of this as a utils section
-getKeys = function(l) lapply(l, function(x) x[[1]])
+keys = function(l) lapply(l, function(x) x[[1]])
 
-getValues = function(l) lapply(l, function(x) x[[2]])
+values = function(l) lapply(l, function(x) x[[2]])
 
 keyval = function(k, v = NULL, i = 1) {
   if(missing(v)) {
@@ -67,13 +67,13 @@ keyval = function(k, v = NULL, i = 1) {
   attr(kv, 'keyval') = TRUE
   kv}
 
-mkMap = function(fun1 = identity, fun2 = identity) {
+to.map = function(fun1 = identity, fun2 = identity) {
   if (missing(fun2)) {
     function(k,v) fun1(keyval(k,v))}
   else {
     function(k,v) keyval(fun1(k), fun2(v))}}
 
-mkReduce = mkMap
+to.reduce = to.map
 
 mkLapplyReduce = function(fun1 = identity, fun2 = identity) {
   if (missing(fun2)) {
@@ -120,25 +120,25 @@ reduceDriver = function(reduce, linebufsize, textinputformat, textoutputformat, 
     while( !is.null(d <- k$get())){
       d = c(lastGroup,d)
       lastKey =  d[[length(d)]][[1]]
-      groupKeys = getKeys(d)
+      groupKeys = keys(d)
       lastGroup = d[listComp(groupKeys, lastKey)]
       d = d[!listComp(groupKeys, lastKey)]
       if(length(d) > 0) {
-        groups = tapply(d, sapply(getKeys(d), digest), identity, simplify = FALSE)
+        groups = tapply(d, sapply(keys(d), digest), identity, simplify = FALSE)
         lapply(groups,
                function(g) {
                  out = NULL
                  out = reduce(g[[1]][[1]], if(reduceondataframe) {
-                                             to.data.frame(getValues(g))}
+                                             to.data.frame(values(g))}
                                           else {
-                                            getValues(g)})
+                                            values(g)})
                  if(!is.null(out))
                    send(out, textoutputformat)
                })
       }
     }
     if (length(lastGroup) > 0) {
-      out = reduce(lastKey, getValues(lastGroup))
+      out = reduce(lastKey, values(lastGroup))
       send(out, textoutputformat)
     }
     k$close()
@@ -224,19 +224,19 @@ dfs.exists = function(f) {
   length(dfs.ls(f)) == 0
 }
 
-toHDFSpath = function(input) {
+to.hdfs.path = function(input) {
   if (is.character(input)) {
     input}
   else {
     if(is.function(input)) {
       input()}}}
 
-rhwrite = function(object, file = hdfs.tempfile(), textoutputformat = defaulttextoutputformat){
+to.dfs = function(object, file = hdfs.tempfile(), textoutputformat = defaulttextoutputformat){
   if(is.data.frame(object)) {
     object = from.data.frame(object)
   }
   tmp = tempfile()
-  hdfsOutput = toHDFSpath(file)
+  hdfsOutput = to.hdfs.path(file)
   cat(paste
        (lapply
         (object,
@@ -249,9 +249,9 @@ rhwrite = function(object, file = hdfs.tempfile(), textoutputformat = defaulttex
   file
 }
 
-rhread = function(file, textinputformat = defaulttextinputformat, todataframe = F){
+from.dfs = function(file, textinputformat = defaulttextinputformat, todataframe = F){
   tmp = tempfile()
-  dfs.get(toHDFSpath(file), tmp)
+  dfs.get(to.hdfs.path(file), tmp)
   retval = if(file.info(tmp)[1,'isdir']) {
              do.call(c,
                lapply(list.files(tmp, "part*"),
@@ -276,13 +276,13 @@ hdfs.tempfile <- function(pattern = "file", tmpdir = tempdir()) {
   namefun
 }
 
-revoMapReduce = function(
+mapreduce = function(
   input,
   output = NULL,
-  map = mkMap(identity),
+  map = to.map(identity),
   reduce = NULL,
-  reduceondataframe = FALSE,
   combine = NULL,
+  reduceondataframe = FALSE,
   profilenodes = FALSE,
   inputformat = NULL,
   outputformat = NULL,
@@ -297,8 +297,8 @@ revoMapReduce = function(
            reduce = reduce,
            reduceondataframe = reduceondataframe,
            combine = combine,
-           in.folder = if(is.list(input)) {lapply(input, toHDFSpath)} else toHDFSpath(input),
-           out.folder = toHDFSpath(output),
+           in.folder = if(is.list(input)) {lapply(input, to.hdfs.path)} else to.hdfs.path(input),
+           out.folder = to.hdfs.path(output),
            profilenodes = profilenodes,
            inputformat = inputformat,
            outputformat = outputformat,

@@ -25,28 +25,28 @@ library(RevoHStream)
 
 swap = function(x) list(x[[2]], x[[1]])
 
-transposeMap = mkMap(swap, identity)
+transpose.map = to.map(swap, identity)
 
-rhTranspose = function(input, output = NULL){
-  revoMapReduce(input = input, output = output, map = transposeMap)
+transpose = function(input, output = NULL){
+  mapreduce(input = input, output = output, map = transpose.map)
 }
 
-matMulMap = function(i) function(k,v) keyval(k[[i]], list(pos = k, elem = v))
+mat.mult.map = function(i) function(k,v) keyval(k[[i]], list(pos = k, elem = v))
 
-rhMatMult = function(left, right, result = NULL) {
-  revoMapReduce(
+mat.mult = function(left, right, result = NULL) {
+  mapreduce(
                 input =
-                rhRelationalJoin(leftinput = left, rightinput = right,
-                                 map.left = matMulMap(2),
-                                 map.right = matMulMap(1), 
+                relational.join(leftinput = left, rightinput = right,
+                                 map.left = mat.mul.map(2),
+                                 map.right = mat.mul.map(1), 
                                  reduce = function(k, vl, vr) keyval(c(vl$pos[[1]], vr$pos[[2]]), vl$elem*vr$elem)),
                 output = result,
-                reduce = mkReduce(identity, function(x) sum(unlist(x))))}
+                reduce = to.reduce(identity, function(x) sum(unlist(x))))}
 
 to.matrix = function(df) as.matrix(sparseMatrix(i=df$key1, j=df$key2, x=df$val))
 
-rhLinearLeastSquares = function(X,y) {
-  Xt = rhTranspose(X)
-  XtX = rhread(rhMatMult(Xt, X), todataframe = TRUE)
-  Xty = rhread(rhMatMult(Xt, y), todataframe = TRUE)
+linear.least.squares = function(X,y) {
+  Xt = transpose(X)
+  XtX = from.dfs(mat.mult(Xt, X), todataframe = TRUE)
+  Xty = from.dfs(mat.multult(Xt, y), todataframe = TRUE)
   solve(to.matrix(XtX),to.matrix(Xty))}

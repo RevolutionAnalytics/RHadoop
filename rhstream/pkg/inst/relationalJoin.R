@@ -15,34 +15,34 @@
  
 ## a sort of relational join very useful in a variety of map reduce algorithms
 
-## rhwrite (lapply(1:10, function(i) keyval(i, i^2)), "/tmp/reljoin.left")
-## rhwrite (lapply(1:10, function(i) keyval(i, i^3)), "/tmp/reljoin.right")
-## rhRelationalJoin(leftinput="/tmp/reljoin.left", rightinput="/tmp/reljoin.right", output = "/tmp/reljoin.out")
-## rhread("/tmp/reljoin.out")
+## to.dfs(lapply(1:10, function(i) keyval(i, i^2)), "/tmp/reljoin.left")
+## to.dfs(lapply(1:10, function(i) keyval(i, i^3)), "/tmp/reljoin.right")
+## relational.join(leftinput="/tmp/reljoin.left", rightinput="/tmp/reljoin.right", output = "/tmp/reljoin.out")
+## from.dfs("/tmp/reljoin.out")
 
-rhRelationalJoin = function(
+relational.join = function(
   leftinput = NULL,
   rightinput = NULL,
   input = NULL,
   output = NULL,
-  leftouter = F,
-  rightouter = F,
-  fullouter = F,
-  map.left = mkMap(identity),
-  map.right = mkMap(identity),
+  outer = NULL,
+  map.left = to.map(identity),
+  map.right = to.map(identity),
   reduce  = function (k, vl, vr) keyval(k, list(left=vl, right=vr)))
 {
   stopifnot(xor(!is.null(leftinput), !is.null(input) &&
                 (is.null(leftinput)==is.null(rightinput))))
-  stopifnot(xor(xor(leftouter, rightouter), fullouter) ||
-            !(leftouter || rightouter || fullouter))
+  stopifnot(outer in ("left", "right", "full"))
+  leftouter = outer == "left"
+  rightouter = outer == "right"
+  fullouter = outer == "full"
   if (is.null(leftinput)) {
     leftinput = input}
   markSide =
     function(kv, isleft) keyval(kv$key, list(val = kv$val, isleft = isleft))
   isLeftSide = 
     function(leftinput) {
-      leftinput = sub("//", "/", RevoHStream:::toHDFSpath(leftinput))
+      leftinput = sub("//", "/", RevoHStream:::to.hdfs.path(leftinput))
       mapInfile = sub("//", "/", Sys.getenv("map_input_file"))
       leftinput == substr(mapInfile, 6, 5 + nchar(leftinput))}
   reduce.split =
@@ -61,18 +61,17 @@ rhRelationalJoin = function(
            markSide(map.right(k,v), FALSE))
     }
   }
-  revoMapReduce(map = map,
-                reduce =
-                function(k, vv) {
-                  rs = reduce.split(vv)
-                  values.left = padSide(rs$`TRUE`, rightouter, fullouter)
-                  values.right = padSide(rs$`FALSE`, leftouter, fullouter)
-                  do.call(c,
-                          lapply(values.left,
-                                 function(x) lapply(values.right,
-                                                    function(y) reduce(k, x, y))))},
+  mapreduce(map = map,
+            reduce =
+            function(k, vv) {
+              rs = reduce.split(vv)
+              values.left = padSide(rs$`TRUE`, rightouter, fullouter)
+              values.right = padSide(rs$`FALSE`, leftouter, fullouter)
+              do.call(c,
+                      lapply(values.left,
+                             function(x) lapply(values.right,
+                                                function(y) reduce(k, x, y))))},
                 ## combiner = F,
-                input = c(leftinput,rightinput),
-                output = output)
-}
+            input = c(leftinput,rightinput),
+            output = output)}
 

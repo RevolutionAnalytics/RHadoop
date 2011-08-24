@@ -24,7 +24,7 @@
 ##}
 
 #additional logic for revoMR
-## revoMapReduce(input, output = hdfs.tempfile(), ...) {
+## mapreduce(input, output = hdfs.tempfile(), ...) {
 ##   if(!is.character(outtype)) {
 ##     outattr = attr(output, 'property')
 ##     if(outattr = 'tempfile') {

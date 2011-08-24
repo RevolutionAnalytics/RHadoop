@@ -14,9 +14,9 @@
 
 library(RevoHStream)
  
-rhkmeansiter =
+kmeans.iter =
   function(points, distfun, ncenters = length(centers), centers = NULL) {
-    rhread(revoMapReduce(input = points,
+    from.dfs(mapreduce(input = points,
                          map = 
                            if (is.null(centers)) {
                              function(k,v) keyval(sample(1:ncenters,1),v)}
@@ -26,12 +26,12 @@ rhkmeansiter =
                                keyval(centers[[which.min(distances)]], v)}},
                          reduce = function(k,vv) keyval(NULL, apply(do.call(rbind, vv), 2, mean))))}
 
-rhkmeans =
+kmeans =
   function(points, ncenters, iterations = 10, distfun = function(a,b) norm(as.matrix(a-b), type = 'F'), plot = FALSE) {
-    newCenters = rhkmeansiter(points, distfun = distfun, ncenters = ncenters)
-    if(plot) pdf = RevoHStream:::to.data.frame(rhread(points))
+    newCenters = kmeans.iter(points, distfun = distfun, ncenters = ncenters)
+    if(plot) pdf = RevoHStream:::to.data.frame(from.dfs(points))
     for(i in 1:iterations) {
-      newCenters = lapply(RevoHStream:::getValues(newCenters), unlist)
+      newCenters = lapply(RevoHStream:::values(newCenters), unlist)
       newCenters = c(newCenters, lapply(sample(newCenters, ncenters-length(newCenters)), function(x)x+rnorm(2,sd = 0.001)))
       if(plot) {
         png(paste(Sys.time(), "png", sep = "."))
@@ -39,14 +39,14 @@ rhkmeans =
           geom_jitter() +
           geom_jitter(data=RevoHStream:::to.data.frame(newCenters), aes(x=X.1, y = X.2), color = "red"))
         dev.off()}
-      newCenters = rhkmeansiter(points, distfun, centers=newCenters)}
+      newCenters = kmeans.iter(points, distfun, centers=newCenters)}
     newCenters
   }
 
 ## sample data, 12 cluster
 ## 
-rhkmeans(
-  rhwrite(
+kmeans(
+  to.dfs(
     lapply(
       1:100,
       function(i) keyval(

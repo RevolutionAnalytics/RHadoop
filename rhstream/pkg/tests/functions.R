@@ -14,7 +14,7 @@
 
 ##main function, should be factored out one day
 
-unittest = function(predicate, generators, iterations=10, condition = function(...) T) {
+unittest = function(predicate, generators, iterations = 10, condition = function(...) T) {
   set.seed(0)
   options(warning.length = 8125)
   lapply(1:100, function(i) {
@@ -28,7 +28,7 @@ unittest = function(predicate, generators, iterations=10, condition = function(.
 
 ## test data  generators generators, some generic and some specific to the task at hand
 ## basic types
-tdgglogical = function(ptrue =.5) function() rbinom(1,1,ptrue) == 1
+tdgglogical = function(ptrue = .5) function() rbinom(1,1,ptrue) == 1
 tdgginteger = function(lambda = 100) {tdg = tdggdistribution(rpois, lambda); function() as.integer(tdg())} #why poisson? Why not? Why 100?
 tdggdouble = function(min = -1, max = 1)  tdggdistribution(runif, min, max)
 ##tdggcomplex NAY
@@ -36,11 +36,11 @@ library(digest)
 tdggcharacter = function(len = 8) function() substr(
   paste(
     sapply(runif(ceiling(len/32)), digest), 
-    collapse=""), 
+    collapse = ""), 
   1, len)
 tdggraw = function(len = 8) {tdg = tdggcharacter(len); function() charToRaw(tdg())}
 tdgglist = function(tdg = tdggany(listtdg = tdg, lambdalist = lambda, maxlevel = maxlevel), 
-                    lambda = 10, maxlevel = 20) function() {if(sys.nframe() < maxlevel) replicate(rpois(1, lambda),tdg(), simplify=FALSE) else list()}
+                    lambda = 10, maxlevel = 20) function() {if(sys.nframe() < maxlevel) replicate(rpois(1, lambda),tdg(), simplify = FALSE) else list()}
 tdggvector = function(tdg, lambda) {ltdg = tdgglist(tdg, lambda); function() unlist(ltdg())}
 
 ## special distributions
@@ -69,7 +69,7 @@ tdggany = function(ptrue = .5, lambdaint = 100, min = -1, max = 1, lenchar = 8, 
 tdggnumericlist = function(lambda = 100) function() lapply(1:rpois(1,lambda), function(i) runif(1))
 tdggkeyval = function(keytdg = tdggdouble(), valtdg = tdggany()) function() keyval(keytdg(), valtdg())
 tdggkeyvalsimple = function() function() keyval(runif(1), runif(1)) #we can do better than this
-tdggkeyvallist = function(keytdg = tdggdouble(), valtdg = tdgglist(), lambda = 100) tdgglist(tdg = tdggkeyval(keytdg, valtdg), lambda=lambda)
+tdggkeyvallist = function(keytdg = tdggdouble(), valtdg = tdgglist(), lambda = 100) tdgglist(tdg = tdggkeyval(keytdg, valtdg), lambda = lambda)
 
 
 ## generator test thyself
@@ -82,7 +82,7 @@ unittest(function(ptrue) {
 ##tdggdouble same as tdggdistribution
 ##tdggcomplex NAY
 ##tdggcharacter: test legnth, but is it uniform?
-unittest(function(l) nchar(tdggcharacter(l)())==l,
+unittest(function(l) nchar(tdggcharacter(l)()) == l,
          generators = list(tdgginteger()))
     
 #tdgconstant
@@ -111,15 +111,15 @@ unittest(function(kv) RevoHStream:::defaulttextoutputformat(kv$key, kv$val) ==
                       paste(catch.out(RevoHStream:::send(kv)),"\n", sep = ""),
                   generators = list(tdggkeyval()))
 unittest(function(lkv) {
-  all(catch.out(lapply(lkv,RevoHStream:::send)) ==
+  all(catch.out(lapply(lkv,RevoHStream:::send)) == 
   catch.out(RevoHStream:::send(lkv)))
 },
         generators = list(tdggkeyvallist()))
 ##counter and status -- unused for now
-##getKeys and getValues
+##keys and values
 unittest(function(kvl) isTRUE(all.equal(kvl, 
-                             apply(cbind(getKeys(kvl), 
-                                         getValues(kvl)),1,keyval))), 
+                             apply(cbind(keys(kvl), 
+                                         values(kvl)),1,keyval))), 
          generators = list(tdggkeyvallist()))
 ##keyval
 unittest(function(kv) {
@@ -127,25 +127,25 @@ unittest(function(kv) {
   attr(kv, "keyval")},
   generators = list(tdggkeyval()))
 
-##rhread rhwrite
-rhreadwritetest = function(generator) {
+##from.dfs to.dfs
+from.to.dfs.test = function(generator) {
   unittest(function(kvl) {
-    isTRUE(all.equal(kvl, rhread(rhwrite(kvl)), tolerance=1e-4, check.attributes=FALSE))},
+    isTRUE(all.equal(kvl, from.dfs(to.dfs(kvl)), tolerance = 1e-4, check.attributes = FALSE))},
     generators = list(generator),
     iterations = 10)}
 
-rhreadwritetest(tdggkeyvallist())
+from.to.dfs.test(tdggkeyvallist())
 
-##revoMapReduce
+##mapreduce
 
 unittest(function(kvl) {
-  if(length(kvl)==0) TRUE
+  if(length(kvl) == 0) TRUE
   else {
-    kvl = kvl[order(unlist(getKeys(kvl)))]
-    kvl1 = rhread(revoMapReduce(input=rhwrite(kvl)))
-    kvl1 = kvl1[order(unlist(getKeys(kvl1)))]
-    isTRUE(all.equal(kvl, kvl1, tolerance=1e-4, check.attributes=FALSE))}},
-  generators = list(tdggkeyvallist(lambda=10)),
+    kvl = kvl[order(unlist(keys(kvl)))]
+    kvl1 = from.dfs(mapreduce(input = to.dfs(kvl)))
+    kvl1 = kvl1[order(unlist(keys(kvl1)))]
+    isTRUE(all.equal(kvl, kvl1, tolerance = 1e-4, check.attributes = FALSE))}},
+  generators = list(tdggkeyvallist(lambda = 10)),
   iterations = 10)
 
                                          
