@@ -16,12 +16,10 @@
 # matrix A_{ij} representation is a list of keyval(c(i,j), A_{ij})
 # vectors are column matrices
 
-# test data
-# X = do.call(c, lapply(1:4, function(i) lapply(1:3, function(j) keyval(c(i,j), rnorm(1)))))
-# y = do.call(c, lapply(1:4, function(i) lapply(1:1, function(j) keyval(c(i,j), rnorm(1)))))
- 
+
 library(Matrix)
 library(rmr)
+source(file.path(.path.package("rmr"), "relational-join.R"))
 
 swap = function(x) list(x[[2]], x[[1]])
 
@@ -37,8 +35,8 @@ mat.mult = function(left, right, result = NULL) {
   mapreduce(
                 input =
                 relational.join(leftinput = left, rightinput = right,
-                                 map.left = mat.mul.map(2),
-                                 map.right = mat.mul.map(1), 
+                                 map.left = mat.mult.map(2),
+                                 map.right = mat.mult.map(1), 
                                  reduce = function(k, vl, vr) keyval(c(vl$pos[[1]], vr$pos[[2]]), vl$elem*vr$elem)),
                 output = result,
                 reduce = to.reduce(identity, function(x) sum(unlist(x))))}
@@ -48,5 +46,11 @@ to.matrix = function(df) as.matrix(sparseMatrix(i=df$key1, j=df$key2, x=df$val))
 linear.least.squares = function(X,y) {
   Xt = transpose(X)
   XtX = from.dfs(mat.mult(Xt, X), todataframe = TRUE)
-  Xty = from.dfs(mat.multult(Xt, y), todataframe = TRUE)
+  Xty = from.dfs(mat.mult(Xt, y), todataframe = TRUE)
   solve(to.matrix(XtX),to.matrix(Xty))}
+
+# test data
+X = do.call(c, lapply(1:4, function(i) lapply(1:3, function(j) keyval(c(i,j), rnorm(1)))))
+y = do.call(c, lapply(1:4, function(i) lapply(1:1, function(j) keyval(c(i,j), rnorm(1)))))
+
+linear.least.squares(to.dfs(X), to.dfs(y))

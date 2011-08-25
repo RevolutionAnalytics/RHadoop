@@ -14,6 +14,7 @@
 
 ## lapply like job, first intro
 
+library(rmr)
 
 small.ints = 1:10
 lapply(small.ints, function(x) x^2)
@@ -31,38 +32,22 @@ tapply(groups, groups, length)
 groups = to.dfs(groups)
 from.dfs(mapreduce(input = groups, map = to.map(identity), reduce = function(k,vv) keyval(k, length(vv))))
 
-## classic wordcount 
-## input can be any text file
-## inspect output with from.dfs(output) -- this will produce an R list watch out with big datasets
-
-wordcount = function (input, output, pattern = " ") {
-  mapreduce(input = input ,
-            output = output,
-            textinputformat = rawtextinputformat,
-            map = function(k,v) {
-                      lapply(
-                         strsplit(
-                                  x = v,
-                                  split = pattern)[[1]],
-                         function(w) keyval(w,1))},
-                reduce = function(k,vv) {
-                    keyval(k, sum(unlist(vv)))},
-                combine = T)}
 
 ##input can be any RevoStreaming file (our own format)
 ## pred can be function(x) x > 0
 ## it will be evaluated on the value only, not on the key
-## test set: to.dfs(lapply (1:10, function(i) keyval(rnorm(2))), "/tmp/filtertest")
-## run with mrfilter("/tmp/filtertest", "/tmp/filterout", function(x) x > 0)
-## inspect results with from.dfs("/tmp/filterout")
 
 filtermap= function(pred) function(k,v) {if (pred(v)) keyval(k,v) else NULL}
 
-rhfilter = function (input, output = NULL, pred) {
+mrfilter = function (input, output = NULL, pred) {
   mapreduce(input = input,
             output = output,
             map = filtermap(pred))
 }
+
+filtertest = to.dfs(lapply (1:10, function(i) keyval(rnorm(2))))
+from.dfs(mrfilter(input = filtertest, pred =function(x) x > 0))
+
 
 ## pipeline of two filters, sweet
 # from.dfs(mrfilter(input = mrfilter(
