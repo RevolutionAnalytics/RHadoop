@@ -188,7 +188,7 @@ flatten = function(x) unlist(list(name = as.name("name"), x))[-1]
 to.data.frame = function(l) data.frame(lapply(data.frame(do.call(rbind,lapply(l, flatten))), unlist))
 from.data.frame = function(df, keycol = 1) lapply(1:dim(df)[[1]], function(i) keyval(df[i,], i = keycol))
 
-dfs = function(cmd, ...) {
+dfs = function(cmd, intern, ...) {
   if (is.null(names(list(...)))) {
     argnames = sapply(1:length(list(...)), function(i) "")
   }
@@ -207,22 +207,32 @@ dfs = function(cmd, ...) {
                       order(argnames, decreasing = T)], 
                 collapse = " "),
                sep = ""),
-         intern = T)}
-
-dfs.match = function(...) {
-  cmd = strsplit(tail(as.character(as.list(match.call())[[1]]), 1), "\\.")[[1]][[2]]
-  dfs(cmd, ...)
-}
-
-for (dfscmd in c("ls","lsr","df","du","dus","count","mv","cp","rm","rmr","expunge","put","copyFromLocal",
-                 "moveFromLocal","get","getmerge","cat","text","copyToLocal","moveToLocal","mkdir",
-                 "setrep","touchz","test","stat","tail","chmod","chown","chgrp","help","ls","get",
-                 "put","rm","rmr","cat")) eval(parse(text = paste ("dfs.", dfscmd, " = dfs.match", sep = "")))
+         intern = intern)}
 
 
-dfs.exists = function(f) {
-  length(dfs.ls(f)) == 0
-}
+getcmd = function(matched.call)
+  strsplit(tail(as.character(as.list(matched.call)[[1]]), 1), "\\.")[[1]][[2]]
+           
+dfs.match.sideeffect = function(...) {
+  dfs(getcmd(match.call()), FALSE, ...) == 0}
+
+dfs.match.out = function(...)
+  to.data.frame(strsplit(dfs(getcmd(match.call()), TRUE, ...)[-1], " +"))
+
+mkdfsfun = function(dfscmd, out)
+  eval(parse(text = paste ("dfs.", dfscmd, " = dfs.match.", if(out) "out" else "sideeffect", sep = "")),
+       envir = parent.env(environment()))
+
+for (dfscmd in c("ls","lsr","df","du","dus","count","cat","text","stat","tail","help")) 
+  mkdfsfun(dfscmd, TRUE)
+
+for (dfscmd in c("mv","cp","rm","rmr","expunge","put","copyFromLocal","moveFromLocal","get","getmerge",
+                 "copyToLocal","moveToLocal","mkdir","setrep","touchz","test","chmod","chown","chgrp"))
+  mkdfsfun(dfscmd, FALSE)
+
+dfs.exists = function(f) dfs.test(e = f) 
+dfs.empty = function(f) dfs.test(z = f) 
+dfs.is.dir = function(f) dfs.test(d = f)
 
 to.hdfs.path = function(input) {
   if (is.character(input)) {
@@ -369,11 +379,11 @@ load("rmrLocalEnv")
   ## set up the execution environment for map and reduce
   if (!is.null(combine) && is.logical(combine) && combine) {
     combine = reduce}
-  revoHStreamParentEnv = file.path(tempdir(), "rmrParentEnv")
-  revoHStreamLocalEnv = file.path(tempdir(), "rmrLocalEnv")
-  save.image(file = revoHStreamParentEnv)
-  save(list = ls(all = TRUE, envir = environment()), file = revoHStreamLocalEnv, envir = environment())
-  image.cmd.line = paste("-file", revoHStreamParentEnv, "-file", revoHStreamLocalEnv)
+  rmrParentEnv = file.path(tempdir(), "rmrParentEnv")
+  rmrLocalEnv = file.path(tempdir(), "rmrLocalEnv")
+  save.image(file = rmrParentEnv)
+  save(list = ls(all = TRUE, envir = environment()), file = rmrLocalEnv, envir = environment())
+  image.cmd.line = paste("-file", rmrParentEnv, "-file", rmrLocalEnv)
   
   ## prepare hadoop streaming command
   hadoopHome = Sys.getenv("HADOOP_HOME")
