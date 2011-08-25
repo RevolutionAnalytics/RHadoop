@@ -1,8 +1,8 @@
-\name{RevoHBase}
-\alias{RevoHBase}
-\alias{RevoHBase}
+\name{rhbase}
+\alias{rhbase}
+\alias{rhbase}
 \docType{package}
-\title{RevoHBase: Interact with HBase tables from R}
+\title{rhbase: Interact with HBase tables from R}
 \description{
    The functions allows one to create or delete tables and insert, delete, and scan records
    in HBase tables.  

@@ -1,8 +1,8 @@
 \name{hdfs.init}
 \alias{hdfs.init}
-\title{Initialize the RevoHDFS Package}
+\title{Initialize the rhdfs Package}
 \description{
-  Initializes the RevoHDFS package with paramaters specifying the location of the
+  Initializes the rhdfs package with paramaters specifying the location of the
   Hadoop configuration files
 }
 
@@ -27,7 +27,7 @@
 }
 \details{
   The \code{hdfs.init} function is called with no arguments as part of the
-  normal on-load procedure for RevoHDFS; if either HADOOP_HOME or HADOOP_CONF
+  normal on-load procedure for rhdfs; if either HADOOP_HOME or HADOOP_CONF
   is unset, the load will fail. It may be called multiple times per session, so
   if something about your configuration changes during a session, you can call
   \code{hdfs.init} again to pick up the changes.

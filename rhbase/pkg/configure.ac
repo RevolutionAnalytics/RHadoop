@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT(RevoHBase, 0.2, revolutionanalytics)
+AC_INIT(rhbase, 1.0, revolutionanalytics)
 
 ## Most of this taken from Simon Urbanek's configure.ac for rJava
 

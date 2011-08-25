@@ -1,0 +1,6 @@
+export(mapreduce)
+export(from.dfs, to.dfs)
+#exportPattern('^dfs.*')
+export(keyval, keys, values)
+export(rawtextinputformat)
+export(to.map, to.reduce)

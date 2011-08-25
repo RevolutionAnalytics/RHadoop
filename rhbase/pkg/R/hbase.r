@@ -16,7 +16,7 @@
 hb.defaults <- function(arg){
   if(missing(arg)){
     as.list(.hbEnv)
-  } else RevoHBase:::.hbEnv[[arg]]
+  } else rhbase:::.hbEnv[[arg]]
 }
 
 hb.init <- function(host='127.0.0.1', port=9090, buffsize=3*1024*1024){
@@ -25,19 +25,19 @@ hb.init <- function(host='127.0.0.1', port=9090, buffsize=3*1024*1024){
   ## port     = the port on which the thrift server is listening
   ## buffsize = buffer size of subsequent reads
   ## return: an object of class "hb.client.connection"
-  y <- .Call("initialize",host,as.integer(port,buffsize),PACKAGE="RevoHBase")
+  y <- .Call("initialize",host,as.integer(port,buffsize),PACKAGE="rhbase")
   class(y) <- "hb.client.connection"
   reg.finalizer(y,function(r){
-    .Call("deleteclient",r,PACKAGE="RevoHBase")
+    .Call("deleteclient",r,PACKAGE="rhbase")
   })
-  assign('hbc',y,env=RevoHBase:::.hbEnv)
+  assign('hbc',y,env=rhbase:::.hbEnv)
   opt.names <- list("maxversions"=as.integer,"compression"=as.character,
   "inmemory"=as.logical, "bloomfiltertype"=as.character,
   "bloomfiltervecsize"=as.integer, "bloomfilternbhashes"=as.integer,
   "blockcache"=as.logical, "timetolive"=as.integer)
-  assign("opt.names",opt.names,env=RevoHBase:::.hbEnv)
-  assign("sz",function(r) serialize(r,NULL),env=RevoHBase:::.hbEnv)
-  assign("usz",unserialize,,env=RevoHBase:::.hbEnv)
+  assign("opt.names",opt.names,env=rhbase:::.hbEnv)
+  assign("sz",function(r) serialize(r,NULL),env=rhbase:::.hbEnv)
+  assign("usz",unserialize,,env=rhbase:::.hbEnv)
   y
 }
 
@@ -45,14 +45,14 @@ hb.list.tables <- function(hbc=hb.defaults('hbc')){
   ## Provides a character vector of tables
   ## hbc = object of class "hb.client.connection" (returned from hb.init)
   ## return: a data frame of tables and their columns (as returned by hb.describe.table)
-  y <- .Call("hb_get_tables",hbc,PACKAGE="RevoHBase");
+  y <- .Call("hb_get_tables",hbc,PACKAGE="rhbase");
   f <- lapply(y, hb.describe.table)
   names(f) <- y
   f
 }
 
 hb.describe.table <- function(tablename, hbc=hb.defaults('hbc')){
-  y <- .Call("hbDescribeCols",hbc,as.character(tablename),PACKAGE="RevoHBase");
+  y <- .Call("hbDescribeCols",hbc,as.character(tablename),PACKAGE="rhbase");
   do.call("rbind",lapply(y,function(r){
     z <- as.data.frame(r,stringsAsFactors=FALSE)
     colnames(z) <- c("maxversions","compression","inmemory","bloomfiltertype",

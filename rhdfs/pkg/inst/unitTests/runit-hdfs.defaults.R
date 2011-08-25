@@ -13,7 +13,7 @@
 # limitations under the License.
 
  
-stopifnot(require(RevoHDFS, quietly=TRUE))
+stopifnot(require(rhdfs, quietly=TRUE))
 stopifnot(require(RUnit, quietly=TRUE))
 
 test.hdfs.defaults <- function()

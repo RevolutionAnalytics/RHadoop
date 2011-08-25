@@ -18,54 +18,54 @@
 small.ints = 1:10
 lapply(small.ints, function(x) x^2)
 
-small.ints = rhwrite(1:10)
-revoMapReduce(input=small.ints, map = function(k,v) keyval(k^2))
+small.ints = to.dfs(1:10)
+mapreduce(input = small.ints, map = function(k,v) keyval(k^2))
 
-rhread(revoMapReduce(input=small.ints, map = function(k,v) keyval(k^2)))
+from.dfs(mapreduce(input=small.ints, map = function(k,v) keyval(k^2)))
 
 ## tapply like job
 
 groups = rbinom(32, n = 50, prob = 0.4)
 tapply(groups, groups, length)
 
-groups = rhwrite(groups)
-rhread(revoMapReduce(input = groups, map = mkMap(identity), reduce = function(k,vv) keyval(k, length(vv))))
+groups = to.dfs(groups)
+from.dfs(mapreduce(input = groups, map = to.map(identity), reduce = function(k,vv) keyval(k, length(vv))))
 
 ## classic wordcount 
-##input can be any text file
-## inspect output with rhread(output) -- this will produce an R list watch out with big datasets
+## input can be any text file
+## inspect output with from.dfs(output) -- this will produce an R list watch out with big datasets
 
-rhwordcount = function (input, output, pattern = " ") {
-  revoMapReduce(input = input ,
-                output = output,
-                textinputformat = rawtextinputformat,
-                map = function(k,v) {
-                  lapply(
+wordcount = function (input, output, pattern = " ") {
+  mapreduce(input = input ,
+            output = output,
+            textinputformat = rawtextinputformat,
+            map = function(k,v) {
+                      lapply(
                          strsplit(
                                   x = v,
                                   split = pattern)[[1]],
                          function(w) keyval(w,1))},
                 reduce = function(k,vv) {
-                  keyval(k, sum(unlist(vv)))},
+                    keyval(k, sum(unlist(vv)))},
                 combine = T)}
 
 ##input can be any RevoStreaming file (our own format)
 ## pred can be function(x) x > 0
 ## it will be evaluated on the value only, not on the key
-## test set: rhwrite (lapply (1:10, function(i) keyval(rnorm(2))), "/tmp/filtertest")
+## test set: to.dfs(lapply (1:10, function(i) keyval(rnorm(2))), "/tmp/filtertest")
 ## run with mrfilter("/tmp/filtertest", "/tmp/filterout", function(x) x > 0)
-## inspect results with rhread("/tmp/filterout")
+## inspect results with from.dfs("/tmp/filterout")
 
 filtermap= function(pred) function(k,v) {if (pred(v)) keyval(k,v) else NULL}
 
-rhfilter = function (input, output, pred) {
-  revoMapReduce(input = input,
-           output = output,
-           map = filtermap(pred))
+rhfilter = function (input, output = NULL, pred) {
+  mapreduce(input = input,
+            output = output,
+            map = filtermap(pred))
 }
 
 ## pipeline of two filters, sweet
-# rhread(mrfilter(input = mrfilter(
+# from.dfs(mrfilter(input = mrfilter(
 #                  input = "/tmp/filtertest/",
 #                  pred = function(x) x > 0),
 #                pred = function(x) x < 0.5))

@@ -1,4 +1,4 @@
-\name{RevoHDFS-file-manip}
+\name{rhdfs-file-manip}
 \alias{hdfs.file}
 \alias{hdfs.write}
 \alias{hdfs.close}
@@ -126,7 +126,7 @@ load.objects <- function(from){
   })
 }
 ## Run within a fresh (clean) session
-library(RevoHDFS)
+library(rhdfs)
 hdfs.init()
 x=runif(100)
 save.objects(save.name="/tmp/asavefile")

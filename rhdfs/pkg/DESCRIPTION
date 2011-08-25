@@ -1,8 +1,8 @@
-Package: RevoHDFS 
+Package: rhdfs 
 Type: Package
 Title: R and Hadoop Distributed Filesystem
-Version: 2011.7-27
-Date: 2011-07-27
+Version: 1.0
+Date: 2011-08-16
 Author: Revolution Analytics
 Depends: R (>= 2.6.0), methods, rJava (>= 0.8)
 Maintainer: Revolution Analytics <support@revolutionanalytics.com>

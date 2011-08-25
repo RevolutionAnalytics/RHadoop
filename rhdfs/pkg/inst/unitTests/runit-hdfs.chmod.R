@@ -13,13 +13,13 @@
 # limitations under the License.
 
  
-stopifnot(require(RevoHDFS, quietly=TRUE))
+stopifnot(require(rhdfs, quietly=TRUE))
 stopifnot(require(RUnit, quietly=TRUE))
 
 test.hdfs.chmod <- function()
 {
         ## Load airline test data and put it into the Hadoop file system
-        localData <- system.file(file.path("unitTestData", "AirlineDemo1kNoMissing.csv"), package="RevoHDFS")
+        localData <- system.file(file.path("unitTestData", "AirlineDemo1kNoMissing.csv"), package="rhdfs")
         hdfs.mkdir("/test/airline")
         checkTrue(hdfs.put(localData, "/test/airline/AirlineDemo1kNoMissing.csv"))
 	hdfs.chmod("/test/airline/AirlineDemo1kNoMissing.csv", permissions="664")

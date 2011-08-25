@@ -1,12 +1,12 @@
-\name{RevoHDFS}
-\alias{RevoHDFS}
+\name{rhdfs}
+\alias{rhdfs}
 \docType{package}
-\title{RevoHDFS: R and Hadoop Distributed File System}
+\title{rhdfs: R and Hadoop Distributed File System}
 \description{
 	Functions to interact with the HDFS from within R
 }
 \details{
-  The RevoHDFS package supplies functions to interact
+  The rhdfs package supplies functions to interact
   with an Hadoop Distributed File System from within
   R. There are functions for file system management as
   well as functions to read, write, open, and close 

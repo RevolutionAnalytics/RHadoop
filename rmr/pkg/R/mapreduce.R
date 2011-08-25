@@ -53,9 +53,9 @@ status = function(what){
 }
 
 ## could think of this as a utils section
-getKeys = function(l) lapply(l, function(x) x[[1]])
+keys = function(l) lapply(l, function(x) x[[1]])
 
-getValues = function(l) lapply(l, function(x) x[[2]])
+values = function(l) lapply(l, function(x) x[[2]])
 
 keyval = function(k, v = NULL, i = 1) {
   if(missing(v)) {
@@ -67,13 +67,13 @@ keyval = function(k, v = NULL, i = 1) {
   attr(kv, 'keyval') = TRUE
   kv}
 
-mkMap = function(fun1 = identity, fun2 = identity) {
+to.map = function(fun1 = identity, fun2 = identity) {
   if (missing(fun2)) {
     function(k,v) fun1(keyval(k,v))}
   else {
     function(k,v) keyval(fun1(k), fun2(v))}}
 
-mkReduce = mkMap
+to.reduce = to.map
 
 mkLapplyReduce = function(fun1 = identity, fun2 = identity) {
   if (missing(fun2)) {
@@ -81,7 +81,7 @@ mkLapplyReduce = function(fun1 = identity, fun2 = identity) {
   else {
     function(k,vv) lapply(vv, function(v) keyval(fun1(k), fun2(v)))}}
 
-mkSeriesMap = function(map1, map2) function(k,v) do.call(map2, map1(k,v))
+mkSeriesMap = function(map1, map2) function(k,v) {out = map1(k,v); map2(out$key, out$val)}
 mkParallelMap = function(...) function (k,v) lapply(list(...), function(map) map(k,v))
 
 ## end utils
@@ -120,25 +120,25 @@ reduceDriver = function(reduce, linebufsize, textinputformat, textoutputformat, 
     while( !is.null(d <- k$get())){
       d = c(lastGroup,d)
       lastKey =  d[[length(d)]][[1]]
-      groupKeys = getKeys(d)
+      groupKeys = keys(d)
       lastGroup = d[listComp(groupKeys, lastKey)]
       d = d[!listComp(groupKeys, lastKey)]
       if(length(d) > 0) {
-        groups = tapply(d, sapply(getKeys(d), digest), identity, simplify = FALSE)
+        groups = tapply(d, sapply(keys(d), digest), identity, simplify = FALSE)
         lapply(groups,
                function(g) {
                  out = NULL
                  out = reduce(g[[1]][[1]], if(reduceondataframe) {
-                                             to.data.frame(getValues(g))}
+                                             to.data.frame(values(g))}
                                           else {
-                                            getValues(g)})
+                                            values(g)})
                  if(!is.null(out))
                    send(out, textoutputformat)
                })
       }
     }
     if (length(lastGroup) > 0) {
-      out = reduce(lastKey, getValues(lastGroup))
+      out = reduce(lastKey, values(lastGroup))
       send(out, textoutputformat)
     }
     k$close()
@@ -182,17 +182,13 @@ defaulttextinputformat = function(line) {
 
 defaulttextoutputformat = function(k,v) {
   paste(encodeString(toJSON(k, collapse = "")), "\t", encodeString(toJSON(v, collapse = "")), "\n", sep = "")}
-
 rawtextinputformat = function(line) {keyval(NULL, line)}
 
-flatten_list = function(l) if(length(l) > 1) do.call(c, lapply(l, flatten_list)) else list(l) # can probably be replaced with as.data.frame, but watch out names
-to.data.frame = function(l) data.frame(do.call(rbind,lapply(l, function(r) {
-  fr = flatten_list(r)
-  if(is.null(names(fr))) names(fr) = paste("X", 1:length(fr))
-  as.data.frame(fr)})))
+flatten = function(x) unlist(list(name = as.name("name"), x))[-1]
+to.data.frame = function(l) data.frame(lapply(data.frame(do.call(rbind,lapply(l, flatten))), unlist))
 from.data.frame = function(df, keycol = 1) lapply(1:dim(df)[[1]], function(i) keyval(df[i,], i = keycol))
 
-dfs = function(cmd, ...) {
+dfs = function(cmd, intern, ...) {
   if (is.null(names(list(...)))) {
     argnames = sapply(1:length(list(...)), function(i) "")
   }
@@ -211,36 +207,46 @@ dfs = function(cmd, ...) {
                       order(argnames, decreasing = T)], 
                 collapse = " "),
                sep = ""),
-         intern = T)}
-
-dfs.match = function(...) {
-  cmd = strsplit(tail(as.character(as.list(match.call())[[1]]), 1), "\\.")[[1]][[2]]
-  dfs(cmd, ...)
-}
-
-for (dfscmd in c("ls","lsr","df","du","dus","count","mv","cp","rm","rmr","expunge","put","copyFromLocal",
-                 "moveFromLocal","get","getmerge","cat","text","copyToLocal","moveToLocal","mkdir",
-                 "setrep","touchz","test","stat","tail","chmod","chown","chgrp","help","ls","get",
-                 "put","rm","rmr","cat")) eval(parse(text = paste ("dfs.", dfscmd, " = dfs.match", sep = "")))
+         intern = intern)}
 
 
-dfs.exists = function(f) {
-  length(dfs.ls(f)) == 0
-}
+getcmd = function(matched.call)
+  strsplit(tail(as.character(as.list(matched.call)[[1]]), 1), "\\.")[[1]][[2]]
+           
+dfs.match.sideeffect = function(...) {
+  dfs(getcmd(match.call()), FALSE, ...) == 0}
 
-toHDFSpath = function(input) {
+dfs.match.out = function(...)
+  to.data.frame(strsplit(dfs(getcmd(match.call()), TRUE, ...)[-1], " +"))
+
+mkdfsfun = function(dfscmd, out)
+  eval(parse(text = paste ("dfs.", dfscmd, " = dfs.match.", if(out) "out" else "sideeffect", sep = "")),
+       envir = parent.env(environment()))
+
+for (dfscmd in c("ls","lsr","df","du","dus","count","cat","text","stat","tail","help")) 
+  mkdfsfun(dfscmd, TRUE)
+
+for (dfscmd in c("mv","cp","rm","rmr","expunge","put","copyFromLocal","moveFromLocal","get","getmerge",
+                 "copyToLocal","moveToLocal","mkdir","setrep","touchz","test","chmod","chown","chgrp"))
+  mkdfsfun(dfscmd, FALSE)
+
+dfs.exists = function(f) dfs.test(e = f) 
+dfs.empty = function(f) dfs.test(z = f) 
+dfs.is.dir = function(f) dfs.test(d = f)
+
+to.hdfs.path = function(input) {
   if (is.character(input)) {
     input}
   else {
     if(is.function(input)) {
       input()}}}
 
-rhwrite = function(object, file = hdfs.tempfile(), textoutputformat = defaulttextoutputformat){
+to.dfs = function(object, file = hdfs.tempfile(), textoutputformat = defaulttextoutputformat){
   if(is.data.frame(object)) {
     object = from.data.frame(object)
   }
   tmp = tempfile()
-  hdfsOutput = toHDFSpath(file)
+  hdfsOutput = to.hdfs.path(file)
   cat(paste
        (lapply
         (object,
@@ -253,9 +259,9 @@ rhwrite = function(object, file = hdfs.tempfile(), textoutputformat = defaulttex
   file
 }
 
-rhread = function(file, textinputformat = defaulttextinputformat, todataframe = F){
+from.dfs = function(file, textinputformat = defaulttextinputformat, todataframe = F){
   tmp = tempfile()
-  dfs.get(toHDFSpath(file), tmp)
+  dfs.get(to.hdfs.path(file), tmp)
   retval = if(file.info(tmp)[1,'isdir']) {
              do.call(c,
                lapply(list.files(tmp, "part*"),
@@ -280,15 +286,16 @@ hdfs.tempfile <- function(pattern = "file", tmpdir = tempdir()) {
   namefun
 }
 
-revoMapReduce = function(
+mapreduce = function(
   input,
   output = NULL,
-  map = mkMap(identity),
+  map = to.map(identity),
   reduce = NULL,
-  reduceondataframe = FALSE,
   combine = NULL,
+  reduceondataframe = FALSE,
   profilenodes = FALSE,
   inputformat = NULL,
+  outputformat = NULL,
   textinputformat = defaulttextinputformat,
   textoutputformat = defaulttextoutputformat,
   verbose = FALSE) {
@@ -300,10 +307,11 @@ revoMapReduce = function(
            reduce = reduce,
            reduceondataframe = reduceondataframe,
            combine = combine,
-           in.folder = if(is.list(input)) {lapply(input, toHDFSpath)} else toHDFSpath(input),
-           out.folder = toHDFSpath(output),
+           in.folder = if(is.list(input)) {lapply(input, to.hdfs.path)} else to.hdfs.path(input),
+           out.folder = to.hdfs.path(output),
            profilenodes = profilenodes,
            inputformat = inputformat,
+           outputformat = outputformat,
            textinputformat = textinputformat,
            textoutputformat = textoutputformat,
            verbose = verbose)
@@ -328,6 +336,7 @@ rhstream = function(
   mapred = list(),
   mpr.out = NULL,
   inputformat = NULL,
+  outputformat = NULL,
   textinputformat = defaulttextinputformat,
   textoutputformat = defaulttextoutputformat,
   verbose = FALSE,
@@ -336,28 +345,28 @@ rhstream = function(
   lines = '#! /usr/bin/env Rscript
 options(warn=-1)
 
-library(RevoHStream)
-load("RevoHStreamParentEnv")
-load("RevoHStreamLocalEnv")
+library(rmr)
+load("rmrParentEnv")
+load("rmrLocalEnv")
 '
 
-  mapLine = 'RevoHStream:::mapDriver(map = map,
+  mapLine = 'rmr:::mapDriver(map = map,
               linebufsize = linebufsize,
               textinputformat = textinputformat,
               textoutputformat = if(is.null(reduce))
                                  {textoutputformat}
-                                 else {RevoHStream:::defaulttextoutputformat},
+                                 else {rmr:::defaulttextoutputformat},
               profile = profilenodes)'
-  reduceLine  =  'RevoHStream:::reduceDriver(reduce = reduce,
+  reduceLine  =  'rmr:::reduceDriver(reduce = reduce,
                  linebufsize = linebufsize,
-                 textinputformat = RevoHStream:::defaulttextinputformat,
+                 textinputformat = rmr:::defaulttextinputformat,
                  textoutputformat = textoutputformat,
                  reduceondataframe = reduceondataframe,
                  profile = profilenodes)'
-  combineLine = 'RevoHStream:::reduceDriver(reduce = combine,
+  combineLine = 'rmr:::reduceDriver(reduce = combine,
                  linebufsize = linebufsize,
-                 textinputformat = RevoHStream:::defaulttextinputformat,
-                 textoutputformat = RevoHStream:::defaulttextoutputformat,
+                 textinputformat = rmr:::defaulttextinputformat,
+                 textoutputformat = rmr:::defaulttextoutputformat,
                  reduceondataframe = reduceondataframe,
                 profile = profilenodes)'
 
@@ -370,9 +379,11 @@ load("RevoHStreamLocalEnv")
   ## set up the execution environment for map and reduce
   if (!is.null(combine) && is.logical(combine) && combine) {
     combine = reduce}
-  save.image(file="RevoHStreamParentEnv")
-  save(list = ls(all = TRUE, envir = environment()), file = "RevoHStreamLocalEnv", envir = environment())
-  image.cmd.line = "-file RevoHStreamParentEnv -file RevoHStreamLocalEnv"
+  rmrParentEnv = file.path(tempdir(), "rmrParentEnv")
+  rmrLocalEnv = file.path(tempdir(), "rmrLocalEnv")
+  save.image(file = rmrParentEnv)
+  save(list = ls(all = TRUE, envir = environment()), file = rmrLocalEnv, envir = environment())
+  image.cmd.line = paste("-file", rmrParentEnv, "-file", rmrLocalEnv)
   
   ## prepare hadoop streaming command
   hadoopHome = Sys.getenv("HADOOP_HOME")
@@ -382,13 +393,16 @@ load("RevoHStreamLocalEnv")
   hadoop.command = sprintf("%s/hadoop jar %s ", hadoopBin,stream.jar)
   input =  make.input.files(in.folder)
   output = if(!missing(out.folder)) sprintf("-output %s",out.folder) else " "
-  file = map.file
   inputformat = if(is.null(inputformat)){
     ' ' # default is TextInputFormat
   }else{
     sprintf(" -inputformat %s", inputformat)
   }
-    outputformat = 'TextOutputFormat'
+  outputformat = if(is.null(outputformat)){
+    ' '}
+  else {
+    sprintf(" -outputformat %s", outputformat)
+  }
   mapper = sprintf('-mapper "Rscript %s" ',  tail(strsplit(map.file,"/")[[1]],1))
   m.fl = sprintf("-file %s ",map.file)
   if(!is.null(reduce) ){
