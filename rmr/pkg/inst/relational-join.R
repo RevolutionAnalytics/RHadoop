@@ -32,7 +32,7 @@ relational.join = function(
 {
   stopifnot(xor(!is.null(leftinput), !is.null(input) &&
                 (is.null(leftinput)==is.null(rightinput))))
-  stopifnot(outer in ("left", "right", "full"))
+  stopifnot(is.null(outer) || is.element(outer, c("left", "right", "full")))
   leftouter = outer == "left"
   rightouter = outer == "right"
   fullouter = outer == "full"
