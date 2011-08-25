@@ -25,14 +25,14 @@ relational.join = function(
   rightinput = NULL,
   input = NULL,
   output = NULL,
-  outer = NULL,
+  outer = "",
   map.left = to.map(identity),
   map.right = to.map(identity),
   reduce  = function (k, vl, vr) keyval(k, list(left=vl, right=vr)))
 {
   stopifnot(xor(!is.null(leftinput), !is.null(input) &&
                 (is.null(leftinput)==is.null(rightinput))))
-  stopifnot(is.null(outer) || is.element(outer, c("left", "right", "full")))
+  stopifnot(is.element(outer, c("", "left", "right", "full")))
   leftouter = outer == "left"
   rightouter = outer == "right"
   fullouter = outer == "full"
