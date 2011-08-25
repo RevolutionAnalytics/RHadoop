@@ -14,12 +14,12 @@
 
 ##main function, should be factored out one day
 
-unittest = function(predicate, generators, iterations = 10, condition = function(...) T) {
+unittest = function(predicate, generators, samplesize = 10, precondition = function(...) T) {
   set.seed(0)
   options(warning.length = 8125)
   lapply(1:100, function(i) {
     args = lapply(generators, function(a) a())
-    if(do.call(condition, args) && !do.call(predicate, args)){
+    if(do.call(precondition, args) && !do.call(predicate, args)){
       stop(paste("FAIL: predicate:",
                  paste(deparse(predicate), collapse = " "),
                  "args:",
@@ -132,7 +132,7 @@ from.to.dfs.test = function(generator) {
   unittest(function(kvl) {
     isTRUE(all.equal(kvl, from.dfs(to.dfs(kvl)), tolerance = 1e-4, check.attributes = FALSE))},
     generators = list(generator),
-    iterations = 10)}
+    samplesize = 10)}
 
 from.to.dfs.test(tdggkeyvallist())
 
@@ -146,6 +146,6 @@ unittest(function(kvl) {
     kvl1 = kvl1[order(unlist(keys(kvl1)))]
     isTRUE(all.equal(kvl, kvl1, tolerance = 1e-4, check.attributes = FALSE))}},
   generators = list(tdggkeyvallist(lambda = 10)),
-  iterations = 10)
+  samplesize = 10)
 
                                          
