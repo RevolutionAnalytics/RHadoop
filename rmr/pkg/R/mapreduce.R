@@ -335,28 +335,28 @@ rhstream = function(
   lines = '#! /usr/bin/env Rscript
 options(warn=-1)
 
-library(RevoHStream)
-load("RevoHStreamParentEnv")
-load("RevoHStreamLocalEnv")
+library(rmr)
+load("rmrParentEnv")
+load("rmrLocalEnv")
 '
 
-  mapLine = 'RevoHStream:::mapDriver(map = map,
+  mapLine = 'rmr:::mapDriver(map = map,
               linebufsize = linebufsize,
               textinputformat = textinputformat,
               textoutputformat = if(is.null(reduce))
                                  {textoutputformat}
-                                 else {RevoHStream:::defaulttextoutputformat},
+                                 else {rmr:::defaulttextoutputformat},
               profile = profilenodes)'
-  reduceLine  =  'RevoHStream:::reduceDriver(reduce = reduce,
+  reduceLine  =  'rmr:::reduceDriver(reduce = reduce,
                  linebufsize = linebufsize,
-                 textinputformat = RevoHStream:::defaulttextinputformat,
+                 textinputformat = rmr:::defaulttextinputformat,
                  textoutputformat = textoutputformat,
                  reduceondataframe = reduceondataframe,
                  profile = profilenodes)'
-  combineLine = 'RevoHStream:::reduceDriver(reduce = combine,
+  combineLine = 'rmr:::reduceDriver(reduce = combine,
                  linebufsize = linebufsize,
-                 textinputformat = RevoHStream:::defaulttextinputformat,
-                 textoutputformat = RevoHStream:::defaulttextoutputformat,
+                 textinputformat = rmr:::defaulttextinputformat,
+                 textoutputformat = rmr:::defaulttextoutputformat,
                  reduceondataframe = reduceondataframe,
                 profile = profilenodes)'
 
@@ -369,8 +369,8 @@ load("RevoHStreamLocalEnv")
   ## set up the execution environment for map and reduce
   if (!is.null(combine) && is.logical(combine) && combine) {
     combine = reduce}
-  revoHStreamParentEnv = file.path(tempdir(), "RevoHStreamParentEnv")
-  revoHStreamLocalEnv = file.path(tempdir(), "RevoHStreamLocalEnv")
+  revoHStreamParentEnv = file.path(tempdir(), "rmrParentEnv")
+  revoHStreamLocalEnv = file.path(tempdir(), "rmrLocalEnv")
   save.image(file = revoHStreamParentEnv)
   save(list = ls(all = TRUE, envir = environment()), file = revoHStreamLocalEnv, envir = environment())
   image.cmd.line = paste("-file", revoHStreamParentEnv, "-file", revoHStreamLocalEnv)

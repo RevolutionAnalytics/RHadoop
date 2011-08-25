@@ -103,16 +103,16 @@ catch.out = function(...) capture.output(invisible(...))
 ## actual tests
 
 
-library(RevoHStream)
+library(rmr)
 ##createReader
 ##pending input redirect issue: use textConnection
 ## send
-unittest(function(kv) RevoHStream:::defaulttextoutputformat(kv$key, kv$val) == 
-                      paste(catch.out(RevoHStream:::send(kv)),"\n", sep = ""),
+unittest(function(kv) rmr:::defaulttextoutputformat(kv$key, kv$val) == 
+                      paste(catch.out(rmr:::send(kv)),"\n", sep = ""),
                   generators = list(tdggkeyval()))
 unittest(function(lkv) {
-  all(catch.out(lapply(lkv,RevoHStream:::send)) == 
-  catch.out(RevoHStream:::send(lkv)))
+  all(catch.out(lapply(lkv,rmr:::send)) == 
+  catch.out(rmr:::send(lkv)))
 },
         generators = list(tdggkeyvallist()))
 ##counter and status -- unused for now

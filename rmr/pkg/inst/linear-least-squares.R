@@ -21,7 +21,7 @@
 # y = do.call(c, lapply(1:4, function(i) lapply(1:1, function(j) keyval(c(i,j), rnorm(1)))))
  
 library(Matrix)
-library(RevoHStream)
+library(rmr)
 
 swap = function(x) list(x[[2]], x[[1]])
 

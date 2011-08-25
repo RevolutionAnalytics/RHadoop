@@ -42,7 +42,7 @@ relational.join = function(
     function(kv, isleft) keyval(kv$key, list(val = kv$val, isleft = isleft))
   isLeftSide = 
     function(leftinput) {
-      leftinput = sub("//", "/", RevoHStream:::to.hdfs.path(leftinput))
+      leftinput = sub("//", "/", rmr:::to.hdfs.path(leftinput))
       mapInfile = sub("//", "/", Sys.getenv("map_input_file"))
       leftinput == substr(mapInfile, 6, 5 + nchar(leftinput))}
   reduce.split =
