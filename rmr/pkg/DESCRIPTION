@@ -1,4 +1,4 @@
-Package: RevoHStream
+Package: rmr
 Type: Package
 Title: R and Hadoop Streaming Connector
 Version: 1.0
