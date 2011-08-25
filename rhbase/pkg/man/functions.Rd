@@ -1,4 +1,4 @@
-\name{RevoHBase-insertion}
+\name{rhbase-insertion}
 \alias{hb.insert}
 \alias{hb.get}
 \alias{hb.delete}

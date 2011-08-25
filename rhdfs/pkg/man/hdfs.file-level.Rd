@@ -1,4 +1,4 @@
-\name{RevoHDFS-filelevel}
+\name{rhdfs-filelevel}
 \alias{hdfs.ls}
 \alias{hdfslist.files}
 \alias{hdfs.delete}

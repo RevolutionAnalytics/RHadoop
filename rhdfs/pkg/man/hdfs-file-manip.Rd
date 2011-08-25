@@ -1,4 +1,4 @@
-\name{RevoHDFS-file-manip}
+\name{rhdfs-file-manip}
 \alias{hdfs.copy}
 \alias{hdfs.move}
 \alias{hdfs.rename}

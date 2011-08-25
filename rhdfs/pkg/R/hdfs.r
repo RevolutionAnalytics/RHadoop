@@ -26,20 +26,20 @@ hdfs.init <- function(hadoop=NULL,conf=NULL,libs=NULL,contrib=NULL,verbose=FALSE
                  ,list.files(contrib,full.names=TRUE,pattern="jar$",recursive=FALSE)
                  ,list.files(libs,full.names=TRUE,pattern="jar$",recursive=FALSE)
                  ,conf
-                 ,list.files(paste(system.file(package="RevoHDFS"),"java",sep=.Platform$file.sep),pattern="jar$",full=T)
+                 ,list.files(paste(system.file(package="rhdfs"),"java",sep=.Platform$file.sep),pattern="jar$",full=T)
                )
   assign("classpath",hadoop.CP,envir=.hdfsEnv)
   .jinit(classpath= hadoop.CP)
   configuration <- .jnew("org/apache/hadoop/conf/Configuration")
   cl <- .jclassLoader()
   configuration$setClassLoader(cl)
-  assign("conf",configuration,envir=RevoHDFS:::.hdfsEnv)
+  assign("conf",configuration,envir=rhdfs:::.hdfsEnv)
   dfs <- J("org.apache.hadoop.fs.FileSystem")$get(configuration)
-  assign("fs",dfs,envir=RevoHDFS:::.hdfsEnv)
-  assign("blocksize",dfs$getDefaultBlockSize(),RevoHDFS:::.hdfsEnv)
-  assign("replication",dfs$getDefaultReplication(),RevoHDFS:::.hdfsEnv)
-  assign("local",J("org.apache.hadoop.fs.FileSystem")$getLocal(configuration),envir=RevoHDFS:::.hdfsEnv)
-  assign("fu",J("com.revolutionanalytics.hadoop.hdfs.FileUtils"),envir=RevoHDFS:::.hdfsEnv)
+  assign("fs",dfs,envir=rhdfs:::.hdfsEnv)
+  assign("blocksize",dfs$getDefaultBlockSize(),rhdfs:::.hdfsEnv)
+  assign("replication",dfs$getDefaultReplication(),rhdfs:::.hdfsEnv)
+  assign("local",J("org.apache.hadoop.fs.FileSystem")$getLocal(configuration),envir=rhdfs:::.hdfsEnv)
+  assign("fu",J("com.revolutionanalytics.hadoop.hdfs.FileUtils"),envir=rhdfs:::.hdfsEnv)
 }
 
 "[[.jobjRef" <- function(x,namex,...){
@@ -71,7 +71,7 @@ hdfs.ls <- function(path, recurse=FALSE,cfg=hdfs.defaults("conf"),fs=hdfs.defaul
 hdfslist.files <- hdfs.ls
 
 hdfs.delete <- function(path, cfg=hdfs.defaults("conf"),fs=hdfs.defaults("fs")){
-  v <- RevoHDFS:::.hdfsEnv[["fu"]]$delete(cfg,fs,.jarray(as.character(path)), TRUE)
+  v <- rhdfs:::.hdfsEnv[["fu"]]$delete(cfg,fs,.jarray(as.character(path)), TRUE)
   TRUE
 }
 hdfs.rm <- hdfs.delete
@@ -79,7 +79,7 @@ hdfs.del <- hdfs.delete
 hdfs.rmr <- hdfs.delete
 
 hdfs.dircreate <- function(paths,fs=hdfs.defaults("fs")){
-  v <- RevoHDFS:::.hdfsEnv[["fu"]]$makeFolder(fs,.jarray(as.character(paths)))
+  v <- rhdfs:::.hdfsEnv[["fu"]]$makeFolder(fs,.jarray(as.character(paths)))
   TRUE
 }
 hdfs.mkdir <- hdfs.dircreate
@@ -87,13 +87,13 @@ hdfs.mkdir <- hdfs.dircreate
 
 hdfs.chmod <- function(paths,permissions="777",fs=hdfs.defaults("fs")){
   permissions <- as.character(rep(permissions,length(paths))[1:length(paths)])
-  v <- RevoHDFS:::.hdfsEnv[["fu"]]$setPermissions(fs,.jarray(as.character(paths)), .jarray(permissions))
+  v <- rhdfs:::.hdfsEnv[["fu"]]$setPermissions(fs,.jarray(as.character(paths)), .jarray(permissions))
 }
 
 hdfs.chown <- function(paths,owner="",group="",fs=hdfs.defaults("fs")){
   owner <- as.character(rep(owner,length(paths))[1:length(paths)])
   group <- as.character(rep(group,length(paths))[1:length(paths)])
-  v <- RevoHDFS:::.hdfsEnv[["fu"]]$setOwner(fs,.jarray(as.character(paths)), .jarray(owner),.jarray(group))
+  v <- rhdfs:::.hdfsEnv[["fu"]]$setOwner(fs,.jarray(as.character(paths)), .jarray(owner),.jarray(group))
 }
 
 
@@ -121,7 +121,7 @@ hdfs.exists <- function(path, fs=hdfs.defaults("fs")){
   if(length(src)>1 && !hdfsfile.info(dest,dstFS)$isDir){
     stop(sprintf("When copying multiple source files, destination %s must be a folder", dest))
   }
-  srcp <- RevoHDFS:::.hdfsEnv[["fu"]]$makePathsFromStrings(.jarray(as.character(src)))
+  srcp <- rhdfs:::.hdfsEnv[["fu"]]$makePathsFromStrings(.jarray(as.character(src)))
   destp <- .jnew("org.apache.hadoop.fs.Path",dest)
   J("org.apache.hadoop.fs.FileUtil")$copy(srcFS,srcp,dstFS, destp,deleteSource,overwrite,cfg)
   TRUE

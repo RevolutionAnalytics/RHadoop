@@ -1,4 +1,4 @@
-\name{RevoHBase-admin}
+\name{rhbase-admin}
 \alias{hb.defaults}
 \alias{hb.init}
 \alias{hb.defaults}

@@ -57,7 +57,7 @@ airlineparse <- function(stringdata){
 }
 
 
-library(RevoHDFS)
+library(rhdfs)
 library(biglm)
 hdfs.init()
 

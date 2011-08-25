@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-stopifnot(require(RevoHDFS, quietly=TRUE))
+stopifnot(require(rhdfs, quietly=TRUE))
 stopifnot(require(RUnit, quietly=TRUE))
 
 test.hdfs.exists <- function()
 {
         ## Load airline test data and put it into the Hadoop file system
-        localData <- system.file(file.path("unitTestData", "AirlineDemo1kNoMissing.csv"), package="RevoHDFS")
+        localData <- system.file(file.path("unitTestData", "AirlineDemo1kNoMissing.csv"), package="rhdfs")
         hdfs.mkdir("/test/airline")
         checkTrue(hdfs.put(localData, "/test/airline/AirlineDemo1kNoMissing.csv"))
 	checkTrue(hdfs.exists("/test/airline/AirlineDemo1kNoMissing.csv"))

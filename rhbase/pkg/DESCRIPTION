@@ -1,4 +1,4 @@
-Package: RevoHBase
+Package: rhbase
 Type: Package
 Title: R and HBase Connector
 Version: 1.0

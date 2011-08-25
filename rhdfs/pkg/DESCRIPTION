@@ -1,4 +1,4 @@
-Package: RevoHDFS 
+Package: rhdfs 
 Type: Package
 Title: R and Hadoop Distributed Filesystem
 Version: 1.0

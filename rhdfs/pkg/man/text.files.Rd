@@ -1,4 +1,4 @@
-\name{RevoHDFS-text-manip}
+\name{rhdfs-text-manip}
 \alias{hdfs.line.reader}
 \alias{hdfs.read.text.file}
 

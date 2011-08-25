@@ -13,7 +13,7 @@
 # limitations under the License.
 
  
-RunAllUnitTests <- function (showHTMLOutput = FALSE, filename = "RevoHDFSRUnitTestSummary.html")
+RunAllUnitTests <- function (showHTMLOutput = FALSE, filename = "rhdfsRUnitTestSummary.html")
 {
     .failureDetails <- function(result) {
         res <- result[[1L]]
@@ -32,8 +32,8 @@ RunAllUnitTests <- function (showHTMLOutput = FALSE, filename = "RevoHDFSRUnitTe
     RUnit_opts$silent <- TRUE
     RUnit_opts$verbose_fail_msg <- TRUE
     options(RUnit = RUnit_opts)
-    testDirs <- system.file("unitTests", package="RevoHDFS") 
-    testSuite <- defineTestSuite(name = "RevoHDFS RUnit Tests",
+    testDirs <- system.file("unitTests", package="rhdfs") 
+    testSuite <- defineTestSuite(name = "rhdfs RUnit Tests",
         dirs = testDirs, rngKind = "default", rngNormalKind = "default")
     testResult <- runTestSuite(testSuite)
     if (showHTMLOutput) {
@@ -54,7 +54,7 @@ RunAllUnitTests <- function (showHTMLOutput = FALSE, filename = "RevoHDFSRUnitTe
             }
         }
         cat("\n\n")
-        stop("unit tests failed for package RevoHDFS")
+        stop("unit tests failed for package rhdfs")
     }
     status <- getErrors(testResult)
     invisible(status$nFail == 0 && status$nErr == 0)
