@@ -25,14 +25,14 @@ relational.join = function(
   rightinput = NULL,
   input = NULL,
   output = NULL,
-  outer = NULL,
+  outer = "",
   map.left = to.map(identity),
   map.right = to.map(identity),
   reduce  = function (k, vl, vr) keyval(k, list(left=vl, right=vr)))
 {
   stopifnot(xor(!is.null(leftinput), !is.null(input) &&
                 (is.null(leftinput)==is.null(rightinput))))
-  stopifnot(is.null(outer) || is.element(outer, c("left", "right", "full")))
+  stopifnot(is.element(outer, c("", "left", "right", "full")))
   leftouter = outer == "left"
   rightouter = outer == "right"
   fullouter = outer == "full"
@@ -42,9 +42,11 @@ relational.join = function(
     function(kv, isleft) keyval(kv$key, list(val = kv$val, isleft = isleft))
   isLeftSide = 
     function(leftinput) {
-      leftinput = sub("//", "/", rmr:::to.hdfs.path(leftinput))
-      mapInfile = sub("//", "/", Sys.getenv("map_input_file"))
-      leftinput == substr(mapInfile, 6, 5 + nchar(leftinput))}
+      leftin = strsplit(rmr:::to.hdfs.path(leftinput), "/+")[[1]]
+      mapin = strsplit(Sys.getenv("map_input_file"), "/+")[[1]]
+      leftin = leftin[-1]
+      mapin = mapin[if(mapin[1] == "hdfs:") c(-1,-2) else -1]
+      all(mapin[1:length(leftin)] == leftin)}
   reduce.split =
     function(vv) tapply(lapply(vv, function(v) v$val), sapply(vv, function(v) v$isleft), identity, simplify = FALSE)
   padSide =
