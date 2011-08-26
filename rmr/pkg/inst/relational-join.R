@@ -52,15 +52,11 @@ relational.join = function(
   map = if (is.null(input)) {
     function(k,v) {
       ils = isLeftSide(leftinput)
-      markSide(if(ils) map.left(k,v) else map.right(k,v), ils)
-    }
-  }
+      markSide(if(ils) map.left(k,v) else map.right(k,v), ils)}}
   else {
     function(k,v) {
       list(markSide(map.left(k,v), TRUE),
-           markSide(map.right(k,v), FALSE))
-    }
-  }
+           markSide(map.right(k,v), FALSE))}}
   mapreduce(map = map,
             reduce =
             function(k, vv) {
@@ -71,7 +67,6 @@ relational.join = function(
                       lapply(values.left,
                              function(x) lapply(values.right,
                                                 function(y) reduce(k, x, y))))},
-                ## combiner = F,
             input = c(leftinput,rightinput),
             output = output)}
 
