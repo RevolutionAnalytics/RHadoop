@@ -202,13 +202,12 @@ dfs = function(cmd, intern, ...) {
                     if(x[[1]] == ""){""} else{"-"},
                     x[[1]], 
                     " ", 
-                    x[[2]], 
+                    to.hdfs.path(x[[2]]), 
                     sep = ""))[
                       order(argnames, decreasing = T)], 
                 collapse = " "),
                sep = ""),
          intern = intern)}
-
 
 getcmd = function(matched.call)
   strsplit(tail(as.character(as.list(matched.call)[[1]]), 1), "\\.")[[1]][[2]]
