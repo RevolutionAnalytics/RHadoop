@@ -458,3 +458,67 @@ load("rmrLocalEnv")
 if (retval != 0) stop("hadoop streaming failed with error code ", retval, "\n")
 }
 
+
+ 
+## a sort of relational join very useful in a variety of map reduce algorithms
+
+## to.dfs(lapply(1:10, function(i) keyval(i, i^2)), "/tmp/reljoin.left")
+## to.dfs(lapply(1:10, function(i) keyval(i, i^3)), "/tmp/reljoin.right")
+## equijoin(leftinput="/tmp/reljoin.left", rightinput="/tmp/reljoin.right", output = "/tmp/reljoin.out")
+## from.dfs("/tmp/reljoin.out")
+
+equijoin = function(
+  leftinput = NULL,
+  rightinput = NULL,
+  input = NULL,
+  output = NULL,
+  outer = c("", "left", "right", "full"),
+  map.left = to.map(identity),
+  map.right = to.map(identity),
+  reduce  = function(k, values.left, values,right)
+    do.call(c,
+            lapply(values.left,
+                   function(vl) lapply(values.right,
+                                       function(vr) reduceall(k, vl, vr)))),
+  reduceall  = function(k,vl,vr) keyval(k, list(left=vl, right=vr)))
+{
+  stopifnot(xor(!is.null(leftinput), !is.null(input) &&
+                (is.null(leftinput)==is.null(rightinput))))
+  stopifnot(is.element(outer, c("", "left", "right", "full")))
+  outer = match.arg(outer)
+  leftouter = outer == "left"
+  rightouter = outer == "right"
+  fullouter = outer == "full"
+  if (is.null(leftinput)) {
+    leftinput = input}
+  markSide =
+    function(kv, isleft) keyval(kv$key, list(val = kv$val, isleft = isleft))
+  isLeftSide = 
+    function(leftinput) {
+      leftin = strsplit(rmr:::to.hdfs.path(leftinput), "/+")[[1]]
+      mapin = strsplit(Sys.getenv("map_input_file"), "/+")[[1]]
+      leftin = leftin[-1]
+      mapin = mapin[if(mapin[1] == "hdfs:") c(-1,-2) else -1]
+      all(mapin[1:length(leftin)] == leftin)}
+  reduce.split =
+    function(vv) tapply(lapply(vv, function(v) v$val), sapply(vv, function(v) v$isleft), identity, simplify = FALSE)
+  padSide =
+    function(vv, sideouter, fullouter) if (length(vv) == 0 && (sideouter || fullouter)) c(NA) else vv
+  map = if (is.null(input)) {
+    function(k,v) {
+      ils = isLeftSide(leftinput)
+      markSide(if(ils) map.left(k,v) else map.right(k,v), ils)}}
+  else {
+    function(k,v) {
+      list(markSide(map.left(k,v), TRUE),
+           markSide(map.right(k,v), FALSE))}}
+  mapreduce(map = map,
+            reduce =
+            function(k, vv) {
+              rs = reduce.split(vv)
+              reduce(k,
+                     padSide(rs$`TRUE`, rightouter, fullouter),
+                     padSide(rs$`FALSE`, leftouter, fullouter))},
+            input = c(leftinput,rightinput),
+            output = output)}
+

@@ -19,7 +19,6 @@
 
 library(Matrix)
 library(rmr)
-source(file.path(.path.package("rmr"), "relational-join.R"))
 
 swap = function(x) list(x[[2]], x[[1]])
 
@@ -34,10 +33,12 @@ mat.mult.map = function(i) function(k,v) keyval(k[[i]], list(pos = k, elem = v))
 mat.mult = function(left, right, result = NULL) {
   mapreduce(
                 input =
-                relational.join(leftinput = left, rightinput = right,
+                equijoin(leftinput = left, rightinput = right,
                                  map.left = mat.mult.map(2),
                                  map.right = mat.mult.map(1), 
-                                 reduce = function(k, vl, vr) keyval(c(vl$pos[[1]], vr$pos[[2]]), vl$elem*vr$elem)),
+                                 reduce = function(k, vvl, vvr) 
+                                   do.call(c, lapply(vvl, function(vl)
+                                     lapply(vvr, function(vr) keyval(c(vl$pos[[1]], vr$pos[[2]]), vl$elem*vr$elem))))),
                 output = result,
                 reduce = to.reduce(identity, function(x) sum(unlist(x))))}
 

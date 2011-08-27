@@ -1,5 +1,7 @@
 export(mapreduce)
 export(from.dfs, to.dfs)
+export(equijoin)
+export(dfs.empty)
 #exportPattern('^dfs.*')
 export(keyval, keys, values)
 export(rawtextinputformat)
