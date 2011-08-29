@@ -42,7 +42,7 @@ mat.mult = function(left, right, result = NULL) {
                 output = result,
                 reduce = to.reduce(identity, function(x) sum(unlist(x))))}
 
-`%x%` = function(left, right) mat.mult(left, right)
+`%x%` = mat.mult
 
 to.matrix = function(df) as.matrix(sparseMatrix(i=df$key1, j=df$key2, x=df$val))
 
