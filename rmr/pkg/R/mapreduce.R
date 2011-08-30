@@ -31,10 +31,10 @@ createReader = function(linebufsize = 2000, textinputformat){
 }
 
 send = function(out, textoutputformat = defaulttextoutputformat){
-  if (is.null(attr(out, 'keyval', exact = TRUE))) 
-    lapply(out, function(o) cat(textoutputformat(o$key, o$val)) )
-  else
+  if (is.keyval(out)) 
     cat(textoutputformat(out$key, out$val))
+  else
+    lapply(out, function(o) cat(textoutputformat(o$key, o$val)) )
   TRUE 
 }
 
@@ -66,6 +66,8 @@ keyval = function(k, v = NULL, i = 1) {
   kv = list(key = k, val = v)
   attr(kv, 'keyval') = TRUE
   kv}
+
+is.keyval = function(kv) !is.null(attr(kv, 'keyval', exact = TRUE))
 
 to.map = function(fun1 = identity, fun2 = identity) {
   if (missing(fun2)) {
@@ -297,25 +299,50 @@ mapreduce = function(
   outputformat = NULL,
   textinputformat = defaulttextinputformat,
   textoutputformat = defaulttextoutputformat,
+  backend = c("hadoop", "local"),
   verbose = FALSE) {
 
   on.exit(expr = gc()) #this is here to trigger cleanup of tempfiles
   if (is.null(output)) output = hdfs.tempfile()
   
-  rhstream(map = map,
-           reduce = reduce,
-           reduceondataframe = reduceondataframe,
-           combine = combine,
-           in.folder = if(is.list(input)) {lapply(input, to.hdfs.path)} else to.hdfs.path(input),
-           out.folder = to.hdfs.path(output),
-           profilenodes = profilenodes,
-           inputformat = inputformat,
-           outputformat = outputformat,
-           textinputformat = textinputformat,
-           textoutputformat = textoutputformat,
-           verbose = verbose)
+  backend  = match.arg(backend)
+  
+  mr = if (backend == "hadoop") rhstream
+       else mr.local
+  mr(map = map,
+     reduce = reduce,
+     reduceondataframe = reduceondataframe,
+     combine = combine,
+     in.folder = if(is.list(input)) {lapply(input, to.hdfs.path)} else to.hdfs.path(input),
+     out.folder = to.hdfs.path(output),
+     profilenodes = profilenodes,
+     inputformat = inputformat,
+     outputformat = outputformat,
+     textinputformat = textinputformat,
+     textoutputformat = textoutputformat,
+     verbose = verbose)
   output
 }
+
+mr.local = function(map,
+                    reduce,
+                    reduceondataframe = FALSE,
+                    combine = NULL,
+                    in.folder,
+                    out.folder,
+                    profilenodes = FALSE,
+                    inputformat = NULL,
+                    outputformat = NULL,
+                    textinputformat = defaulttextinputformat,
+                    textoutputformat = defaulttextoutputformat,
+                    verbose = verbose) {
+  if(is.null(reduce)) reduce = function(k,vv) lapply(vv, function(v) keyval(k,v))
+  map.out = lapply(from.dfs(in.folder), function(kv) map(kv$key, kv$val))
+  reduce.out = tapply(X=map.out, INDEX=sapply(keys(map.out), digest), FUN=function(x) reduce(x[[1]]$key, values(x)), simplify = FALSE)
+  if(!is.keyval(reduce.out[[1]]))
+    reduce.out = do.call(c, reduce.out)
+  names(reduce.out) = replicate(n=length(names(reduce.out)), "")
+  to.dfs(reduce.out, out.folder)}
 
 rhstream = function(
   map,
@@ -428,32 +455,33 @@ load("rmrLocalEnv")
   }
   jobconfstring = make.job.conf(mapred,pfx="-D")
   
+  #debug.opts = "-mapdebug kdfkdfld -reducexdebug jfkdlfkja"
   caches = if(length(cachefiles)>0) make.cache.files(cachefiles,"-files") else " " #<0.21
   archives = if(length(archives)>0) make.cache.files(archives,"-archives") else " "
   mkjars = if(length(jarfiles)>0) make.cache.files(jarfiles,"-libjars",shorten=FALSE) else " "
   
   verb = if(verbose) "-verbose " else " "
-  finalcommand = sprintf("%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s",
-    hadoop.command,
-    archives,
-    caches,
-    mkjars,
-    jobconfstring,
-    inputformat,
-    input,
-    output,
-    mapper,
-    reducer,
-    combiner,
-    m.fl,
-    r.fl,
-    c.fl,
-    image.cmd.line,
-    cmds,
-    numreduces,
-    verb)
-  if(debug)
-    print(finalcommand)
+  finalcommand = 
+    paste(
+      hadoop.command,
+      archives,
+      caches,
+      mkjars,
+      jobconfstring,
+      inputformat,
+      input,
+      output,
+      mapper,
+      reducer,
+      combiner,
+      m.fl,
+      r.fl,
+      c.fl,
+      image.cmd.line,
+      cmds,
+      numreduces,
+   #   debug.opts,
+      verb)
   retval = system(finalcommand)
 if (retval != 0) stop("hadoop streaming failed with error code ", retval, "\n")
 }
