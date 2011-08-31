@@ -30,7 +30,7 @@ logistic.regression = function(input, iterations, dims, alpha){
   plane }
     
 ## create test set 
-testdata = to.dfs(lapply (1:100, function(i) {eps = rnorm(1, sd =10) ; keyval(i, list(x = c(i,i+eps), y = 2 * (eps > 0) - 1))}))
+testdata = to.dfs(lapply (1:10000, function(i) {eps = rnorm(1, sd =10) ; keyval(i, list(x = c(i,i+eps), y = 2 * (eps > 0) - 1))}))
 ## run 
 logistic.regression(testdata, 10, 2, 0.05)
 ## max likelihood solution diverges for separable dataset, (-inf, inf) such as the above

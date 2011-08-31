@@ -48,7 +48,7 @@ kmeans =
 kmeans(
   to.dfs(
     lapply(
-      1:100,
+      1:10000,
       function(i) keyval(
         i, c(rnorm(1, mean = i%%3, sd = 0.01), 
              rnorm(1, mean = i%%4, sd = 0.01))))),
