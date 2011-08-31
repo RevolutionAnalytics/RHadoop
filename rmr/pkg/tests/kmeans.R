@@ -31,11 +31,11 @@ kmeans =
     newCenters = kmeans.iter(points, distfun = distfun, ncenters = ncenters)
     if(plot) pdf = rmr:::to.data.frame(from.dfs(points))
     for(i in 1:iterations) {
-      newCenters = lapply(rmr:::values(newCenters), unlist)
-      newCenters = c(newCenters, lapply(sample(newCenters, ncenters-length(newCenters)), function(x)x+rnorm(2,sd = 0.001)))
+      newCenters = lapply(values(newCenters), unlist)
+      newCenters = c(newCenters, lapply(sample(newCenters, ncenters - length(newCenters), replace = TRUE), function(x) x + rnorm(2, sd = 0.001)))
       if(plot) {
         png(paste(Sys.time(), "png", sep = "."))
-        print(ggplot(data=pdf, aes(x=val1, y=val2) ) + 
+        print(ggplot(data = pdf, aes(x=val1, y=val2) ) + 
           geom_jitter() +
           geom_jitter(data=rmr:::to.data.frame(newCenters), aes(x=X.1, y = X.2), color = "red"))
         dev.off()}
