@@ -32,7 +32,7 @@ kmeans =
     if(plot) pdf = rmr:::to.data.frame(from.dfs(points))
     for(i in 1:iterations) {
       newCenters = lapply(rmr:::values(newCenters), unlist)
-      newCenters = c(newCenters, lapply(sample(newCenters, ncenters-length(newCenters)), function(x)x+rnorm(2,sd = 0.001)))
+      newCenters = c(newCenters, lapply(sample(newCenters, ncenters-length(newCenters), replace = TRUE), function(x)x+rnorm(2,sd = 0.001)))
       if(plot) {
         png(paste(Sys.time(), "png", sep = "."))
         print(ggplot(data=pdf, aes(x=val1, y=val2) ) + 
