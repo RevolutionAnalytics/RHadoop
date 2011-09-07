@@ -37,7 +37,7 @@ kmeans =
         png(paste(Sys.time(), "png", sep = "."))
         print(ggplot(data=pdf, aes(x=val1, y=val2) ) + 
           geom_jitter() +
-          geom_jitter(data=rmr:::to.data.frame(newCenters), aes(x=X.1, y = X.2), color = "red"))
+          geom_jitter(data=rmr:::to.data.frame(newCenters), aes(x = V1, y = V2), color = "red"))
         dev.off()}
       newCenters = kmeans.iter(points, distfun, centers=newCenters)}
     newCenters
