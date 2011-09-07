@@ -15,31 +15,33 @@
 library(rmr)
  
 kmeans.iter =
-  function(points, distfun, ncenters = length(centers), centers = NULL) {
+  function(points, distfun, ncenters = dim(centers)[1], centers = NULL) {
     from.dfs(mapreduce(input = points,
                          map = 
                            if (is.null(centers)) {
                              function(k,v) keyval(sample(1:ncenters,1),v)}
                            else {
                              function(k,v) {
-                               distances = lapply(centers, function(c) distfun(c,v))
-                               keyval(centers[[which.min(distances)]], v)}},
-                         reduce = function(k,vv) keyval(NULL, apply(do.call(rbind, vv), 2, mean))))}
+                               distances = apply(centers, 1, function(c) distfun(c,v))
+                               keyval(centers[which.min(distances),], v)}},
+                         reduce = function(k,vv) keyval(NULL, apply(do.call(rbind, vv), 2, mean))),
+             todataframe = T)}
 
 kmeans =
   function(points, ncenters, iterations = 10, distfun = function(a,b) norm(as.matrix(a-b), type = 'F'), plot = FALSE) {
     newCenters = kmeans.iter(points, distfun = distfun, ncenters = ncenters)
-    if(plot) pdf = rmr:::to.data.frame(from.dfs(points))
+    if(plot) pdf = from.dfs(points, todataframe = T)
     for(i in 1:iterations) {
-      newCenters = lapply(rmr:::values(newCenters), unlist)
-      newCenters = c(newCenters, lapply(sample(newCenters, ncenters-length(newCenters), replace = TRUE), function(x)x+rnorm(2,sd = 0.001)))
+      newCenters =  rbind(newCenters,
+                          t(apply(newCenters[sample(1:dim(newCenters)[1], ncenters-dim(newCenters)[1], replace = T),],1,function(x)x + rnorm(2,sd = 0.1))))
       if(plot) {
+        library(ggplot2)
         png(paste(Sys.time(), "png", sep = "."))
         print(ggplot(data=pdf, aes(x=val1, y=val2) ) + 
           geom_jitter() +
-          geom_jitter(data=rmr:::to.data.frame(newCenters), aes(x = V1, y = V2), color = "red"))
+          geom_jitter(data = newCenters, aes(x = val1, y = val2), color = "red"))
         dev.off()}
-      newCenters = kmeans.iter(points, distfun, centers=newCenters)}
+      newCenters = kmeans.iter(points, distfun, centers = newCenters)}
     newCenters
   }
 
@@ -50,6 +52,6 @@ kmeans(
     lapply(
       1:10000,
       function(i) keyval(
-        i, c(rnorm(1, mean = i%%3, sd = 0.01), 
-             rnorm(1, mean = i%%4, sd = 0.01))))),
+        i, c(rnorm(1, mean = i%%3, sd = 0.1), 
+             rnorm(1, mean = i%%4, sd = 0.1))))),
   12)
