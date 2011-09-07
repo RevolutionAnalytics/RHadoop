@@ -32,8 +32,13 @@ kmeans =
     newCenters = kmeans.iter(points, distfun = distfun, ncenters = ncenters)
     if(plot) pdf = from.dfs(points, todataframe = T)
     for(i in 1:iterations) {
+<<<<<<< HEAD
+      newCenters = lapply(values(newCenters), unlist)
+      newCenters = c(newCenters, lapply(sample(newCenters, ncenters - length(newCenters), replace = TRUE), function(x) x + rnorm(2, sd = 0.001)))
+=======
       newCenters =  rbind(newCenters,
                           t(apply(newCenters[sample(1:dim(newCenters)[1], ncenters-dim(newCenters)[1], replace = T),],1,function(x)x + rnorm(2,sd = 0.1))))
+>>>>>>> master
       if(plot) {
         library(ggplot2)
         png(paste(Sys.time(), "png", sep = "."))

@@ -16,13 +16,13 @@
 
 library(rmr)
 
-small.ints = 1:10
+small.ints = 1:1000
 lapply(small.ints, function(x) x^2)
 
-small.ints = to.dfs(1:10)
-mapreduce(input = small.ints, map = function(k,v) keyval(k^2))
+small.ints = to.dfs(1:1000)
+mapreduce(input = small.ints, map = function(k,v) keyval(k, k^2))
 
-from.dfs(mapreduce(input=small.ints, map = function(k,v) keyval(k^2)))
+from.dfs(mapreduce(input=small.ints, map = function(k,v) keyval(k, k^2)))
 
 ## tapply like job
 
