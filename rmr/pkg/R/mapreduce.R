@@ -12,8 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-   
-   
+#options
+
+rmr.options = new.env(parent=emptyenv())
+rmr.options$backend = "hadoop"
+rmr.options$profilenodes = FALSE
+
+rmr.profilenodes = function(on = NULL) {
+  if (!is.null(on))
+    rmr.options$profilenodes = on
+  rmr.options$profilenodes}
+
+rmr.backend = function(backend = c(NULL, "hadoop", "local")) {
+  backend = match.arg(backend)
+  if(!is.null(backend))
+    rmr.options$backend = backend
+  rmr.options$backend}
+
+#I/O
 createReader = function(linebufsize = 2000, textinputformat){
   con = file("stdin", open="r")
   close = function(){
@@ -38,6 +54,7 @@ send = function(out, textoutputformat = defaulttextoutputformat){
   TRUE 
 }
 
+# additional hadoop features, disabled for now
 counter = function(group="r-stream",family, value){
   cat(sprintf("report:counter:%s,$s,%s",
               as.character(group),
@@ -86,7 +103,7 @@ mkLapplyReduce = function(fun1 = identity, fun2 = identity) {
 mkSeriesMap = function(map1, map2) function(k,v) {out = map1(k,v); map2(out$key, out$val)}
 mkParallelMap = function(...) function (k,v) lapply(list(...), function(map) map(k,v))
 
-## end utils
+## drivers section, or what runs on the nodes
 
 activateProfiling = function(){
   dir = file.path("/tmp/Rprof", Sys.getenv('mapred_job_id'), Sys.getenv('mapreduce_tip_id'))
@@ -148,6 +165,7 @@ reduceDriver = function(reduce, linebufsize, textinputformat, textoutputformat, 
     invisible()
 }
 
+#some option formatting utils
 
 make.job.conf = function(m,pfx){
   N = names(m)
@@ -175,20 +193,27 @@ make.input.files = function(infiles){
                  sprintf("-input %s ", r)}),
         collapse=" ")}
 
+# formats
 encodeString = function(s) gsub("\\\n","\\\\n", gsub("\\\t","\\\\t", s))
 decodeString = function(s) gsub("\\\\n","\\\n", gsub("\\\\t","\\\t", s))
 
 defaulttextinputformat = function(line) {
   x =  strsplit(line, "\t")[[1]]
-  keyval(fromJSON(decodeString(x[1])), fromJSON(decodeString(x[2])))}
+  keyval(fromJSON(decodeString(x[1]), asText = TRUE), 
+         fromJSON(decodeString(x[2]), asText = TRUE))}
 
 defaulttextoutputformat = function(k,v) {
   paste(encodeString(toJSON(k, collapse = "")), "\t", encodeString(toJSON(v, collapse = "")), "\n", sep = "")}
+
 rawtextinputformat = function(line) {keyval(NULL, line)}
+
+#data frame conversion
 
 flatten = function(x) unlist(list(name = as.name("name"), x))[-1]
 to.data.frame = function(l) data.frame(lapply(data.frame(do.call(rbind,lapply(l, flatten))), unlist))
 from.data.frame = function(df, keycol = 1) lapply(1:dim(df)[[1]], function(i) keyval(df[i,], i = keycol))
+
+#dfs section
 
 dfs = function(cmd, intern, ...) {
   if (is.null(names(list(...)))) {
@@ -235,6 +260,8 @@ dfs.exists = function(f) dfs.test(e = f)
 dfs.empty = function(f) dfs.test(z = f) 
 dfs.is.dir = function(f) dfs.test(d = f)
 
+# dfs bridge
+
 to.hdfs.path = function(input) {
   if (is.character(input)) {
     input}
@@ -276,6 +303,8 @@ from.dfs = function(file, textinputformat = defaulttextinputformat, todataframe 
     to.data.frame(retval)  }
 }
 
+# mapreduce
+
 hdfs.tempfile <- function(pattern = "file", tmpdir = tempdir()) {
   fname  = tempfile(pattern, tmpdir)
   namefun = function() {fname}
@@ -286,6 +315,7 @@ hdfs.tempfile <- function(pattern = "file", tmpdir = tempdir()) {
 		})
   namefun
 }
+
 
 mapreduce = function(
   input,
@@ -302,13 +332,28 @@ mapreduce = function(
   backend = c("hadoop", "local"),
   verbose = FALSE) {
 
-  on.exit(expr = gc()) #this is here to trigger cleanup of tempfiles
+  on.exit(expr = gc(), add = TRUE) #this is here to trigger cleanup of tempfiles
   if (is.null(output)) output = hdfs.tempfile()
+
+  backend  = 
+    if(missing(backend)) rmr.options$backend
+    else {
+      match.arg(backend)
+      prev.backend = rmr.options$backend
+      on.exit(expr = rmr.backend(prev.backend), add = TRUE)
+      rmr.backend(backend)}
   
-  backend  = match.arg(backend)
+  profilenodes  = 
+    if(missing(profilenodes)) rmr.options$profilenodes
+    else {
+      match.arg(profilenodes)
+      prev.profilenodes = rmr.profilenodes()
+      on.exit(expr = rmr.profilenodes(prev.profilenodes), add = TRUE)
+      rmr.profilenodes(profilenodes)}
+ 
+  mr = switch(backend, hadoop = rhstream, local = mr.local, NULL)
+  if(is.null(mr)) stop("Unsupported backend: ", backend)
   
-  mr = if (backend == "hadoop") rhstream
-       else mr.local
   mr(map = map,
      reduce = reduce,
      reduceondataframe = reduceondataframe,
@@ -324,6 +369,8 @@ mapreduce = function(
   output
 }
 
+# backends
+
 mr.local = function(map,
                     reduce,
                     reduceondataframe = FALSE,
@@ -337,7 +384,7 @@ mr.local = function(map,
                     textoutputformat = defaulttextoutputformat,
                     verbose = verbose) {
   if(is.null(reduce)) reduce = function(k,vv) lapply(vv, function(v) keyval(k,v))
-  map.out = lapply(from.dfs(in.folder), function(kv) map(kv$key, kv$val))
+  map.out = lapply(do.call(c,lapply(in.folder, from.dfs)), function(kv) map(kv$key, kv$val))
   reduce.out = tapply(X=map.out, INDEX=sapply(keys(map.out), digest), FUN=function(x) reduce(x[[1]]$key, values(x)), simplify = FALSE)
   if(!is.keyval(reduce.out[[1]]))
     reduce.out = do.call(c, reduce.out)
@@ -512,7 +559,6 @@ equijoin = function(
 {
   stopifnot(xor(!is.null(leftinput), !is.null(input) &&
                 (is.null(leftinput)==is.null(rightinput))))
-  stopifnot(is.element(outer, c("", "left", "right", "full")))
   outer = match.arg(outer)
   leftouter = outer == "left"
   rightouter = outer == "right"
