@@ -18,12 +18,12 @@
 
 ## input format is keyval(NULL, list(x=c(x1, ..., xn), y = y)
 
-library(rmr)
+##library(rmr)
 
-naive.bayes = function(input, output = NULL) {
-  mapreduce(input = input, output = output,
-            map = function(k, v) c(lapply(1:length(v$x) function(i) keyval(c(i, v$x[i], v$y),1)),
-                                   lapply),
-            reduce = function(k, vv) keyval(k, sum(unlist(vv))),
-            combiner = T)
-}
+##naive.bayes = function(input, output = NULL) {
+##  mapreduce(input = input, output = output,
+##            map = function(k, v) c(lapply(1:length(v$x) function(i) keyval(c(i, v$x[i], v$y),1)),
+##                                   lapply),
+##            reduce = function(k, vv) keyval(k, sum(unlist(vv))),
+##            combiner = T)
+##}
