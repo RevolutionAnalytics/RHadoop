@@ -416,12 +416,15 @@ rhstream = function(
   debug = FALSE) {
     ## prepare map and reduce executables
   lines = '#! /usr/bin/env Rscript
-options(warn=-1)
+options(warn=1)
 
 library(rmr)
-load("rmrParentEnv")
-load("rmrLocalEnv")
-'
+load("rmr-local-env")
+load("rmr-map-env", envir = environment(map))
+if(file.exists("rmr-reduce-env")) load("rmr-reduce-env", envir = environment(map))
+if(file.exists("rmr-combine-env")) load("rmr-combine-env", envir = environment(map))
+  
+'  
 
   mapLine = 'rmr:::mapDriver(map = map,
               linebufsize = linebufsize,
@@ -449,14 +452,25 @@ load("rmrLocalEnv")
   writeLines(c(lines, reduceLine), con = reduce.file)
   combine.file = tempfile(pattern = "rhstr.combine")
   writeLines(c(lines, combineLine), con = combine.file)
+  
   ## set up the execution environment for map and reduce
   if (!is.null(combine) && is.logical(combine) && combine) {
     combine = reduce}
-  rmrParentEnv = file.path(tempdir(), "rmrParentEnv")
-  rmrLocalEnv = file.path(tempdir(), "rmrLocalEnv")
-  save.image(file = rmrParentEnv)
-  save(list = ls(all = TRUE, envir = environment()), file = rmrLocalEnv, envir = environment())
-  image.cmd.line = paste("-file", rmrParentEnv, "-file", rmrLocalEnv)
+
+  save.env = function(fun = NULL, name) {
+    fun.env = file.path(tempdir(), name)
+    envir = if(is.null(fun)) parent.env(environment()) else environment(fun)
+    save(list = ls(all = TRUE, envir = envir), file = fun.env, envir = envir)
+    fun.env}
+
+  image.cmd.line = paste("-file",
+                         c(save.env(name = "rmr-local-env"),
+                          save.env(map, "rmr-map-env"),
+                          if(is.function(reduce)) {
+                            save.env(reduce, "rmr-reduce-env")},
+                          if(is.function(combine))   
+                            save.env(combine, "rmr-combine-env")), 
+                        collapse=" ")
   
   ## prepare hadoop streaming command
   hadoopHome = Sys.getenv("HADOOP_HOME")
@@ -550,12 +564,12 @@ equijoin = function(
   outer = c("", "left", "right", "full"),
   map.left = to.map(identity),
   map.right = to.map(identity),
-  reduce  = function(k, values.left, values,right)
+  reduce  = function(k, values.left, values.right)
     do.call(c,
             lapply(values.left,
                    function(vl) lapply(values.right,
                                        function(vr) reduceall(k, vl, vr)))),
-  reduceall  = function(k,vl,vr) keyval(k, list(left=vl, right=vr)))
+  reduceall  = function(k,vl,vr) keyval(k, list(left = vl, right = vr)))
 {
   stopifnot(xor(!is.null(leftinput), !is.null(input) &&
                 (is.null(leftinput)==is.null(rightinput))))

@@ -17,6 +17,7 @@
   outputformat = NULL,
   textinputformat = defaulttextinputformat,
   textoutputformat = defaulttextoutputformat,
+  backend = c("hadoop", "local"),
   verbose = FALSE) }
 
 \arguments{
@@ -32,6 +33,10 @@
       operation to execute as part of a map reduce job}
   \item{combine}{turn on the combiner; if TRUE the reduce function is
       used, or specify your own}
+  \item{reduceondataframe}{flatten the list of values to a data frame
+      in the reduce call}
+  \item{profilenodes}{turn on the profiler on the mapper and reducer;
+      output in /tmp/Rprof/<job_id>/<attempt_id>}
   \item{inputformat}{Can be the fully qualified Java class, in which
       case the JAR file must be passed via \code{jarfiles}}
   \item{outputformat}{Can be the fully qualified Java class, in which
@@ -40,10 +45,10 @@
       line of text according to some format convention}
   \item{textoutputformat}{a function generating a line of text from a
       keyvalue pair according to some format convention}
-  \item{reduceondataframe}{flatten the list of values to a data frame
-      in the reduce call}
-  \item{profilenodes}{turn on the profiler on the mapper and reducer;
-      output in /tmp/Rprof/<job_id>/<attempt_id>}
+  \item{backend}{what actual map-reduce implementation to use, thus far 
+      available are "hadoop" and "local", the latter meaning that the 
+      computation will be perfromed in the current R interpreter, very 
+      useful for debugging on moderate-sized datasets}
   \item{verbose}{Run hadoop in verbose mode}}
 
 \value{The value of \code{output}, or, when missing,  an object that
