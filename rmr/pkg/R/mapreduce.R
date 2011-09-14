@@ -257,8 +257,11 @@ for (dfscmd in c("mv","cp","rm","rmr","expunge","put","copyFromLocal","moveFromL
   mkdfsfun(dfscmd, FALSE)
 
 dfs.exists = function(f) dfs.test(e = f) 
-dfs.empty = function(f) dfs.test(z = f) 
 dfs.is.dir = function(f) dfs.test(d = f)
+dfs.empty = function(f) {
+  if(dfs.is.dir(f)) {
+    dfs.test(z = file.path(to.hdfs.path(f), 'part-00000'))}
+  else {dfs.test(z = f)}}
 
 # dfs bridge
 
@@ -583,7 +586,7 @@ equijoin = function(
     function(kv, isleft) keyval(kv$key, list(val = kv$val, isleft = isleft))
   isLeftSide = 
     function(leftinput) {
-      leftin = strsplit(rmr:::to.hdfs.path(leftinput), "/+")[[1]]
+      leftin = strsplit(to.hdfs.path(leftinput), "/+")[[1]]
       mapin = strsplit(Sys.getenv("map_input_file"), "/+")[[1]]
       leftin = leftin[-1]
       mapin = mapin[if(mapin[1] == "hdfs:") c(-1,-2) else -1]
@@ -600,11 +603,12 @@ equijoin = function(
     function(k,v) {
       list(markSide(map.left(k,v), TRUE),
            markSide(map.right(k,v), FALSE))}}
+  eqj.reduce = reduce
   mapreduce(map = map,
             reduce =
             function(k, vv) {
               rs = reduce.split(vv)
-              reduce(k,
+              eqj.reduce(k,
                      padSide(rs$`TRUE`, rightouter, fullouter),
                      padSide(rs$`FALSE`, leftouter, fullouter))},
             input = c(leftinput,rightinput),
