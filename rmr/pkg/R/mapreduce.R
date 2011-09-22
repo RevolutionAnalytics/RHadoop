@@ -157,7 +157,11 @@ reduceDriver = function(reduce, linebufsize, textinputformat, textoutputformat, 
       }
     }
     if (length(lastGroup) > 0) {
-      out = reduce(lastKey, values(lastGroup))
+      out = reduce(lastKey, 
+                   if(reduceondataframe) {
+                     to.data.frame(values(lastGroup))}
+                   else {
+                     values(lastGroup)})
       send(out, textoutputformat)
     }
     k$close()
@@ -387,8 +391,14 @@ mr.local = function(map,
                     textoutputformat = defaulttextoutputformat,
                     verbose = verbose) {
   if(is.null(reduce)) reduce = function(k,vv) lapply(vv, function(v) keyval(k,v))
-  map.out = lapply(do.call(c,lapply(in.folder, from.dfs)), function(kv) map(kv$key, kv$val))
-  reduce.out = tapply(X=map.out, INDEX=sapply(keys(map.out), digest), FUN=function(x) reduce(x[[1]]$key, values(x)), simplify = FALSE)
+  map.out = do.call(c, lapply(do.call(c,lapply(in.folder, from.dfs)), function(kv) {retval = map(kv$key, kv$val)
+                                                                                      if(is.keyval(retval)) list(retval)
+                                                                                      else retval}))
+  reduce.out = tapply(X=map.out, 
+                      INDEX=sapply(keys(map.out), digest), 
+                      FUN=function(x) reduce(x[[1]]$key, 
+                                             if(reduceondataframe) to.data.frame(values(x)) else values(x)),
+                      simplify = FALSE)
   if(!is.keyval(reduce.out[[1]]))
     reduce.out = do.call(c, reduce.out)
   names(reduce.out) = replicate(n=length(names(reduce.out)), "")
