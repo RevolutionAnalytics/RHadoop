@@ -13,7 +13,7 @@
 # limitations under the License.
 
 library(rmr)
- 
+
 kmeans.iter =
   function(points, distfun, ncenters = dim(centers)[1], centers = NULL) {
     from.dfs(mapreduce(input = points,
@@ -22,16 +22,62 @@ kmeans.iter =
                              function(k,v) keyval(sample(1:ncenters,1),v)}
                            else {
                              function(k,v) {
-                               cat(is.null(centers), file = stderr())
                                distances = apply(centers, 1, function(c) distfun(c,v))
                                keyval(centers[which.min(distances),], v)}},
                          reduce = function(k,vv) keyval(NULL, apply(do.call(rbind, vv), 2, mean))),
              todataframe = T)}
 
+
+#points grouped many-per-record something like 1000 should give most perf improvement, 
+#assume centers fewer than points, loop over centers never points, use vectorised C primitives
+
+kmeans.iter.fast = 
+function(points, distfun = NULL, ncenters = dim(centers)[1], centers = NULL) {
+    fast.dist = function(pp, c) { #compute all the distances betweenc and rows of pp
+      squared.diffs = (t(t(pp) - c))^2
+      ##sum the columns, take the root
+      sqrt(Reduce(`+`, lapply(1:dim(pp)[2], function(d) squared.diffs[,d])))} #loop on dimension
+    list.to.matrix = function(l) do.call(rbind,l) # this is a little workaround for RJSONIO not handling matrices properly
+    newCenters = from.dfs(
+      mapreduce(
+        input = points,
+        map = 
+          if (is.null(centers)) {
+            function(k, v) {
+              v = cbind(1, list.to.matrix(v))
+              ##pick random centers
+              centers = sample(1:ncenters, dim(v)[[1]], replace = TRUE) 
+              clusters = unclass(by(v,centers,function(x) apply(x,2,sum)))
+              lapply(names(clusters), function(cl) keyval(as.integer(cl), clusters[[cl]]))}}
+          else {
+            function(k, v) {
+              v = list.to.matrix(v)
+              dist.mat = apply(centers, 1, function(c) fast.dist(v, c))
+              closest.centers = as.data.frame(
+                which(
+                  dist.mat == do.call(
+                    pmin,
+                    lapply(1:dim(dist.mat)[2], 
+                           function(i) dist.mat[,i])), 
+                  arr.ind=TRUE))
+              closest.centers[closest.centers$row,] = closest.centers
+              v = cbind(1, v)
+              clusters = unclass(by(v,closest.centers$col,function(x) apply(x,2,sum)))
+              lapply(names(clusters), function(cl) keyval(as.integer(cl), clusters[[cl]]))}},
+       reduce = function(k, vv) {
+               keyval(NULL, apply(list.to.matrix(vv), 2, sum))},
+     reduceondataframe = F,
+     combine = F),
+todataframe = T)
+    ## convention is iteration returns sum of points not average and first element of each sum is the count
+    newCenters = newCenters[newCenters[,1] > 0,]
+    (newCenters/newCenters[,1])[,-1]}
+
+ 
 kmeans =
   function(points, ncenters, iterations = 10, distfun = function(a,b) norm(as.matrix(a-b), type = 'F'), 
            plot = FALSE, fast = F) {
-    if (fast) kmeans.iter = kmeans.iter.1
+    if (fast) kmeans.iter = kmeans.iter.fast
     newCenters = kmeans.iter(points, distfun = distfun, ncenters = ncenters)
     if(plot) pdf = rmr:::to.data.frame(do.call(c,values(from.dfs(points))))
     for(i in 1:iterations) {
@@ -42,52 +88,13 @@ kmeans =
         png(paste(Sys.time(), "png", sep = "."))
         print(ggplot(data = pdf, aes(x=V1, y=V2) ) + 
           geom_jitter() +
-          geom_jitter(data = newCenters, aes(x = val.sum.sum1, y = val.sum.sum2), color = "red"))
+          geom_jitter(data = newCenters, aes(x = val2, y = val3), color = "red"))
         dev.off()}
       newCenters = kmeans.iter(points, distfun, centers = newCenters)}
     newCenters}
 
-#points grouped many-per-record, assume centers few, loop over centers never points, use vectorised C primitives
-kmeans.iter.1 = 
-  function(points, distfun = NULL, ncenters = dim(centers)[1], centers = NULL) {
-    fast.dist = function(pp, c) {
-      squared.diffs = (t(t(pp) - c))^2
-      sqrt(Reduce(`+`, lapply(1:dim(pp)[2], function(d) squared.diffs[,d])))}
-    reduce = function(k, vv) {
-      keyval(NULL, apply(do.call(rbind, vv), 2, sum))}
-    newCenters = from.dfs(mapreduce(input = points,
-                       map = 
-                         if (is.null(centers)) {
-                           function(k, v) {
-                             v = do.call(rbind,v)
-                             cat(apropos(".", where = T)[order(as.numeric(names(apropos(".", where = T))))][1:100], file = stderr())
-                             centers = sample(1:ncenters, dim(v)[[1]], replace = TRUE)
-                             lapply(1:ncenters, function(c) keyval(c, c(count = sum(centers == c), 
-                                                                        apply(matrix(v[centers == c,], 
-                                                                                     ncol = dim(v)[2]),2,sum))))}}
-                         else {
-                           function(k, v) {
-                             v = do.call(rbind,v)
-                             cat(apropos(".", where = T)[order(as.numeric(names(apropos(".", where = T))))][1:100], file = stderr())
-                             dist.mat = apply(centers, 1, function(c) fast.dist(v, c))
-                             closest.centers = as.data.frame(which(dist.mat == do.call(pmin,lapply(1:dim(dist.mat)[2], function(i)dist.mat[,i])), arr.ind=TRUE))
-                             lapply(1:ncenters, function(c) keyval(c, c(count = sum(closest.centers$col == c),
-                                                                        apply(matrix(v[subset(closest.centers, subset = col == c)[,'row'], ],
-                                                                                     ncol = dim(v)[2]),2,sum))))}},
-                       reduce =  reduce,
-                       reduceondataframe = F,
-                       combine = F),
-             todataframe = T)
-    newCenters = subset(newCenters, subset = val.count > 0)
-    (newCenters/newCenters$val.count)[-1]}
 
-## sample data, 12 cluster
+## sample runs
 ## 
-kmeans(
-  to.dfs(
-    lapply(
-      1:10000,
-      function(i) keyval(
-        i, c(rnorm(1, mean = i%%3, sd = 0.1), 
-             rnorm(1, mean = i%%4, sd = 0.1))))),
-  12)
+kmeans(to.dfs(lapply(1:1000, function(i) keyval(i, c(rnorm(1, mean = i%%3, sd = 0.1), rnorm(1, mean = i%%4, sd = 0.1))))), 12, iterations = 5)
+kmeans(to.dfs(lapply(1:100, function(i) keyval(NULL, matrix(rnorm(2000), ncol = 2)))), 10, iterations=5, fast = T)
