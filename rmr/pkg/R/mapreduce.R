@@ -433,26 +433,26 @@ options(warn=1)
 
 library(rmr)
 load("rmr-local-env")
-load("rmr-map-env", envir = environment(map))
-if(file.exists("rmr-reduce-env")) load("rmr-reduce-env", envir = environment(map))
-if(file.exists("rmr-combine-env")) load("rmr-combine-env", envir = environment(map))
   
 '  
 
-  mapLine = 'rmr:::mapDriver(map = map,
+  mapLine = 'load("rmr-map-env", envir = environment(map))
+  rmr:::mapDriver(map = map,
               linebufsize = linebufsize,
               textinputformat = textinputformat,
               textoutputformat = if(is.null(reduce))
                                  {textoutputformat}
                                  else {rmr:::defaulttextoutputformat},
               profile = profilenodes)'
-  reduceLine  =  'rmr:::reduceDriver(reduce = reduce,
+  reduceLine  =  'load("rmr-reduce-env", envir = environment(reduce))
+  rmr:::reduceDriver(reduce = reduce,
                  linebufsize = linebufsize,
                  textinputformat = rmr:::defaulttextinputformat,
                  textoutputformat = textoutputformat,
                  reduceondataframe = reduceondataframe,
                  profile = profilenodes)'
-  combineLine = 'rmr:::reduceDriver(reduce = combine,
+  combineLine = 'load("rmr-combine-env", envir = environment(combine))
+ rmr:::reduceDriver(reduce = combine,
                  linebufsize = linebufsize,
                  textinputformat = rmr:::defaulttextinputformat,
                  textoutputformat = rmr:::defaulttextoutputformat,
