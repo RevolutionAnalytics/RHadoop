@@ -43,8 +43,8 @@
       case the JAR file must be passed via \code{jarfiles}}
   \item{textinputformat}{a function generating a key-value pair from a
       line of text according to some format convention}
-  \item{textoutputformat}{a function generating a line of text from a
-      keyvalue pair according to some format convention}
+  \item{textoutputformat}{a function generating a line of text from two 
+  	arguments, a key and a value, according to some format convention}
   \item{backend}{what actual map-reduce implementation to use, thus far 
       available are "hadoop" and "local", the latter meaning that the 
       computation will be perfromed in the current R interpreter, very 
