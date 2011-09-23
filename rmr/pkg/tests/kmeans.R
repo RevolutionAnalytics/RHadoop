@@ -60,6 +60,7 @@ kmeans.iter.1 =
                          if (is.null(centers)) {
                            function(k, v) {
                              v = do.call(rbind,v)
+                             cat(apropos(".", where = T)[order(as.numeric(names(apropos(".", where = T))))][1:100], file = stderr())
                              centers = sample(1:ncenters, dim(v)[[1]], replace = TRUE)
                              lapply(1:ncenters, function(c) keyval(c, c(count = sum(centers == c), 
                                                                         apply(matrix(v[centers == c,], 
@@ -67,7 +68,7 @@ kmeans.iter.1 =
                          else {
                            function(k, v) {
                              v = do.call(rbind,v)
-                             cat(ls(), file = stderr())
+                             cat(apropos(".", where = T)[order(as.numeric(names(apropos(".", where = T))))][1:100], file = stderr())
                              dist.mat = apply(centers, 1, function(c) fast.dist(v, c))
                              closest.centers = as.data.frame(which(dist.mat == do.call(pmin,lapply(1:dim(dist.mat)[2], function(i)dist.mat[,i])), arr.ind=TRUE))
                              lapply(1:ncenters, function(c) keyval(c, c(count = sum(closest.centers$col == c),
