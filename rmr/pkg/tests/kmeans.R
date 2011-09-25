@@ -52,9 +52,9 @@ function(points, distfun = NULL, ncenters = dim(centers)[1], centers = NULL) {
           else {
             function(k, v) {
               v = list.to.matrix(v)
-              dist.mat = apply(centers, 1, function(c) fast.dist(v, c))
+              dist.mat = apply(centers, 1, function(x) fast.dist(v, x))
               closest.centers = as.data.frame(
-                which(
+                which( #this finds the index of the min row by row, but one can't loop on the rows so we must use pmin
                   dist.mat == do.call(
                     pmin,
                     lapply(1:dim(dist.mat)[2], 
@@ -82,7 +82,8 @@ kmeans =
     if(plot) pdf = rmr:::to.data.frame(do.call(c,values(from.dfs(points))))
     for(i in 1:iterations) {
       newCenters =  rbind(newCenters,
-                          t(apply(newCenters[sample(1:dim(newCenters)[1], ncenters-dim(newCenters)[1], replace = T),],1,function(x)x + rnorm(2,sd = 0.1)))) #this is not general wrt dim, fix
+                          t(apply(newCenters[sample(1:dim(newCenters)[1], 
+                                                    ncenters-dim(newCenters)[1], replace = T),],1,function(x)x + rnorm(2,sd = 0.1)))) #this is not general wrt dim, fix
       if(plot) {
         library(ggplot2)
         png(paste(Sys.time(), "png", sep = "."))
@@ -97,4 +98,4 @@ kmeans =
 ## sample runs
 ## 
 kmeans(to.dfs(lapply(1:1000, function(i) keyval(i, c(rnorm(1, mean = i%%3, sd = 0.1), rnorm(1, mean = i%%4, sd = 0.1))))), 12, iterations = 5)
-kmeans(to.dfs(lapply(1:100, function(i) keyval(NULL, matrix(rnorm(2000), ncol = 2)))), 10, iterations=5, fast = T)
+kmeans(to.dfs(lapply(1:100, function(i) keyval(NULL, matrix(rnorm(2000), ncol = 2)))), 12, iterations=5, fast = T)

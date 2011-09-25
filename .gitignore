@@ -7,3 +7,5 @@ pkg.Rcheck/*
 .Rhistory
 
 rmr/pkg/tests/#*merge*#20005ip7#
+
+rhdfs/pkg.Rcheck/*
