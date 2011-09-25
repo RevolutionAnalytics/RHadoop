@@ -5,3 +5,5 @@ build
 pkg.Rcheck/*
 +.#*
 .Rhistory
+
+rhdfs/pkg.Rcheck/*

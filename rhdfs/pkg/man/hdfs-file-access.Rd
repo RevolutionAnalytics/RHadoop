@@ -72,8 +72,8 @@ hdfs.tell(con)
  ## variables
  save.objects <- function(ob.names=ls(theenv), save.name, theenv=.GlobalEnv){
   hdfs.dircreate(save.name)
-  data.file <- hdfs.file(path=sprintf("\%s/data",save.name),mode="w")
-  dict.file <- hdfs.file(path=sprintf("\%s/dict",save.name),mode="w")
+  data.file <- hdfs.file(path=sprintf("%s/data",save.name),mode="w")
+  dict.file <- hdfs.file(path=sprintf("%s/dict",save.name),mode="w")
   on.exit({
       hdfs.close(data.file)
       hdfs.close(dict.file)
@@ -95,7 +95,7 @@ hdfs.tell(con)
   dict.file$fh$writeInt(as.integer(-1L))
 }
 load.objects <- function(from){
-  dict.file <- hdfs.file(path=sprintf("\%s/dict",from),mode="r")
+  dict.file <- hdfs.file(path=sprintf("%s/dict",from),mode="r")
   inp <- J("java.io.DataInputStream")
   on.exit({
     hdfs.close(dict.file)
@@ -113,8 +113,8 @@ load.objects <- function(from){
     delayedAssign(posn[[r]][[1]],
                   value=
                   {
-                    message(sprintf("Lazy Loading '\%s'", posn[[r]][[1]] ))
-                    data.file <- hdfs.file(path=sprintf("\%s/data",from),mode="r")
+                    message(sprintf("Lazy Loading '%s'", posn[[r]][[1]] ))
+                    data.file <- hdfs.file(path=sprintf("%s/data",from),mode="r")
                     cat(sprintf("seeking to %s\n",posn[[r]][[2]]))
                     hdfs.seek(data.file, posn[[r]][[2]])
                     cat(sprintf("Reading from %s\n",hdfs.tell(data.file)))
