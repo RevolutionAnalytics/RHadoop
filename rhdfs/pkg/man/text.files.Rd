@@ -31,6 +31,7 @@ hdfs.read.text.file(path,...)
 }
 
 \examples{
+\dontrun{
    ##	This is from the source of hdfs.read.text.file
     m <- hdfs.line.reader(path, ...)
     collector <- NULL
@@ -38,4 +39,4 @@ hdfs.read.text.file(path,...)
         lines)
     m$close()
     return(collector)
-}
+}}

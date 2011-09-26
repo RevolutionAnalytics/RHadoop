@@ -37,8 +37,9 @@
   hdfs.init()
 
   ## specify locations
+  \dontrun{
   hdfs.init(hadoop="/usr/local/hadoop", conf="/usr/local/etc/hadoop/conf")
-}
+}}
 
 
 

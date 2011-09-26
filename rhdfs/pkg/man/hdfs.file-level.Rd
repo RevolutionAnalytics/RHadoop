@@ -89,6 +89,7 @@
   ## returns a data frame of the root folder
   hdfs.ls("/")
 
+  \dontrun{
   ## delete multiple files
   hdfs.delete(c("/foo1","/foo2"))
 
@@ -98,7 +99,7 @@
 
   ## file information, only accepts one path
   hdfs.file.info("/def1")
-}
+}}
 
 \seealso{
   \code{hdfs.copy},
