@@ -50,10 +50,10 @@
 
 \examples{
   hdfs.init()
-  ## copies local /tmp/fo1 to tmp of the HDFS
+  ## copies local /tmp/hdfs-test to tmp of the HDFS
   save.image("/tmp/hdfs-test")
   hdfs.put("/tmp/hdfs-test","/tmp")
   hdfs.ls("/")
-  ## moves /tmp/fo1 to /tmp/fo2 (both on HDFS)
-  hdfs.move("/tmp/fo1","/tmp/fo2")
+  ## moves /tmp/hdfs-test to /tmp/hdfs-test1 (both on HDFS)
+  hdfs.move("/tmp/hdfs-test","/tmp/hdfs-test1")
 }
