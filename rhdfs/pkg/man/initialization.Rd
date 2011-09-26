@@ -37,7 +37,7 @@
   hdfs.init()
 
   ## specify locations
-  hdfs.init(hadoop=''/usr/local/hadoop'', conf=''/usr/local/etc/hadoop/conf'')
+  hdfs.init(hadoop="/usr/local/hadoop", conf="/usr/local/etc/hadoop/conf")
 }
 
 
