@@ -89,7 +89,7 @@ hb.compact.table <- function(tablename, major=FALSE,hbc=hb.defaults("hbc")){
  TRUE
 }
 
-hb.new.table <- function(tbname,...,opts=list(),hbc=hb.defaults("hbc")){
+hb.new.table <- function(tablename,...,opts=list(),hbc=hb.defaults("hbc")){
   vars <- list(...)
   if(length(vars)==0) stop("Must provide at least one column family")
   opt.names <- hb.defaults("opt.names")
@@ -113,7 +113,7 @@ hb.new.table <- function(tbname,...,opts=list(),hbc=hb.defaults("hbc")){
     r[[2]] <- p
     r
   })
-  .Call("hbCreateTable",hbc,tbname,z)
+  .Call("hbCreateTable",hbc,tablename,z)
   TRUE
 }
 
