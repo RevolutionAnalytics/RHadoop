@@ -21,10 +21,9 @@ hb.get.data.frame(tablename, start,end=NULL,columns=NULL)
 
 \arguments{
 \item{tablename}{Name of the table}
+\item{hbc}{The client handle which should not be changed}
 \item{changes}{A list of lists, see Details}
-\item{sz}{The serializer to convert values into bytes. The default is
-to use R's \code{serialize} functions. This function needs to match
-the format stored in the table}
+\item{sz,usz}{parameters are used to serialize to bytes and deserialize the keys and vectors from HBase. The default is R's \code{serialize} and \code{unserialize}. Note, HBase has no record of how the data was serialized so it is imperative that the relevant     serializer and deserializer functions are used}
 \item{rows}{The row key, note that row keys for data frames are the
 elements of \code{rownames(dataframe)} which are strings. It is a list of row keys}
 \item{colspec}{A character vector of columns required, if NULL, all
@@ -32,9 +31,9 @@ column families and labels are returned. To request column labels 'a'
 and 'b' of familiy 'F', and  all of family 'G', use
 \code{c('F:a','F:b','G:')}}
 \item{startrow}{The first row to start iterating from}
-\item{end}{The key to stop at, if NULL the iterator continues to the end. The 'end' key is not included.}
 \item{df}{A data frame}
-\item{start,end}{the start and end row names of the data frame to retreive}
+\item{start,end}{the start and end row names of the data frame to retreive. If end is NULL, the iterator continues to the end}
+\item{columns}{the number of columns to retreive. If columns is NULL, the iterator continues to the end}
 }
 
 \details{ 
@@ -81,6 +80,8 @@ NULL, to the end). Individual columns may be specified via the
 }
 
 \examples{
+library(rhbase)
+hb.init()
 hb.new.table('testtable','x','y','z')
 hb.describe.table('testtable')
 # Not required to labels to be 'family:label', can just provide 'family'
@@ -134,4 +135,7 @@ iter()
 # Uptil penultimate row
 iter <- hb.get.data.frame("testtable",start="20100105",end="20100107")
 iter()
+
+# clean up
+hb.delete.table("testtable")
 }
