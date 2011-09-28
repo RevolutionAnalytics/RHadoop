@@ -96,5 +96,6 @@ kmeans =
 ## sample runs
 ## 
 kmeans(to.dfs(lapply(1:1000, function(i) keyval(NULL, c(rnorm(1, mean = i%%3, sd = 0.1), rnorm(1, mean = i%%4, sd = 0.1))))), 12, iterations = 5)
-kmeans(to.dfs(lapply(1:100, function(i) keyval(NULL, cbind(sample(0:2, 1000, replace = T) +rnorm(1000, sd = .1), 
-                                                           sample(0:3, 1000, replace = T)+rnorm(1000, sd = .1))))), 12, iterations=5, fast = T)
+recsize = 1000
+kmeans(to.dfs(lapply(1:100, function(i) keyval(NULL, cbind(sample(0:2, recsize, replace = T) + rnorm(recsize, sd = .1), 
+                                                           sample(0:3, recsize, replace = T) + rnorm(recsize, sd = .1))))), 12, iterations = 5, fast = T)
