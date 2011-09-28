@@ -101,6 +101,10 @@
   ## delete multiple files
   hdfs.delete(c(file.path("/tmp", basename(foo1)), file.path("/tmp", basename(foo2))))
 
+
+  foo1 = tempfile()
+  foo2 = tempfile()
+
   writeLines("foo1", con = foo1)
   writeLines("foo2", con = foo2)
 
@@ -109,7 +113,9 @@
 
   ## change permissions of some files
   ## permissions wil be recycled
-  hdfs.chmod(c(file.path("/tmp", basename(foo1)), file.path("/tmp", basename(foo2))), permissions=c("777","774"))
+  ## commented out waiting on HADOOP-7629 to be more widely available
+  ##hdfs.chmod(c(file.path("/tmp", basename(foo1)), 
+  ##             file.path("/tmp", basename(foo2))), permissions=c("777","774"))
 
   ## file information, only accepts one path
   hdfs.file.info(file.path("/tmp", basename(foo1)))
