@@ -33,7 +33,7 @@ kmeans.iter =
 
 kmeans.iter.fast = 
 function(points, distfun = NULL, ncenters = dim(centers)[1], centers = NULL) {
-    fast.dist = function(pp, c) { #compute all the distances betweenc and rows of pp
+    fast.dist = function(pp, c) { #compute all the distances between c and rows of pp
       squared.diffs = (t(t(pp) - c))^2
       ##sum the columns, take the root
       sqrt(Reduce(`+`, lapply(1:dim(pp)[2], function(d) squared.diffs[,d])))} #loop on dimension
@@ -81,15 +81,13 @@ kmeans =
     newCenters = kmeans.iter(points, distfun = distfun, ncenters = ncenters)
     if(plot) pdf = rmr:::to.data.frame(do.call(c,values(from.dfs(points))))
     for(i in 1:iterations) {
-      newCenters =  rbind(newCenters,
-                          t(apply(newCenters[sample(1:dim(newCenters)[1], 
-                                                    ncenters-dim(newCenters)[1], replace = T),],1,function(x)x + rnorm(2,sd = 0.1)))) #this is not general wrt dim, fix
       if(plot) {
+        names(newCenters) = c("V1", "V2")
         library(ggplot2)
         png(paste(Sys.time(), "png", sep = "."))
         print(ggplot(data = pdf, aes(x=V1, y=V2) ) + 
           geom_jitter() +
-          geom_jitter(data = newCenters, aes(x = val2, y = val3), color = "red"))
+          geom_jitter(data = newCenters, aes(x = V1, y = V2), color = "red"))
         dev.off()}
       newCenters = kmeans.iter(points, distfun, centers = newCenters)}
     newCenters}
@@ -97,5 +95,6 @@ kmeans =
 
 ## sample runs
 ## 
-kmeans(to.dfs(lapply(1:1000, function(i) keyval(i, c(rnorm(1, mean = i%%3, sd = 0.1), rnorm(1, mean = i%%4, sd = 0.1))))), 12, iterations = 5)
-kmeans(to.dfs(lapply(1:100, function(i) keyval(NULL, matrix(rnorm(2000), ncol = 2)))), 12, iterations=5, fast = T)
+kmeans(to.dfs(lapply(1:1000, function(i) keyval(NULL, c(rnorm(1, mean = i%%3, sd = 0.1), rnorm(1, mean = i%%4, sd = 0.1))))), 12, iterations = 5)
+kmeans(to.dfs(lapply(1:100, function(i) keyval(NULL, cbind(sample(0:2, 1000, replace = T) +rnorm(1000, sd = .1), 
+                                                           sample(0:3, 1000, replace = T)+rnorm(1000, sd = .1))))), 12, iterations=5, fast = T)
