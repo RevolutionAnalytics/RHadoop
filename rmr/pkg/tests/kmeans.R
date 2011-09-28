@@ -33,10 +33,10 @@ kmeans.iter =
 
 kmeans.iter.fast = 
 function(points, distfun = NULL, ncenters = dim(centers)[1], centers = NULL) {
-    fast.dist = function(pp, c) { #compute all the distances between c and rows of pp
-      squared.diffs = (t(t(pp) - c))^2
+    fast.dist = function(yy, x) { #compute all the distances between x and rows of yy
+      squared.diffs = (t(t(yy) - x))^2
       ##sum the columns, take the root
-      sqrt(Reduce(`+`, lapply(1:dim(pp)[2], function(d) squared.diffs[,d])))} #loop on dimension
+      sqrt(Reduce(`+`, lapply(1:dim(yy)[2], function(d) squared.diffs[,d])))} #loop on dimension
     list.to.matrix = function(l) do.call(rbind,l) # this is a little workaround for RJSONIO not handling matrices properly
     newCenters = from.dfs(
       mapreduce(
