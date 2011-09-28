@@ -99,7 +99,7 @@
   hdfs.put(foo2, "/tmp")
 
   ## delete multiple files
-  hdfs.delete(c(foo1, foo2))
+  hdfs.delete(c(file.path("/tmp", basename(foo1)), file.path("/tmp", basename(foo2))))
 
   writeLines("foo1", con = foo1)
   writeLines("foo2", con = foo2)
@@ -109,10 +109,10 @@
 
   ## change permissions of some files
   ## permissions wil be recycled
-  hdfs.chmod(c(foo1, foo2), permissions=c("777","774"))
+  hdfs.chmod(c(file.path("/tmp", basename(foo1)), file.path("/tmp", basename(foo2))), permissions=c("777","774"))
 
   ## file information, only accepts one path
-  hdfs.file.info(foo1)
+  hdfs.file.info(file.path("/tmp", basename(foo1)))
 }
 
 \seealso{
