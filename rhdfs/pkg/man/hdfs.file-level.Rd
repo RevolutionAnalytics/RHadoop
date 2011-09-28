@@ -89,17 +89,31 @@
   ## returns a data frame of the root folder
   hdfs.ls("/")
 
-  \dontrun{
+  foo1 = tempfile()
+  foo2 = tempfile()
+
+  writeLines("foo1", con = foo1)
+  writeLines("foo2", con = foo2)
+
+  hdfs.put(foo1, "/")
+  hdfs.put(foo2, "/")
+
   ## delete multiple files
-  hdfs.delete(c("/foo1","/foo2"))
+  hdfs.delete(c(foo1, foo2))
+
+  writeLines("foo1", con = foo1)
+  writeLines("foo2", con = foo2)
+
+  hdfs.put(foo1, "/")
+  hdfs.put(foo2, "/")
 
   ## change permissions of some files
   ## permissions wil be recycled
-  hdfs.chmod(c("/dfe1","/def2"), permissions=c("777","774"))
+  hdfs.chmod(c(foo1, foo2), permissions=c("777","774"))
 
   ## file information, only accepts one path
-  hdfs.file.info("/def1")
-}}
+  hdfs.file.info(foo1)
+}
 
 \seealso{
   \code{hdfs.copy},
