@@ -35,7 +35,7 @@ hdfs.read.text.file(path,...)
    path = tempfile()
    writeLines("line reader test", con = path)
    hdfs.put(path, "/tmp")
-   m <- hdfs.line.reader(path)
+   m <- hdfs.line.reader(file.path("/tmp", basename(path)))
    collector <- NULL
    while (length(lines <- m$read()) > 0) collector <- c(collector, 
      lines)
