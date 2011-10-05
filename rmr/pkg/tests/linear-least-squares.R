@@ -52,8 +52,8 @@ linear.least.squares = function(X,y) {
 
 # test data
 
-X = do.call(c, lapply(1:400, function(i) lapply(1:30, function(j) keyval(c(i,j), rnorm(1)))))
+X = do.call(c, lapply(1:4, function(i) lapply(1:3, function(j) keyval(c(i,j), rnorm(1)))))
 
-y = do.call(c, lapply(1:400, function(i) lapply(1:1, function(j) keyval(c(i,j), rnorm(1)))))
+y = do.call(c, lapply(1:4, function(i) lapply(1:1, function(j) keyval(c(i,j), rnorm(1)))))
 
 linear.least.squares(to.dfs(X), to.dfs(y))
