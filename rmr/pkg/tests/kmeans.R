@@ -30,14 +30,14 @@ kmeans.iter =
 
 #points grouped many-per-record something like 1000 should give most perf improvement, 
 #assume centers fewer than points, loop over centers never points, use vectorised C primitives
+#don't take averages right away, do sums and counts first which are associative and commutative
+#then take the ratio. This allows using a combiner and other early data reduction step
+
 
 kmeans.iter.fast = 
-function(points, distfun = NULL, ncenters = dim(centers)[1], centers = NULL) {
-    fast.dist = function(yy, x) { #compute all the distances between x and rows of yy
-      squared.diffs = (t(t(yy) - x))^2
-      ##sum the columns, take the root
-      sqrt(Reduce(`+`, lapply(1:dim(yy)[2], function(d) squared.diffs[,d])))} #loop on dimension
-    list.to.matrix = function(l) do.call(rbind,l) # this is a little workaround for RJSONIO not handling matrices properly
+  function(points, distfun, ncenters = dim(centers)[1], centers = NULL) {
+  ## this is a little workaround for RJSONIO not handling matrices properly
+    list.to.matrix = function(l) do.call(rbind,l) 
     newCenters = from.dfs(
       mapreduce(
         input = points,
@@ -52,7 +52,7 @@ function(points, distfun = NULL, ncenters = dim(centers)[1], centers = NULL) {
           else {
             function(k, v) {
               v = list.to.matrix(v)
-              dist.mat = apply(centers, 1, function(x) fast.dist(v, x))
+              dist.mat = apply(centers, 1, function(x) distfun(v, x))
               closest.centers = as.data.frame(
                 which( #this finds the index of the min row by row, but one can't loop on the rows so we must use pmin
                   dist.mat == do.call(
@@ -62,23 +62,35 @@ function(points, distfun = NULL, ncenters = dim(centers)[1], centers = NULL) {
                   arr.ind=TRUE))
               closest.centers[closest.centers$row,] = closest.centers
               v = cbind(1, v)
-              clusters = unclass(by(v,closest.centers$col,function(x) apply(x,2,sum)))
+              #group by closest center and sum up, kind of an early combiner
+              clusters = unclass(by(v,closest.centers$col,function(x) apply(x,2,sum))) 
               lapply(names(clusters), function(cl) keyval(as.integer(cl), clusters[[cl]]))}},
        reduce = function(k, vv) {
-               keyval(NULL, apply(list.to.matrix(vv), 2, sum))},
-     reduceondataframe = F,
-     combine = F),
+               keyval(k, apply(list.to.matrix(vv), 2, sum))},
+     combine = T),
 todataframe = T)
     ## convention is iteration returns sum of points not average and first element of each sum is the count
-    newCenters = newCenters[newCenters[,1] > 0,]
+    newCenters = newCenters[newCenters[,2] > 0,-1]
     (newCenters/newCenters[,1])[,-1]}
 
+fast.dist = function(yy, x) { #compute all the distances between x and rows of yy
+      squared.diffs = (t(t(yy) - x))^2
+      ##sum the columns, take the root, loop on dimension
+      sqrt(Reduce(`+`, lapply(1:dim(yy)[2], function(d) squared.diffs[,d])))}
  
 kmeans =
-  function(points, ncenters, iterations = 10, distfun = function(a,b) norm(as.matrix(a-b), type = 'F'), 
+  function(points, ncenters, iterations = 10, distfun = NULL, 
            plot = FALSE, fast = F) {
+    if(is.null(distfun)) 
+      distfun = 
+        if (!fast) function(a,b) norm(as.matrix(a-b), type = 'F')
+        else fast.dist  
     if (fast) kmeans.iter = kmeans.iter.fast
-    newCenters = kmeans.iter(points, distfun = distfun, ncenters = ncenters)
+    newCenters = 
+      kmeans.iter(
+        points, 
+        distfun,
+        ncenters = ncenters)
     if(plot) pdf = rmr:::to.data.frame(do.call(c,values(from.dfs(points))))
     for(i in 1:iterations) {
       if(plot) {
@@ -95,7 +107,12 @@ kmeans =
 
 ## sample runs
 ## 
-kmeans(to.dfs(lapply(1:1000, function(i) keyval(NULL, c(rnorm(1, mean = i%%3, sd = 0.1), rnorm(1, mean = i%%4, sd = 0.1))))), 12, iterations = 5)
+input = to.dfs(lapply(1:1000, function(i) keyval(NULL, c(rnorm(1, mean = i%%3, sd = 0.1), 
+                                                        rnorm(1, mean = i%%4, sd = 0.1)))))
+kmeans(input, 12, iterations = 5)
+
 recsize = 1000
-kmeans(to.dfs(lapply(1:100, function(i) keyval(NULL, cbind(sample(0:2, recsize, replace = T) + rnorm(recsize, sd = .1), 
-                                                           sample(0:3, recsize, replace = T) + rnorm(recsize, sd = .1))))), 12, iterations = 5, fast = T)
+input = to.dfs(lapply(1:100, 
+                      function(i) keyval(NULL, cbind(sample(0:2, recsize, replace = T) + rnorm(recsize, sd = .1),     
+                                                     sample(0:3, recsize, replace = T) + rnorm(recsize, sd = .1)))))
+kmeans(input, 12, iterations = 5, fast = T)
