@@ -11,3 +11,5 @@ rmr/pkg/tests/#*merge*#20005ip7#
 rhdfs/pkg.Rcheck/*
 
 rhdfs/rhdfs-Ex.ps
+
+rmr/pkg.Rcheck/*
