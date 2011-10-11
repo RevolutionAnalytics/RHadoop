@@ -97,9 +97,9 @@ kmeans =
         names(newCenters) = c("V1", "V2")
         library(ggplot2)
         png(paste(Sys.time(), "png", sep = "."))
-        print(ggplot(data = pdf, aes(x=V1, y=V2) ) + 
-          geom_jitter() +
-          geom_jitter(data = newCenters, aes(x = V1, y = V2), color = "red"))
+        print(ggplot(data = pdf, aes(x=V1, y=V2, size = .1, alpha = .1) ) + 
+          geom_point() +
+          geom_point(data = newCenters, aes(x = V1, y = V2, size = .3, alpha = 1), color = "red"))
         dev.off()}
       newCenters = kmeans.iter(points, distfun, centers = newCenters)}
     newCenters}
