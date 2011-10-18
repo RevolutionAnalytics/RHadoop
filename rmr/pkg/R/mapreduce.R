@@ -210,6 +210,14 @@ defaulttextoutputformat = function(k,v) {
   paste(encodeString(toJSON(k, collapse = "")), "\t", encodeString(toJSON(v, collapse = "")), "\n", sep = "")}
 
 rawtextinputformat = function(line) {keyval(NULL, line)}
+csvtextinputformat = function(...) function(line) read.csv(file = textConnection(line), header = FALSE, ...)
+
+rawtextoutputformat = function(k,v) paste(c(k,v), collapse = "")
+csvtextoutputformat = function(...) function(k,v) {
+  tc = textConnection(object = NULL, open = "w")
+  args = list(x = c(k,v), file = tc, ..., row.names = FALSE, col.names = FALSE)
+  do.call(write.table, args[unique(names(args))])
+  paste(textConnectionValue(con = tc), collapse = "")}
 
 #data frame conversion
 
