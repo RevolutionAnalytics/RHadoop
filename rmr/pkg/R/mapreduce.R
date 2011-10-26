@@ -228,9 +228,9 @@ flatten = function(x) unlist(list(name = as.name("name"), x))[-1]
 to.data.frame = function(l) data.frame(lapply(data.frame(do.call(rbind,lapply(l, flatten))), unlist))
 from.data.frame = function(df, keycol = 1) lapply(1:dim(df)[[1]], function(i) keyval(df[i,], i = keycol))
 
-#dfs section
+#hdfs section
 
-dfs = function(cmd, intern, ...) {
+hdfs = function(cmd, intern, ...) {
   if (is.null(names(list(...)))) {
     argnames = sapply(1:length(list(...)), function(i) "")
   }
@@ -244,7 +244,7 @@ dfs = function(cmd, intern, ...) {
                     if(x[[1]] == ""){""} else{"-"},
                     x[[1]], 
                     " ", 
-                    to.hdfs.path(x[[2]]), 
+                    to.dfs.path(x[[2]]), 
                     sep = ""))[
                       order(argnames, decreasing = T)], 
                 collapse = " "),
@@ -254,45 +254,61 @@ dfs = function(cmd, intern, ...) {
 getcmd = function(matched.call)
   strsplit(tail(as.character(as.list(matched.call)[[1]]), 1), "\\.")[[1]][[2]]
            
-dfs.match.sideeffect = function(...) {
-  dfs(getcmd(match.call()), FALSE, ...) == 0}
+hdfs.match.sideeffect = function(...) {
+  hdfs(getcmd(match.call()), FALSE, ...) == 0}
 
-dfs.match.out = function(...)
-  to.data.frame(strsplit(dfs(getcmd(match.call()), TRUE, ...)[-1], " +"))
+hdfs.match.out = function(...)
+  to.data.frame(strsplit(hdfs(getcmd(match.call()), TRUE, ...)[-1], " +"))
 
-mkdfsfun = function(dfscmd, out)
-  eval(parse(text = paste ("dfs.", dfscmd, " = dfs.match.", if(out) "out" else "sideeffect", sep = "")),
+mkhdfsfun = function(hdfscmd, out)
+  eval(parse(text = paste ("hdfs.", hdfscmd, " = hdfs.match.", if(out) "out" else "sideeffect", sep = "")),
        envir = parent.env(environment()))
 
-for (dfscmd in c("ls","lsr","df","du","dus","count","cat","text","stat","tail","help")) 
-  mkdfsfun(dfscmd, TRUE)
+for (hdfscmd in c("ls","lsr","df","du","dus","count","cat","text","stat","tail","help")) 
+  mkhdfsfun(hdfscmd, TRUE)
 
-for (dfscmd in c("mv","cp","rm","rmr","expunge","put","copyFromLocal","moveFromLocal","get","getmerge",
+for (hdfscmd in c("mv","cp","rm","rmr","expunge","put","copyFromLocal","moveFromLocal","get","getmerge",
                  "copyToLocal","moveToLocal","mkdir","setrep","touchz","test","chmod","chown","chgrp"))
-  mkdfsfun(dfscmd, FALSE)
+  mkhdfsfun(hdfscmd, FALSE)
 
-dfs.exists = function(f) dfs.test(e = f) 
-dfs.is.dir = function(f) dfs.test(d = f)
+# backend independent dfs section
+dfs.exists = function(f) {
+  if (rmr.backend() == 'hadoop') 
+    hdfs.test(e = f) 
+  else file.exists(f)}
+
+dfs.rm = function(f){
+  if(rmr.backend() == 'hadoop')
+    hdfs.rm(f)
+  else file.remove(f)}
+
+dfs.is.dir = function(f) { 
+  if (rmr.backend() == 'hadoop') 
+    hdfs.test(d = f)
+  else file.info(f)['isdir']}
+
 dfs.empty = function(f) {
-  if(dfs.is.dir(f)) {
-    dfs.test(z = file.path(to.hdfs.path(f), 'part-00000'))}
-  else {dfs.test(z = f)}}
+  if(rmr.backend() == 'hadoop') {
+    if(dfs.is.dir(f)) {
+      hdfs.test(z = file.path(to.dfs.path(f), 'part-00000'))}
+    else {hdfs.test(z = f)}}
+  else file.info(f)['size'] == 0}
 
 # dfs bridge
 
-to.hdfs.path = function(input) {
+to.dfs.path = function(input) {
   if (is.character(input)) {
     input}
   else {
     if(is.function(input)) {
       input()}}}
 
-to.dfs = function(object, file = hdfs.tempfile(), textoutputformat = defaulttextoutputformat){
+to.dfs = function(object, file = dfs.tempfile(), textoutputformat = defaulttextoutputformat){
   if(is.data.frame(object)) {
     object = from.data.frame(object)
   }
   tmp = tempfile()
-  hdfsOutput = to.hdfs.path(file)
+  dfsOutput = to.dfs.path(file)
   cat(paste
        (lapply
         (object,
@@ -300,14 +316,19 @@ to.dfs = function(object, file = hdfs.tempfile(), textoutputformat = defaulttext
                       textoutputformat(kv$key, kv$val)}),
         collapse=""),
       file = tmp)
-  dfs.put(tmp, hdfsOutput)
-  file.remove(tmp)
+  if(rmr.backend() == 'hadoop'){
+    hdfs.put(tmp, dfsOutput)
+    file.remove(tmp)}
+  else
+    file.rename(tmp, dfsOutput)
   file
 }
 
 from.dfs = function(file, textinputformat = defaulttextinputformat, todataframe = F){
-  tmp = tempfile()
-  dfs.get(to.hdfs.path(file), tmp)
+  if(rmr.backend() == 'hadoop') {
+    tmp = tempfile()
+    hdfs.get(to.dfs.path(file), tmp)}
+  else tmp = file
   retval = if(file.info(tmp)[1,'isdir']) {
              do.call(c,
                lapply(list.files(tmp, "part*"),
@@ -323,7 +344,7 @@ from.dfs = function(file, textinputformat = defaulttextinputformat, todataframe 
 
 # mapreduce
 
-hdfs.tempfile <- function(pattern = "file", tmpdir = tempdir()) {
+dfs.tempfile <- function(pattern = "file", tmpdir = tempdir()) {
   fname  = tempfile(pattern, tmpdir)
   namefun = function() {fname}
   reg.finalizer(environment(namefun),
@@ -342,33 +363,19 @@ mapreduce = function(
   reduce = NULL,
   combine = NULL,
   reduceondataframe = FALSE,
-  profilenodes = FALSE,
   inputformat = NULL,
   outputformat = NULL,
   textinputformat = defaulttextinputformat,
   textoutputformat = defaulttextoutputformat,
-  backend = c("hadoop", "local"),
   verbose = FALSE) {
 
   on.exit(expr = gc(), add = TRUE) #this is here to trigger cleanup of tempfiles
-  if (is.null(output)) output = hdfs.tempfile()
+  if (is.null(output)) output = dfs.tempfile()
 
-  backend  = 
-    if(missing(backend)) rmr.options$backend
-    else {
-      match.arg(backend)
-      prev.backend = rmr.options$backend
-      on.exit(expr = rmr.backend(prev.backend), add = TRUE)
-      rmr.backend(backend)}
+  backend  =  rmr.options$backend
   
-  profilenodes  = 
-    if(missing(profilenodes)) rmr.options$profilenodes
-    else {
-      match.arg(profilenodes)
-      prev.profilenodes = rmr.profilenodes()
-      on.exit(expr = rmr.profilenodes(prev.profilenodes), add = TRUE)
-      rmr.profilenodes(profilenodes)}
- 
+  profilenodes = rmr.options$profilenodes
+    
   mr = switch(backend, hadoop = rhstream, local = mr.local, NULL)
   if(is.null(mr)) stop("Unsupported backend: ", backend)
   
@@ -376,8 +383,8 @@ mapreduce = function(
      reduce = reduce,
      reduceondataframe = reduceondataframe,
      combine = combine,
-     in.folder = if(is.list(input)) {lapply(input, to.hdfs.path)} else to.hdfs.path(input),
-     out.folder = to.hdfs.path(output),
+     in.folder = if(is.list(input)) {lapply(input, to.dfs.path)} else to.dfs.path(input),
+     out.folder = to.dfs.path(output),
      profilenodes = profilenodes,
      inputformat = inputformat,
      outputformat = outputformat,
@@ -607,7 +614,7 @@ equijoin = function(
     function(kv, isleft) keyval(kv$key, list(val = kv$val, isleft = isleft))
   isLeftSide = 
     function(leftinput) {
-      leftin = strsplit(to.hdfs.path(leftinput), "/+")[[1]]
+      leftin = strsplit(to.dfs.path(leftinput), "/+")[[1]]
       mapin = strsplit(Sys.getenv("map_input_file"), "/+")[[1]]
       leftin = leftin[-1]
       mapin = mapin[if(mapin[1] == "hdfs:") c(-1,-2) else -1]
