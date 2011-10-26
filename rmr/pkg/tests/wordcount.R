@@ -33,5 +33,5 @@ wordcount = function (input, output = NULL, pattern = " ") {
                     keyval(k, sum(unlist(vv)))},
                 combine = T)}
 
-rmr:::dfs.put("/etc/passwd", "/tmp/wordcount-test")
+rmr:::hdfs.put("/etc/passwd", "/tmp/wordcount-test")
 from.dfs(wordcount("/tmp/wordcount-test", pattern = " +"))
