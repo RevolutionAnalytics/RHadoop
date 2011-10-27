@@ -57,4 +57,6 @@ X = do.call(c, lapply(1:4, function(i) lapply(1:3, function(j) keyval(c(i,j), rn
 y = do.call(c, lapply(1:4, function(i) lapply(1:1, function(j) keyval(c(i,j), rnorm(1)))))
 W = do.call(c, lapply(1:4, function(i) lapply(1:4, function(j) if(i == j) keyval(c(i,i), rnorm(1)) else NULL)))
 
-weighted.linear.least.squares(to.dfs(X), to.dfs(y), to.dfs(W))
+for (be in c("local", "hadoop")) {
+  rmr.backend(be)
+  weighted.linear.least.squares(to.dfs(X), to.dfs(y), to.dfs(W))}

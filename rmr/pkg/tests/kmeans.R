@@ -107,12 +107,15 @@ kmeans =
 
 ## sample runs
 ## 
-input = to.dfs(lapply(1:1000, function(i) keyval(NULL, c(rnorm(1, mean = i%%3, sd = 0.1), 
-                                                        rnorm(1, mean = i%%4, sd = 0.1)))))
-kmeans(input, 12, iterations = 5)
 
-recsize = 1000
-input = to.dfs(lapply(1:100, 
-                      function(i) keyval(NULL, cbind(sample(0:2, recsize, replace = T) + rnorm(recsize, sd = .1),     
-                                                     sample(0:3, recsize, replace = T) + rnorm(recsize, sd = .1)))))
-kmeans(input, 12, iterations = 5, fast = T)
+for (be in c("local", "hadoop")) {
+  rmr.backend(be)
+  input = to.dfs(lapply(1:1000, function(i) keyval(NULL, c(rnorm(1, mean = i%%3, sd = 0.1), 
+                                                        rnorm(1, mean = i%%4, sd = 0.1)))))
+  kmeans(input, 12, iterations = 5)
+  
+  recsize = 1000
+  input = to.dfs(lapply(1:100, 
+                        function(i) keyval(NULL, cbind(sample(0:2, recsize, replace = T) + rnorm(recsize, sd = .1),     
+                                                       sample(0:3, recsize, replace = T) + rnorm(recsize, sd = .1)))))
+  kmeans(input, 12, iterations = 5, fast = T)}

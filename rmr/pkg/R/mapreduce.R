@@ -412,9 +412,10 @@ mr.local = function(map,
   map.out = do.call(c, lapply(do.call(c,lapply(in.folder, from.dfs)), function(kv) {retval = map(kv$key, kv$val)
                                                                                       if(is.keyval(retval)) list(retval)
                                                                                       else retval}))
-  reduce.out = tapply(X=map.out, 
-                      INDEX=sapply(keys(map.out), digest), 
-                      FUN=function(x) reduce(x[[1]]$key, 
+  map.out = from.dfs(to.dfs(map.out))
+  reduce.out = tapply(X = map.out, 
+                      INDEX = sapply(keys(map.out), digest), 
+                      FUN = function(x) reduce(x[[1]]$key, 
                                              if(reduceondataframe) to.data.frame(values(x)) else values(x)),
                       simplify = FALSE)
   if(!is.keyval(reduce.out[[1]]))
