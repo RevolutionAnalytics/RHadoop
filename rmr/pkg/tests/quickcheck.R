@@ -15,8 +15,8 @@
 ##main function, should be factored out one day
 unittest = function(predicate, generators, samplesize = 10, precondition = function(...) T) {
   set.seed(0)
-  options(warning.length = 8125)
-  lapply(1:100, function(i) {
+  options(warning.length = 8125) #as big as allowed
+  lapply(1:samplesize, function(i) {
     args = lapply(generators, function(a) a())
     if(do.call(precondition, args) && !do.call(predicate, args)){
       stop(paste("FAIL: predicate:",
@@ -121,7 +121,7 @@ for (be in c("local", "hadoop")) {
   ##keys and values
   unittest(function(kvl) isTRUE(all.equal(kvl, 
                                apply(cbind(keys(kvl), 
-                                           values(kvl)),1,keyval))), 
+                                           values(kvl)),1,function(x) keyval(x[[1]], x[[2]])))), 
            generators = list(tdggkeyvallist()))
   ##keyval
   unittest(function(kv) {
