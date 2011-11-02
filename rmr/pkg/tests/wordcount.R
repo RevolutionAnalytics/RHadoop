@@ -36,7 +36,8 @@ wordcount = function (input, output = NULL, pattern = " ") {
 
 rmr:::hdfs.put("/etc/passwd", "/tmp/wordcount-test")
 file.copy("/etc/passwd",  "/tmp/wordcount-test")
-for (be in c("local", "hadoop")) {
-  rmr.backend(be)
-  from.dfs(wordcount("/tmp/wordcount-test", pattern = " +"))
-}
+rmr.backend("local")
+out.local = from.dfs(wordcount("/tmp/wordcount-test", pattern = " +"))
+rmr.backend("hadoop")
+out.hadoop = from.dfs(wordcount("/tmp/wordcount-test", pattern = " +"))
+stopifnot(rmr:::cmp(out.hadoop, out.local))
