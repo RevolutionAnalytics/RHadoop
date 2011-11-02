@@ -108,14 +108,22 @@ kmeans =
 ## sample runs
 ## 
 
+out = list()
+out.fast = list()
+
 for (be in c("local", "hadoop")) {
   rmr.backend(be)
+  set.seed(0)
   input = to.dfs(lapply(1:1000, function(i) keyval(NULL, c(rnorm(1, mean = i%%3, sd = 0.1), 
                                                         rnorm(1, mean = i%%4, sd = 0.1)))))
-  kmeans(input, 12, iterations = 5)
-  
+  out[[be]] = kmeans(input, 12, iterations = 5)
+  set.seed(0)
   recsize = 1000
   input = to.dfs(lapply(1:100, 
                         function(i) keyval(NULL, cbind(sample(0:2, recsize, replace = T) + rnorm(recsize, sd = .1),     
                                                        sample(0:3, recsize, replace = T) + rnorm(recsize, sd = .1)))))
-  kmeans(input, 12, iterations = 5, fast = T)}
+out.fast[[be]] = kmeans(input, 12, iterations = 5, fast = T)}
+
+# would love to take this step but kmeans in randomized in a way that makes it hard to be completely reprodubile
+#stopifnot(rmr:::cmp(out[['hadoop']], out[['local']]))
+#stopifnot(rmr:::cmp(out.fast[['hadoop']], out.fast[['local']]))
