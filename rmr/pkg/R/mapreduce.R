@@ -24,9 +24,9 @@ rmr.profilenodes = function(on = NULL) {
   rmr.options$profilenodes}
 
 rmr.backend = function(backend = c(NULL, "hadoop", "local")) {
-  backend = match.arg(backend)
-  if(!is.null(backend))
-    rmr.options$backend = backend
+  if(!missing(backend)){
+    backend = match.arg(backend)
+    rmr.options$backend = backend}
   rmr.options$backend}
 
 #I/O
@@ -74,12 +74,7 @@ keys = function(l) lapply(l, function(x) x[[1]])
 
 values = function(l) lapply(l, function(x) x[[2]])
 
-keyval = function(k, v = NULL, i = 1) {
-  if(missing(v)) {
-    tmp = k
-    k = tmp[[i]]
-    v = tmp[-i]
-    if (length(v) == 1) v = v[[1]]}
+keyval = function(k, v) {
   kv = list(key = k, val = v)
   attr(kv, 'keyval') = TRUE
   kv}
@@ -198,15 +193,27 @@ make.input.files = function(infiles){
         collapse=" ")}
 
 # formats
-encodeString = function(s) gsub("\\\n","\\\\n", gsub("\\\t","\\\\t", s))
-decodeString = function(s) gsub("\\\\n","\\\n", gsub("\\\\t","\\\t", s))
+# alternate, native format
+# unserialize(charToRaw(gsub("\\\\n", "\n", gsub("\n", "\\\\n", rawToChar(serialize(matrix(1:20, ncol = 5), ascii=T,conn = NULL))))))
 
+nativetextinputformat = function(line) {
+  x = strsplit(line, "\t")[[1]]
+  de = function(x) unserialize(charToRaw(gsub("\\\\n", "\n", x)))
+  keyval(de(x[1]),de(x[2]))}
+
+nativetextoutputformat = function(k, v) {
+  ser = function(x) gsub("\n", "\\\\n", rawToChar(serialize(x, ascii=T,conn = NULL)))
+  paste(ser(k), "\t", ser(v), "\n", sep = "")}
+
+  
 defaulttextinputformat = function(line) {
+  decodeString = function(s) gsub("\\\\n","\\\n", gsub("\\\\t","\\\t", s))
   x =  strsplit(line, "\t")[[1]]
   keyval(fromJSON(decodeString(x[1]), asText = TRUE), 
          fromJSON(decodeString(x[2]), asText = TRUE))}
 
 defaulttextoutputformat = function(k,v) {
+  encodeString = function(s) gsub("\\\n","\\\\n", gsub("\\\t","\\\\t", s))
   paste(encodeString(toJSON(k, collapse = "")), "\t", encodeString(toJSON(v, collapse = "")), "\n", sep = "")}
 
 rawtextinputformat = function(line) {keyval(NULL, line)}
@@ -226,7 +233,11 @@ csvtextoutputformat = function(...) function(k,v) {
 
 flatten = function(x) unlist(list(name = as.name("name"), x))[-1]
 to.data.frame = function(l) data.frame(lapply(data.frame(do.call(rbind,lapply(l, flatten))), unlist))
-from.data.frame = function(df, keycol = 1) lapply(1:dim(df)[[1]], function(i) keyval(df[i,], i = keycol))
+from.data.frame = function(df, keycol = 1) lapply(1:dim(df)[[1]], function(i) keyval(df[i,keycol],df[i,] ))
+
+#output cmp
+cmp = function(x, y) isTRUE(all.equal(x[order(unlist(keys(x)))], 
+                                      y[order(unlist(keys(y)))]))
 
 #hdfs section
 
@@ -312,7 +323,7 @@ to.dfs = function(object, file = dfs.tempfile(), textoutputformat = defaulttexto
   cat(paste
        (lapply
         (object,
-         function(x) {kv = keyval(x)
+         function(x) {kv = if (is.keyval(x)) x else keyval(NULL, x)
                       textoutputformat(kv$key, kv$val)}),
         collapse=""),
       file = tmp)
@@ -328,7 +339,7 @@ from.dfs = function(file, textinputformat = defaulttextinputformat, todataframe 
   if(rmr.backend() == 'hadoop') {
     tmp = tempfile()
     hdfs.get(to.dfs.path(file), tmp)}
-  else tmp = file
+  else tmp = to.dfs.path(file)
   retval = if(file.info(tmp)[1,'isdir']) {
              do.call(c,
                lapply(list.files(tmp, "part*"),
@@ -409,9 +420,11 @@ mr.local = function(map,
                     textoutputformat = defaulttextoutputformat,
                     verbose = verbose) {
   if(is.null(reduce)) reduce = function(k,vv) lapply(vv, function(v) keyval(k,v))
-  map.out = do.call(c, lapply(do.call(c,lapply(in.folder, from.dfs)), function(kv) {retval = map(kv$key, kv$val)
-                                                                                      if(is.keyval(retval)) list(retval)
-                                                                                      else retval}))
+  map.out = do.call(c, lapply(do.call(c,lapply(in.folder, from.dfs, 
+                                               textinputformat = textinputformat)), 
+                              function(kv) {retval = map(kv$key, kv$val)
+                                            if(is.keyval(retval)) list(retval)
+                                            else retval}))
   map.out = from.dfs(to.dfs(map.out))
   reduce.out = tapply(X = map.out, 
                       INDEX = sapply(keys(map.out), digest), 
