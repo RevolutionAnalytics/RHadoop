@@ -424,7 +424,7 @@ mr.local = function(map,
                                    lapply(in.folder, 
                                           function(x) lapply(from.dfs(x, 
                                                                       textinputformat = textinputformat),
-                                                             function(y){attr(y$key, "input") = x; y}))), 
+                                                             function(y){attr(y$val, "input") = x; y}))), 
                               function(kv) {retval = map(kv$key, kv$val)
                                             if(is.keyval(retval)) list(retval)
                                             else retval}))
@@ -644,7 +644,7 @@ equijoin = function(
     function(k,v) {
       ils = switch(rmr.backend(), 
                    hadoop = isLeftSide(leftinput),
-                   local = attr(k, "input") == to.dfs.path(leftinput),
+                   local = attr(v, "input") == to.dfs.path(leftinput),
                    stop("Unsupported backend: ", rmr.backend()))
       markSide(if(ils) map.left(k,v) else map.right(k,v), ils)}}
   else {
