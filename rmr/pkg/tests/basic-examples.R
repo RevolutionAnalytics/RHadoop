@@ -22,9 +22,9 @@ for (be in c("local", "hadoop")) {
   lapply(small.ints, function(x) x^2)
   
   small.ints = to.dfs(1:1000)
-  mapreduce(input = small.ints, map = function(k,v) keyval(k, k^2))
+  mapreduce(input = small.ints, map = function(k,v) keyval(v, v^2))
   
-  from.dfs(mapreduce(input=small.ints, map = function(k,v) keyval(k, k^2)))
+  from.dfs(mapreduce(input=small.ints, map = function(k,v) keyval(v, v^2)))
   
   ## tapply like job
   
