@@ -387,8 +387,7 @@ mapreduce = function(
   
   profilenodes = rmr.options$profilenodes
     
-  mr = switch(backend, hadoop = rhstream, local = mr.local, NULL)
-  if(is.null(mr)) stop("Unsupported backend: ", backend)
+  mr = switch(backend, hadoop = rhstream, local = mr.local, stop("Unsupported backend: ", backend))
   
   mr(map = map,
      reduce = reduce,
@@ -420,8 +419,12 @@ mr.local = function(map,
                     textoutputformat = defaulttextoutputformat,
                     verbose = verbose) {
   if(is.null(reduce)) reduce = function(k,vv) lapply(vv, function(v) keyval(k,v))
-  map.out = do.call(c, lapply(do.call(c,lapply(in.folder, from.dfs, 
-                                               textinputformat = textinputformat)), 
+  map.out = do.call(c, 
+                    lapply(do.call(c,
+                                   lapply(in.folder, 
+                                          function(x) lapply(from.dfs(x, 
+                                                                      textinputformat = textinputformat),
+                                                             function(y){attr(y$key, "input") = x; y}))), 
                               function(kv) {retval = map(kv$key, kv$val)
                                             if(is.keyval(retval)) list(retval)
                                             else retval}))
@@ -639,7 +642,10 @@ equijoin = function(
     function(vv, sideouter, fullouter) if (length(vv) == 0 && (sideouter || fullouter)) c(NA) else vv
   map = if (is.null(input)) {
     function(k,v) {
-      ils = isLeftSide(leftinput)
+      ils = switch(rmr.backend(), 
+                   hadoop = isLeftSide(leftinput),
+                   local = attr(k, "input") == to.dfs.path(leftinput),
+                   stop("Unsupported backend: ", rmr.backend()))
       markSide(if(ils) map.left(k,v) else map.right(k,v), ils)}}
   else {
     function(k,v) {
