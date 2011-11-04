@@ -44,14 +44,13 @@ kmeans.iter.fast =
         map = 
           if (is.null(centers)) {
             function(k, v) {
-              v = cbind(1, list.to.matrix(v))
+              v = cbind(1, v)
               ##pick random centers
               centers = sample(1:ncenters, dim(v)[[1]], replace = TRUE) 
               clusters = unclass(by(v,centers,function(x) apply(x,2,sum)))
               lapply(names(clusters), function(cl) keyval(as.integer(cl), clusters[[cl]]))}}
           else {
             function(k, v) {
-              v = list.to.matrix(v)
               dist.mat = apply(centers, 1, function(x) distfun(v, x))
               closest.centers = as.data.frame(
                 which( #this finds the index of the min row by row, but one can't loop on the rows so we must use pmin
