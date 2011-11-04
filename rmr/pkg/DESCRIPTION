@@ -1,7 +1,7 @@
 Package: rmr
 Type: Package
 Title: R and Hadoop Streaming Connector
-Version: 1.0
+Version: 1.1
 Date: 2011-08-16
 Author: Revolution Analytics
 Depends: R (>= 2.6.0), methods, RJSONIO, itertools, digest 
