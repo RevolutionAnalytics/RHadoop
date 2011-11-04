@@ -3,6 +3,10 @@
 \alias{rawtextoutputformat}
 \alias{csvtextinputformat}
 \alias{csvtextoutputformat}
+\alias{jsontextinputformat}
+\alias{jsontextoutputformat}
+\alias{nativetextinputformat}
+\alias{nativetextoutputformat}
 
 \title{Alternative formats for text files}
 
@@ -14,6 +18,10 @@ text files}
   rawtextoutputformat(k, v)
   csvtextinputformat(key = 1, ...)
   csvtextoutputformat(...)
+  jsontextinputformat(line)
+  jsontextoutputformat(k, v)
+  nativetextinputformat(line)
+  nativetextoutputformat(k,v)
 }
 
 \arguments{
@@ -30,9 +38,11 @@ are examples of such functions for the raw text format (a text file without addi
 and \code{csvtextoutputformat} instead are higher order functions that generate input and output format functions resp. For the former, the
 options are the ones accepted by \code{read.table} with \code{header} defaulting to FALSE, since we are parsing a single line of a csv file
 here, not a complete one. For the latter, the options are the ones accepted by \code{write.table} with \code{row.names = FALSE, col.names =
-FALSE} by default. Again remember that this is a line by line writer, not a complete file writer like \code{write.table}. Our hope is that
-these functions will also serve as a model to expand the range for formats accessible to \code{rmr}. Additional flexibility is offered by
-the \code{inputformat} and \code{outputformat} arguments to \code{mapreduce}}
+FALSE} by default. Again remember that this is a line by line writer, not a complete file writer like
+\code{write.table}. \code{jsontextinputformat} and \code{jsontextoutputformat} use two JSON objects per line, separated by a tab. Support
+for R types can be tested calling \code{fromJSON(toJSON(x))} for some representative \code{x}. \code{nativetextinputformat} and
+\code{nativetextoutputformat} use an ASCII variation of the native R serde and should support any R object. It is also the
+default. Additional flexibility is offered by the \code{inputformat} and \code{outputformat} arguments to \code{mapreduce}}
 
 \examples{
 \dontrun{mapreduce(input = "/somepath/somefile.txt", textinputformat = rawtextinputformat)}}

@@ -76,12 +76,12 @@ values = function(l) lapply(l, function(x) x[[2]])
 
 keyval = function(k, v) {
   kv = list(key = k, val = v)
-  attr(kv, 'keyval') = TRUE
+  attr(kv, 'rmr.keyval') = TRUE
   kv}
 
-is.keyval = function(kv) !is.null(attr(kv, 'keyval', exact = TRUE))
+is.keyval = function(kv) !is.null(attr(kv, 'rmr.keyval', exact = TRUE))
 
-to.map = function(fun1 = identity, fun2 = identity) {
+to.map = function(fun1, fun2 = identity) {
   if (missing(fun2)) {
     function(k,v) fun1(keyval(k,v))}
   else {
@@ -89,7 +89,7 @@ to.map = function(fun1 = identity, fun2 = identity) {
 
 to.reduce = to.map
 
-mkLapplyReduce = function(fun1 = identity, fun2 = identity) {
+to.reduce.all = function(fun1, fun2 = identity) {
   if (missing(fun2)) {
     function(k,vv) lapply(vv, function(v) fun1(keyval(k,v)))}
   else {
@@ -206,13 +206,13 @@ nativetextoutputformat = function(k, v) {
   paste(ser(k), "\t", ser(v), "\n", sep = "")}
 
   
-defaulttextinputformat = function(line) {
+jsontextinputformat = function(line) {
   decodeString = function(s) gsub("\\\\n","\\\n", gsub("\\\\t","\\\t", s))
   x =  strsplit(line, "\t")[[1]]
   keyval(fromJSON(decodeString(x[1]), asText = TRUE), 
          fromJSON(decodeString(x[2]), asText = TRUE))}
 
-defaulttextoutputformat = function(k,v) {
+jsontextoutputformat = function(k,v) {
   encodeString = function(s) gsub("\\\n","\\\\n", gsub("\\\t","\\\\t", s))
   paste(encodeString(toJSON(k, collapse = "")), "\t", encodeString(toJSON(v, collapse = "")), "\n", sep = "")}
 
@@ -229,6 +229,8 @@ csvtextoutputformat = function(...) function(k,v) {
   do.call(write.table, args[unique(names(args))])
   paste(textConnectionValue(con = tc), "\n", sep = "", collapse = "")}
 
+defaulttextinputformat = nativetextinputformat
+defaulttextoutputformat = nativetextoutputformat
 #data frame conversion
 
 flatten = function(x) unlist(list(name = as.name("name"), x))[-1]
@@ -424,7 +426,7 @@ mr.local = function(map,
                                    lapply(in.folder, 
                                           function(x) lapply(from.dfs(x, 
                                                                       textinputformat = textinputformat),
-                                                             function(y){attr(y$val, "input") = x; y}))), 
+                                                             function(y){attr(y$val, 'rmr.input') = x; y}))), 
                               function(kv) {retval = map(kv$key, kv$val)
                                             if(is.keyval(retval)) list(retval)
                                             else retval}))
@@ -644,7 +646,7 @@ equijoin = function(
     function(k,v) {
       ils = switch(rmr.backend(), 
                    hadoop = isLeftSide(leftinput),
-                   local = attr(v, "input") == to.dfs.path(leftinput),
+                   local = attr(v, 'rmr.input') == to.dfs.path(leftinput),
                    stop("Unsupported backend: ", rmr.backend()))
       markSide(if(ils) map.left(k,v) else map.right(k,v), ils)}}
   else {
