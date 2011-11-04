@@ -126,7 +126,7 @@ for (be in c("local", "hadoop")) {
   ##keyval
   unittest(function(kv) {
     isTRUE(all.equal(kv,keyval(kv$key,kv$val))) &&      
-    attr(kv, "keyval")},
+    attr(kv, "rmr.keyval")},
     generators = list(tdggkeyval()))
   
   ##from.dfs to.dfs
