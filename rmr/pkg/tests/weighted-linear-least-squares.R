@@ -55,7 +55,7 @@ weighted.linear.least.squares = function(X, y, W) {
 # test data
 X = do.call(c, lapply(1:4, function(i) lapply(1:3, function(j) keyval(c(i,j), rnorm(1)))))
 y = do.call(c, lapply(1:4, function(i) lapply(1:1, function(j) keyval(c(i,j), rnorm(1)))))
-W = do.call(c, lapply(1:4, function(i) lapply(1:4, function(j) if(i == j) keyval(c(i,i), rnorm(1)) else NULL)))
+W = lapply(1:4, function(i)  keyval(c(i,i), rnorm(1)))
 
 out = list()
 for (be in c("local", "hadoop")) {
