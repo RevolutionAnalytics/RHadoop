@@ -9,3 +9,5 @@ pkg.Rcheck/*
 rhdfs/pkg.Rcheck/*
 
 rhdfs/rhdfs-Ex.ps
+
+rmr/pkg.Rcheck/*
