@@ -317,7 +317,7 @@ to.dfs.path = function(input) {
       input()}}}
 
 to.dfs = function(object, file = dfs.tempfile(), textoutputformat = defaulttextoutputformat){
-  if(is.data.frame(object)) {
+  if(is.data.frame(object) || is.matrix(object)) {
     object = from.data.frame(object)
   }
   tmp = tempfile()
