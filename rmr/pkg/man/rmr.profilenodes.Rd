@@ -18,7 +18,7 @@ A boolean, tells whether profiling should be on.
 }
 
 \details{Profiling data is collected in the following file: \code{file.path("/tmp/Rprof", Sys.getenv('mapred_job_id'),
-Sys.getenv('mapreduce_tip_id'))}. Can be turned on with an argument to mapreduce or globally with this call.}
+Sys.getenv('mapreduce_tip_id'))}. Can be turned on with this call.}
 
 \value{
 A boolean, whether profiling is on.
