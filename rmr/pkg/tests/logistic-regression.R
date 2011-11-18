@@ -29,8 +29,14 @@ logistic.regression = function(input, iterations, dims, alpha){
     plane = plane + alpha * gradient[[1]]$val }
   plane }
     
-## create test set 
-testdata = to.dfs(lapply (1:10000, function(i) {eps = rnorm(1, sd =10) ; keyval(i, list(x = c(i,i+eps), y = 2 * (eps > 0) - 1))}))
-## run 
-logistic.regression(testdata, 10, 2, 0.05)
-## max likelihood solution diverges for separable dataset, (-inf, inf) such as the above
+out = list()
+for (be in c("local", "hadoop")) {
+  rmr.backend(be)
+  ## create test set 
+  set.seed(0)
+  testdata = to.dfs(lapply (1:100, function(i) {eps = rnorm(1, sd =10) ; keyval(i, list(x = c(i,i+eps), y = 2 * (eps > 0) - 1))}))
+  ## run 
+  out[[be]] = logistic.regression(testdata, 3, 2, 0.05)
+  ## max likelihood solution diverges for separable dataset, (-inf, inf) such as the above
+}
+stopifnot(rmr:::cmp(out[['local']], out[['hadoop']]))

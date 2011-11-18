@@ -9,14 +9,13 @@
 \usage{
   keys(l)
   values(l)
-  keyval(k, v = NULL, i = 1)
+  keyval(k, v)
 }
 
 \arguments{
 \item{l}{list containing key/value pairs}
 \item{k}{the desired key or a list when v is missing}
 \item{v}{the desired value}
-\item{i}{when v is missing, which element of the list to use as key}
 }
 
 \details{The keyval helper function should be used to create return values for the map and reduce functions passed as parameters to
@@ -27,8 +26,6 @@ key is determined by the third, optional argument. keys and values extract a lis
 
 \examples{  
   keyval(1,2)
-  keyval(list(1,2))
-  keyval(list(1,2),i=2)
   keys(replicate(5, keyval(1,2), simplify = FALSE))
   values(replicate(5, keyval(1,2), simplify = FALSE))
 }

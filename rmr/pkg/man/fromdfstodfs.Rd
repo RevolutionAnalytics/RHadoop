@@ -6,7 +6,7 @@
 \description{Utility function that reads and writes lists to HDFS}
 
 \usage{
-to.dfs(object, file = hdfs.tempfile(), textoutputformat = defaulttextoutputformat)
+to.dfs(object, file = dfs.tempfile(), textoutputformat = defaulttextoutputformat)
 from.dfs(file, textinputformat = defaulttextinputformat, todataframe = F)
 }
 

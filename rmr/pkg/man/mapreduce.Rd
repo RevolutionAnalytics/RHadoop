@@ -12,7 +12,6 @@
   reduce = NULL,
   combine = NULL,
   reduceondataframe = FALSE,
-  profilenodes = FALSE,
   inputformat = NULL,
   outputformat = NULL,
   textinputformat = defaulttextinputformat,
@@ -32,18 +31,19 @@
       operation to execute as part of a map reduce job}
   \item{combine}{turn on the combiner; if TRUE the reduce function is
       used, or specify your own}
-  \item{inputformat}{Can be the fully qualified Java class, in which
-      case the JAR file must be passed via \code{jarfiles}}
-  \item{outputformat}{Can be the fully qualified Java class, in which
-      case the JAR file must be passed via \code{jarfiles}}
-  \item{textinputformat}{a function generating a key-value pair from a
-      line of text according to some format convention}
-  \item{textoutputformat}{a function generating a line of text from a
-      keyvalue pair according to some format convention}
   \item{reduceondataframe}{flatten the list of values to a data frame
       in the reduce call}
-  \item{profilenodes}{turn on the profiler on the mapper and reducer;
-      output in /tmp/Rprof/<job_id>/<attempt_id>}
+  \item{inputformat}{Can be the fully qualified Java class, in which
+      case the JAR file must be passed via \code{jarfiles}. Defaults to 
+      \code{TextInputFormat}. Another useful class may be 
+      \code{SequenceFileAsTextInputFormat}.}
+  \item{outputformat}{Can be the fully qualified Java class, in which
+      case the JAR file must be passed via \code{jarfiles}. Defaults to 
+      \code{TextOutputFormat}}
+  \item{textinputformat}{a function generating a key-value pair from a
+      line of text according to some format convention}
+  \item{textoutputformat}{a function generating a line of text from two 
+  	arguments, a key and a value, according to some format convention}
   \item{verbose}{Run hadoop in verbose mode}}
 
 \value{The value of \code{output}, or, when missing,  an object that
@@ -73,7 +73,7 @@
 \seealso{\code{\link{to.map}} and \code{\link{to.reduce}} can be used to
 convert other functions into suitable arguments for the map and reduce
 arguments; \code{\link{rawtextinputformat}} shows an alternative text
-input format specification. See the inst and tests directories in the
+format specifications. See the inst and tests directories in the
 source for more examples}
 
 \examples{

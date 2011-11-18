@@ -13,11 +13,10 @@
 # limitations under the License.
 
 ##main function, should be factored out one day
-
 unittest = function(predicate, generators, samplesize = 10, precondition = function(...) T) {
   set.seed(0)
-  options(warning.length = 8125)
-  lapply(1:100, function(i) {
+  options(warning.length = 8125) #as big as allowed
+  lapply(1:samplesize, function(i) {
     args = lapply(generators, function(a) a())
     if(do.call(precondition, args) && !do.call(predicate, args)){
       stop(paste("FAIL: predicate:",
@@ -102,50 +101,53 @@ unittest(function(d) {
 catch.out = function(...) capture.output(invisible(...))
 ## actual tests
 
-
 library(rmr)
-##createReader
-##pending input redirect issue: use textConnection
-## send
-unittest(function(kv) rmr:::defaulttextoutputformat(kv$key, kv$val) == 
-                      paste(catch.out(rmr:::send(kv)),"\n", sep = ""),
-                  generators = list(tdggkeyval()))
-unittest(function(lkv) {
-  all(catch.out(lapply(lkv,rmr:::send)) == 
-  catch.out(rmr:::send(lkv)))
-},
-        generators = list(tdggkeyvallist()))
-##counter and status -- unused for now
-##keys and values
-unittest(function(kvl) isTRUE(all.equal(kvl, 
-                             apply(cbind(keys(kvl), 
-                                         values(kvl)),1,keyval))), 
-         generators = list(tdggkeyvallist()))
-##keyval
-unittest(function(kv) {
-  isTRUE(all.equal(kv,keyval(kv$key,kv$val))) &&      
-  attr(kv, "keyval")},
-  generators = list(tdggkeyval()))
 
-##from.dfs to.dfs
-from.to.dfs.test = function(generator) {
+for (be in c("local", "hadoop")) {
+  rmr.backend(be)
+  
+  ##createReader
+  ##pending input redirect issue: use textConnection
+  ## send
+  unittest(function(kv) rmr:::defaulttextoutputformat(kv$key, kv$val) == 
+                        paste(catch.out(rmr:::send(kv)),"\n", sep = ""),
+                    generators = list(tdggkeyval()))
+  unittest(function(lkv) {
+    all(catch.out(lapply(lkv,rmr:::send)) == 
+    catch.out(rmr:::send(lkv)))
+  },
+          generators = list(tdggkeyvallist()))
+  ##counter and status -- unused for now
+  ##keys and values
+  unittest(function(kvl) isTRUE(all.equal(kvl, 
+                               apply(cbind(keys(kvl), 
+                                           values(kvl)),1,function(x) keyval(x[[1]], x[[2]])))), 
+           generators = list(tdggkeyvallist()))
+  ##keyval
+  unittest(function(kv) {
+    isTRUE(all.equal(kv,keyval(kv$key,kv$val))) &&      
+    attr(kv, "rmr.keyval")},
+    generators = list(tdggkeyval()))
+  
+  ##from.dfs to.dfs
+  from.to.dfs.test = function(generator) {
+    unittest(function(kvl) {
+      isTRUE(all.equal(kvl, from.dfs(to.dfs(kvl)), tolerance = 1e-4, check.attributes = FALSE))},
+      generators = list(generator),
+      samplesize = 10)}
+  
+  from.to.dfs.test(tdggkeyvallist())
+  
+  ##mapreduce
+  
   unittest(function(kvl) {
-    isTRUE(all.equal(kvl, from.dfs(to.dfs(kvl)), tolerance = 1e-4, check.attributes = FALSE))},
-    generators = list(generator),
-    samplesize = 10)}
-
-from.to.dfs.test(tdggkeyvallist())
-
-##mapreduce
-
-unittest(function(kvl) {
-  if(length(kvl) == 0) TRUE
-  else {
-    kvl = kvl[order(unlist(keys(kvl)))]
-    kvl1 = from.dfs(mapreduce(input = to.dfs(kvl)))
-    kvl1 = kvl1[order(unlist(keys(kvl1)))]
-    isTRUE(all.equal(kvl, kvl1, tolerance = 1e-4, check.attributes = FALSE))}},
-  generators = list(tdggkeyvallist(lambda = 10)),
-  samplesize = 10)
-
-                                         
+    if(length(kvl) == 0) TRUE
+    else {
+      kvl = kvl[order(unlist(keys(kvl)))]
+      kvl1 = from.dfs(mapreduce(input = to.dfs(kvl)))
+      kvl1 = kvl1[order(unlist(keys(kvl1)))]
+      isTRUE(all.equal(kvl, kvl1, tolerance = 1e-4, check.attributes = FALSE))}},
+    generators = list(tdggkeyvallist(lambda = 10)),
+    samplesize = 10)
+}  
+                                           
