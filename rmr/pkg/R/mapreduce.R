@@ -70,16 +70,18 @@ status = function(what){
 }
 
 ## could think of this as a utils section
-keys = function(l) lapply(l, function(x) x[[1]])
-
-values = function(l) lapply(l, function(x) x[[2]])
-
+## keyval manip
 keyval = function(k, v) {
   kv = list(key = k, val = v)
   attr(kv, 'rmr.keyval') = TRUE
   kv}
 
 is.keyval = function(kv) !is.null(attr(kv, 'rmr.keyval', exact = TRUE))
+keys = function(l) lapply(l, function(x) x[[1]])
+values = function(l) lapply(l, function(x) x[[2]])
+keyval.to.list = function(kvl) {l = values(kvl); names(l) = keys(kvl); l}
+
+## map and reduce function generation
 
 to.map = function(fun1, fun2 = identity) {
   if (missing(fun2)) {
@@ -101,11 +103,11 @@ mkParallelMap = function(...) function (k,v) lapply(list(...), function(map) map
 ## drivers section, or what runs on the nodes
 
 activateProfiling = function(){
-  dir = file.path("/tmp/Rprof", Sys.getenv('mapred_job_id'), Sys.getenv('mapreduce_tip_id'))
+  dir = file.path("/tmp/Rprof", Sys.getenv('mapred_job_id'), Sys.getenv('mapred_tip_id'))
   dir.create(dir, recursive = T)
-  Rprof(file.path(dir, Sys.getenv('mapred_task_id')))}
+  Rprof(file.path(dir, paste(Sys.getenv('mapred_task_id'), Sys.time())), interval=0.000000001)}
   
-deactivateProfiling = function() Rprof(NULL)
+closeProfiling = function() Rprof(NULL)
 
 mapDriver = function(map, linebufsize, textinputformat, textoutputformat, profile){
   if(profile) activateProfiling()
@@ -119,7 +121,7 @@ mapDriver = function(map, linebufsize, textinputformat, textoutputformat, profil
              })
   }
   k$close()
-  if(profile) deactivateProfiling()
+  if(profile) closeProfiling()
   invisible()
 }
 
@@ -160,7 +162,7 @@ reduceDriver = function(reduce, linebufsize, textinputformat, textoutputformat, 
       send(out, textoutputformat)
     }
     k$close()
-    if(profile) deactivateProfiling()
+    if(profile) closeProfiling()
     invisible()
 }
 
