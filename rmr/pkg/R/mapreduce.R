@@ -38,7 +38,8 @@ createReader = function(linebufsize = 2000, textinputformat){
   readChunk = function(){
     lines = readLines(con = con, n = linebufsize, warn = FALSE)
     if(length(lines) > 0){
-      return(lapply(lines, textinputformat))
+      ll = lapply(lines, textinputformat)
+      return(ll[!sapply(ll, is.null)])
     }else{
       return(NULL) 
     }
@@ -219,10 +220,17 @@ jsontextoutputformat = function(k,v) {
   paste(encodeString(toJSON(k, collapse = "")), "\t", encodeString(toJSON(v, collapse = "")), "\n", sep = "")}
 
 rawtextinputformat = function(line) {keyval(NULL, line)}
-csvtextinputformat = function(key = 1, ...) function(line) {tc = textConnection(line)
-                                                            df = read.table(file = tc, header = FALSE, ...)
-                                                            close(tc)
-                                                            keyval(df[,key], df[,-key])}
+csvtextinputformat = function(key = 1, ...) function(line) {
+  tc = textConnection(line)
+  df = tryCatch(read.table(file = tc, header = FALSE, ...),
+                error = 
+                  function(e) {
+                    if (e$message == "no lines available in input") 
+                      write(x="No data in this line", file=stderr()) 
+                    else stop(e)
+                    NULL})
+  close(tc)
+  keyval(df[,key], df[,-key])}
 
 rawtextoutputformat = function(k,v) paste(c(k,v, "\n"), collapse = "")
 csvtextoutputformat = function(...) function(k,v) {
