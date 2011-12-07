@@ -390,6 +390,7 @@ mapreduce = function(
   outputformat = NULL,
   textinputformat = defaulttextinputformat,
   textoutputformat = defaulttextoutputformat,
+  tuning.parameters = list(),
   verbose = FALSE) {
 
   on.exit(expr = gc(), add = TRUE) #this is here to trigger cleanup of tempfiles
@@ -472,6 +473,7 @@ rhstream = function(
   outputformat = NULL,
   textinputformat = defaulttextinputformat,
   textoutputformat = defaulttextoutputformat,
+  tuning.parameters = list()
   verbose = FALSE,
   debug = FALSE) {
     ## prepare map and reduce executables
