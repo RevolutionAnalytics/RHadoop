@@ -1,0 +1,11 @@
+#To set up a hadoop/rmr cluster first launch the cluster
+
+$WHIRR_HOME/bin/whirr launch-cluster --config hadoop-ec2.properties
+#this config slightly tweaked from whirr distro, starts 5 large nodes
+
+# then install rmr
+$WHIRR_HOME/bin/whirr run-script --script rmr.sh --config hadoop-ec2.properties
+
+# remember to destroy when done or face the bill
+
+$WHIRR_HOME/bin/whirr destroy-cluster --config hadoop-ec2.properties
