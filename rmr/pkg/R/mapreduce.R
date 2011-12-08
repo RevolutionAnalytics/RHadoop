@@ -169,6 +169,12 @@ reduceDriver = function(reduce, linebufsize, textinputformat, textoutputformat, 
 
 #some option formatting utils
 
+paste.options = function(optlist) {
+  optlist = optlist[optlist != F]
+  optlist[optlist == F] = ""
+  paste(unlist(rbind(paste("-", names(optlist), sep = ""), optlist)), collapse = " ")
+}
+
 make.job.conf = function(m,pfx){
   N = names(m)
   if(length(m) == 0) return(" ")
@@ -413,6 +419,7 @@ mapreduce = function(
      outputformat = outputformat,
      textinputformat = textinputformat,
      textoutputformat = textoutputformat,
+     tuning.parameters = tuning.parameters[[backend]],
      verbose = verbose)
   output
 }
@@ -430,6 +437,7 @@ mr.local = function(map,
                     outputformat = NULL,
                     textinputformat = defaulttextinputformat,
                     textoutputformat = defaulttextoutputformat,
+                    tuning.parameters = list(),
                     verbose = verbose) {
   if(is.null(reduce)) reduce = function(k,vv) lapply(vv, function(v) keyval(k,v))
   map.out = do.call(c, 
@@ -461,19 +469,16 @@ rhstream = function(
   out.folder, 
   linebufsize = 2000,
   profilenodes = FALSE,
-  numreduces,
   cachefiles = c(),
   archives = c(),
   jarfiles = c(),
   otherparams = list(HADOOP_HOME = Sys.getenv('HADOOP_HOME'),
     HADOOP_CONF = Sys.getenv("HADOOP_CONF")),
-  mapred = list(),
-  mpr.out = NULL,
   inputformat = NULL,
   outputformat = NULL,
   textinputformat = defaulttextinputformat,
   textoutputformat = defaulttextoutputformat,
-  tuning.parameters = list()
+  tuning.parameters = list(),
   verbose = FALSE,
   debug = FALSE) {
     ## prepare map and reduce executables
@@ -571,12 +576,8 @@ load("rmr-local-env")
   else {
     combiner = " "
     c.fl = " "}
-  if(!missing(numreduces)) numreduces = sprintf("-numReduceTasks %s ", numreduces) else numreduces = " "
+
   cmds = make.job.conf(otherparams, pfx="-cmdenv")
-  if(is.null(mapred$mapred.textoutputformat.separator)){
-    if(!is.null(mpr.out)) mapred$mapred.textoutputformat.separator = sprintf("'%s'",mpr.out)
-  }
-  jobconfstring = make.job.conf(mapred,pfx="-D")
   
   #debug.opts = "-mapdebug kdfkdfld -reducexdebug jfkdlfkja"
   caches = if(length(cachefiles)>0) make.cache.files(cachefiles,"-files") else " " #<0.21
@@ -590,7 +591,6 @@ load("rmr-local-env")
       archives,
       caches,
       mkjars,
-      jobconfstring,
       inputformat,
       input,
       output,
@@ -602,7 +602,7 @@ load("rmr-local-env")
       c.fl,
       image.cmd.line,
       cmds,
-      numreduces,
+      paste.options(tuning.parameters),
    #   debug.opts,
       verb)
   retval = system(finalcommand)
