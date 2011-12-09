@@ -1,11 +1,11 @@
 Package: rhbase
 Type: Package
 Title: R and HBase Connector
-Version: 1.0
-Date: 2011-08-16
+Version: 1.0.1
+Date: 2011-09-26
 Author: Revolution Analytics
 Depends: R (>= 2.6.0), methods
-Maintainer: Revolution Analytics <support@revolutionanalytics.com>
+Maintainer: Revolution Analytics <rhadoop@revolutionanalytics.com>
 Description: Functions to create,delete HBase tables and read/write/scan rows from HBase tables
 License: Apache License (== 2.0)
 

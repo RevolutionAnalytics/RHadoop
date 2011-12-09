@@ -49,9 +49,13 @@
 }
 
 \examples{
-  ## copies local /tmp/fo1 to root of the HDFS
-  hdfs.put("/tmp/fo1","/")
-  hdfs.ls("/")
-  ## moves /fo1 to /tmp/fo2 (both on HDFS)
-  hdfs.move("/fo1","/tmp/fo2")
+  hdfs.init()
+  hdfs.test = tempfile()
+  hdfs.test.1 = tempfile()
+  ## copies local hdfs-test to tmp of the HDFS
+  save.image(hdfs.test)
+  hdfs.put(hdfs.test, "/tmp")
+  hdfs.ls("/tmp")
+  ## moves hdfs-test to /tmp/hdfs-test1 (both on HDFS)
+  hdfs.move(file.path("/tmp", basename(hdfs.test)), hdfs.test.1)
 }

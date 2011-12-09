@@ -9,6 +9,7 @@
 \alias{hb.delete.table}
 \alias{hb.new.table}
 \alias{hb.regions.table}
+\alias{hb.compact.table}
 
 
 \title{Initializing the HBase package and Managing Tables}
@@ -16,6 +17,7 @@
    These functions initialize the package and store some read-only defaults. Also, 
    some of these functions manage (that is, create or describe) tables in HBase.
 }
+
 \usage{
 hb.defaults(arg)
 hb.init(host='127.0.0.1', port=9090, buffsize=3*1024*1024)
@@ -25,7 +27,9 @@ hb.set.table.mode(tablename,enable,hbc=hb.defaults('hbc'))
 hb.delete.table(tablename,hbc=hb.defaults("hbc"))
 hb.new.table(tablename,...,opts=list(),hbc=hb.defaults("hbc"))
 hb.regions.table(tablename, hbc=hb.defaults("hbc"),usz=hb.defaults("usz"))
+hb.compact.table(tablename, major=FALSE,hbc=hb.defaults("hbc"))
 }
+
 \arguments{
 \item{arg}{If empty, returns a list of options. These are read
 only. The options are "usz", the function to unserialize data. "sz" is
@@ -40,10 +44,11 @@ see details}
 \item{enable}{TRUE/FALSE to enable or disable the table - prevents
 modifications to the table}
 \item{hbc}{The client handle which should not be changed}
-\item{sz,usz}{Functions that serialize and unserisalize the objects in
+\item{usz}{Functions that serialize and unserisalize the objects in
 the database, see Details}
 \item{...}{colum names for the created table}
 \item{opts}{Modifiers for the column names, see Details}
+\item{major}{TRUE/FALSE for major or minor compaction}
 }
 
 \details{ 
@@ -90,6 +95,8 @@ the database, see Details}
 }
 
 \examples{
+     library(rhbase)
+     hb.init()
      hb.new.table("foo4","x","y",opts=list(maxversions=5,x=list(maxversions=1L,compression='GZ',inmemory=TRUE)))
      hb.describe.table("foo4")
      hb.delete.table("foo4")

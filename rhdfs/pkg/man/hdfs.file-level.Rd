@@ -87,17 +87,38 @@
 
 \examples{
   ## returns a data frame of the root folder
-  hdfs.ls("/")
+  hdfs.ls("/tmp")
+
+  foo1 = tempfile()
+  foo2 = tempfile()
+
+  writeLines("foo1", con = foo1)
+  writeLines("foo2", con = foo2)
+
+  hdfs.put(foo1, "/tmp")
+  hdfs.put(foo2, "/tmp")
 
   ## delete multiple files
-  hdfs.delete(c("/foo1","/foo2"))
+  hdfs.delete(c(file.path("/tmp", basename(foo1)), file.path("/tmp", basename(foo2))))
+
+
+  foo1 = tempfile()
+  foo2 = tempfile()
+
+  writeLines("foo1", con = foo1)
+  writeLines("foo2", con = foo2)
+
+  hdfs.put(foo1, "/tmp")
+  hdfs.put(foo2, "/tmp")
 
   ## change permissions of some files
   ## permissions wil be recycled
-  hdfs.chmod(c("/dfe1","/def2"), permissions=c("777","774"))
+  ## commented out waiting on HADOOP-7629 to be more widely available
+  ##hdfs.chmod(c(file.path("/tmp", basename(foo1)), 
+  ##             file.path("/tmp", basename(foo2))), permissions=c("777","774"))
 
   ## file information, only accepts one path
-  hdfs.file.info("/def1")
+  hdfs.file.info(file.path("/tmp", basename(foo1)))
 }
 
 \seealso{

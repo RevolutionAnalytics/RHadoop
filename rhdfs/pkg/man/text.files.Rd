@@ -32,10 +32,12 @@ hdfs.read.text.file(path,...)
 
 \examples{
    ##	This is from the source of hdfs.read.text.file
-    m <- hdfs.line.reader(path, ...)
-    collector <- NULL
-    while (length(lines <- m$read()) > 0) collector <- c(collector, 
-        lines)
-    m$close()
-    return(collector)
+   path = tempfile()
+   writeLines("line reader test", con = path)
+   hdfs.put(path, "/tmp")
+   m <- hdfs.line.reader(file.path("/tmp", basename(path)))
+   collector <- NULL
+   while (length(lines <- m$read()) > 0) collector <- c(collector, 
+     lines)
+   m$close()
 }

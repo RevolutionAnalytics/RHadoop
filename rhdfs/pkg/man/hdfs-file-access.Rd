@@ -115,9 +115,9 @@ load.objects <- function(from){
                   {
                     message(sprintf("Lazy Loading '\%s'", posn[[r]][[1]] ))
                     data.file <- hdfs.file(path=sprintf("\%s/data",from),mode="r")
-                    cat(sprintf("seeking to %s\n",posn[[r]][[2]]))
+                    cat(sprintf("seeking to \%s\n",posn[[r]][[2]]))
                     hdfs.seek(data.file, posn[[r]][[2]])
-                    cat(sprintf("Reading from %s\n",hdfs.tell(data.file)))
+                    cat(sprintf("Reading from \%s\n",hdfs.tell(data.file)))
                     nob <- data.file$fh$readInt()
                     temp <- unserialize(hdfs.read(data.file, nob))
                     hdfs.close(data.file)
