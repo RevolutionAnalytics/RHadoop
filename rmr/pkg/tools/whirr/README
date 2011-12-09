@@ -20,6 +20,6 @@ $WHIRR_HOME/bin/whirr launch-cluster --config hadoop-ec2.properties
 # then install rmr
 $WHIRR_HOME/bin/whirr run-script --script rmr.sh --config hadoop-ec2.properties
 
-# remember to destroy when done or face the bill
+# remember to destroy when done. You are responsible for any AWS charges
 
 $WHIRR_HOME/bin/whirr destroy-cluster --config hadoop-ec2.properties
