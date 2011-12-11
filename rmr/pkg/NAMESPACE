@@ -1,6 +1,6 @@
 export(mapreduce)
 export(from.dfs, to.dfs)
-export(equijoin)
+export(equijoin, scatter)
 export(dfs.empty)
 export(rmr.backend, rmr.profilenodes)
 export(keyval, keys, values)
