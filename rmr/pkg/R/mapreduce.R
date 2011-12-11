@@ -98,8 +98,25 @@ to.reduce.all = function(fun1, fun2 = identity) {
   else {
     function(k,vv) lapply(vv, function(v) keyval(fun1(k), fun2(v)))}}
 
-mkSeriesMap = function(map1, map2) function(k,v) {out = map1(k,v); map2(out$key, out$val)}
-mkParallelMap = function(...) function (k,v) lapply(list(...), function(map) map(k,v))
+## mapred combinators
+wrap.keyval = function(kv) {
+  if(is.null(kv)) list()
+  else if (is.keyval(kv)) list(kv) 
+  else kv}
+
+compose.mapred = function(mapred, map) function(k,v) {
+  out = mapred(k,v)
+  if (is.null(out)) NULL
+  else if (is.keyval(out)) map(out$key, out$val)
+  else  do.call(c,
+                lapply(out, 
+                       function(x) 
+                         wrap.keyval(map(x$key, x$val))))}
+
+union.mapred = function(mr1, mr2) function(k,v) {
+  out = c(wrap.keyval(mr1(k,v)), wrap.keyval(mr2(k,v)))
+  if (length(out) == 0) NULL else out}
+
 
 ## drivers section, or what runs on the nodes
 
@@ -609,7 +626,7 @@ load("rmr-local-env")
 if (retval != 0) stop("hadoop streaming failed with error code ", retval, "\n")
 }
 
-
+##special jobs
  
 ## a sort of relational join very useful in a variety of map reduce algorithms
 
@@ -676,3 +693,41 @@ equijoin = function(
             input = c(leftinput,rightinput),
             output = output)}
 
+
+
+## push a file through this to get as many partitions as possible (depending on system settings)
+## data is unchanged
+
+scatter = function(input, output = NULL)
+  mapreduce(input, output, map = function(k,v) keyval(runif(1), keyval(k,v)),
+            reduce = function(k,vv) vv)
+
+##optimizer
+
+is.mapreduce = function(expr) {
+  is.call(expr[[1]]) && expr[[1]][[1]] == "mapreduce"}
+
+mapreduce.input = function(mrex) {
+  as.expression(match.call(mapreduce, mrex[[1]])$input)}
+
+mapreduce.output = function(mrex) {
+  as.expression(match.call(mapreduce, mrex[[1]])$output)}
+
+mapreduce.map = function(mrex) {
+  as.expression(match.call(mapreduce, mrex[[1]])$map)}
+
+mapreduce.reduce = function(mrex) {
+  as.expression(match.call(mapreduce, mrex[[1]])$reduce)}
+
+optimize = function(mrex) {
+  mrin = mapreduce.input(mrex)
+  if (is.mapreduce(mrex) && 
+    is.mapreduce(mrin) &&
+    is.null(mapreduce.output(mrin)[[1]]) &&
+    is.null(mapreduce.reduce(mrin)[[1]])) {
+    as.expression(mapreduce(input = mapreduce.input(mrin),
+                         output = mapreduce.output(mrex),
+                         map = compose.mapred(mapreduce.map(mrex),
+                                              mapreduce(map(mrin))),
+                         reduce = mapreduce.reduce(mrex)))}
+  else mrex }
