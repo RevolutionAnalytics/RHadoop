@@ -725,9 +725,15 @@ optimize = function(mrex) {
     is.mapreduce(mrin) &&
     is.null(mapreduce.output(mrin)[[1]]) &&
     is.null(mapreduce.reduce(mrin)[[1]])) {
-    as.expression(mapreduce(input = mapreduce.input(mrin),
-                         output = mapreduce.output(mrex),
-                         map = compose.mapred(mapreduce.map(mrex),
-                                              mapreduce(map(mrin))),
-                         reduce = mapreduce.reduce(mrex)))}
+    eval(
+      substitute(
+        expression(mapreduce(input = input, 
+                             output = output,
+                             map = map,
+                             reduce = reduce)),
+        list(input = eval(mapreduce.input(mrin)),
+             output = eval(mapreduce.output(mrex)),
+             map = compose.mapred(eval(mapreduce.map(mrex)),
+                                  eval(mapreduce.map(mrin))),
+             reduce = eval(mapreduce.reduce(mrex)))))}
   else mrex }
