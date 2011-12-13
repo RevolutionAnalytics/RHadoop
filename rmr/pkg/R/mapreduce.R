@@ -704,36 +704,25 @@ scatter = function(input, output = NULL)
 
 ##optimizer
 
-is.mapreduce = function(expr) {
-  is.call(expr[[1]]) && expr[[1]][[1]] == "mapreduce"}
+is.mapreduce = function(x) {
+  is.call(x) && x[[1]] == "mapreduce"}
 
-mapreduce.input = function(mrex) {
-  as.expression(match.call(mapreduce, mrex[[1]])$input)}
-
-mapreduce.output = function(mrex) {
-  as.expression(match.call(mapreduce, mrex[[1]])$output)}
-
-mapreduce.map = function(mrex) {
-  as.expression(match.call(mapreduce, mrex[[1]])$map)}
-
-mapreduce.reduce = function(mrex) {
-  as.expression(match.call(mapreduce, mrex[[1]])$reduce)}
+mapreduce.arg = function(x, arg) {
+  match.call(mapreduce,x) [[arg]]}
 
 optimize = function(mrex) {
-  mrin = mapreduce.input(mrex)
+  mrin = mapreduce.arg(mrex, 'input')
   if (is.mapreduce(mrex) && 
     is.mapreduce(mrin) &&
-    is.null(mapreduce.output(mrin)[[1]]) &&
-    is.null(mapreduce.reduce(mrin)[[1]])) {
-    eval(
-      substitute(
-        expression(mapreduce(input = input, 
-                             output = output,
-                             map = map,
-                             reduce = reduce)),
-        list(input = eval(mapreduce.input(mrin)),
-             output = eval(mapreduce.output(mrex)),
-             map = compose.mapred(eval(mapreduce.map(mrex)),
-                                  eval(mapreduce.map(mrin))),
-             reduce = eval(mapreduce.reduce(mrex)))))}
+    is.null(mapreduce.arg(mrin, 'output')) &&
+    is.null(mapreduce.arg(mrin, 'reduce'))) {
+      bquote(
+        mapreduce(input =  .(mapreduce.arg(mrin, 'input')),
+                  output = .(mapreduce.arg(mrex, 'output')),
+                  map = .(compose.mapred)(.(mapreduce.arg(mrex, 'map')),
+                                  .(mapreduce.arg(mrin, 'map'))),
+                  reduce = .(mapreduce.arg(mrex, 'reduce'))))}
   else mrex }
+
+
+
