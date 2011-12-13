@@ -2,7 +2,7 @@ export(mapreduce)
 export(from.dfs, to.dfs)
 export(equijoin, scatter)
 export(dfs.empty)
-export(rmr.backend, rmr.profilenodes)
+export(rmr.options.set, rmr.options.get)
 export(keyval, keys, values)
 export(rawtextinputformat, rawtextoutputformat, 
        csvtextinputformat, csvtextoutputformat, 
