@@ -16,18 +16,28 @@
 
 rmr.options = new.env(parent=emptyenv())
 rmr.options$backend = "hadoop"
-rmr.options$profilenodes = FALSE
+rmr.options$profile.nodes = FALSE
+rmr.options$depend.check = FALSE
+rmr.options$managed.dir = "/var/rmr/managed"
 
-rmr.profilenodes = function(on = NULL) {
-  if (!is.null(on))
-    rmr.options$profilenodes = on
-  rmr.options$profilenodes}
+rmr.options.get = function(...){
+  if(missing(...))
+    as.list(rmr.options)
+  else
+    as.list(rmr.options)[c(...)]}
 
-rmr.backend = function(backend = c(NULL, "hadoop", "local")) {
-  if(!missing(backend)){
-    backend = match.arg(backend)
-    rmr.options$backend = backend}
-  rmr.options$backend}
+rmr.options.set = function(backend = c(NULL, "hadoop", "local"),
+                           profile.nodes = NULL,
+                           depend.check = NULL,
+                           managed.dir = NULL) {
+  this.call = match.call()
+  lapply(names(this.call)[-1], 
+         function(x) {
+           if(x == 'backend') 
+             assign(x, match.arg(backend), envir = rmr.options)
+           else
+             assign(x, this.call[[x]], envir = rmr.options)})
+  as.list(rmr.options)}
 
 #I/O
 createReader = function(linebufsize = 2000, textinputformat){
@@ -390,7 +400,7 @@ from.dfs = function(file, textinputformat = defaulttextinputformat, todataframe 
 
 # mapreduce
 
-dfs.tempfile <- function(pattern = "file", tmpdir = tempdir()) {
+dfs.tempfile = function(pattern = "file", tmpdir = tempdir()) {
   fname  = tempfile(pattern, tmpdir)
   namefun = function() {fname}
   reg.finalizer(environment(namefun),
@@ -401,6 +411,8 @@ dfs.tempfile <- function(pattern = "file", tmpdir = tempdir()) {
   namefun
 }
 
+dfs.managedfile = function(call, manageddir = tempdir()) {
+  file.path(tmpdir, digest(lapply(match.call(call), eval)))}
 
 mapreduce = function(
   input,
@@ -421,7 +433,7 @@ mapreduce = function(
 
   backend  =  rmr.options$backend
   
-  profilenodes = rmr.options$profilenodes
+  profile.nodes = rmr.options$profile.nodes
     
   mr = switch(backend, hadoop = rhstream, local = mr.local, stop("Unsupported backend: ", backend))
   
@@ -431,7 +443,7 @@ mapreduce = function(
      combine = combine,
      in.folder = if(is.list(input)) {lapply(input, to.dfs.path)} else to.dfs.path(input),
      out.folder = to.dfs.path(output),
-     profilenodes = profilenodes,
+     profile.nodes = profile.nodes,
      inputformat = inputformat,
      outputformat = outputformat,
      textinputformat = textinputformat,
@@ -449,7 +461,7 @@ mr.local = function(map,
                     combine = NULL,
                     in.folder,
                     out.folder,
-                    profilenodes = FALSE,
+                    profile.nodes = FALSE,
                     inputformat = NULL,
                     outputformat = NULL,
                     textinputformat = defaulttextinputformat,
@@ -485,7 +497,7 @@ rhstream = function(
   in.folder,
   out.folder, 
   linebufsize = 2000,
-  profilenodes = FALSE,
+  profile.nodes = FALSE,
   cachefiles = c(),
   archives = c(),
   jarfiles = c(),
@@ -514,21 +526,21 @@ load("rmr-local-env")
               textoutputformat = if(is.null(reduce))
                                  {textoutputformat}
                                  else {rmr:::defaulttextoutputformat},
-              profile = profilenodes)'
+              profile = profile.nodes)'
   reduceLine  =  'load("rmr-reduce-env", envir = environment(reduce))
   rmr:::reduceDriver(reduce = reduce,
                  linebufsize = linebufsize,
                  textinputformat = rmr:::defaulttextinputformat,
                  textoutputformat = textoutputformat,
                  reduceondataframe = reduceondataframe,
-                 profile = profilenodes)'
+                 profile = profile.nodes)'
   combineLine = 'load("rmr-combine-env", envir = environment(combine))
  rmr:::reduceDriver(reduce = combine,
                  linebufsize = linebufsize,
                  textinputformat = rmr:::defaulttextinputformat,
                  textoutputformat = rmr:::defaulttextoutputformat,
                  reduceondataframe = reduceondataframe,
-                profile = profilenodes)'
+                profile = profile.nodes)'
 
   map.file = tempfile(pattern = "rhstr.map")
   writeLines(c(lines,mapLine), con = map.file)
