@@ -31,17 +31,15 @@ rmr.options.get = function(...){
     else 
       opts[[args]]}}
 
-rmr.options.set = function(backend = c(NULL, "hadoop", "local"),
+rmr.options.set = function(backend = c("hadoop", "local"),
                            profile.nodes = NULL,
                            depend.check = NULL,
                            managed.dir = NULL) {
   this.call = match.call()
+  backend = match.arg(backend)
   lapply(names(this.call)[-1], 
-         function(x) {
-           if(x == 'backend') 
-             assign(x, match.arg(backend), envir = rmr.options)
-           else
-             assign(x, this.call[[x]], envir = rmr.options)})
+         function(x) 
+           assign(x, eval(this.call[[x]]), envir = rmr.options))
   as.list(rmr.options)}
 
 #I/O
