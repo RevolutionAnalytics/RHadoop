@@ -104,7 +104,7 @@ catch.out = function(...) capture.output(invisible(...))
 library(rmr)
 
 for (be in c("local", "hadoop")) {
-  rmr.backend(be)
+  rmr.options.set(backend = be)
   
   ##createReader
   ##pending input redirect issue: use textConnection

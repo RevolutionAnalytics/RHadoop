@@ -111,12 +111,12 @@ out = list()
 out.fast = list()
 
 
-rmr.backend("local")
+rmr.options.set(backend = "local")
 set.seed(0)
 input = to.dfs(lapply(1:1000, function(i) keyval(NULL, c(rnorm(1, mean = i%%3, sd = 0.1), 
                                                          rnorm(1, mean = i%%4, sd = 0.1)))))
 out[[be]] = kmeans(input, 12, iterations = 5)
-rmr.backend("hadoop")
+rmr.options.set(backend = "hadoop")
 set.seed(0)
 recsize = 1000
 input = to.dfs(lapply(1:100, 

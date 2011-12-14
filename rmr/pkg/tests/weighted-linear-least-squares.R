@@ -59,7 +59,7 @@ W = lapply(1:4, function(i)  keyval(c(i,i), rnorm(1)))
 
 out = list()
 for (be in c("local", "hadoop")) {
-  rmr.backend(be)
+  rmr.options.set(backend = be)
   out[[be]] = weighted.linear.least.squares(to.dfs(X), to.dfs(y), to.dfs(W))}
 
 stopifnot(rmr:::cmp(out[['local']], out[['hadoop']]))
