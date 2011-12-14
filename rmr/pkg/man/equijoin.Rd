@@ -10,12 +10,12 @@ Equijoins using map reduce
 A generalized form of equijoin, hybrid between the SQL brethen and mapreduce
 }
 
-\usage{equijoin(leftinput = NULL, rightinput = NULL, input = NULL, output = NULL, outer = c("", "left", "right", "full"), map.left =
+\usage{equijoin(left.input = NULL, right.input = NULL, input = NULL, output = NULL, outer = c("", "left", "right", "full"), map.left =
 to.map(identity), map.right = to.map(identity), reduce = function(k, values.left, values.right) do.call(c, lapply(values.left, function(vl)
 lapply(values.right, function(vr) reduceall(k, vl, vr)))), reduceall = function(k, vl, vr) keyval(k, list(left = vl, right = vr)))}
 
-\arguments{\item{leftinput}{The left side input to the join.}
-  \item{rightinput}{The right side input to the join.}
+\arguments{\item{left.input}{The left side input to the join.}
+  \item{right.input}{The right side input to the join.}
   \item{input}{The only input in case of a self join. Mutually exclusive with the previous two.}
   \item{output}{Where to write the output.}
   \item{outer}{Whether to perform an outer join, one of the usual three types, left, right or full.}
@@ -44,5 +44,5 @@ like any reduce function.}
 ##---- Should be DIRECTLY executable !! ----
 ##-- ==>  Define data, use random,
 ##--	or do  help(data=index)  for the standard data sets.
- from.dfs(equijoin(leftinput = to.dfs(lapply(1:10, function(i) keyval(i, i^2))), rightinput = to.dfs(lapply(1:10, function(i) keyval(i, i^3)))), todataframe=TRUE)
+ from.dfs(equijoin(left.input = to.dfs(lapply(1:10, function(i) keyval(i, i^2))), right.input = to.dfs(lapply(1:10, function(i) keyval(i, i^3)))), todataframe=TRUE)
 }
