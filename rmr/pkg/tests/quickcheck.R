@@ -109,7 +109,7 @@ for (be in c("local", "hadoop")) {
   ##createReader
   ##pending input redirect issue: use textConnection
   ## send
-  unittest(function(kv) rmr:::defaulttextoutputformat(kv$key, kv$val) == 
+  unittest(function(kv) rmr:::default.text.output.format(kv$key, kv$val) == 
                         paste(catch.out(rmr:::send(kv)),"\n", sep = ""),
                     generators = list(tdggkeyval()))
   unittest(function(lkv) {
