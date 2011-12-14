@@ -21,10 +21,15 @@ rmr.options$depend.check = FALSE
 rmr.options$managed.dir = "/var/rmr/managed"
 
 rmr.options.get = function(...){
+  opts = as.list(rmr.options)
   if(missing(...))
-    as.list(rmr.options)
-  else
-    as.list(rmr.options)[c(...)]}
+    opts
+  else {
+    args = c(...)
+    if (length(args) > 1)
+      opts[args]
+    else 
+      opts[[args]]}}
 
 rmr.options.set = function(backend = c(NULL, "hadoop", "local"),
                            profile.nodes = NULL,
@@ -40,7 +45,7 @@ rmr.options.set = function(backend = c(NULL, "hadoop", "local"),
   as.list(rmr.options)}
 
 #I/O
-createReader = function(linebufsize = 2000, textinputformat){
+createReader = function(linebufsize = 2000, text.input.format){
   con = file("stdin", open="r")
   close = function(){
     ## close(con)
@@ -48,7 +53,7 @@ createReader = function(linebufsize = 2000, textinputformat){
   readChunk = function(){
     lines = readLines(con = con, n = linebufsize, warn = FALSE)
     if(length(lines) > 0){
-      ll = lapply(lines, textinputformat)
+      ll = lapply(lines, text.input.format)
       return(ll[!sapply(ll, is.null)])
     }else{
       return(NULL) 
@@ -57,11 +62,11 @@ createReader = function(linebufsize = 2000, textinputformat){
   return(list(close = close, get = readChunk))
 }
 
-send = function(out, textoutputformat = defaulttextoutputformat){
+send = function(out, text.output.format = default.text.output.format){
   if (is.keyval(out)) 
-    cat(textoutputformat(out$key, out$val))
+    cat(text.output.format(out$key, out$val))
   else
-    lapply(out, function(o) cat(textoutputformat(o$key, o$val)) )
+    lapply(out, function(o) cat(text.output.format(o$key, o$val)) )
   TRUE 
 }
 
@@ -130,35 +135,35 @@ union.mapred = function(mr1, mr2) function(k,v) {
 
 ## drivers section, or what runs on the nodes
 
-activateProfiling = function(){
+activate.profiling = function(){
   dir = file.path("/tmp/Rprof", Sys.getenv('mapred_job_id'), Sys.getenv('mapred_tip_id'))
   dir.create(dir, recursive = T)
   Rprof(file.path(dir, paste(Sys.getenv('mapred_task_id'), Sys.time())), interval=0.000000001)}
   
-closeProfiling = function() Rprof(NULL)
+close.profiling = function() Rprof(NULL)
 
-mapDriver = function(map, linebufsize, textinputformat, textoutputformat, profile){
-  if(profile) activateProfiling()
-  k = createReader(linebufsize, textinputformat)
+mapDriver = function(map, linebufsize, text.input.format, text.output.format, profile){
+  if(profile) activate.profiling()
+  k = createReader(linebufsize, text.input.format)
   while( !is.null(d <- k$get())){
       lapply(d,
              function(r) {
                  out = map(r[[1]], r[[2]])
                  if(!is.null(out))
-                     send(out, textoutputformat)
+                     send(out, text.output.format)
              })
   }
   k$close()
-  if(profile) closeProfiling()
+  if(profile) close.profiling()
   invisible()
 }
 
 listComp = function(ll,e) sapply(ll, function(l) isTRUE(all.equal(e,l)))
 ## using isTRUE(all.equal(x)) because identical() was too strict, but on paper it should be it
 
-reduceDriver = function(reduce, linebufsize, textinputformat, textoutputformat, reduceondataframe, profile){
-    if(profile) activateProfiling()
-    k = createReader(linebufsize, textinputformat)
+reduceDriver = function(reduce, linebufsize, text.input.format, text.output.format, reduce.on.data.frame, profile){
+    if(profile) activate.profiling()
+    k = createReader(linebufsize, text.input.format)
     lastKey = NULL
     lastGroup = list()
     while( !is.null(d <- k$get())){
@@ -172,25 +177,25 @@ reduceDriver = function(reduce, linebufsize, textinputformat, textoutputformat, 
         lapply(groups,
                function(g) {
                  out = NULL
-                 out = reduce(g[[1]][[1]], if(reduceondataframe) {
+                 out = reduce(g[[1]][[1]], if(reduce.on.data.frame) {
                                              to.data.frame(values(g))}
                                           else {
                                             values(g)})
                  if(!is.null(out))
-                   send(out, textoutputformat)
+                   send(out, text.output.format)
                })
       }
     }
     if (length(lastGroup) > 0) {
       out = reduce(lastKey, 
-                   if(reduceondataframe) {
+                   if(reduce.on.data.frame) {
                      to.data.frame(values(lastGroup))}
                    else {
                      values(lastGroup)})
-      send(out, textoutputformat)
+      send(out, text.output.format)
     }
     k$close()
-    if(profile) closeProfiling()
+    if(profile) close.profiling()
     invisible()
 }
 
@@ -232,28 +237,28 @@ make.input.files = function(infiles){
 # alternate, native format
 # unserialize(charToRaw(gsub("\\\\n", "\n", gsub("\n", "\\\\n", rawToChar(serialize(matrix(1:20, ncol = 5), ascii=T,conn = NULL))))))
 
-nativetextinputformat = function(line) {
+native.text.input.format = function(line) {
   x = strsplit(line, "\t")[[1]]
   de = function(x) unserialize(charToRaw(gsub("\\\\n", "\n", x)))
   keyval(de(x[1]),de(x[2]))}
 
-nativetextoutputformat = function(k, v) {
+native.text.output.format = function(k, v) {
   ser = function(x) gsub("\n", "\\\\n", rawToChar(serialize(x, ascii=T,conn = NULL)))
   paste(ser(k), "\t", ser(v), "\n", sep = "")}
 
   
-jsontextinputformat = function(line) {
+json.text.input.format = function(line) {
   decodeString = function(s) gsub("\\\\n","\\\n", gsub("\\\\t","\\\t", s))
   x =  strsplit(line, "\t")[[1]]
   keyval(fromJSON(decodeString(x[1]), asText = TRUE), 
          fromJSON(decodeString(x[2]), asText = TRUE))}
 
-jsontextoutputformat = function(k,v) {
+json.text.output.format = function(k,v) {
   encodeString = function(s) gsub("\\\n","\\\\n", gsub("\\\t","\\\\t", s))
   paste(encodeString(toJSON(k, collapse = "")), "\t", encodeString(toJSON(v, collapse = "")), "\n", sep = "")}
 
-rawtextinputformat = function(line) {keyval(NULL, line)}
-csvtextinputformat = function(key = 1, ...) function(line) {
+raw.text.input.format = function(line) {keyval(NULL, line)}
+csv.text.input.format = function(key = 1, ...) function(line) {
   tc = textConnection(line)
   df = tryCatch(read.table(file = tc, header = FALSE, ...),
                 error = 
@@ -265,15 +270,15 @@ csvtextinputformat = function(key = 1, ...) function(line) {
   close(tc)
   keyval(df[,key], df[,-key])}
 
-rawtextoutputformat = function(k,v) paste(c(k,v, "\n"), collapse = "")
-csvtextoutputformat = function(...) function(k,v) {
+raw.text.output.format = function(k,v) paste(c(k,v, "\n"), collapse = "")
+csv.text.output.format = function(...) function(k,v) {
   tc = textConnection(object = NULL, open = "w")
   args = list(x = c(as.list(k),as.list(v)), file = tc, ..., row.names = FALSE, col.names = FALSE)
   do.call(write.table, args[unique(names(args))])
   paste(textConnectionValue(con = tc), "\n", sep = "", collapse = "")}
 
-defaulttextinputformat = nativetextinputformat
-defaulttextoutputformat = nativetextoutputformat
+default.text.input.format = native.text.input.format
+default.text.output.format = native.text.output.format
 #data frame conversion
 
 flatten = function(x) unlist(list(name = as.name("name"), x))[-1]
@@ -329,22 +334,22 @@ for (hdfscmd in c("mv","cp","rm","rmr","expunge","put","copyFromLocal","moveFrom
 
 # backend independent dfs section
 dfs.exists = function(f) {
-  if (rmr.backend() == 'hadoop') 
+  if (rmr.options.get('backend') == 'hadoop') 
     hdfs.test(e = f) 
   else file.exists(f)}
 
 dfs.rm = function(f){
-  if(rmr.backend() == 'hadoop')
+  if(rmr.options.get('backend') == 'hadoop')
     hdfs.rm(f)
   else file.remove(f)}
 
 dfs.is.dir = function(f) { 
-  if (rmr.backend() == 'hadoop') 
+  if (rmr.options.get('backend') == 'hadoop') 
     hdfs.test(d = f)
   else file.info(f)['isdir']}
 
 dfs.empty = function(f) {
-  if(rmr.backend() == 'hadoop') {
+  if(rmr.options.get('backend') == 'hadoop') {
     if(dfs.is.dir(f)) {
       hdfs.test(z = file.path(to.dfs.path(f), 'part-00000'))}
     else {hdfs.test(z = f)}}
@@ -359,7 +364,7 @@ to.dfs.path = function(input) {
     if(is.function(input)) {
       input()}}}
 
-to.dfs = function(object, file = dfs.tempfile(), textoutputformat = defaulttextoutputformat){
+to.dfs = function(object, file = dfs.tempfile(), text.output.format = default.text.output.format){
   if(is.data.frame(object) || is.matrix(object)) {
     object = from.data.frame(object)
   }
@@ -369,10 +374,10 @@ to.dfs = function(object, file = dfs.tempfile(), textoutputformat = defaulttexto
        (lapply
         (object,
          function(x) {kv = if (is.keyval(x)) x else keyval(NULL, x)
-                      textoutputformat(kv$key, kv$val)}),
+                      text.output.format(kv$key, kv$val)}),
         collapse=""),
       file = tmp)
-  if(rmr.backend() == 'hadoop'){
+  if(rmr.options.get('backend') == 'hadoop'){
     hdfs.put(tmp, dfsOutput)
     file.remove(tmp)}
   else
@@ -380,8 +385,8 @@ to.dfs = function(object, file = dfs.tempfile(), textoutputformat = defaulttexto
   file
 }
 
-from.dfs = function(file, textinputformat = defaulttextinputformat, todataframe = F){
-  if(rmr.backend() == 'hadoop') {
+from.dfs = function(file, text.input.format = default.text.input.format, todataframe = F){
+  if(rmr.options.get('backend') == 'hadoop') {
     tmp = tempfile()
     hdfs.get(to.dfs.path(file), tmp)}
   else tmp = to.dfs.path(file)
@@ -389,9 +394,9 @@ from.dfs = function(file, textinputformat = defaulttextinputformat, todataframe 
              do.call(c,
                lapply(list.files(tmp, "part*"),
                  function(f) lapply(readLines(file.path(tmp, f)),
-                            textinputformat)))}      
+                            text.input.format)))}      
           else {
-            lapply(readLines(tmp), textinputformat)}
+            lapply(readLines(tmp), text.input.format)}
   if(!todataframe) {
     retval}
   else{
@@ -411,8 +416,8 @@ dfs.tempfile = function(pattern = "file", tmpdir = tempdir()) {
   namefun
 }
 
-dfs.managedfile = function(call, manageddir = tempdir()) {
-  file.path(tmpdir, digest(lapply(match.call(call), eval)))}
+dfs.managed.file = function(call, managed.dir = rmr.options.get('managed.dir')) {
+  file.path(managed.dir, digest(lapply(call, eval)))}
 
 mapreduce = function(
   input,
@@ -420,34 +425,38 @@ mapreduce = function(
   map = to.map(identity),
   reduce = NULL,
   combine = NULL,
-  reduceondataframe = FALSE,
-  inputformat = NULL,
-  outputformat = NULL,
-  textinputformat = defaulttextinputformat,
-  textoutputformat = defaulttextoutputformat,
+  reduce.on.data.frame = FALSE,
+  input.format = NULL,
+  output.format = NULL,
+  text.input.format = default.text.input.format,
+  text.output.format = default.text.output.format,
   tuning.parameters = list(),
   verbose = FALSE) {
 
   on.exit(expr = gc(), add = TRUE) #this is here to trigger cleanup of tempfiles
-  if (is.null(output)) output = dfs.tempfile()
+  if (is.null(output)) output = 
+    if(rmr.options.get('depend.check'))
+      dfs.managed.file(match.call())
+    else
+      dfs.tempfile()
 
-  backend  =  rmr.options$backend
+  backend  =  rmr.options.get('backend')
   
-  profile.nodes = rmr.options$profile.nodes
+  profile.nodes = rmr.options.get('profile.nodes')
     
   mr = switch(backend, hadoop = rhstream, local = mr.local, stop("Unsupported backend: ", backend))
   
   mr(map = map,
      reduce = reduce,
-     reduceondataframe = reduceondataframe,
+     reduce.on.data.frame = reduce.on.data.frame,
      combine = combine,
      in.folder = if(is.list(input)) {lapply(input, to.dfs.path)} else to.dfs.path(input),
      out.folder = to.dfs.path(output),
      profile.nodes = profile.nodes,
-     inputformat = inputformat,
-     outputformat = outputformat,
-     textinputformat = textinputformat,
-     textoutputformat = textoutputformat,
+     input.format = input.format,
+     output.format = output.format,
+     text.input.format = text.input.format,
+     text.output.format = text.output.format,
      tuning.parameters = tuning.parameters[[backend]],
      verbose = verbose)
   output
@@ -457,15 +466,15 @@ mapreduce = function(
 
 mr.local = function(map,
                     reduce,
-                    reduceondataframe = FALSE,
+                    reduce.on.data.frame = FALSE,
                     combine = NULL,
                     in.folder,
                     out.folder,
                     profile.nodes = FALSE,
-                    inputformat = NULL,
-                    outputformat = NULL,
-                    textinputformat = defaulttextinputformat,
-                    textoutputformat = defaulttextoutputformat,
+                    input.format = NULL,
+                    output.format = NULL,
+                    text.input.format = default.text.input.format,
+                    text.output.format = default.text.output.format,
                     tuning.parameters = list(),
                     verbose = verbose) {
   if(is.null(reduce)) reduce = function(k,vv) lapply(vv, function(v) keyval(k,v))
@@ -473,7 +482,7 @@ mr.local = function(map,
                     lapply(do.call(c,
                                    lapply(in.folder, 
                                           function(x) lapply(from.dfs(x, 
-                                                                      textinputformat = textinputformat),
+                                                                      text.input.format = text.input.format),
                                                              function(y){attr(y$val, 'rmr.input') = x; y}))), 
                               function(kv) {retval = map(kv$key, kv$val)
                                             if(is.keyval(retval)) list(retval)
@@ -482,7 +491,7 @@ mr.local = function(map,
   reduce.out = tapply(X = map.out, 
                       INDEX = sapply(keys(map.out), digest), 
                       FUN = function(x) reduce(x[[1]]$key, 
-                                             if(reduceondataframe) to.data.frame(values(x)) else values(x)),
+                                             if(reduce.on.data.frame) to.data.frame(values(x)) else values(x)),
                       simplify = FALSE)
   if(!is.keyval(reduce.out[[1]]))
     reduce.out = do.call(c, reduce.out)
@@ -492,7 +501,7 @@ mr.local = function(map,
 rhstream = function(
   map,
   reduce = NULL,
-  reduceondataframe = F,
+  reduce.on.data.frame = F,
   combine = NULL,
   in.folder,
   out.folder, 
@@ -503,10 +512,10 @@ rhstream = function(
   jarfiles = c(),
   otherparams = list(HADOOP_HOME = Sys.getenv('HADOOP_HOME'),
     HADOOP_CONF = Sys.getenv("HADOOP_CONF")),
-  inputformat = NULL,
-  outputformat = NULL,
-  textinputformat = defaulttextinputformat,
-  textoutputformat = defaulttextoutputformat,
+  input.format = NULL,
+  output.format = NULL,
+  text.input.format = default.text.input.format,
+  text.output.format = default.text.output.format,
   tuning.parameters = list(),
   verbose = FALSE,
   debug = FALSE) {
@@ -522,24 +531,24 @@ load("rmr-local-env")
   mapLine = 'load("rmr-map-env", envir = environment(map))
   rmr:::mapDriver(map = map,
               linebufsize = linebufsize,
-              textinputformat = textinputformat,
-              textoutputformat = if(is.null(reduce))
-                                 {textoutputformat}
-                                 else {rmr:::defaulttextoutputformat},
+              text.input.format = text.input.format,
+              text.output.format = if(is.null(reduce))
+                                 {text.output.format}
+                                 else {rmr:::default.text.output.format},
               profile = profile.nodes)'
   reduceLine  =  'load("rmr-reduce-env", envir = environment(reduce))
   rmr:::reduceDriver(reduce = reduce,
                  linebufsize = linebufsize,
-                 textinputformat = rmr:::defaulttextinputformat,
-                 textoutputformat = textoutputformat,
-                 reduceondataframe = reduceondataframe,
+                 text.input.format = rmr:::default.text.input.format,
+                 text.output.format = text.output.format,
+                 reduce.on.data.frame = reduce.on.data.frame,
                  profile = profile.nodes)'
   combineLine = 'load("rmr-combine-env", envir = environment(combine))
  rmr:::reduceDriver(reduce = combine,
                  linebufsize = linebufsize,
-                 textinputformat = rmr:::defaulttextinputformat,
-                 textoutputformat = rmr:::defaulttextoutputformat,
-                 reduceondataframe = reduceondataframe,
+                 text.input.format = rmr:::default.text.input.format,
+                 text.output.format = rmr:::default.text.output.format,
+                 reduce.on.data.frame = reduce.on.data.frame,
                 profile = profile.nodes)'
 
   map.file = tempfile(pattern = "rhstr.map")
@@ -576,15 +585,15 @@ load("rmr-local-env")
   hadoop.command = sprintf("%s/hadoop jar %s ", hadoopBin,stream.jar)
   input =  make.input.files(in.folder)
   output = if(!missing(out.folder)) sprintf("-output %s",out.folder) else " "
-  inputformat = if(is.null(inputformat)){
-    ' ' # default is TextInputFormat
+  input.format = if(is.null(input.format)){
+    ' ' # default is text.input.format
   }else{
-    sprintf(" -inputformat %s", inputformat)
+    sprintf(" -input.format %s", input.format)
   }
-  outputformat = if(is.null(outputformat)){
+  output.format = if(is.null(output.format)){
     ' '}
   else {
-    sprintf(" -outputformat %s", outputformat)
+    sprintf(" -output.format %s", output.format)
   }
   mapper = sprintf('-mapper "Rscript %s" ',  tail(strsplit(map.file,"/")[[1]],1))
   m.fl = sprintf("-file %s ",map.file)
@@ -620,7 +629,7 @@ load("rmr-local-env")
       archives,
       caches,
       mkjars,
-      inputformat,
+      input.format,
       input,
       output,
       mapper,
@@ -644,12 +653,12 @@ if (retval != 0) stop("hadoop streaming failed with error code ", retval, "\n")
 
 ## to.dfs(lapply(1:10, function(i) keyval(i, i^2)), "/tmp/reljoin.left")
 ## to.dfs(lapply(1:10, function(i) keyval(i, i^3)), "/tmp/reljoin.right")
-## equijoin(leftinput="/tmp/reljoin.left", rightinput="/tmp/reljoin.right", output = "/tmp/reljoin.out")
+## equijoin(left.input="/tmp/reljoin.left", right.input="/tmp/reljoin.right", output = "/tmp/reljoin.out")
 ## from.dfs("/tmp/reljoin.out")
 
 equijoin = function(
-  leftinput = NULL,
-  rightinput = NULL,
+  left.input = NULL,
+  right.input = NULL,
   input = NULL,
   output = NULL,
   outer = c("", "left", "right", "full"),
@@ -662,47 +671,47 @@ equijoin = function(
                                        function(vr) reduceall(k, vl, vr)))),
   reduceall  = function(k,vl,vr) keyval(k, list(left = vl, right = vr)))
 {
-  stopifnot(xor(!is.null(leftinput), !is.null(input) &&
-                (is.null(leftinput)==is.null(rightinput))))
+  stopifnot(xor(!is.null(left.input), !is.null(input) &&
+                (is.null(left.input)==is.null(right.input))))
   outer = match.arg(outer)
-  leftouter = outer == "left"
-  rightouter = outer == "right"
-  fullouter = outer == "full"
-  if (is.null(leftinput)) {
-    leftinput = input}
-  markSide =
+  left.outer = outer == "left"
+  right.outer = outer == "right"
+  full.outer = outer == "full"
+  if (is.null(left.input)) {
+    left.input = input}
+  mark.side =
     function(kv, isleft) keyval(kv$key, list(val = kv$val, isleft = isleft))
-  isLeftSide = 
-    function(leftinput) {
-      leftin = strsplit(to.dfs.path(leftinput), "/+")[[1]]
+  is.left.side = 
+    function(left.input) {
+      leftin = strsplit(to.dfs.path(left.input), "/+")[[1]]
       mapin = strsplit(Sys.getenv("map_input_file"), "/+")[[1]]
       leftin = leftin[-1]
       mapin = mapin[if(mapin[1] == "hdfs:") c(-1,-2) else -1]
       all(mapin[1:length(leftin)] == leftin)}
   reduce.split =
     function(vv) tapply(lapply(vv, function(v) v$val), sapply(vv, function(v) v$isleft), identity, simplify = FALSE)
-  padSide =
-    function(vv, sideouter, fullouter) if (length(vv) == 0 && (sideouter || fullouter)) c(NA) else vv
+  pad.side =
+    function(vv, side.outer, full.outer) if (length(vv) == 0 && (side.outer || full.outer)) c(NA) else vv
   map = if (is.null(input)) {
     function(k,v) {
-      ils = switch(rmr.backend(), 
-                   hadoop = isLeftSide(leftinput),
-                   local = attr(v, 'rmr.input') == to.dfs.path(leftinput),
-                   stop("Unsupported backend: ", rmr.backend()))
-      markSide(if(ils) map.left(k,v) else map.right(k,v), ils)}}
+      ils = switch(rmr.options.get('backend'), 
+                   hadoop = is.left.side(left.input),
+                   local = attr(v, 'rmr.input') == to.dfs.path(left.input),
+                   stop("Unsupported backend: ", rmr.options.get('backend')))
+      mark.side(if(ils) map.left(k,v) else map.right(k,v), ils)}}
   else {
     function(k,v) {
-      list(markSide(map.left(k,v), TRUE),
-           markSide(map.right(k,v), FALSE))}}
+      list(mark.side(map.left(k,v), TRUE),
+           mark.side(map.right(k,v), FALSE))}}
   eqj.reduce = reduce
   mapreduce(map = map,
             reduce =
             function(k, vv) {
               rs = reduce.split(vv)
               eqj.reduce(k,
-                     padSide(rs$`TRUE`, rightouter, fullouter),
-                     padSide(rs$`FALSE`, leftouter, fullouter))},
-            input = c(leftinput,rightinput),
+                     pad.side(rs$`TRUE`, right.outer, full.outer),
+                     pad.side(rs$`FALSE`, left.outer, full.outer))},
+            input = c(left.input,right.input),
             output = output)}
 
 
