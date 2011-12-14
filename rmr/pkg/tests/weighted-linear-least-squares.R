@@ -33,7 +33,7 @@ mat.mult.map = function(i) function(k,v) keyval(k[[i]], list(pos = k, elem = v))
 mat.mult = function(left, right, result = NULL) {
   mapreduce(
                 input =
-                equijoin(leftinput = left, rightinput = right,
+                equijoin(left.input = left, right.input = right,
                                  map.left = mat.mult.map(2),
                                  map.right = mat.mult.map(1), 
                                  reduce = function(k, vvl, vvr) 
