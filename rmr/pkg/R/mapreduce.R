@@ -176,7 +176,7 @@ reduceDriver = function(reduce, linebufsize, text.input.format, text.output.form
                function(g) {
                  out = NULL
                  out = reduce(g[[1]][[1]], if(reduce.on.data.frame) {
-                                             to.data.frame(values(g))}
+                                             list.to.data.frame(values(g))}
                                           else {
                                             values(g)})
                  if(!is.null(out))
@@ -187,7 +187,7 @@ reduceDriver = function(reduce, linebufsize, text.input.format, text.output.form
     if (length(lastGroup) > 0) {
       out = reduce(lastKey, 
                    if(reduce.on.data.frame) {
-                     to.data.frame(values(lastGroup))}
+                     list.to.data.frame(values(lastGroup))}
                    else {
                      values(lastGroup)})
       send(out, text.output.format)
@@ -279,7 +279,7 @@ default.text.output.format = native.text.output.format
 #data frame conversion
 
 flatten = function(x) unlist(list(name = as.name("name"), x))[-1]
-to.data.frame = function(l) data.frame(lapply(data.frame(do.call(rbind,lapply(l, flatten))), unlist))
+list.to.data.frame = function(l) data.frame(lapply(data.frame(do.call(rbind,lapply(l, flatten))), unlist))
 from.data.frame = function(df, keycol = 1) lapply(1:dim(df)[[1]], function(i) keyval(df[i,keycol],df[i,] ))
 
 #output cmp
@@ -316,7 +316,7 @@ hdfs.match.sideeffect = function(...) {
   hdfs(getcmd(match.call()), FALSE, ...) == 0}
 
 hdfs.match.out = function(...)
-  to.data.frame(strsplit(hdfs(getcmd(match.call()), TRUE, ...)[-1], " +"))
+  list.to.data.frame(strsplit(hdfs(getcmd(match.call()), TRUE, ...)[-1], " +"))
 
 mkhdfsfun = function(hdfscmd, out)
   eval(parse(text = paste ("hdfs.", hdfscmd, " = hdfs.match.", if(out) "out" else "sideeffect", sep = "")),
@@ -382,7 +382,7 @@ to.dfs = function(object, file = dfs.tempfile(), text.output.format = default.te
   file
 }
 
-from.dfs = function(file, text.input.format = default.text.input.format, todataframe = F){
+from.dfs = function(file, text.input.format = default.text.input.format, to.data.frame = F){
   if(rmr.options.get('backend') == 'hadoop') {
     tmp = tempfile()
     hdfs.get(to.dfs.path(file), tmp)}
@@ -394,10 +394,10 @@ from.dfs = function(file, text.input.format = default.text.input.format, todataf
                             text.input.format)))}      
           else {
             lapply(readLines(tmp), text.input.format)}
-  if(!todataframe) {
+  if(!to.data.frame) {
     retval}
   else{
-    to.data.frame(retval)  }
+    list.to.data.frame(retval)  }
 }
 
 # mapreduce
@@ -488,7 +488,7 @@ mr.local = function(map,
   reduce.out = tapply(X = map.out, 
                       INDEX = sapply(keys(map.out), digest), 
                       FUN = function(x) reduce(x[[1]]$key, 
-                                             if(reduce.on.data.frame) to.data.frame(values(x)) else values(x)),
+                                             if(reduce.on.data.frame) list.to.data.frame(values(x)) else values(x)),
                       simplify = FALSE)
   if(!is.keyval(reduce.out[[1]]))
     reduce.out = do.call(c, reduce.out)
