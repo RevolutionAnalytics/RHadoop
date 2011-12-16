@@ -200,8 +200,7 @@ reduceDriver = function(reduce, linebufsize, text.input.format, text.output.form
 #some option formatting utils
 
 paste.options = function(optlist) {
-  optlist = optlist[optlist != F]
-  optlist[optlist == F] = ""
+  optlist = unlist(sapply(optlist, function(x) if (is.logical(x)) {if(x) "" else NULL} else x))
   paste(unlist(rbind(paste("-", names(optlist), sep = ""), optlist)), collapse = " ")
 }
 
@@ -621,9 +620,10 @@ load("rmr-local-env")
   mkjars = if(length(jarfiles)>0) make.cache.files(jarfiles,"-libjars",shorten=FALSE) else " "
   
   verb = if(verbose) "-verbose " else " "
-  finalcommand = 
+  final.command = 
     paste(
       hadoop.command,
+      paste.options(tuning.parameters),
       archives,
       caches,
       mkjars,
@@ -638,10 +638,8 @@ load("rmr-local-env")
       c.fl,
       image.cmd.line,
       cmds,
-      paste.options(tuning.parameters),
-   #   debug.opts,
       verb)
-  retval = system(finalcommand)
+  retval = system(final.command)
 if (retval != 0) stop("hadoop streaming failed with error code ", retval, "\n")
 }
 
