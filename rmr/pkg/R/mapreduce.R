@@ -43,13 +43,13 @@ rmr.options.set = function(backend = c("hadoop", "local"),
   as.list(rmr.options)}
 
 #I/O
-createReader = function(linebufsize = 2000, text.input.format){
+createReader = function(line.buffer.size = 2000, text.input.format){
   con = file("stdin", open="r")
   close = function(){
     ## close(con)
   }
   readChunk = function(){
-    lines = readLines(con = con, n = linebufsize, warn = FALSE)
+    lines = readLines(con = con, n = line.buffer.size, warn = FALSE)
     if(length(lines) > 0){
       ll = lapply(lines, text.input.format)
       return(ll[!sapply(ll, is.null)])
@@ -140,9 +140,9 @@ activate.profiling = function(){
   
 close.profiling = function() Rprof(NULL)
 
-mapDriver = function(map, linebufsize, text.input.format, text.output.format, profile){
+map.driver = function(map, line.buffer.size, text.input.format, text.output.format, profile){
   if(profile) activate.profiling()
-  k = createReader(linebufsize, text.input.format)
+  k = createReader(line.buffer.size, text.input.format)
   while( !is.null(d <- k$get())){
       lapply(d,
              function(r) {
@@ -159,9 +159,9 @@ mapDriver = function(map, linebufsize, text.input.format, text.output.format, pr
 listComp = function(ll,e) sapply(ll, function(l) isTRUE(all.equal(e,l)))
 ## using isTRUE(all.equal(x)) because identical() was too strict, but on paper it should be it
 
-reduceDriver = function(reduce, linebufsize, text.input.format, text.output.format, reduce.on.data.frame, profile){
+reduce.driver = function(reduce, line.buffer.size, text.input.format, text.output.format, reduce.on.data.frame, profile){
     if(profile) activate.profiling()
-    k = createReader(linebufsize, text.input.format)
+    k = createReader(line.buffer.size, text.input.format)
     lastKey = NULL
     lastGroup = list()
     while( !is.null(d <- k$get())){
@@ -502,7 +502,7 @@ rhstream = function(
   combine = NULL,
   in.folder,
   out.folder, 
-  linebufsize = 2000,
+  line.buffer.size = 2000,
   profile.nodes = FALSE,
   cachefiles = c(),
   archives = c(),
@@ -522,38 +522,38 @@ options(warn=1)
 
 library(rmr)
 load("rmr-local-env")
-  
+invisible(lapply(libs, function(l) library(l, character.only = T)))
 '  
 
-  mapLine = 'load("rmr-map-env", envir = environment(map))
-  rmr:::mapDriver(map = map,
-              linebufsize = linebufsize,
+  map.line = 'load("rmr-map-env", envir = environment(map))
+  rmr:::map.driver(map = map,
+              line.buffer.size = line.buffer.size,
               text.input.format = text.input.format,
               text.output.format = if(is.null(reduce))
                                  {text.output.format}
                                  else {rmr:::default.text.output.format},
               profile = profile.nodes)'
-  reduceLine  =  'load("rmr-reduce-env", envir = environment(reduce))
-  rmr:::reduceDriver(reduce = reduce,
-                 linebufsize = linebufsize,
+  reduce.line  =  'load("rmr-reduce-env", envir = environment(reduce))
+  rmr:::reduce.driver(reduce = reduce,
+                 line.buffer.size = line.buffer.size,
                  text.input.format = rmr:::default.text.input.format,
                  text.output.format = text.output.format,
                  reduce.on.data.frame = reduce.on.data.frame,
                  profile = profile.nodes)'
-  combineLine = 'load("rmr-combine-env", envir = environment(combine))
- rmr:::reduceDriver(reduce = combine,
-                 linebufsize = linebufsize,
+  combine.line = 'load("rmr-combine-env", envir = environment(combine))
+ rmr:::reduce.driver(reduce = combine,
+                 line.buffer.size = line.buffer.size,
                  text.input.format = rmr:::default.text.input.format,
                  text.output.format = rmr:::default.text.output.format,
                  reduce.on.data.frame = reduce.on.data.frame,
                 profile = profile.nodes)'
 
   map.file = tempfile(pattern = "rhstr.map")
-  writeLines(c(lines,mapLine), con = map.file)
+  writeLines(c(lines,map.line), con = map.file)
   reduce.file = tempfile(pattern = "rhstr.reduce")
-  writeLines(c(lines, reduceLine), con = reduce.file)
+  writeLines(c(lines, reduce.line), con = reduce.file)
   combine.file = tempfile(pattern = "rhstr.combine")
-  writeLines(c(lines, combineLine), con = combine.file)
+  writeLines(c(lines, combine.line), con = combine.file)
   
   ## set up the execution environment for map and reduce
   if (!is.null(combine) && is.logical(combine) && combine) {
@@ -565,6 +565,7 @@ load("rmr-local-env")
     save(list = ls(all = TRUE, envir = envir), file = fun.env, envir = envir)
     fun.env}
 
+  libs = sub("package:", "", grep("package", search(), value = T))
   image.cmd.line = paste("-file",
                          c(save.env(name = "rmr-local-env"),
                           save.env(map, "rmr-map-env"),
