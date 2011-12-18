@@ -428,7 +428,7 @@ mapreduce = function(
   text.input.format = default.text.input.format,
   text.output.format = default.text.output.format,
   tuning.parameters = list(),
-  verbose = FALSE) {
+  verbose = TRUE) {
 
   on.exit(expr = gc(), add = TRUE) #this is here to trigger cleanup of tempfiles
   if (is.null(output)) output = 
@@ -514,7 +514,7 @@ rhstream = function(
   text.input.format = default.text.input.format,
   text.output.format = default.text.output.format,
   tuning.parameters = list(),
-  verbose = FALSE,
+  verbose = TRUE,
   debug = FALSE) {
     ## prepare map and reduce executables
   lines = '#! /usr/bin/env Rscript
@@ -620,7 +620,6 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
   archives = if(length(archives)>0) make.cache.files(archives,"-archives") else " "
   mkjars = if(length(jarfiles)>0) make.cache.files(jarfiles,"-libjars",shorten=FALSE) else " "
   
-  verb = if(verbose) "-verbose " else " "
   final.command = 
     paste(
       hadoop.command,
@@ -639,9 +638,13 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
       c.fl,
       image.cmd.line,
       cmds,
-      verb)
-  retval = system(final.command)
-if (retval != 0) stop("hadoop streaming failed with error code ", retval, "\n")
+      "2>&1")
+  if(verbose) {
+    retval = system(final.command)
+    if (retval != 0) stop("hadoop streaming failed with error code ", retval, "\n")}
+  else{
+    console.output = tryCatch(system(final.command, intern=TRUE), 
+                              warning = function(e) stop(e)) }
 }
 
 ##special jobs
