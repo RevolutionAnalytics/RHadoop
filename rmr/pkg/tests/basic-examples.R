@@ -32,7 +32,7 @@ for (be in c("local", "hadoop")) {
   tapply(groups, groups, length)
   
   groups = to.dfs(groups)
-  from.dfs(mapreduce(input = groups, map = to.map(identity), reduce = function(k,vv) keyval(k, length(vv))))
+  from.dfs(mapreduce(input = groups, map = function(k,v) keyval(v, NULL), reduce = function(k,vv) keyval(k, length(vv))))
   
   
   ##input can be any RevoStreaming file (our own format)
