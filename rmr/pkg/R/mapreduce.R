@@ -644,9 +644,10 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
     if (retval != 0) stop("hadoop streaming failed with error code ", retval, "\n")}
   else{
     console.output = tryCatch(system(final.command, intern=TRUE), 
-                              warning = function(e) stop(e)) }
+                              warning = function(e) stop(e)) 
+    0
+    }
 }
-
 ##special jobs
  
 ## a sort of relational join very useful in a variety of map reduce algorithms
