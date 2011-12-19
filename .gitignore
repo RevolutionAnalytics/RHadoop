@@ -13,3 +13,5 @@ rhdfs/rhdfs-Ex.ps
 rmr/pkg.Rcheck/*
 
 rmr/pkg/tools/whirr.log
+
+rmr/pkg/tools/whirr/whirr.log
