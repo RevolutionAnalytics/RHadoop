@@ -275,24 +275,26 @@ csv.text.output.format = function(...) function(k,v) {
   paste(textConnectionValue(con = tc), "\n", sep = "", collapse = "")}
 
 typed.bytes.reader = function (con) {
-  read = function(...) {
+  r = function(...) {
     if(is.raw(con)) 
       con = rawConnection(con, open = "r") 
-    readBin(con, ...)}
-  code = 1 + as.integer(read("raw"))
-  switch(code,
-         read("raw", n = readBin(con, "integer", n=4)),
-         as.integer(read("raw")),
-         as.logical(read("raw")),
-         read("integer", n=4),
-         read("integer", n=8),
-         read("numeric", n=4),
-         read("numeric", n=8),
-         read("character", n = read("integer", n = 4)),
-         lapply(1:read("integer", n = 4), function(i) typed.bytes.input.reader(con)),
+    readBin(con, endian = "big", signed = TRUE, ...)}
+  read.code = function() r(what = "integer", n = 1, size = 1)
+  read.length = function() r(what = "integer", n= 1, size = 4)
+  tbr = function() typed.bytes.reader(con) 
+  switch(1 + read.code(),
+         r("raw", n = read.length()),
+         r("raw"),
+         r("logical", size = 1),
+         r("integer", size = 4),
+         r("integer", size = 8),
+         r("numeric", size = 4),
+         r("numeric", size = 8),
+         readChar(con, nchars = read.length()),
+         lapply(1:read.length(), function(i) typed.bytes.reader(con)),
          stop("not implemented yet"),
-         lapply(1:read("integer", n = 4), function(i) keyval(typed.bytes.input.reader(con),
-                                                             typed.bytes.input.reader(con))))}
+         lapply(1:read.length(), function(i) keyval(typed.bytes.reader(con),
+                                                             typed.bytes.reader(con))))}
 
 typed.bytes.writer = function(value, con) {
   w = function(x, size = NA_integer_) writeBin(x, con, size = size, endian = "big")
