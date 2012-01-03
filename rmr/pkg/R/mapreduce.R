@@ -293,7 +293,7 @@ typed.bytes.reader = function (con) {
          readChar(con, nchars = read.length()),
          lapply(1:read.length(), function(i) typed.bytes.reader(con)),
          stop("not implemented yet"),
-         lapply(1:read.length(), function(i) keyval(typed.bytes.reader(con),
+         lapply(1:(read.length()/2), function(i) keyval(typed.bytes.reader(con),
                                                              typed.bytes.reader(con))))}
 
 typed.bytes.writer = function(value, con) {
@@ -302,7 +302,8 @@ typed.bytes.writer = function(value, con) {
   write.length = function(x) w(as.integer(x), size = 4)
   tbw = function(x) typed.bytes.writer(x, con)
   if(is.list(value) && all(sapply(value, is.keyval))) {
-    lapply(list(10, length(value)), w)
+    write.code(10)
+    write.length(2*length(value))
     lapply(value, function(kv) {lapply(kv, tbw)})}
   else {
     if(length(value) == 1) {
@@ -313,7 +314,8 @@ typed.bytes.writer = function(value, con) {
              #doesn't happen in R integer = {write.code(4); w(value)},
              #doesn't happen in R numeric = {write.code(5); w(value)},
              numeric = {write.code(6); w(value)},
-             character = {write.code(7); write.length(nchar(value)); writeChar(value, con, eos = NULL)})}
+             character = {write.code(7); write.length(nchar(value)); writeChar(value, con, eos = NULL)},
+             stop("not implemented yet"))}
     else {
       switch(class(value),
              raw = {write.code(0); write.length(length(value)); w(value)},
