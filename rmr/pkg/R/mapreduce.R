@@ -274,6 +274,50 @@ csv.text.output.format = function(...) function(k,v) {
   do.call(write.table, args[unique(names(args))])
   paste(textConnectionValue(con = tc), "\n", sep = "", collapse = "")}
 
+typed.bytes.reader = function (con) {
+  read = function(...) {
+    if(is.raw(con)) 
+      con = rawConnection(con, open = "r") 
+    readBin(con, ...)}
+  code = 1 + as.integer(read("raw"))
+  switch(code,
+         read("raw", n = readBin(con, "integer", n=4)),
+         as.integer(read("raw")),
+         as.logical(read("raw")),
+         read("integer", n=4),
+         read("integer", n=8),
+         read("numeric", n=4),
+         read("numeric", n=8),
+         read("character", n = read("integer", n = 4)),
+         lapply(1:read("integer", n = 4), function(i) typed.bytes.input.reader(con)),
+         stop("not implemented yet"),
+         lapply(1:read("integer", n = 4), function(i) keyval(typed.bytes.input.reader(con),
+                                                             typed.bytes.input.reader(con))))}
+
+typed.bytes.writer = function(value, con) {
+  w = function(x, size = NA_integer_) writeBin(x, con, size = size, endian = "big")
+  write.code = function(x) w(as.integer(x), size = 1)
+  write.length = function(x) w(as.integer(x), size = 4)
+  tbw = function(x) typed.bytes.writer(x, con)
+  if(is.list(value) && all(sapply(value, is.keyval))) {
+    lapply(list(10, length(value)), w)
+    lapply(value, function(kv) {lapply(kv, tbw)})}
+  else {
+    if(length(value) == 1) {
+      switch(class(value),
+             raw = {write.code(1); w(value)},
+             logical = {write.code(2); w(value, size = 1)},
+             integer = {write.code(3); w(value)},
+             #doesn't happen in R integer = {write.code(4); w(value)},
+             #doesn't happen in R numeric = {write.code(5); w(value)},
+             numeric = {write.code(6); w(value)},
+             character = {write.code(7); write.length(nchar(value)); writeChar(value, con, eos = NULL)})}
+    else {
+      switch(class(value),
+             raw = {write.code(0); write.length(length(value)); w(value)},
+             {write.code(8); write.length(length(value)); lapply(value, tbw)})}}
+  TRUE}
+    
 default.text.input.format = native.text.input.format
 default.text.output.format = native.text.output.format
 #data frame conversion
