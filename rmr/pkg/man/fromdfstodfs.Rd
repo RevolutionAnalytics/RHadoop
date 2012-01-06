@@ -7,7 +7,7 @@
 
 \usage{
 to.dfs(object, file = dfs.tempfile(), text.output.format = default.text.output.format)
-from.dfs(file, text.input.format = default.text.input.format, todataframe = F)
+from.dfs(file, text.input.format = default.text.input.format, to.data.frame = F)
 }
 
 \arguments{
@@ -15,7 +15,7 @@ from.dfs(file, text.input.format = default.text.input.format, todataframe = F)
   \item{file}{A file in HDFS to read from or write to; for from.dfs, the return value of \code{mapreduce}}
   \item{text.output.format}{The output format of the file being written (from.dfs only)}
   \item{text.input.format}{The input format of the file being read (from.dfs only)}
-  \item{todataframe}{Do what it takes to return a data frame (from.dfs only). }
+  \item{to.data.frame}{Do what it takes to return a data frame (from.dfs only). }
 }
 
 

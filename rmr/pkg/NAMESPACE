@@ -4,8 +4,5 @@ export(equijoin, scatter)
 export(dfs.empty)
 export(rmr.options.set, rmr.options.get)
 export(keyval, keys, values)
-export(raw.text.input.format, raw.text.output.format, 
-       csv.text.input.format, csv.text.output.format, 
-       json.text.input.format, json.text.output.format, 
-       native.text.input.format, native.text.output.format)
+export(make.input.specs, make.output.specs)
 export(to.map, to.reduce, to.reduce.all)

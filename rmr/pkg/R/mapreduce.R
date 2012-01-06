@@ -7,7 +7,7 @@
 #      http://www.apache.org/licenses/LICENSE-2.0
 # 
 # Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
+# distributed under the License is distributed on an "AS IS" BASIS, 
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
@@ -20,7 +20,7 @@ rmr.options$profile.nodes = FALSE
 rmr.options$depend.check = FALSE
 rmr.options$managed.dir = "/var/rmr/managed"
 
-rmr.options.get = function(...){
+rmr.options.get = function(...) {
   opts = as.list(rmr.options)
   if(missing(...))
     opts
@@ -31,29 +31,29 @@ rmr.options.get = function(...){
     else 
       opts[[args]]}}
 
-rmr.options.set = function(backend = c("hadoop", "local"),
-                           profile.nodes = NULL,
-                           depend.check = NULL,
+rmr.options.set = function(backend = c("hadoop", "local"), 
+                           profile.nodes = NULL, 
+                           depend.check = NULL, 
                            managed.dir = NULL) {
   this.call = match.call()
-  backend = match.arg(backend)
+  backend = match.arg(backend) #this doesn't do anything, fix
   lapply(names(this.call)[-1], 
          function(x) 
            assign(x, eval(this.call[[x]]), envir = rmr.options))
   as.list(rmr.options)}
 
 # additional hadoop features, disabled for now
-counter = function(group="r-stream",family, value){
-  cat(sprintf("report:counter:%s,$s,%s",
-              as.character(group),
-              as.character(family),
-              as.integer(value)),
+counter = function(group="r-stream", family, value) {
+  cat(sprintf("report:counter:%s, $s, %s", 
+              as.character(group), 
+              as.character(family), 
+              as.integer(value)), 
       stderr())
 }
 
-status = function(what){
-  cat(sprintf("report:status:%s",
-              as.character(what)),
+status = function(what) {
+  cat(sprintf("report:status:%s", 
+              as.character(what)), 
       stderr())
 }
 
@@ -73,17 +73,17 @@ keyval.to.list = function(kvl) {l = values(kvl); names(l) = keys(kvl); l}
 
 to.map = function(fun1, fun2 = identity) {
   if (missing(fun2)) {
-    function(k,v) fun1(keyval(k,v))}
+    function(k, v) fun1(keyval(k, v))}
   else {
-    function(k,v) keyval(fun1(k), fun2(v))}}
+    function(k, v) keyval(fun1(k), fun2(v))}}
 
 to.reduce = to.map
 
 to.reduce.all = function(fun1, fun2 = identity) {
   if (missing(fun2)) {
-    function(k,vv) lapply(vv, function(v) fun1(keyval(k,v)))}
+    function(k, vv) lapply(vv, function(v) fun1(keyval(k, v)))}
   else {
-    function(k,vv) lapply(vv, function(v) keyval(fun1(k), fun2(v)))}}
+    function(k, vv) lapply(vv, function(v) keyval(fun1(k), fun2(v)))}}
 
 ## mapred combinators
 wrap.keyval = function(kv) {
@@ -91,87 +91,20 @@ wrap.keyval = function(kv) {
   else if (is.keyval(kv)) list(kv) 
   else kv}
 
-compose.mapred = function(mapred, map) function(k,v) {
-  out = mapred(k,v)
+compose.mapred = function(mapred, map) function(k, v) {
+  out = mapred(k, v)
   if (is.null(out)) NULL
   else if (is.keyval(out)) map(out$key, out$val)
-  else  do.call(c,
+  else  do.call(c, 
                 lapply(out, 
                        function(x) 
                          wrap.keyval(map(x$key, x$val))))}
 
-union.mapred = function(mr1, mr2) function(k,v) {
-  out = c(wrap.keyval(mr1(k,v)), wrap.keyval(mr2(k,v)))
+union.mapred = function(mr1, mr2) function(k, v) {
+  out = c(wrap.keyval(mr1(k, v)), wrap.keyval(mr2(k, v)))
   if (length(out) == 0) NULL else out}
 
 
-## drivers section, or what runs on the nodes
-
-activate.profiling = function(){
-  dir = file.path("/tmp/Rprof", Sys.getenv('mapred_job_id'), Sys.getenv('mapred_tip_id'))
-  dir.create(dir, recursive = T)
-  Rprof(file.path(dir, paste(Sys.getenv('mapred_task_id'), Sys.time())))}
-  
-close.profiling = function() Rprof(NULL)
-
-make.record.reader = function(mode = c("text", "binary"), read) {
-  if(mode == "text") {
-    con = stdin()
-    function() read(readLines(con,1))}
-  else {
-    con = pipe("cat", "rb")
-    function() keyval(read(con), read(con))}}
-
-make.record.writer = function(mode = c("text", "binary"), write) {
-  if(mode == "text"){
-    con = stdout()
-    function(x) writeLines(write(x),con)}
-  else {
-    con = pipe("cat", "wb")
-    function(kv) {
-      write(kv$key, con)
-      write(kv$val, con)}}}
-
-map.driver = function(map, record.reader, record.writer, profile) {
-  if(profile) activate.profiling()
-  kv = record.reader()
-  while(!is.null(kv)) { 
-    out = map(kv$key, kv$val)
-    if(!is.null(out)) {
-      if (is.keyval(out)) {record.writer(out)}
-      else {lapply(out, record.writer)}}
-    kv = record.reader()}
-  if(profile) close.profiling()
-  invisible()}
-
-list.cmp = function(ll,e) sapply(ll, function(l) isTRUE(all.equal(e,l)))
-## using isTRUE(all.equal(x)) because identical() was too strict, but on paper it should be it
-
-reduce.driver = function(reduce, record.reader, record.writer, reduce.on.data.frame, profile){
-    if(profile) activate.profiling()
-    kv = record.reader()
-    current.key = kv$key
-    vv = NULL
-    while(!is.null(kv)) {
-      if(identical(kv$key, current.key)) {
-        vv = append(vv, kv$val)
-      }
-      else {
-        out = reduce(current.key, 
-                     if(reduce.on.data.frame) {
-                       list.to.data.frame(vv)}
-                     else {vv})
-        if(!is.null(out)) {
-          if(is.keyval(out)) {record.writer(out)}
-          else {lapply(out, record.writer)}}
-        current.key = kv.key
-        vv = kv$val
-      }
-      kv = record.reader()         
-    }
-    if(profile) close.profiling()
-    invisible()
-}
 
 #some option formatting utils
 
@@ -180,60 +113,135 @@ paste.options = function(optlist) {
   paste(unlist(rbind(paste("-", names(optlist), sep = ""), optlist)), collapse = " ")
 }
 
-make.job.conf = function(m,pfx){
+make.job.conf = function(m, pfx) {
   N = names(m)
   if(length(m) == 0) return(" ")
-  paste(unlist(lapply(1:length(N),
-                      function(i){
-                        sprintf("%s %s=%s ", pfx, N[[i]],as.character(m[[i]]))})),
+  paste(unlist(lapply(1:length(N), 
+                      function(i) {
+                        sprintf("%s %s=%s ", pfx, N[[i]], as.character(m[[i]]))})), 
         collapse = " ")}
 
-make.cache.files = function(caches,pfx,shorten = TRUE){
+make.cache.files = function(caches, pfx, shorten = TRUE) {
   if(length(caches) == 0) return(" ")
-  sprintf("%s %s",pfx, paste(sapply(caches,
-                                    function(r){
+  sprintf("%s %s", pfx, paste(sapply(caches, 
+                                    function(r) {
                                       if(shorten) {
-                                        path.leaf = tail(strsplit(r,"/")[[1]],1)
-                                        sprintf("'%s#%s'",r,path.leaf)
-                                      }else{
-                                        sprintf("'%s'",r)}}),
-                             collapse = ","))}
+                                        path.leaf = tail(strsplit(r, "/")[[1]], 1)
+                                        sprintf("'%s#%s'", r, path.leaf)
+                                      }else {
+                                        sprintf("'%s'", r)}}), 
+                             collapse = ", "))}
 
-make.input.files = function(infiles){
+make.input.files = function(infiles) {
   if(length(infiles) == 0) return(" ")
-  paste(sapply(infiles,
-               function(r){
-                 sprintf("-input %s ", r)}),
+  paste(sapply(infiles, 
+               function(r) {
+                 sprintf("-input %s ", r)}), 
         collapse=" ")}
 
-# formats
-# alternate, native format
-# unserialize(charToRaw(gsub("\\\\n", "\n", gsub("\n", "\\\\n", rawToChar(serialize(matrix(1:20, ncol = 5), ascii=T,conn = NULL))))))
+# I/O 
 
-native.text.input.format = function(line) {
-  x = strsplit(line, "\t")[[1]]
-  de = function(x) unserialize(charToRaw(gsub("\\\\n", "\n", x)))
-  keyval(de(x[1]),de(x[2]))}
+make.record.reader = function(mode = c("text", "binary"), format = native.input.format, con = NULL) {
+  mode = match.arg(mode)
+  if(mode == "text") {
+    if(is.null(con)) con = file("stdin", "r")
+    function() {
+      line = readLines(con, 1)
+      if(length(line) == 0) NULL
+      else format(line)}}
+  else {
+    if(is.null(con)) con = pipe("cat", "rb")
+    function() format(con)}}
 
-native.text.output.format = function(k, v) {
-  ser = function(x) gsub("\n", "\\\\n", rawToChar(serialize(x, ascii=T,conn = NULL)))
-  paste(ser(k), "\t", ser(v), "\n", sep = "")}
+make.record.writer = function(mode = c("text", "binary"), format = native.output.format, con = NULL) {
+  mode = match.arg(mode)
+  if(mode == "text") {
+    if(is.null(con)) con = stdout()
+    function(k, v) writeLines(format(k, v), con)}
+  else {
+    if(is.null(con)) con = pipe("cat", "wb")
+    function(k, v) {
+      format(k, v, con)}}}
 
+make.input.specs = function(format = native.input.format, 
+                            mode = c("text", "binary"), 
+                            streaming.input.format = NULL, ...) {
+    mode = match.arg(mode)
+  if(is.character(format)) {
+    format = match.arg(format, c("raw", "json", "csv", "native", "typedbytes", "sequence"))
+    switch(format, 
+           raw = {format = raw.text.input.format; 
+                    mode = "text";
+                    streaming.input.format = NULL}, 
+                  json = {format = json.input.format; 
+                    mode = "text";
+                    streaming.input.format = NULL}, 
+                  csv = {format = csv.input.format(...); 
+                    mode = "text";
+                    streaming.input.format = NULL}, 
+                  native = {format = native.input.format; 
+                    mode = "text";
+                    streaming.input.format = NULL}, 
+                  typedbytes = {format = typedbytes.input.format; 
+                    mode = "binary";
+                    streaming.input.format = NULL}, 
+                  sequence = {format = sequence.input.format; 
+                    mode = "text";
+                    streaming.input.format = "SequenceFileAsText"})}
+  list(mode = mode, format = format, streaming.input.format = streaming.input.format)}
+
+make.output.specs = function(mode = c("text", "binary"), 
+                       format = native.output.format, 
+                       streaming.output.format = NULL, ...) {
+    if(is.character(format)) {
+    format = match.arg(format, c("raw", "json", "csv", "native", "typedbytes", "sequence"))
+    switch(format, 
+           raw = {format = raw.text.input.format; 
+                    mode = "text";
+                    streaming.output.format = NULL}, 
+                  json = {format = json.output.format; 
+                    mode = "text";
+                    streaming.output.format = NULL}, 
+                  csv = {format = csv.output.format(...); 
+                    mode = "text";
+                    streaming.output.format = NULL}, 
+                  native = {format = native.output.format; 
+                    mode = "text";
+                    streaming.output.format = NULL}, 
+                  typedbytes = {format = typedbytes.output.format; 
+                    mode = "binary";
+                    streaming.output.format = NULL}, 
+                  sequence = {format = sequence.output.format; 
+                    mode = "text";
+                    streaming.output.format = "SequenceFileAsText"})}
+  mode = match.arg(mode)
+  list(mode = mode, format = format, streaming.output.format = streaming.output.format)}
+
+native.input.format = function(line) {
+  if (length(line) == 0) NULL
+  else {
+    x = strsplit(line, "\t")[[1]]
+    de = function(x) unserialize(charToRaw(gsub("\\\\n", "\n", x)))
+    keyval(de(x[1]), de(x[2]))}}
+
+native.output.format = function(k, v) {
+  ser = function(x) gsub("\n", "\\\\n", rawToChar(serialize(x, ascii=T, conn = NULL)))
+  paste(ser(k), ser(v), sep = "\t")}
   
-json.text.input.format = function(line) {
-  decodeString = function(s) gsub("\\\\n","\\\n", gsub("\\\\t","\\\t", s))
+json.input.format = function(line) {
+  decodeString = function(s) gsub("\\\\n", "\\\n", gsub("\\\\t", "\\\t", s))
   x =  strsplit(line, "\t")[[1]]
   keyval(fromJSON(decodeString(x[1]), asText = TRUE), 
          fromJSON(decodeString(x[2]), asText = TRUE))}
 
-json.text.output.format = function(k,v) {
-  encodeString = function(s) gsub("\\\n","\\\\n", gsub("\\\t","\\\\t", s))
-  paste(encodeString(toJSON(k, collapse = "")), "\t", encodeString(toJSON(v, collapse = "")), "\n", sep = "")}
+json.output.format = function(k, v) {
+  encodeString = function(s) gsub("\\\n", "\\\\n", gsub("\\\t", "\\\\t", s))
+  paste(encodeString(toJSON(k, collapse = "")), encodeString(toJSON(v, collapse = "")), sep = "\t")}
 
 raw.text.input.format = function(line) {keyval(NULL, line)}
-csv.text.input.format = function(key = 1, ...) function(line) {
+csv.input.format = function(key = 1, ...) function(line) {
   tc = textConnection(line)
-  df = tryCatch(read.table(file = tc, header = FALSE, ...),
+  df = tryCatch(read.table(file = tc, header = FALSE, ...), 
                 error = 
                   function(e) {
                     if (e$message == "no lines available in input") 
@@ -241,14 +249,14 @@ csv.text.input.format = function(key = 1, ...) function(line) {
                     else stop(e)
                     NULL})
   close(tc)
-  keyval(df[,key], df[,-key])}
+  keyval(df[, key], df[, -key])}
 
-raw.text.output.format = function(k,v) paste(c(k,v, "\n"), collapse = "")
-csv.text.output.format = function(...) function(k,v) {
+raw.text.output.format = function(k, v) paste(k, v, collapse = "", sep = "\t")
+csv.output.format = function(...) function(k, v) {
   tc = textConnection(object = NULL, open = "w")
-  args = list(x = c(as.list(k),as.list(v)), file = tc, ..., row.names = FALSE, col.names = FALSE)
+  args = list(x = c(as.list(k), as.list(v)), file = tc, ..., row.names = FALSE, col.names = FALSE)
   do.call(write.table, args[unique(names(args))])
-  paste(textConnectionValue(con = tc), "\n", sep = "", collapse = "")}
+  paste(textConnectionValue(con = tc), sep = "", collapse = "")}
 
 typed.bytes.reader = function (con) {
   r = function(...) {
@@ -258,18 +266,18 @@ typed.bytes.reader = function (con) {
   read.code = function() r(what = "integer", n = 1, size = 1)
   read.length = function() r(what = "integer", n= 1, size = 4)
   tbr = function() typed.bytes.reader(con) 
-  switch(1 + read.code(),
-         r("raw", n = read.length()),
-         r("raw"),
-         r("logical", size = 1),
-         r("integer", size = 4),
-         r("integer", size = 8),
-         r("numeric", size = 4),
-         r("numeric", size = 8),
-         readChar(con, nchars = read.length()),
-         lapply(1:read.length(), function(i) typed.bytes.reader(con)),
-         stop("not implemented yet"),
-         lapply(1:(read.length()/2), function(i) keyval(typed.bytes.reader(con),
+  switch(1 + read.code(), 
+         r("raw", n = read.length()), 
+         r("raw"), 
+         r("logical", size = 1), 
+         r("integer", size = 4), 
+         r("integer", size = 8), 
+         r("numeric", size = 4), 
+         r("numeric", size = 8), 
+         readChar(con, nchars = read.length()), 
+         lapply(1:read.length(), function(i) typed.bytes.reader(con)), 
+         stop("not implemented yet"), 
+         lapply(1:(read.length()/2), function(i) keyval(typed.bytes.reader(con), 
                                                              typed.bytes.reader(con))))}
 
 typed.bytes.writer = function(value, con) {
@@ -283,28 +291,33 @@ typed.bytes.writer = function(value, con) {
     lapply(value, function(kv) {lapply(kv, tbw)})}
   else {
     if(length(value) == 1) {
-      switch(class(value),
-             raw = {write.code(1); w(value)},
-             logical = {write.code(2); w(value, size = 1)},
-             integer = {write.code(3); w(value)},
-             #doesn't happen in R integer = {write.code(4); w(value)},
-             #doesn't happen in R numeric = {write.code(5); w(value)},
-             numeric = {write.code(6); w(value)},
-             character = {write.code(7); write.length(nchar(value)); writeChar(value, con, eos = NULL)},
+      switch(class(value), 
+             raw = {write.code(1); w(value)}, 
+             logical = {write.code(2); w(value, size = 1)}, 
+             integer = {write.code(3); w(value)}, 
+             #doesn't happen in R integer = {write.code(4); w(value)}, 
+             #doesn't happen in R numeric = {write.code(5); w(value)}, 
+             numeric = {write.code(6); w(value)}, 
+             character = {write.code(7); write.length(nchar(value)); writeChar(value, con, eos = NULL)}, 
              stop("not implemented yet"))}
     else {
-      switch(class(value),
-             raw = {write.code(0); write.length(length(value)); w(value)},
+      switch(class(value), 
+             raw = {write.code(0); write.length(length(value)); w(value)}, 
              {write.code(8); write.length(length(value)); lapply(value, tbw)})}}
   TRUE}
     
-default.text.input.format = native.text.input.format
-default.text.output.format = native.text.output.format
-#data frame conversion
+typed.bytes.input.format = function(con) {
+  keyval(typed.bytes.reader(con), typed.bytes.reader(con))}
+
+typed.bytes.output.format = function(k, v) {
+  typed.bytes.writer(k, con)
+  typed.bytes.writer(v, con)}
+
+#data frame conversiondefault.input.f
 
 flatten = function(x) unlist(list(name = as.name("name"), x))[-1]
-list.to.data.frame = function(l) data.frame(lapply(data.frame(do.call(rbind,lapply(l, flatten))), unlist))
-from.data.frame = function(df, keycol = 1) lapply(1:dim(df)[[1]], function(i) keyval(df[i,keycol],df[i,] ))
+list.to.data.frame = function(l) data.frame(lapply(data.frame(do.call(rbind, lapply(l, flatten))), unlist))
+from.data.frame = function(df, keycol = 1) lapply(1:dim(df)[[1]], function(i) keyval(df[i, keycol], df[i, ] ))
 
 #output cmp
 cmp = function(x, y) isTRUE(all.equal(x[order(unlist(keys(x)))], 
@@ -319,18 +332,18 @@ hdfs = function(cmd, intern, ...) {
   else {
     argnames = names(list(...))
   }
-  system(paste(Sys.getenv("HADOOP_HOME"), "/bin/hadoop dfs -", cmd, " ",
+  system(paste(Sys.getenv("HADOOP_HOME"), "/bin/hadoop dfs -", cmd, " ", 
               paste(
-                apply(cbind(argnames, list(...)),1, 
+                apply(cbind(argnames, list(...)), 1, 
                   function(x) paste(
-                    if(x[[1]] == ""){""} else{"-"},
+                    if(x[[1]] == "") {""} else {"-"}, 
                     x[[1]], 
                     " ", 
                     to.dfs.path(x[[2]]), 
                     sep = ""))[
                       order(argnames, decreasing = T)], 
-                collapse = " "),
-               sep = ""),
+                collapse = " "), 
+               sep = ""), 
          intern = intern)}
 
 getcmd = function(matched.call)
@@ -343,14 +356,14 @@ hdfs.match.out = function(...)
   list.to.data.frame(strsplit(hdfs(getcmd(match.call()), TRUE, ...)[-1], " +"))
 
 mkhdfsfun = function(hdfscmd, out)
-  eval(parse(text = paste ("hdfs.", hdfscmd, " = hdfs.match.", if(out) "out" else "sideeffect", sep = "")),
+  eval(parse(text = paste ("hdfs.", hdfscmd, " = hdfs.match.", if(out) "out" else "sideeffect", sep = "")), 
        envir = parent.env(environment()))
 
-for (hdfscmd in c("ls","lsr","df","du","dus","count","cat","text","stat","tail","help")) 
+for (hdfscmd in c("ls", "lsr", "df", "du", "dus", "count", "cat", "text", "stat", "tail", "help")) 
   mkhdfsfun(hdfscmd, TRUE)
 
-for (hdfscmd in c("mv","cp","rm","rmr","expunge","put","copyFromLocal","moveFromLocal","get","getmerge",
-                 "copyToLocal","moveToLocal","mkdir","setrep","touchz","test","chmod","chown","chgrp"))
+for (hdfscmd in c("mv", "cp", "rm", "rmr", "expunge", "put", "copyFromLocal", "moveFromLocal", "get", "getmerge", 
+                 "copyToLocal", "moveToLocal", "mkdir", "setrep", "touchz", "test", "chmod", "chown", "chgrp"))
   mkhdfsfun(hdfscmd, FALSE)
 
 # backend independent dfs section
@@ -359,7 +372,7 @@ dfs.exists = function(f) {
     hdfs.test(e = f) 
   else file.exists(f)}
 
-dfs.rm = function(f){
+dfs.rm = function(f) {
   if(rmr.options.get('backend') == 'hadoop')
     hdfs.rm(f)
   else file.remove(f)}
@@ -385,65 +398,64 @@ to.dfs.path = function(input) {
     if(is.function(input)) {
       input()}}}
 
-to.dfs = function(object, file = dfs.tempfile(), output.specs = make.output.specs()){
+to.dfs = function(object, output = dfs.tempfile(), output.specs = make.output.specs()) {
   if(is.data.frame(object) || is.matrix(object)) {
     object = from.data.frame(object)
   }
   tmp = tempfile()
-  dfsOutput = to.dfs.path(file)
+  dfsOutput = to.dfs.path(output)
   
-  write.file = if(input.specs$mode == "text") {
-    function(obj, f){
-      writeLines(
-        paste(
-          lapply(obj,
-                 function(x){
-                   kv = if(is.keyval(x)) x else keyval(NULL,x)
-                   output.specs$record.writer(kv$key, kv$val)}), 
-          collapse=""))}}
-    else {
-      function(obj, f){
-        con = file(f, "wb")
-        lapply(obj, output.specs$record.writer)}}
-
+  write.file = 
+    function(obj, f) {
+      con = file(f, if(output.specs$mode == "text") "w" else "wb")
+        record.writer = make.record.writer(output.specs$mode, 
+                                           output.specs$format, 
+                                           con)
+        lapply(obj, 
+               function(x) {
+                 kv = if(is.keyval(x)) x else keyval(NULL, x)
+                 record.writer(kv$key, kv$val)})
+      close(con)}
+    
   write.file(object, tmp)      
-  if(rmr.options.get('backend') == 'hadoop'){
+  if(rmr.options.get('backend') == 'hadoop') {
     hdfs.put(tmp, dfsOutput)
     file.remove(tmp)}
   else
     file.rename(tmp, dfsOutput)
-  file}
+  output}
 
-from.dfs = function(file, input.specs = make.input.specs(), to.data.frame = F){
+from.dfs = function(input, input.specs = make.input.specs(), to.data.frame = FALSE) {
   if(rmr.options.get('backend') == 'hadoop') {
     tmp = tempfile()
-    hdfs.get(to.dfs.path(file), tmp)}
-  else tmp = to.dfs.path(file)
-  read.file = if(input.specs$mode == "text") {
-    function(f) lapply(readLines(f), input.specs$record.reader)}
-    else {
-      function(f){
-        con = file(f, "rb")
-        rec = input.specs$record.reader
-        while(!is.null(rec)){
-          retval = append(retval, rec)}
-        retval}}
-  retval = if(file.info(tmp)[1,'isdir']) {
-             do.call(c,
-               lapply(list.files(tmp, "part*"),
-                      function(f) read.file(file.path(tmp, f))))}      
+    hdfs.get(to.dfs.path(input), tmp)}
+  else tmp = to.dfs.path(input)
+  read.file = 
+    function(f) {
+      con = file(f, if(input.specs$mode == "text") "r" else "rb")
+      record.reader = make.record.reader(input.specs$mode, input.specs$format, con)
+      retval = NULL
+      rec = record.reader()
+      while(!is.null(rec)) {
+        retval = append(retval, list(rec))
+        rec = record.reader()}
+      close(con)
+      retval}
+
+  retval = if(file.info(tmp)[1, 'isdir']) {
+             do.call(c, 
+               lapply(list.files(tmp, "part*"), 
+                      function(f) read.file(file.path(tmp, f))))}
           else {read.file(tmp)}
-  if(to.data.frame) {
-    list.to.data.frame(retval)}
-  else{
-    retval}}
+  if(to.data.frame) list.to.data.frame(retval)
+  else retval}
 
 # mapreduce
 
 dfs.tempfile = function(pattern = "file", tmpdir = tempdir()) {
   fname  = tempfile(pattern, tmpdir)
   namefun = function() {fname}
-  reg.finalizer(environment(namefun),
+  reg.finalizer(environment(namefun), 
                 function(e) {
                   fname = eval(expression(fname), envir = e)
                   if(Sys.getenv("mapred_task_id") != "" && dfs.exists(fname)) dfs.rm(fname)
@@ -454,28 +466,16 @@ dfs.tempfile = function(pattern = "file", tmpdir = tempdir()) {
 dfs.managed.file = function(call, managed.dir = rmr.options.get('managed.dir')) {
   file.path(managed.dir, digest(lapply(call, eval)))}
 
-make.input.specs = function(mode = c("text", "binary"),
-                       record.reader = default.text.input.format, 
-                       streaming.input.format = NULL){
-  mode = match.arg(mode)
-  list(mode = mode, reader = record.reader, streaming.input.format = streaming.input.format)}
-
-make.output.specs = function(mode = c("text", "binary"), 
-                       record.writer = default.text.input.format, 
-                       streaming.output.format = NULL){
-  mode = match.arg(mode)
-  list(mode = mode, record.writer = record.writer, streaming.output.format = streaming.output.format)}
-
 mapreduce = function(
-  input,
-  output = NULL,
-  map = to.map(identity),
-  reduce = NULL,
-  combine = NULL,
-  reduce.on.data.frame = FALSE,
-  input.specs = make.input.specs(),
-  output.specs = make.output.specs(),
-  tuning.parameters = list(),
+  input, 
+  output = NULL, 
+  map = to.map(identity), 
+  reduce = NULL, 
+  combine = NULL, 
+  reduce.on.data.frame = FALSE, 
+  input.specs = make.input.specs(), 
+  output.specs = make.output.specs(), 
+  tuning.parameters = list(), 
   verbose = TRUE) {
 
   on.exit(expr = gc(), add = TRUE) #this is here to trigger cleanup of tempfiles
@@ -491,40 +491,42 @@ mapreduce = function(
     
   mr = switch(backend, hadoop = rhstream, local = mr.local, stop("Unsupported backend: ", backend))
   
-  mr(map = map,
-     reduce = reduce,
-     reduce.on.data.frame = reduce.on.data.frame,
-     combine = combine,
-     in.folder = if(is.list(input)) {lapply(input, to.dfs.path)} else to.dfs.path(input),
-     out.folder = to.dfs.path(output),
-     profile.nodes = profile.nodes,
-     input.specs = input.specs,
-     output.specs = output.specs,
-     tuning.parameters = tuning.parameters[[backend]],
+  mr(map = map, 
+     reduce = reduce, 
+     reduce.on.data.frame = reduce.on.data.frame, 
+     combine = combine, 
+     in.folder = if(is.list(input)) {lapply(input, to.dfs.path)} else to.dfs.path(input), 
+     out.folder = to.dfs.path(output), 
+     profile.nodes = profile.nodes, 
+     input.specs = input.specs, 
+     output.specs = output.specs, 
+     tuning.parameters = tuning.parameters[[backend]], 
      verbose = verbose)
   output
 }
 
 # backends
 
-mr.local = function(map,
-                    reduce,
-                    reduce.on.data.frame,
-                    combine,
-                    in.folder,
-                    out.folder,
-                    profile.nodes,
-                    input.specs,
-                    output.specs,
-                    tuning.parameters,
+#local
+
+mr.local = function(map, 
+                    reduce, 
+                    reduce.on.data.frame, 
+                    combine, 
+                    in.folder, 
+                    out.folder, 
+                    profile.nodes, 
+                    input.specs, 
+                    output.specs, 
+                    tuning.parameters, 
                     verbose = verbose) {
-  if(is.null(reduce)) reduce = function(k,vv) lapply(vv, function(v) keyval(k,v))
+  if(is.null(reduce)) reduce = function(k, vv) lapply(vv, function(v) keyval(k, v))
   map.out = do.call(c, 
-                    lapply(do.call(c,
+                    lapply(do.call(c, 
                                    lapply(in.folder, 
                                           function(x) lapply(from.dfs(x, 
-                                                                      text.input.format = input.specs$record.reader),
-                                                             function(y){attr(y$val, 'rmr.input') = x; y}))), 
+                                                                      input.specs = input.specs), 
+                                                             function(y) {attr(y$val, 'rmr.input') = x; y}))), 
                               function(kv) {retval = map(kv$key, kv$val)
                                             if(is.keyval(retval)) list(retval)
                                             else retval}))
@@ -532,30 +534,86 @@ mr.local = function(map,
   reduce.out = tapply(X = map.out, 
                       INDEX = sapply(keys(map.out), digest), 
                       FUN = function(x) reduce(x[[1]]$key, 
-                                             if(reduce.on.data.frame) list.to.data.frame(values(x)) else values(x)),
+                                             if(reduce.on.data.frame) list.to.data.frame(values(x)) else values(x)), 
                       simplify = FALSE)
   if(!is.keyval(reduce.out[[1]]))
     reduce.out = do.call(c, reduce.out)
   names(reduce.out) = replicate(n=length(names(reduce.out)), "")
-  to.dfs(reduce.out, out.folder, text.output.format=output.specs$record.writer)}
+  to.dfs(reduce.out, out.folder, output.specs = output.specs)}
 
+#hadoop
+## drivers section, or what runs on the nodes
+
+activate.profiling = function() {
+  dir = file.path("/tmp/Rprof", Sys.getenv('mapred_job_id'), Sys.getenv('mapred_tip_id'))
+  dir.create(dir, recursive = T)
+  Rprof(file.path(dir, paste(Sys.getenv('mapred_task_id'), Sys.time())))}
+  
+close.profiling = function() Rprof(NULL)
+
+
+map.driver = function(map, record.reader, record.writer, profile) {
+  if(profile) activate.profiling()
+  kv = record.reader()
+  while(!is.null(kv)) { 
+    out = map(kv$key, kv$val)
+    if(!is.null(out)) {
+      if (is.keyval(out)) {record.writer(out$key, out$val)}
+      else {lapply(out, function(o) record.writer(o$key, o$val))}}
+    kv = record.reader()}
+  if(profile) close.profiling()
+  invisible()}
+
+list.cmp = function(ll, e) sapply(ll, function(l) isTRUE(all.equal(e, l)))
+## using isTRUE(all.equal(x)) because identical() was too strict, but on paper it should be it
+
+reduce.driver = function(reduce, record.reader, record.writer, reduce.on.data.frame, profile) {
+  reduce.flush = function(current.key, vv) {
+    out = reduce(current.key, 
+                 if(reduce.on.data.frame) {
+                   list.to.data.frame(vv)}
+                 else {vv})
+    if(!is.null(out)) {
+      if(is.keyval(out)) {record.writer(out$key, out$val)}
+      else {lapply(out, function(o) record.writer(o$key, o$val))}}}
+    if(profile) activate.profiling()
+    kv = record.reader()
+    current.key = kv$key
+    vv = NULL
+    while(!is.null(kv)) {
+      if(identical(kv$key, current.key)) {
+        vv = append(vv, list(kv$val))
+      }
+      else {
+        reduce.flush(current.key, vv)
+        current.key = kv$key
+        vv = kv$val
+      }
+      kv = record.reader()         
+    }
+  reduce.flush(current.key, vv)
+    if(profile) close.profiling()
+    invisible()
+}
+
+# the main function for the hadoop backend
 rhstream = function(
-  map,
-  reduce,
-  reduce.on.data.frame,
-  combine,
-  in.folder,
+  map, 
+  reduce, 
+  reduce.on.data.frame, 
+  combine, 
+  in.folder, 
   out.folder, 
-  profile.nodes,
-  cachefiles,
-  archives,
-  jarfiles,
-  otherparams = list(HADOOP_HOME = Sys.getenv('HADOOP_HOME'),
-    HADOOP_CONF = Sys.getenv("HADOOP_CONF")),
-  input.specs,
-  output.specs,
-  tuning.parameters,
-  verbose = TRUE,
+  profile.nodes, 
+  cachefiles = NULL, 
+  archives = NULL, 
+  jarfiles = NULL, 
+  otherparams = list(HADOOP_HOME = Sys.getenv('HADOOP_HOME'), 
+    HADOOP_CONF = Sys.getenv("HADOOP_CONF")), 
+  input.specs, 
+  output.specs, 
+  tuning.parameters, 
+  verbose = TRUE, 
   debug = FALSE) {
     ## prepare map and reduce executables
   lines = '#! /usr/bin/env Rscript
@@ -567,31 +625,31 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
 '  
 
   map.line = 'load("rmr-map-env", envir = environment(map))
-  rmr:::map.driver(map = map,
-              record.reader = make.record.reader(input.specs$mode,
-                                                 input.specs$record.reader),
-              record.writer = if(is.null(reduce)){
-                                make.record.writer(output.specs$mode,
-                                                   output.specs$record.writer)}
-                              else{
-                                make.record.writer()},  
+  rmr:::map.driver(map = map, 
+              record.reader = rmr:::make.record.reader(input.specs$mode, 
+                                                 input.specs$format), 
+              record.writer = if(is.null(reduce)) {
+                                rmr:::make.record.writer(output.specs$mode, 
+                                                   output.specs$format)}
+                              else {
+                                rmr:::make.record.writer()}, 
               profile = profile.nodes)'
   reduce.line  =  'load("rmr-reduce-env", envir = environment(reduce))
-  rmr:::reduce.driver(reduce = reduce,
-                 record.reader = make.record.reader(),
-                 record.writer = make.record.writer(output.specs$mode,
-                                                    output.specs$record.writer),
-                 reduce.on.data.frame = reduce.on.data.frame,
+  rmr:::reduce.driver(reduce = reduce, 
+                 record.reader = rmr:::make.record.reader(), 
+                 record.writer = rmr:::make.record.writer(output.specs$mode, 
+                                                    output.specs$format), 
+                 reduce.on.data.frame = reduce.on.data.frame, 
                  profile = profile.nodes)'
   combine.line = 'load("rmr-combine-env", envir = environment(combine))
- rmr:::reduce.driver(reduce = combine,
-                 record.reader = make.record.reader(),
-                 record.writer = make.record.writer(),
-                 reduce.on.data.frame = reduce.on.data.frame,
+ rmr:::reduce.driver(reduce = combine, 
+                 record.reader = rmr:::make.record.reader(), 
+                 record.writer = rmr:::make.record.writer(), 
+                 reduce.on.data.frame = reduce.on.data.frame, 
                 profile = profile.nodes)'
 
   map.file = tempfile(pattern = "rhstr.map")
-  writeLines(c(lines,map.line), con = map.file)
+  writeLines(c(lines, map.line), con = map.file)
   reduce.file = tempfile(pattern = "rhstr.reduce")
   writeLines(c(lines, reduce.line), con = reduce.file)
   combine.file = tempfile(pattern = "rhstr.combine")
@@ -608,11 +666,11 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
     fun.env}
 
   libs = sub("package:", "", grep("package", search(), value = T))
-  image.cmd.line = paste("-file",
-                         c(save.env(name = "rmr-local-env"),
-                          save.env(map, "rmr-map-env"),
+  image.cmd.line = paste("-file", 
+                         c(save.env(name = "rmr-local-env"), 
+                          save.env(map, "rmr-map-env"), 
                           if(is.function(reduce)) {
-                            save.env(reduce, "rmr-reduce-env")},
+                            save.env(reduce, "rmr-reduce-env")}, 
                           if(is.function(combine))   
                             save.env(combine, "rmr-combine-env")), 
                         collapse=" ")
@@ -621,16 +679,16 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
   hadoopHome = Sys.getenv("HADOOP_HOME")
   if(hadoopHome == "") warning("Environment variable HADOOP_HOME is missing")
   hadoopBin = file.path(hadoopHome, "bin")
-  stream.jar = list.files(path=sprintf("%s/contrib/streaming", hadoopHome),pattern="jar$",full=TRUE)
-  hadoop.command = sprintf("%s/hadoop jar %s ", hadoopBin,stream.jar)
+  stream.jar = list.files(path=sprintf("%s/contrib/streaming", hadoopHome), pattern="jar$", full=TRUE)
+  hadoop.command = sprintf("%s/hadoop jar %s ", hadoopBin, stream.jar)
   input =  make.input.files(in.folder)
-  output = if(!missing(out.folder)) sprintf("-output %s",out.folder) else " "
-  input.format = if(is.null(input.specs$streaming.input.format)){
+  output = if(!missing(out.folder)) sprintf("-output %s", out.folder) else " "
+  input.format = if(is.null(input.specs$streaming.input.format)) {
     ' ' # default is TextInputFormat
-  }else{
-    sprintf(" -input.format %s", input.format)
+  }else {
+    sprintf(" -input.format %s", input.specs$input.format)
   }
-  output.format = if(is.null(output.specs$streaming.output.format)){
+  output.format = if(is.null(output.specs$streaming.output.format)) {
     ' '}
   else {
     sprintf(" -output.format %s", output.specs$streaming.output.format)
@@ -638,20 +696,20 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
   stream.map.input =
     if(input.specs$mode == "binary") {
       sprintf(" -D stream.map.input=typedbytes", input.specs$mode)}
-    else{''}
+    else {''}
   stream.reduce.output =
     if(output.specs$mode == "binary") {
       sprintf(" -D stream.reduce.output=typedbytes", output.specs$mode)}
-    else{''}
-  mapper = sprintf('-mapper "Rscript %s" ',  tail(strsplit(map.file,"/")[[1]],1))
-  m.fl = sprintf("-file %s ",map.file)
-  if(!is.null(reduce) ){
-      reducer = sprintf('-reducer "Rscript %s" ',  tail(strsplit(reduce.file,"/")[[1]],1))
-      r.fl = sprintf("-file %s ",reduce.file)}
+    else {''}
+  mapper = sprintf('-mapper "Rscript %s" ', tail(strsplit(map.file, "/")[[1]], 1))
+  m.fl = sprintf("-file %s ", map.file)
+  if(!is.null(reduce) ) {
+      reducer = sprintf('-reducer "Rscript %s" ', tail(strsplit(reduce.file, "/")[[1]], 1))
+      r.fl = sprintf("-file %s ", reduce.file)}
   else {
       reducer=" ";r.fl = " "}
   if(!is.null(combine) && is.function(combine)) {
-    combiner = sprintf('-combiner "Rscript %s" ', tail(strsplit(combine.file, "/")[[1]],1))
+    combiner = sprintf('-combiner "Rscript %s" ', tail(strsplit(combine.file, "/")[[1]], 1))
     c.fl = sprintf("-file %s ", combine.file)}
   else {
     combiner = " "
@@ -660,36 +718,36 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
   cmds = make.job.conf(otherparams, pfx="-cmdenv")
   
   #debug.opts = "-mapdebug kdfkdfld -reducexdebug jfkdlfkja"
-  caches = if(length(cachefiles)>0) make.cache.files(cachefiles,"-files") else " " #<0.21
-  archives = if(length(archives)>0) make.cache.files(archives,"-archives") else " "
-  mkjars = if(length(jarfiles)>0) make.cache.files(jarfiles,"-libjars",shorten=FALSE) else " "
+  caches = if(length(cachefiles)>0) make.cache.files(cachefiles, "-files") else " " #<0.21
+  archives = if(length(archives)>0) make.cache.files(archives, "-archives") else " "
+  mkjars = if(length(jarfiles)>0) make.cache.files(jarfiles, "-libjars", shorten=FALSE) else " "
   
   final.command =
     paste(
-      hadoop.command,
-      paste.options(tuning.parameters),
-      stream.map.input,
-      stream.reduce.output,
-      archives,
-      caches,
-      mkjars,
-      input.format,
-          output.format,
-      input,
-      output,
-      mapper,
-      reducer,
-      combiner,
-      m.fl,
-      r.fl,
-      c.fl,
-      image.cmd.line,
-      cmds,
+      hadoop.command, 
+      paste.options(tuning.parameters), 
+      stream.map.input, 
+      stream.reduce.output, 
+      archives, 
+      caches, 
+      mkjars, 
+      input.format, 
+          output.format, 
+      input, 
+      output, 
+      mapper, 
+      reducer, 
+      combiner, 
+      m.fl, 
+      r.fl, 
+      c.fl, 
+      image.cmd.line, 
+      cmds, 
       "2>&1")
   if(verbose) {
     retval = system(final.command)
     if (retval != 0) stop("hadoop streaming failed with error code ", retval, "\n")}
-  else{
+  else {
     console.output = tryCatch(system(final.command, intern=TRUE), 
                               warning = function(e) stop(e)) 
     0
@@ -705,20 +763,20 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
 ## from.dfs("/tmp/reljoin.out")
 
 equijoin = function(
-  left.input = NULL,
-  right.input = NULL,
-  input = NULL,
-  output = NULL,
-  outer = c("", "left", "right", "full"),
-  map.left = to.map(identity),
-  map.right = to.map(identity),
+  left.input = NULL, 
+  right.input = NULL, 
+  input = NULL, 
+  output = NULL, 
+  outer = c("", "left", "right", "full"), 
+  map.left = to.map(identity), 
+  map.right = to.map(identity), 
   reduce  = function(k, values.left, values.right)
-    do.call(c,
-            lapply(values.left,
-                   function(vl) lapply(values.right,
-                                       function(vr) reduceall(k, vl, vr)))),
-  reduceall  = function(k,vl,vr) keyval(k, list(left = vl, right = vr)))
-{
+    do.call(c, 
+            lapply(values.left, 
+                   function(vl) lapply(values.right, 
+                                       function(vr) reduceall(k, vl, vr)))), 
+  reduceall  = function(k, vl, vr) keyval(k, list(left = vl, right = vr)))
+ {
   stopifnot(xor(!is.null(left.input), !is.null(input) &&
                 (is.null(left.input)==is.null(right.input))))
   outer = match.arg(outer)
@@ -734,32 +792,32 @@ equijoin = function(
       leftin = strsplit(to.dfs.path(left.input), "/+")[[1]]
       mapin = strsplit(Sys.getenv("map_input_file"), "/+")[[1]]
       leftin = leftin[-1]
-      mapin = mapin[if(mapin[1] == "hdfs:") c(-1,-2) else -1]
+      mapin = mapin[if(mapin[1] == "hdfs:") c(-1, -2) else -1]
       all(mapin[1:length(leftin)] == leftin)}
   reduce.split =
     function(vv) tapply(lapply(vv, function(v) v$val), sapply(vv, function(v) v$isleft), identity, simplify = FALSE)
   pad.side =
     function(vv, side.outer, full.outer) if (length(vv) == 0 && (side.outer || full.outer)) c(NA) else vv
   map = if (is.null(input)) {
-    function(k,v) {
+    function(k, v) {
       ils = switch(rmr.options.get('backend'), 
-                   hadoop = is.left.side(left.input),
-                   local = attr(v, 'rmr.input') == to.dfs.path(left.input),
+                   hadoop = is.left.side(left.input), 
+                   local = attr(v, 'rmr.input') == to.dfs.path(left.input), 
                    stop("Unsupported backend: ", rmr.options.get('backend')))
-      mark.side(if(ils) map.left(k,v) else map.right(k,v), ils)}}
+      mark.side(if(ils) map.left(k, v) else map.right(k, v), ils)}}
   else {
-    function(k,v) {
-      list(mark.side(map.left(k,v), TRUE),
-           mark.side(map.right(k,v), FALSE))}}
+    function(k, v) {
+      list(mark.side(map.left(k, v), TRUE), 
+           mark.side(map.right(k, v), FALSE))}}
   eqj.reduce = reduce
-  mapreduce(map = map,
+  mapreduce(map = map, 
             reduce =
             function(k, vv) {
               rs = reduce.split(vv)
-              eqj.reduce(k,
-                     pad.side(rs$`TRUE`, right.outer, full.outer),
-                     pad.side(rs$`FALSE`, left.outer, full.outer))},
-            input = c(left.input,right.input),
+              eqj.reduce(k, 
+                     pad.side(rs$`TRUE`, right.outer, full.outer), 
+                     pad.side(rs$`FALSE`, left.outer, full.outer))}, 
+            input = c(left.input, right.input), 
             output = output)}
 
 
@@ -768,8 +826,8 @@ equijoin = function(
 ## data is unchanged
 
 scatter = function(input, output = NULL)
-  mapreduce(input, output, map = function(k,v) keyval(runif(1), keyval(k,v)),
-            reduce = function(k,vv) vv)
+  mapreduce(input, output, map = function(k, v) keyval(runif(1), keyval(k, v)), 
+            reduce = function(k, vv) vv)
 
 ##optimizer
 
@@ -777,7 +835,7 @@ is.mapreduce = function(x) {
   is.call(x) && x[[1]] == "mapreduce"}
 
 mapreduce.arg = function(x, arg) {
-  match.call(mapreduce,x) [[arg]]}
+  match.call(mapreduce, x) [[arg]]}
 
 optimize = function(mrex) {
   mrin = mapreduce.arg(mrex, 'input')
@@ -786,10 +844,10 @@ optimize = function(mrex) {
     is.null(mapreduce.arg(mrin, 'output')) &&
     is.null(mapreduce.arg(mrin, 'reduce'))) {
       bquote(
-        mapreduce(input =  .(mapreduce.arg(mrin, 'input')),
-                  output = .(mapreduce.arg(mrex, 'output')),
-                  map = .(compose.mapred)(.(mapreduce.arg(mrex, 'map')),
-                                  .(mapreduce.arg(mrin, 'map'))),
+        mapreduce(input =  .(mapreduce.arg(mrin, 'input')), 
+                  output = .(mapreduce.arg(mrex, 'output')), 
+                  map = .(compose.mapred)(.(mapreduce.arg(mrex, 'map')), 
+                                  .(mapreduce.arg(mrin, 'map'))), 
                   reduce = .(mapreduce.arg(mrex, 'reduce'))))}
   else mrex }
 
