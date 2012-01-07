@@ -106,17 +106,7 @@ library(rmr)
 for (be in c("local", "hadoop")) {
   rmr.options.set(backend = be)
   
-  ##createReader
-  ##pending input redirect issue: use textConnection
-  ## send
-  unittest(function(kv) rmr:::default.text.output.format(kv$key, kv$val) == 
-                        paste(catch.out(rmr:::send(kv)),"\n", sep = ""),
-                    generators = list(tdggkeyval()))
-  unittest(function(lkv) {
-    all(catch.out(lapply(lkv,rmr:::send)) == 
-    catch.out(rmr:::send(lkv)))
-  },
-          generators = list(tdggkeyvallist()))
+  ## test for default writer TBA
   ##counter and status -- unused for now
   ##keys and values
   unittest(function(kvl) isTRUE(all.equal(kvl, 

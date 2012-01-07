@@ -46,8 +46,8 @@ to.matrix = function(df) as.matrix(sparseMatrix(i=df$key1, j=df$key2, x=df$val))
 
 linear.least.squares = function(X,y) {
   Xt = transpose(X)
-  XtX = from.dfs(mat.mult(Xt, X), todataframe = TRUE)
-  Xty = from.dfs(mat.mult(Xt, y), todataframe = TRUE)
+  XtX = from.dfs(mat.mult(Xt, X), to.data.frame = TRUE)
+  Xty = from.dfs(mat.mult(Xt, y), to.data.frame = TRUE)
   solve(to.matrix(XtX),to.matrix(Xty))}
 
 # test data

@@ -22,7 +22,7 @@ library(rmr)
 wordcount = function (input, output = NULL, pattern = " ") {
   mapreduce(input = input ,
             output = output,
-            text.input.format = raw.text.input.format,
+            input.specs = make.input.specs("text"),
             map = function(k,v) {
                       lapply(
                          strsplit(

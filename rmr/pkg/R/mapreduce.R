@@ -168,9 +168,9 @@ make.input.specs = function(format = native.input.format,
                             streaming.input.format = NULL, ...) {
     mode = match.arg(mode)
   if(is.character(format)) {
-    format = match.arg(format, c("raw", "json", "csv", "native", "typedbytes", "sequence"))
+    format = match.arg(format, c("text", "json", "csv", "native", "typedbytes", "sequence"))
     switch(format, 
-           raw = {format = raw.text.input.format; 
+           text = {format = text.input.format; 
                     mode = "text";
                     streaming.input.format = NULL}, 
                   json = {format = json.input.format; 
@@ -194,9 +194,9 @@ make.output.specs = function(mode = c("text", "binary"),
                        format = native.output.format, 
                        streaming.output.format = NULL, ...) {
     if(is.character(format)) {
-    format = match.arg(format, c("raw", "json", "csv", "native", "typedbytes", "sequence"))
+    format = match.arg(format, c("text", "json", "csv", "native", "typedbytes", "sequence"))
     switch(format, 
-           raw = {format = raw.text.input.format; 
+           text = {format = text.input.format; 
                     mode = "text";
                     streaming.output.format = NULL}, 
                   json = {format = json.output.format; 
@@ -238,7 +238,7 @@ json.output.format = function(k, v) {
   encodeString = function(s) gsub("\\\n", "\\\\n", gsub("\\\t", "\\\\t", s))
   paste(encodeString(toJSON(k, collapse = "")), encodeString(toJSON(v, collapse = "")), sep = "\t")}
 
-raw.text.input.format = function(line) {keyval(NULL, line)}
+text.input.format = function(line) {keyval(NULL, line)}
 csv.input.format = function(key = 1, ...) function(line) {
   tc = textConnection(line)
   df = tryCatch(read.table(file = tc, header = FALSE, ...), 
@@ -251,7 +251,7 @@ csv.input.format = function(key = 1, ...) function(line) {
   close(tc)
   keyval(df[, key], df[, -key])}
 
-raw.text.output.format = function(k, v) paste(k, v, collapse = "", sep = "\t")
+text.output.format = function(k, v) paste(k, v, collapse = "", sep = "\t")
 csv.output.format = function(...) function(k, v) {
   tc = textConnection(object = NULL, open = "w")
   args = list(x = c(as.list(k), as.list(v)), file = tc, ..., row.names = FALSE, col.names = FALSE)
@@ -587,13 +587,13 @@ reduce.driver = function(reduce, record.reader, record.writer, reduce.on.data.fr
       else {
         reduce.flush(current.key, vv)
         current.key = kv$key
-        vv = kv$val
+        vv = list(kv$val)
       }
       kv = record.reader()         
     }
   reduce.flush(current.key, vv)
-    if(profile) close.profiling()
-    invisible()
+  if(profile) close.profiling()
+  invisible()
 }
 
 # the main function for the hadoop backend
