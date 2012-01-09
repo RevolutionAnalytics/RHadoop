@@ -196,7 +196,7 @@ make.output.specs = function(mode = c("text", "binary"),
     if(is.character(format)) {
     format = match.arg(format, c("text", "json", "csv", "native", "typedbytes", "sequence"))
     switch(format, 
-           text = {format = text.input.format; 
+           text = {format = text.output.format; 
                     mode = "text";
                     streaming.output.format = NULL}, 
                   json = {format = json.output.format; 
@@ -434,13 +434,17 @@ from.dfs = function(input, input.specs = make.input.specs(), to.data.frame = FAL
     function(f) {
       con = file(f, if(input.specs$mode == "text") "r" else "rb")
       record.reader = make.record.reader(input.specs$mode, input.specs$format, con)
-      retval = NULL
+      retval = list()
       rec = record.reader()
+      i = 1
       while(!is.null(rec)) {
-        retval = append(retval, list(rec))
-        rec = record.reader()}
+        logi = log2(i)
+        if(round(logi) == logi) retval = c(retval, rep(list(NULL), length(retval)))
+        retval[[i]] = rec
+        rec = record.reader()
+        i = i + 1}
       close(con)
-      retval}
+      retval[!sapply(retval, is.null)]}
 
   retval = if(file.info(tmp)[1, 'isdir']) {
              do.call(c, 
@@ -576,22 +580,28 @@ reduce.driver = function(reduce, record.reader, record.writer, reduce.on.data.fr
     if(!is.null(out)) {
       if(is.keyval(out)) {record.writer(out$key, out$val)}
       else {lapply(out, function(o) record.writer(o$key, o$val))}}}
-    if(profile) activate.profiling()
-    kv = record.reader()
-    current.key = kv$key
-    vv = NULL
-    while(!is.null(kv)) {
-      if(identical(kv$key, current.key)) {
-        vv = append(vv, list(kv$val))
-      }
-      else {
-        reduce.flush(current.key, vv)
-        current.key = kv$key
-        vv = list(kv$val)
-      }
-      kv = record.reader()         
+  if(profile) activate.profiling()
+  kv = record.reader()
+  current.key = kv$key
+  vv = list()
+  i = 1
+  while(!is.null(kv)) {
+    if(identical(kv$key, current.key)) {
+      logi = log2(i)
+      if(round(logi)==logi) vv = c(vv, rep(list(NULL), length(vv)))
+      vv[[i]]  = kv$val
+      i = i + 1
     }
-  reduce.flush(current.key, vv)
+    else {
+      reduce.flush(current.key, 
+                   vv[!sapply(vv, is.null)])
+      current.key = kv$key
+      vv = list(kv$val)
+      i = 2
+    }
+    kv = record.reader()         
+  }
+  reduce.flush(current.key, vv[!sapply(vv, is.null)])
   if(profile) close.profiling()
   invisible()
 }
