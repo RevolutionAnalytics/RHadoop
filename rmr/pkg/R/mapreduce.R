@@ -110,8 +110,8 @@ union.mapred = function(mr1, mr2) function(k, v) {
 
 paste.options = function(optlist) {
   optlist = unlist(sapply(optlist, function(x) if (is.logical(x)) {if(x) "" else NULL} else x))
-  paste(unlist(rbind(paste("-", names(optlist), sep = ""), optlist)), collapse = " ")
-}
+  if(is.null(optlist)) "" 
+  else paste(unlist(rbind(paste("-", names(optlist), sep = ""), optlist)), collapse = " ")}
 
 make.job.conf = function(m, pfx) {
   N = names(m)
@@ -182,7 +182,7 @@ make.input.specs = function(format = native.input.format,
                   native = {format = native.input.format; 
                     mode = "text";
                     streaming.input.format = NULL}, 
-                  typedbytes = {format = typedbytes.input.format; 
+                  typedbytes = {format = typed.bytes.input.format; 
                     mode = "binary";
                     streaming.input.format = NULL}, 
                   sequence = {format = sequence.input.format; 
@@ -208,7 +208,7 @@ make.output.specs = function(mode = c("text", "binary"),
                   native = {format = native.output.format; 
                     mode = "text";
                     streaming.output.format = NULL}, 
-                  typedbytes = {format = typedbytes.output.format; 
+                  typedbytes = {format = typed.bytes.output.format; 
                     mode = "binary";
                     streaming.output.format = NULL}, 
                   sequence = {format = sequence.output.format; 
@@ -696,12 +696,12 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
   input.format = if(is.null(input.specs$streaming.input.format)) {
     ' ' # default is TextInputFormat
   }else {
-    sprintf(" -input.format %s", input.specs$input.format)
+    sprintf(" -inputformat %s", input.specs$streaming.input.format)
   }
   output.format = if(is.null(output.specs$streaming.output.format)) {
     ' '}
   else {
-    sprintf(" -output.format %s", output.specs$streaming.output.format)
+    sprintf(" -outputformat %s", output.specs$streaming.output.format)
   }
   stream.map.input =
     if(input.specs$mode == "binary") {
