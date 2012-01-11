@@ -266,19 +266,22 @@ typed.bytes.reader = function (con) {
   read.code = function() r(what = "integer", n = 1, size = 1)
   read.length = function() r(what = "integer", n= 1, size = 4)
   tbr = function() typed.bytes.reader(con) 
-  switch(1 + read.code(), 
-         r("raw", n = read.length()), 
-         r("raw"), 
-         r("logical", size = 1), 
-         r("integer", size = 4), 
-         r("integer", size = 8), 
-         r("numeric", size = 4), 
-         r("numeric", size = 8), 
-         readChar(con, nchars = read.length()), 
-         lapply(1:read.length(), function(i) typed.bytes.reader(con)), 
-         stop("not implemented yet"), 
-         lapply(1:(read.length()/2), function(i) keyval(typed.bytes.reader(con), 
-                                                             typed.bytes.reader(con))))}
+  type.code = read.code()
+  if(length(type.code) > 0) {
+    list(switch(1 + type.code, 
+           r("raw", n = read.length()), #0 
+           r("raw"),                    #1
+           r("logical", size = 1),      #2
+           r("integer", size = 4),      #3
+           r("integer", size = 8),      #4
+           r("numeric", size = 4),      #5
+           r("numeric", size = 8),      #6
+           readChar(con, nchars = read.length(), useBytes=TRUE), #7 
+           lapply(1:read.length(), function(i) typed.bytes.reader(con)), #8 
+           stop("not implemented yet"), #9
+           lapply(1:(read.length()/2), function(i) keyval(typed.bytes.reader(con), 
+                                                               typed.bytes.reader(con)))))} #10
+  else NULL}
 
 typed.bytes.writer = function(value, con) {
   w = function(x, size = NA_integer_) writeBin(x, con, size = size, endian = "big")
@@ -307,7 +310,10 @@ typed.bytes.writer = function(value, con) {
   TRUE}
     
 typed.bytes.input.format = function(con) {
-  keyval(typed.bytes.reader(con), typed.bytes.reader(con))}
+  key = typed.bytes.reader(con)
+  val = typed.bytes.reader(con)
+  if(is.null(key) || is.null(val)) NULL
+  else keyval(key[[1]],val[[1]])}
 
 typed.bytes.output.format = function(k, v) {
   typed.bytes.writer(k, con)
