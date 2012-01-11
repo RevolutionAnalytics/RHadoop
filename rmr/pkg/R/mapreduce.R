@@ -141,10 +141,12 @@ make.input.files = function(infiles) {
 
 # I/O 
 
-make.record.reader = function(mode = c("text", "binary"), format = native.input.format, con = NULL) {
+make.record.reader = function(mode = c("text", "binary"), 
+                              format = native.input.format, 
+                              con = NULL) {
   mode = match.arg(mode)
   if(mode == "text") {
-    if(is.null(con)) con = file("stdin", "r")
+    if(is.null(con)) con = file("stdin", "r") #not stdin() which is parsed by the interpreter
     function() {
       line = readLines(con, 1)
       if(length(line) == 0) NULL
@@ -153,7 +155,9 @@ make.record.reader = function(mode = c("text", "binary"), format = native.input.
     if(is.null(con)) con = pipe("cat", "rb")
     function() format(con)}}
 
-make.record.writer = function(mode = c("text", "binary"), format = native.output.format, con = NULL) {
+make.record.writer = function(mode = c("text", "binary"), 
+                              format = native.output.format, 
+                              con = NULL) {
   mode = match.arg(mode)
   if(mode == "text") {
     if(is.null(con)) con = stdout()
@@ -165,27 +169,22 @@ make.record.writer = function(mode = c("text", "binary"), format = native.output
 
 make.input.specs = function(format = native.input.format, 
                             mode = c("text", "binary"), 
-                            streaming.input.format = NULL, ...) {
-    mode = match.arg(mode)
+                            streaming.input.format = "org.apache.hadoop.streaming.AutoInputFormat", ...) {
+  mode = match.arg(mode)
   if(is.character(format)) {
-    format = match.arg(format, c("text", "json", "csv", "native", "typedbytes", "sequence"))
+    format = match.arg(format, c("text", "json", "csv", "native", "typedbytes", "sequenceastext"))
     switch(format, 
            text = {format = text.input.format; 
-                    mode = "text";
-                    streaming.input.format = NULL}, 
+                    mode = "text"}, 
                   json = {format = json.input.format; 
-                    mode = "text";
-                    streaming.input.format = NULL}, 
+                    mode = "text"}, 
                   csv = {format = csv.input.format(...); 
-                    mode = "text";
-                    streaming.input.format = NULL}, 
+                    mode = "text"}, 
                   native = {format = native.input.format; 
-                    mode = "text";
-                    streaming.input.format = NULL}, 
+                    mode = "text"}, 
                   typedbytes = {format = typed.bytes.input.format; 
-                    mode = "binary";
-                    streaming.input.format = NULL}, 
-                  sequence = {format = sequence.input.format; 
+                    mode = "binary"}, 
+                  sequenceastext = {format = sequence.input.format; 
                     mode = "text";
                     streaming.input.format = "SequenceFileAsText"})}
   list(mode = mode, format = format, streaming.input.format = streaming.input.format)}
@@ -193,27 +192,28 @@ make.input.specs = function(format = native.input.format,
 make.output.specs = function(mode = c("text", "binary"), 
                        format = native.output.format, 
                        streaming.output.format = NULL, ...) {
-    if(is.character(format)) {
-    format = match.arg(format, c("text", "json", "csv", "native", "typedbytes", "sequence"))
-    switch(format, 
-           text = {format = text.output.format; 
-                    mode = "text";
-                    streaming.output.format = NULL}, 
-                  json = {format = json.output.format; 
-                    mode = "text";
-                    streaming.output.format = NULL}, 
-                  csv = {format = csv.output.format(...); 
-                    mode = "text";
-                    streaming.output.format = NULL}, 
-                  native = {format = native.output.format; 
-                    mode = "text";
-                    streaming.output.format = NULL}, 
-                  typedbytes = {format = typed.bytes.output.format; 
-                    mode = "binary";
-                    streaming.output.format = NULL}, 
-                  sequence = {format = sequence.output.format; 
-                    mode = "text";
-                    streaming.output.format = "SequenceFileAsText"})}
+  mode = match.arg(mode)
+  if(is.character(format)) {
+  format = match.arg(format, c("text", "json", "csv", "native", "typedbytes", "sequence"))
+  switch(format, 
+         text = {format = text.output.format; 
+                  mode = "text";
+                  streaming.output.format = NULL}, 
+                json = {format = json.output.format; 
+                  mode = "text";
+                  streaming.output.format = NULL}, 
+                csv = {format = csv.output.format(...); 
+                  mode = "text";
+                  streaming.output.format = NULL}, 
+                native = {format = native.output.format; 
+                  mode = "text";
+                  streaming.output.format = NULL}, 
+                typedbytes = {format = typed.bytes.output.format; 
+                  mode = "binary";
+                  streaming.output.format = NULL}, 
+                sequence = {format = sequence.output.format; 
+                  mode = "text";
+                  streaming.output.format = "SequenceFileAsText"})}
   mode = match.arg(mode)
   list(mode = mode, format = format, streaming.output.format = streaming.output.format)}
 
@@ -315,7 +315,7 @@ typed.bytes.input.format = function(con) {
   if(is.null(key) || is.null(val)) NULL
   else keyval(key[[1]],val[[1]])}
 
-typed.bytes.output.format = function(k, v) {
+typed.bytes.output.format = function(k, v, con) {
   typed.bytes.writer(k, con)
   typed.bytes.writer(v, con)}
 
@@ -711,11 +711,11 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
   }
   stream.map.input =
     if(input.specs$mode == "binary") {
-      sprintf(" -D stream.map.input=typedbytes", input.specs$mode)}
+      sprintf(" -D stream.map.input=%s", input.specs$mode)}
     else {''}
-  stream.reduce.output =
+  stream.mapred.output =
     if(output.specs$mode == "binary") {
-      sprintf(" -D stream.reduce.output=typedbytes", output.specs$mode)}
+      sprintf(" -D stream.%s.output=%s", if(is.null(reduce)) "map" else "reduce", output.specs$mode)}
     else {''}
   mapper = sprintf('-mapper "Rscript %s" ', tail(strsplit(map.file, "/")[[1]], 1))
   m.fl = sprintf("-file %s ", map.file)
@@ -743,7 +743,7 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
       hadoop.command, 
       paste.options(tuning.parameters), 
       stream.map.input, 
-      stream.reduce.output, 
+      stream.mapred.output, 
       archives, 
       caches, 
       mkjars, 
