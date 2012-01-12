@@ -169,7 +169,7 @@ make.record.writer = function(mode = c("text", "binary"),
 
 make.input.specs = function(format = native.input.format, 
                             mode = c("text", "binary"), 
-                            streaming.input.format = "org.apache.hadoop.streaming.AutoInputFormat", ...) {
+                            streaming.input.format = NULL, ...) {
   mode = match.arg(mode)
   if(is.character(format)) {
     format = match.arg(format, c("text", "json", "csv", "native", "typedbytes", "sequenceastext"))
@@ -186,7 +186,9 @@ make.input.specs = function(format = native.input.format,
                     mode = "binary"}, 
                   sequenceastext = {format = sequence.input.format; 
                     mode = "text";
-                    streaming.input.format = "SequenceFileAsText"})}
+                    streaming.input.format = "org.apache.hadoop.mapred.SequenceFileAsTextInputFormat"})}
+  if(is.null(streaming.input.format) && mode == "binary") 
+    streaming.input.format = "org.apache.hadoop.streaming.AutoInputFormat"
   list(mode = mode, format = format, streaming.input.format = streaming.input.format)}
 
 make.output.specs = function(mode = c("text", "binary"), 
@@ -711,11 +713,11 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
   }
   stream.map.input =
     if(input.specs$mode == "binary") {
-      sprintf(" -D stream.map.input=%s", input.specs$mode)}
+      " -D stream.map.input=typedbytes"}
     else {''}
   stream.mapred.output =
     if(output.specs$mode == "binary") {
-      sprintf(" -D stream.%s.output=%s", if(is.null(reduce)) "map" else "reduce", output.specs$mode)}
+      sprintf(" -D stream.%s.output=typedbytes", if(is.null(reduce)) "map" else "reduce")}
     else {''}
   mapper = sprintf('-mapper "Rscript %s" ', tail(strsplit(map.file, "/")[[1]], 1))
   m.fl = sprintf("-file %s ", map.file)
