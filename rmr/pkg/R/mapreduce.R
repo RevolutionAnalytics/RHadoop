@@ -267,7 +267,7 @@ typed.bytes.reader = function (con) {
     readBin(con, endian = "big", signed = TRUE, ...)}
   read.code = function() r(what = "integer", n = 1, size = 1)
   read.length = function() r(what = "integer", n= 1, size = 4)
-  tbr = function() typed.bytes.reader(con) 
+  tbr = function() typed.bytes.reader(con)[[1]]
   type.code = read.code()
   if(length(type.code) > 0) {
     list(switch(1 + type.code, 
@@ -279,10 +279,10 @@ typed.bytes.reader = function (con) {
            r("numeric", size = 4),      #5
            r("numeric", size = 8),      #6
            readChar(con, nchars = read.length(), useBytes=TRUE), #7 
-           lapply(1:read.length(), function(i) typed.bytes.reader(con)), #8 
+           lapply(1:read.length(), function(i) typed.bytes.reader(con)[[1]]), #8 
            stop("not implemented yet"), #9
-           lapply(1:(read.length()/2), function(i) keyval(typed.bytes.reader(con), 
-                                                               typed.bytes.reader(con)))))} #10
+           lapply(1:(read.length()/2), function(i) keyval(typed.bytes.reader(con)[[1]], 
+                                                               typed.bytes.reader(con)[[1]]))))} #10
   else NULL}
 
 typed.bytes.writer = function(value, con) {

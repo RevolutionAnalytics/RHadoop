@@ -108,6 +108,29 @@ for (be in c("local", "hadoop")) {
   
   ## test for default writer TBA
   ##counter and status -- unused for now
+  
+  ## test for typed bytes read/write
+  ## replace with unittest when possible
+  
+  lapply(
+    list(c(as.raw(66), as.raw(67)), #0
+         as.raw(2), #1
+         FALSE, #2
+         10L, #4
+         3.124, #6
+         "foobar", #7 
+         list(1,"ab", 1L), #8 
+         list(keyval(1,"1"), keyval(2, "2"))), #10
+    function(x) {
+      fname = "/tmp/tbtest"
+      con = file(fname, 'wb')
+      rmr:::typed.bytes.writer(value=x, con=con)
+      close(con)
+      con = file(fname, 'rb')
+      y = rmr:::typed.bytes.reader(con=con)[[1]]
+      close(con)
+      list(x, y, all.equal(x,y))})
+    
   ##keys and values
   unittest(function(kvl) isTRUE(all.equal(kvl, 
                                apply(cbind(keys(kvl), 
