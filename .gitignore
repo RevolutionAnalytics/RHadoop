@@ -19,3 +19,5 @@ rmr/pkg/tools/whirr/whirr.log
 .Rproj.user
 
 RHadoop.Rproj
+
+.RData
