@@ -194,9 +194,9 @@ make.input.specs = function(format = native.input.format,
     streaming.input.format = "org.apache.hadoop.streaming.AutoInputFormat"
   list(mode = mode, format = format, streaming.input.format = streaming.input.format)}
 
-make.output.specs = function(mode = c("text", "binary"), 
-                       format = native.output.format, 
-                       streaming.output.format = NULL, ...) {
+make.output.specs = function(format = native.output.format, 
+                             mode = c("text", "binary"),
+                             streaming.output.format = NULL, ...) {
   mode = match.arg(mode)
   if(is.character(format)) {
   format = match.arg(format, IO.formats)
@@ -305,7 +305,7 @@ typed.bytes.writer = function(value, con, native  = FALSE) {
   write.length = function(x) w(as.integer(x), size = 4)
   tbw = function(x) typed.bytes.writer(x, con)
   if(native) {
-    bytes = serialize(x,NULL)
+    bytes = serialize(value, NULL)
     write.code(144); write.length(length(bytes)); w(bytes)
   }
   else{
