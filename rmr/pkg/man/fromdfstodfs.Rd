@@ -6,15 +6,16 @@
 \description{Utility function that reads and writes lists to HDFS}
 
 \usage{
-to.dfs(object, file = dfs.tempfile(), text.output.format = default.text.output.format)
-from.dfs(file, text.input.format = default.text.input.format, to.data.frame = F)
+to.dfs(object, output = dfs.tempfile(), output.specs = make.output.specs())
+from.dfs(input, input.specs = make.input.specs(), to.data.frame = FALSE)
 }
 
 \arguments{
   \item{object}{An list of key-value pairs as returned by keyvalue to write to HDFS; experimentally, a data frame}
-  \item{file}{A file in HDFS to read from or write to; for from.dfs, the return value of \code{mapreduce}}
-  \item{text.output.format}{The output format of the file being written (from.dfs only)}
-  \item{text.input.format}{The input format of the file being read (from.dfs only)}
+  \item{input}{A file in HDFS to read from or write to; for from.dfs, the return value of \code{mapreduce}}
+  \item{output}{A file in HDFS to read from or write to}
+  \item{input.specs}{Input specification, see make.input.specs}
+  \item{output.specs}{Output specification, see make.outout.specs}
   \item{to.data.frame}{Do what it takes to return a data frame (from.dfs only). }
 }
 
