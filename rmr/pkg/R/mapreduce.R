@@ -167,26 +167,29 @@ make.record.writer = function(mode = c("text", "binary"),
     function(k, v) {
       format(k, v, con)}}}
 
+IO.formats = c("text", "json", "csv", "native", "native.binary",
+               "sequence.typedbytes", "raw.typedbytes")
 make.input.specs = function(format = native.input.format, 
                             mode = c("text", "binary"), 
                             streaming.input.format = NULL, ...) {
   mode = match.arg(mode)
   if(is.character(format)) {
-    format = match.arg(format, c("text", "json", "csv", "native", "typedbytes", "sequenceastext"))
+    format = match.arg(format, IO.formats)
     switch(format, 
            text = {format = text.input.format; 
-                    mode = "text"}, 
-                  json = {format = json.input.format; 
-                    mode = "text"}, 
-                  csv = {format = csv.input.format(...); 
-                    mode = "text"}, 
-                  native = {format = native.input.format; 
-                    mode = "text"}, 
-                  typedbytes = {format = typed.bytes.input.format; 
-                    mode = "binary"}, 
-                  sequenceastext = {format = sequence.input.format; 
-                    mode = "text";
-                    streaming.input.format = "org.apache.hadoop.mapred.SequenceFileAsTextInputFormat"})}
+                   mode = "text"}, 
+           json = {format = json.input.format; 
+                   mode = "text"}, 
+           csv = {format = csv.input.format(...); 
+                  mode = "text"}, 
+           native = {format = native.input.format; 
+                     mode = "text"}, 
+           native.binary = {format = native.binary.input.format; 
+                            mode = "binary"}, 
+           sequence.typedbytes = {format = typed.bytes.input.format; 
+                                  mode = "binary"}, 
+           raw.typedbytes = {format = typed.bytes.input.format; 
+                         mode = "binary"})}
   if(is.null(streaming.input.format) && mode == "binary") 
     streaming.input.format = "org.apache.hadoop.streaming.AutoInputFormat"
   list(mode = mode, format = format, streaming.input.format = streaming.input.format)}
@@ -196,26 +199,29 @@ make.output.specs = function(mode = c("text", "binary"),
                        streaming.output.format = NULL, ...) {
   mode = match.arg(mode)
   if(is.character(format)) {
-  format = match.arg(format, c("text", "json", "csv", "native", "typedbytes", "sequence"))
+  format = match.arg(format, IO.formats)
   switch(format, 
          text = {format = text.output.format; 
                   mode = "text";
-                  streaming.output.format = NULL}, 
-                json = {format = json.output.format; 
-                  mode = "text";
-                  streaming.output.format = NULL}, 
-                csv = {format = csv.output.format(...); 
-                  mode = "text";
-                  streaming.output.format = NULL}, 
-                native = {format = native.output.format; 
-                  mode = "text";
-                  streaming.output.format = NULL}, 
-                typedbytes = {format = typed.bytes.output.format; 
-                  mode = "binary";
-                  streaming.output.format = NULL}, 
-                sequence = {format = sequence.output.format; 
-                  mode = "text";
-                  streaming.output.format = "SequenceFileAsText"})}
+                  streaming.output.format = NULL},
+         json = {format = json.output.format; 
+                 mode = "text";
+                 streaming.output.format = NULL}, 
+         csv = {format = csv.output.format(...); 
+                mode = "text";
+                streaming.output.format = NULL}, 
+         native = {format = native.output.format; 
+                   mode = "text";
+                   streaming.output.format = NULL}, 
+         native.binary = {format = native.binary.output.format; 
+                   mode = "binary";
+                   streaming.output.format = NULL}, 
+         sequence.typedbytes = {format = typed.bytes.output.format; 
+                       mode = "binary";
+                       streaming.output.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"}, 
+         raw.typedbytes = {format = typed.bytes.output.format; 
+                       mode = "binary";
+                       streaming.output.format = NULL})}
   mode = match.arg(mode)
   list(mode = mode, format = format, streaming.output.format = streaming.output.format)}
 
@@ -260,55 +266,68 @@ csv.output.format = function(...) function(k, v) {
   do.call(write.table, args[unique(names(args))])
   paste(textConnectionValue(con = tc), sep = "", collapse = "")}
 
-typed.bytes.reader = function (con) {
+typed.bytes.reader = function (con, type.code = NULL) {
   r = function(...) {
     if(is.raw(con)) 
       con = rawConnection(con, open = "r") 
     readBin(con, endian = "big", signed = TRUE, ...)}
-  read.code = function() r(what = "integer", n = 1, size = 1)
+  read.code = function() (256 + r(what = "integer", n = 1, size = 1)) %% 256
   read.length = function() r(what = "integer", n= 1, size = 4)
   tbr = function() typed.bytes.reader(con)[[1]]
-  type.code = read.code()
+  two55.terminated.list = function() {
+    ll = list()
+    code = read.code()
+    while(length(code) > 0 && code != 255) {
+      ll = append(ll,  typed.bytes.reader(con, code))
+      code = read.code()}
+    ll}#quadratic, fix later
+  
+  if (is.null(type.code)) type.code = read.code()
   if(length(type.code) > 0) {
-    list(switch(1 + type.code, 
-           r("raw", n = read.length()), #0 
-           r("raw"),                    #1
-           r("logical", size = 1),      #2
-           r("integer", size = 4),      #3
-           r("integer", size = 8),      #4
-           r("numeric", size = 4),      #5
-           r("numeric", size = 8),      #6
-           readChar(con, nchars = read.length(), useBytes=TRUE), #7 
-           lapply(1:read.length(), function(i) typed.bytes.reader(con)[[1]]), #8 
-           stop("not implemented yet"), #9
-           lapply(1:(read.length()/2), function(i) keyval(typed.bytes.reader(con)[[1]], 
-                                                               typed.bytes.reader(con)[[1]]))))} #10
+    list(switch(as.character(type.code), 
+                "0" = r("raw", n = read.length()), 
+                "1" = r("raw"),                    
+                "2" = r("logical", size = 1),      
+                "3" = r("integer", size = 4),      
+                "4" = r("integer", size = 8),      
+                "5" = r("numeric", size = 4),      
+                "6" = r("numeric", size = 8),      
+                "7" = readChar(con, nchars = read.length(), useBytes=TRUE), 
+                "8" = lapply(1:read.length(), function(i) tbr()), 
+                "9" = two55.terminated.list(), 
+                "10" = lapply(1:(read.length()), function(i) keyval(tbr(), tbr())),
+                "144" = unserialize(r("raw", n = read.length()))))} 
   else NULL}
 
-typed.bytes.writer = function(value, con) {
+typed.bytes.writer = function(value, con, native  = FALSE) {
   w = function(x, size = NA_integer_) writeBin(x, con, size = size, endian = "big")
   write.code = function(x) w(as.integer(x), size = 1)
   write.length = function(x) w(as.integer(x), size = 4)
   tbw = function(x) typed.bytes.writer(x, con)
-  if(is.list(value) && all(sapply(value, is.keyval))) {
-    write.code(10)
-    write.length(2*length(value))
-    lapply(value, function(kv) {lapply(kv, tbw)})}
-  else {
-    if(length(value) == 1) {
-      switch(class(value), 
-             raw = {write.code(1); w(value)}, 
-             logical = {write.code(2); w(value, size = 1)}, 
-             integer = {write.code(3); w(value)}, 
-             #doesn't happen in R integer = {write.code(4); w(value)}, 
-             #doesn't happen in R numeric = {write.code(5); w(value)}, 
-             numeric = {write.code(6); w(value)}, 
-             character = {write.code(7); write.length(nchar(value)); writeChar(value, con, eos = NULL)}, 
-             stop("not implemented yet"))}
+  if(native) {
+    bytes = serialize(x,NULL)
+    write.code(144); write.length(length(bytes)); w(bytes)
+  }
+  else{
+    if(is.list(value) && all(sapply(value, is.keyval))) {
+      write.code(10)
+      write.length(length(value))
+      lapply(value, function(kv) {lapply(kv, tbw)})}
     else {
-      switch(class(value), 
-             raw = {write.code(0); write.length(length(value)); w(value)}, 
-             {write.code(8); write.length(length(value)); lapply(value, tbw)})}}
+      if(length(value) == 1) {
+        switch(class(value), 
+               raw = {write.code(1); w(value)}, 
+               logical = {write.code(2); w(value, size = 1)}, 
+               integer = {write.code(3); w(value)}, 
+               #doesn't happen in R integer = {write.code(4); w(value)}, 
+               #doesn't happen in R numeric = {write.code(5); w(value)}, 
+               numeric = {write.code(6); w(value)}, 
+               character = {write.code(7); write.length(nchar(value)); writeChar(value, con, eos = NULL)}, 
+               stop("not implemented yet"))}
+      else {
+        switch(class(value), 
+               raw = {write.code(0); write.length(length(value)); w(value)}, 
+               {write.code(8); write.length(length(value)); lapply(value, tbw)})}}}
   TRUE}
     
 typed.bytes.input.format = function(con) {
@@ -321,8 +340,13 @@ typed.bytes.output.format = function(k, v, con) {
   typed.bytes.writer(k, con)
   typed.bytes.writer(v, con)}
 
-#data frame conversiondefault.input.f
+native.binary.input.format = typed.bytes.input.format
 
+native.binary.output.format = function(k, v, con){
+  typed.bytes.writer(k, con, TRUE)
+  typed.bytes.writer(v, con, TRUE)}
+
+#data frame conversion
 flatten = function(x) unlist(list(name = as.name("name"), x))[-1]
 list.to.data.frame = function(l) data.frame(lapply(data.frame(do.call(rbind, lapply(l, flatten))), unlist))
 from.data.frame = function(df, keycol = 1) lapply(1:dim(df)[[1]], function(i) keyval(df[i, keycol], df[i, ] ))
