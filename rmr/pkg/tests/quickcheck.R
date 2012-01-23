@@ -129,7 +129,7 @@ for (be in c("local", "hadoop")) {
       con = file(fname, 'rb')
       y = rmr:::typed.bytes.reader(con=con)[[1]]
       close(con)
-      list(x, y, all.equal(x,y))})
+      stopifnot( all.equal(x,y))})
     
   ##keys and values
   unittest(function(kvl) isTRUE(all.equal(kvl, 
