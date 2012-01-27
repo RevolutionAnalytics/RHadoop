@@ -237,14 +237,17 @@ native.output.format = function(k, v) {
   paste(ser(k), ser(v), sep = "\t")}
   
 json.input.format = function(line) {
-  decodeString = function(s) gsub("\\\\n", "\\\n", gsub("\\\\t", "\\\t", s))
   x =  strsplit(line, "\t")[[1]]
-  keyval(fromJSON(decodeString(x[1]), asText = TRUE), 
-         fromJSON(decodeString(x[2]), asText = TRUE))}
+  if(length(x) == 1)  keyval(NULL, fromJSON(x[1], asText = TRUE))
+  else keyval(fromJSON(x[1], asText = TRUE), 
+         fromJSON(x[2], asText = TRUE))}
 
 json.output.format = function(k, v) {
-  encodeString = function(s) gsub("\\\n", "\\\\n", gsub("\\\t", "\\\\t", s))
-  paste(encodeString(toJSON(k, collapse = "")), encodeString(toJSON(v, collapse = "")), sep = "\t")}
+  paste(if(is.null(k))
+           toJSON(k, .escapeEscapes=TRUE, collapse = "")
+        else NULL,
+        toJSON(v, .escapeEscapes=TRUE, collapse = ""),
+        sep = "\t")}
 
 text.input.format = function(line) {keyval(NULL, line)}
 csv.input.format = function(key = 1, ...) function(line) {
