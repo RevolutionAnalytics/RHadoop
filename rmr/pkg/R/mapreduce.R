@@ -347,8 +347,8 @@ native.binary.output.format = function(k, v, con){
   typed.bytes.writer(v, con, TRUE)}
 
 #data frame conversion
-flatten = function(x) unlist(list(name = as.name("name"), x))[-1]
-list.to.data.frame = function(l) data.frame(lapply(data.frame(do.call(rbind, lapply(l, flatten))), unlist))
+flatten = function(x) if (is.list(x)) do.call(c, lapply(x, function(y) as.list(flatten(y)))) else if(is.factor(x)) as.character(x) else x
+list.to.data.frame = function(x) as.data.frame(apply(do.call(rbind, apply(cbind(rmr.key = keys(x), values(x)),1, flatten)),2,unlist))
 from.data.frame = function(df, keycol = 1) lapply(1:dim(df)[[1]], function(i) keyval(df[i, keycol], df[i, ] ))
 
 #output cmp
