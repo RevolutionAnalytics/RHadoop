@@ -250,6 +250,8 @@ json.output.format = function(k, v) {
         sep = "\t")}
 
 text.input.format = function(line) {keyval(NULL, line)}
+text.output.format = function(k, v) paste(k, v, collapse = "", sep = "\t")
+
 csv.input.format = function(key = 1, ...) function(line) {
   tc = textConnection(line)
   df = tryCatch(read.table(file = tc, header = FALSE, ...), 
@@ -262,7 +264,6 @@ csv.input.format = function(key = 1, ...) function(line) {
   close(tc)
   keyval(df[, key], df[, -key])}
 
-text.output.format = function(k, v) paste(k, v, collapse = "", sep = "\t")
 csv.output.format = function(...) function(k, v) {
   tc = textConnection(object = NULL, open = "w")
   args = list(x = c(as.list(k), as.list(v)), file = tc, ..., row.names = FALSE, col.names = FALSE)
