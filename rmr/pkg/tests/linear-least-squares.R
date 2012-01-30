@@ -42,7 +42,7 @@ mat.mult = function(left, right, result = NULL) {
                 output = result,
                 reduce = to.reduce(identity, function(x) sum(unlist(x))))}
 
-to.matrix = function(df) as.matrix(sparseMatrix(i=df$key1, j=df$key2, x=df$val))
+to.matrix = function(df) as.matrix(sparseMatrix(i=df$rmr.key1, j=df$rmr.key2, x=df$V3))
 
 linear.least.squares = function(X,y) {
   Xt = transpose(X)
