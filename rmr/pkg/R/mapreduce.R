@@ -141,10 +141,10 @@ make.input.files = function(infiles) {
 
 # I/O 
 
-make.record.reader = function(mode = c("text", "binary"), 
-                              format = native.input.format, 
-                              con = NULL) {
-  mode = match.arg(mode)
+make.record.reader = function(mode = NULL, format = NULL, con = NULL) {
+  default = make.input.specs()
+  if(is.null(mode)) mode = default$mode
+  if(is.null(format)) format = default$format
   if(mode == "text") {
     if(is.null(con)) con = file("stdin", "r") #not stdin() which is parsed by the interpreter
     function() {
@@ -155,22 +155,21 @@ make.record.reader = function(mode = c("text", "binary"),
     if(is.null(con)) con = pipe("cat", "rb")
     function() format(con)}}
 
-make.record.writer = function(mode = c("text", "binary"), 
-                              format = native.output.format, 
-                              con = NULL) {
-  mode = match.arg(mode)
+make.record.writer = function(mode = NULL, format = NULL, con = NULL) {
+  default = make.output.specs()
+  if(is.null(mode)) mode = default$mode
+  if(is.null(format)) format = default$format
   if(mode == "text") {
     if(is.null(con)) con = stdout()
     function(k, v) writeLines(format(k, v), con)}
   else {
     if(is.null(con)) con = pipe("cat", "wb")
-    function(k, v) {
-      format(k, v, con)}}}
+    function(k, v) format(k, v, con)}}
 
 IO.formats = c("text", "json", "csv", "native", "native.binary",
                "sequence.typedbytes", "raw.typedbytes")
-make.input.specs = function(format = native.input.format, 
-                            mode = c("text", "binary"), 
+make.input.specs = function(format = native.binary.input.format, 
+                            mode = c("binary", "text"),
                             streaming.input.format = NULL, ...) {
   mode = match.arg(mode)
   if(is.character(format)) {
@@ -187,16 +186,18 @@ make.input.specs = function(format = native.input.format,
            native.binary = {format = native.binary.input.format; 
                             mode = "binary"}, 
            sequence.typedbytes = {format = typed.bytes.input.format; 
-                                  mode = "binary"}, 
+                                  mode = "binary";
+                                  streaming.input.format = "org.apache.hadoop.mapred.SequenceFileInputFormat"}, 
            raw.typedbytes = {format = typed.bytes.input.format; 
                          mode = "binary"})}
   if(is.null(streaming.input.format) && mode == "binary") 
     streaming.input.format = "org.apache.hadoop.streaming.AutoInputFormat"
   list(mode = mode, format = format, streaming.input.format = streaming.input.format)}
 
-make.output.specs = function(format = native.output.format, 
-                             mode = c("text", "binary"),
-                             streaming.output.format = NULL, ...) {
+make.output.specs = function(format = native.binary.output.format, 
+                             mode = c("binary", "text"),
+                             streaming.output.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat", 
+                             ...) {
   mode = match.arg(mode)
   if(is.character(format)) {
   format = match.arg(format, IO.formats)
@@ -455,7 +456,8 @@ to.dfs = function(object, output = dfs.tempfile(), output.specs = make.output.sp
     
   write.file(object, tmp)      
   if(rmr.options.get('backend') == 'hadoop') {
-    hdfs.put(tmp, dfsOutput)
+    system(paste(hadoop.cmd(),  "loadtb", dfsOutput, "<", tmp))
+#   hdfs.put(tmp, dfsOutput)
     file.remove(tmp)}
   else
     file.rename(tmp, dfsOutput)
@@ -464,7 +466,8 @@ to.dfs = function(object, output = dfs.tempfile(), output.specs = make.output.sp
 from.dfs = function(input, input.specs = make.input.specs(), to.data.frame = FALSE) {
   if(rmr.options.get('backend') == 'hadoop') {
     tmp = tempfile()
-    hdfs.get(to.dfs.path(input), tmp)}
+    system(paste(hadoop.cmd(), "dumptb", to.dfs.path(input), ">", tmp))}
+#    hdfs.get(to.dfs.path(input), tmp)}
   else tmp = to.dfs.path(input)
   read.file = 
     function(f) {
@@ -643,6 +646,14 @@ reduce.driver = function(reduce, record.reader, record.writer, reduce.on.data.fr
 }
 
 # the main function for the hadoop backend
+
+hadoop.cmd = function() {
+  hadoopHome = Sys.getenv("HADOOP_HOME")
+  if(hadoopHome == "") warning("Environment variable HADOOP_HOME is missing")
+  hadoopBin = file.path(hadoopHome, "bin")
+  stream.jar = list.files(path=sprintf("%s/contrib/streaming", hadoopHome), pattern="jar$", full=TRUE)
+  sprintf("%s/hadoop jar %s ", hadoopBin, stream.jar)}
+
 rhstream = function(
   map, 
   reduce, 
@@ -722,11 +733,7 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
                         collapse=" ")
   
   ## prepare hadoop streaming command
-  hadoopHome = Sys.getenv("HADOOP_HOME")
-  if(hadoopHome == "") warning("Environment variable HADOOP_HOME is missing")
-  hadoopBin = file.path(hadoopHome, "bin")
-  stream.jar = list.files(path=sprintf("%s/contrib/streaming", hadoopHome), pattern="jar$", full=TRUE)
-  hadoop.command = sprintf("%s/hadoop jar %s ", hadoopBin, stream.jar)
+  hadoop.command = hadoop.cmd()
   input =  make.input.files(in.folder)
   output = if(!missing(out.folder)) sprintf("-output %s", out.folder) else " "
   input.format = if(is.null(input.specs$streaming.input.format)) {
@@ -743,10 +750,16 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
     if(input.specs$mode == "binary") {
       " -D stream.map.input=typedbytes"}
     else {''}
-  stream.mapred.output =
+  stream.map.output = " -D stream.map.output=typedbytes"
+  stream.reduce.input = " -D stream.reduce.input=typedbytes"
+  stream.reduce.output = 
     if(output.specs$mode == "binary") {
-      sprintf(" -D stream.%s.output=typedbytes", if(is.null(reduce)) "map" else "reduce")}
+      " -D stream.reduce.output=typedbytes"}
     else {''}
+  stream.mapred.io = paste(stream.map.input,
+                           stream.map.output,
+                           stream.reduce.input,
+                           stream.reduce.output)
   mapper = sprintf('-mapper "Rscript %s" ', tail(strsplit(map.file, "/")[[1]], 1))
   m.fl = sprintf("-file %s ", map.file)
   if(!is.null(reduce) ) {
@@ -772,8 +785,7 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
     paste(
       hadoop.command, 
       paste.options(tuning.parameters), 
-      stream.map.input, 
-      stream.mapred.output, 
+      stream.mapred.io,  
       archives, 
       caches, 
       mkjars, 
