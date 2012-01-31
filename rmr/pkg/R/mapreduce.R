@@ -489,18 +489,19 @@ from.dfs = function(input, input.specs = make.input.specs(), to.data.frame = FAL
   dumptb = function(src, dest){
     lapply(src, function(x) system(paste(hadoop.cmd(), "dumptb", x, ">>", dest)))}
   
-  getmerge = function(src, dest){
-    hdfs.getmerge(src,dest)}
-  
   fname = to.dfs.path(input)
-  tmp = tempfile()
-  if(input.specs$mode == "binary") dumptb(part.list(fname), tmp)
-  else 
-    getmerge(fname, tmp)
+  if(rmr.options.get("backend") == "hadoop") {
+    tmp = tempfile()
+    if(input.specs$mode == "binary") dumptb(part.list(fname), tmp)
+    else 
+      hdfs.getmerge(fname, tmp)}
+  else
+    tmp = fname
   retval = read.file(tmp)
-  unlink(tmp)
+  if(rmr.options.get("backend") == "hadoop") unlink(tmp)
   if(to.data.frame) list.to.data.frame(retval)
   else retval}
+
 # mapreduce
 
 dfs.tempfile = function(pattern = "file", tmpdir = tempdir()) {
