@@ -390,7 +390,7 @@ hdfs.match.sideeffect = function(...) {
   hdfs(getcmd(match.call()), FALSE, ...) == 0}
 
 hdfs.match.out = function(...)
-  list.to.data.frame(strsplit(hdfs(getcmd(match.call()), TRUE, ...)[-1], " +"))
+  as.data.frame(t(apply(t(strsplit(hdfs(getcmd(match.call()), TRUE, ...)[-1], " +")),2, unlist)))
 
 mkhdfsfun = function(hdfscmd, out)
   eval(parse(text = paste ("hdfs.", hdfscmd, " = hdfs.match.", if(out) "out" else "sideeffect", sep = "")), 
@@ -464,35 +464,43 @@ to.dfs = function(object, output = dfs.tempfile(), output.specs = make.output.sp
   output}
 
 from.dfs = function(input, input.specs = make.input.specs(), to.data.frame = FALSE) {
-  if(rmr.options.get('backend') == 'hadoop') {
-    tmp = tempfile()
-    system(paste(hadoop.cmd(), "dumptb", to.dfs.path(input), ">", tmp))}
-#    hdfs.get(to.dfs.path(input), tmp)}
-  else tmp = to.dfs.path(input)
-  read.file = 
-    function(f) {
-      con = file(f, if(input.specs$mode == "text") "r" else "rb")
-      record.reader = make.record.reader(input.specs$mode, input.specs$format, con)
-      retval = list()
+  part.list = function(fname) {
+    if(rmr.options.get('backend') == "local") fname
+    else {
+      lf = tryCatch(hdfs.ls(paste(fname, "part*", sep = "/"))$V8, error = function(e) NULL)
+      if(length(lf) > 0) lf
+      else hdfs.ls(fname)$V8}}
+  
+  read.file = function(f) {
+    con = file(f, if(input.specs$mode == "text") "r" else "rb")
+    record.reader = make.record.reader(input.specs$mode, input.specs$format, con)
+    retval = list()
+    rec = record.reader()
+    i = 1
+    while(!is.null(rec)) {
+      logi = log2(i)
+      if(round(logi) == logi) retval = c(retval, rep(list(NULL), length(retval)))
+      retval[[i]] = rec
       rec = record.reader()
-      i = 1
-      while(!is.null(rec)) {
-        logi = log2(i)
-        if(round(logi) == logi) retval = c(retval, rep(list(NULL), length(retval)))
-        retval[[i]] = rec
-        rec = record.reader()
-        i = i + 1}
-      close(con)
-      retval[!sapply(retval, is.null)]}
-
-  retval = if(file.info(tmp)[1, 'isdir']) {
-             do.call(c, 
-               lapply(list.files(tmp, "part*"), 
-                      function(f) read.file(file.path(tmp, f))))}
-          else {read.file(tmp)}
+      i = i + 1}
+    close(con)
+    retval[!sapply(retval, is.null)]}
+  
+  dumptb = function(src, dest){
+    lapply(src, function(x) system(paste(hadoop.cmd(), "dumptb", x, ">>", dest)))}
+  
+  getmerge = function(src, dest){
+    hdfs.getmerge(src,dest)}
+  
+  fname = to.dfs.path(input)
+  tmp = tempfile()
+  if(input.specs$mode == "binary") dumptb(part.list(fname), tmp)
+  else 
+    getmerge(fname, tmp)
+  retval = read.file(tmp)
+  unlink(tmp)
   if(to.data.frame) list.to.data.frame(retval)
   else retval}
-
 # mapreduce
 
 dfs.tempfile = function(pattern = "file", tmpdir = tempdir()) {
