@@ -408,6 +408,7 @@ pretty.hdfs.ls = function(...) {
   ls.out = hdfs.ls(...)
   if(ls.out[1,1] == "Found") 
     ls.out = ls.out[-1,]
+  if(class(ls.out) == "character") ls.out = t(ls.out)
   df = as.data.frame(ls.out)
   names(df) = c("mode", "links", "owner", "group", "size", "last.modified.date", "last.modified.time", "path")
   df$links = as.numeric(sapply(as.character(df$links), function(x) if (x=="-") 0 else x))
@@ -448,8 +449,7 @@ to.dfs.path = function(input) {
 
 to.dfs = function(object, output = dfs.tempfile(), output.specs = make.output.specs()) {
   if(is.data.frame(object) || is.matrix(object)) {
-    object = from.data.frame(object)
-  }
+    object = from.data.frame(object)}
   tmp = tempfile()
   dfsOutput = to.dfs.path(output)
   
