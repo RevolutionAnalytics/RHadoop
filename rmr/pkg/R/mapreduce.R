@@ -389,8 +389,9 @@ getcmd = function(matched.call)
 hdfs.match.sideeffect = function(...) {
   hdfs(getcmd(match.call()), FALSE, ...) == 0}
 
+#this returns a character matrix, individual cmds may benefit from additional transformations
 hdfs.match.out = function(...)
-  as.data.frame(t(apply(t(strsplit(hdfs(getcmd(match.call()), TRUE, ...)[-1], " +")),2, unlist)))
+  do.call(rbind, strsplit(hdfs(getcmd(match.call()), TRUE, ...), " +")) 
 
 mkhdfsfun = function(hdfscmd, out)
   eval(parse(text = paste ("hdfs.", hdfscmd, " = hdfs.match.", if(out) "out" else "sideeffect", sep = "")), 
@@ -402,6 +403,16 @@ for (hdfscmd in c("ls", "lsr", "df", "du", "dus", "count", "cat", "text", "stat"
 for (hdfscmd in c("mv", "cp", "rm", "rmr", "expunge", "put", "copyFromLocal", "moveFromLocal", "get", "getmerge", 
                  "copyToLocal", "moveToLocal", "mkdir", "setrep", "touchz", "test", "chmod", "chown", "chgrp"))
   mkhdfsfun(hdfscmd, FALSE)
+
+pretty.hdfs.ls = function(...) {
+  ls.out = hdfs.ls(...)
+  if(ls.out[1,1] == "Found") 
+    ls.out = ls.out[-1,]
+  df = as.data.frame(ls.out)
+  names(df) = c("mode", "links", "owner", "group", "size", "last.modified.date", "last.modified.time", "path")
+  df$links = as.numeric(sapply(as.character(df$links), function(x) if (x=="-") 0 else x))
+  df$size = as.numeric(as.character(df$size))
+  df}
 
 # backend independent dfs section
 dfs.exists = function(f) {
@@ -467,9 +478,9 @@ from.dfs = function(input, input.specs = make.input.specs(), to.data.frame = FAL
   part.list = function(fname) {
     if(rmr.options.get('backend') == "local") fname
     else {
-      lf = tryCatch(hdfs.ls(paste(fname, "part*", sep = "/"))$V8, error = function(e) NULL)
-      if(length(lf) > 0) lf
-      else hdfs.ls(fname)$V8}}
+      if(dfs.is.dir(fname))
+        lf = pretty.hdfs.ls(paste(fname, "part*", sep = "/"))$path
+      else fname}}
   
   read.file = function(f) {
     con = file(f, if(input.specs$mode == "text") "r" else "rb")
