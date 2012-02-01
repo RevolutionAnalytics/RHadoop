@@ -649,7 +649,7 @@ reduce.driver = function(reduce, record.reader, record.writer, reduce.on.data.fr
     }
     kv = record.reader()         
   }
-  reduce.flush(current.key, vv[!sapply(vv, is.null)])
+  if(length(vv) > 0) reduce.flush(current.key, vv[!sapply(vv, is.null)])
   if(profile) close.profiling()
   invisible()
 }
