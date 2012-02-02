@@ -18,7 +18,7 @@ rmr.options = new.env(parent=emptyenv())
 rmr.options$backend = "hadoop"
 rmr.options$profile.nodes = FALSE
 rmr.options$depend.check = FALSE
-rmr.options$managed.dir = "/var/rmr/managed"
+#rmr.options$managed.dir = "/var/rmr/managed"
 
 rmr.options.get = function(...) {
   opts = as.list(rmr.options)
@@ -32,9 +32,10 @@ rmr.options.get = function(...) {
       opts[[args]]}}
 
 rmr.options.set = function(backend = c("hadoop", "local"), 
-                           profile.nodes = NULL, 
-                           depend.check = NULL, 
-                           managed.dir = NULL) {
+                           profile.nodes = NULL#, 
+                           #depend.check = NULL, 
+                           #managed.dir = NULL
+                           ) {
   this.call = match.call()
   backend = match.arg(backend) #this doesn't do anything, fix
   lapply(names(this.call)[-1], 
