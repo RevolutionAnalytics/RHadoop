@@ -143,7 +143,7 @@ make.input.files = function(infiles) {
 # I/O 
 
 make.record.reader = function(mode = NULL, format = NULL, con = NULL) {
-  default = make.input.specs()
+  default = make.input.format()
   if(is.null(mode)) mode = default$mode
   if(is.null(format)) format = default$format
   if(mode == "text") {
@@ -157,7 +157,7 @@ make.record.reader = function(mode = NULL, format = NULL, con = NULL) {
     function() format(con)}}
 
 make.record.writer = function(mode = NULL, format = NULL, con = NULL) {
-  default = make.output.specs()
+  default = make.output.format()
   if(is.null(mode)) mode = default$mode
   if(is.null(format)) format = default$format
   if(mode == "text") {
@@ -167,11 +167,11 @@ make.record.writer = function(mode = NULL, format = NULL, con = NULL) {
     if(is.null(con)) con = pipe("cat", "wb")
     function(k, v) format(k, v, con)}}
 
-IO.formats = c("text", "json", "csv", "native", "native.binary",
+IO.formats = c("text", "json", "csv", "native", "native.text",
                "sequence.typedbytes", "raw.typedbytes")
-make.input.specs = function(format = native.binary.input.format, 
+make.input.format = function(format = native.input.format, 
                             mode = c("binary", "text"),
-                            streaming.input.format = NULL, ...) {
+                            streaming.format = NULL, ...) {
   mode = match.arg(mode)
   if(is.character(format)) {
     format = match.arg(format, IO.formats)
@@ -182,22 +182,22 @@ make.input.specs = function(format = native.binary.input.format,
                    mode = "text"}, 
            csv = {format = csv.input.format(...); 
                   mode = "text"}, 
-           native = {format = native.input.format; 
+           native.text = {format = native.text.input.format; 
                      mode = "text"}, 
-           native.binary = {format = native.binary.input.format; 
+           native = {format = native.input.format; 
                             mode = "binary"}, 
            sequence.typedbytes = {format = typed.bytes.input.format; 
                                   mode = "binary";
-                                  streaming.input.format = "org.apache.hadoop.mapred.SequenceFileInputFormat"}, 
+                                  streaming.format = "org.apache.hadoop.mapred.SequenceFileInputFormat"}, 
            raw.typedbytes = {format = typed.bytes.input.format; 
                          mode = "binary"})}
-  if(is.null(streaming.input.format) && mode == "binary") 
-    streaming.input.format = "org.apache.hadoop.streaming.AutoInputFormat"
-  list(mode = mode, format = format, streaming.input.format = streaming.input.format)}
+  if(is.null(streaming.format) && mode == "binary") 
+    streaming.format = "org.apache.hadoop.streaming.AutoInputFormat"
+  list(mode = mode, format = format, streaming.format = streaming.format)}
 
-make.output.specs = function(format = native.binary.output.format, 
+make.output.format = function(format = native.output.format, 
                              mode = c("binary", "text"),
-                             streaming.output.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat", 
+                             streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat", 
                              ...) {
   mode = match.arg(mode)
   if(is.character(format)) {
@@ -205,36 +205,36 @@ make.output.specs = function(format = native.binary.output.format,
   switch(format, 
          text = {format = text.output.format; 
                   mode = "text";
-                  streaming.output.format = NULL},
+                  streaming.format = NULL},
          json = {format = json.output.format; 
                  mode = "text";
-                 streaming.output.format = NULL}, 
+                 streaming.format = NULL}, 
          csv = {format = csv.output.format(...); 
                 mode = "text";
-                streaming.output.format = NULL}, 
-         native = {format = native.output.format; 
+                streaming.format = NULL}, 
+         native.text = {format = native.text.output.format; 
                    mode = "text";
-                   streaming.output.format = NULL}, 
-         native.binary = {format = native.binary.output.format; 
+                   streaming.format = NULL}, 
+         native = {format = native.output.format; 
                    mode = "binary";
-                   streaming.output.format = NULL}, 
+                   streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"}, 
          sequence.typedbytes = {format = typed.bytes.output.format; 
                        mode = "binary";
-                       streaming.output.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"}, 
+                       streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"}, 
          raw.typedbytes = {format = typed.bytes.output.format; 
                        mode = "binary";
-                       streaming.output.format = NULL})}
+                       streaming.format = NULL})}
   mode = match.arg(mode)
-  list(mode = mode, format = format, streaming.output.format = streaming.output.format)}
+  list(mode = mode, format = format, streaming.format = streaming.format)}
 
-native.input.format = function(line) {
+native.text.input.format = function(line) {
   if (length(line) == 0) NULL
   else {
     x = strsplit(line, "\t")[[1]]
     de = function(x) unserialize(charToRaw(gsub("\\\\n", "\n", x)))
     keyval(de(x[1]), de(x[2]))}}
 
-native.output.format = function(k, v) {
+native.text.output.format = function(k, v) {
   ser = function(x) gsub("\n", "\\\\n", rawToChar(serialize(x, ascii=T, conn = NULL)))
   paste(ser(k), ser(v), sep = "\t")}
   
@@ -346,9 +346,9 @@ typed.bytes.output.format = function(k, v, con) {
   typed.bytes.writer(k, con)
   typed.bytes.writer(v, con)}
 
-native.binary.input.format = typed.bytes.input.format
+native.input.format = typed.bytes.input.format
 
-native.binary.output.format = function(k, v, con){
+native.output.format = function(k, v, con){
   typed.bytes.writer(k, con, TRUE)
   typed.bytes.writer(v, con, TRUE)}
 
@@ -391,8 +391,12 @@ hdfs.match.sideeffect = function(...) {
   hdfs(getcmd(match.call()), FALSE, ...) == 0}
 
 #this returns a character matrix, individual cmds may benefit from additional transformations
-hdfs.match.out = function(...)
-  do.call(rbind, strsplit(hdfs(getcmd(match.call()), TRUE, ...), " +")) 
+hdfs.match.out = function(...) {
+  oldwarn = options("warn")[[1]]
+  options(warn = -1)
+  retval = do.call(rbind, strsplit(hdfs(getcmd(match.call()), TRUE, ...), " +")) 
+  options(warn = oldwarn)
+  retval}
 
 mkhdfsfun = function(hdfscmd, out)
   eval(parse(text = paste ("hdfs.", hdfscmd, " = hdfs.match.", if(out) "out" else "sideeffect", sep = "")), 
@@ -448,17 +452,18 @@ to.dfs.path = function(input) {
     if(is.function(input)) {
       input()}}}
 
-to.dfs = function(object, output = dfs.tempfile(), output.specs = make.output.specs()) {
+to.dfs = function(object, output = dfs.tempfile(), format = "native") {
   if(is.data.frame(object) || is.matrix(object)) {
     object = from.data.frame(object)}
   tmp = tempfile()
   dfsOutput = to.dfs.path(output)
+  if(is.character(format)) format = make.output.format(format)
   
   write.file = 
     function(obj, f) {
-      con = file(f, if(output.specs$mode == "text") "w" else "wb")
-        record.writer = make.record.writer(output.specs$mode, 
-                                           output.specs$format, 
+      con = file(f, if(format$mode == "text") "w" else "wb")
+        record.writer = make.record.writer(format$mode, 
+                                           format$format, 
                                            con)
         lapply(obj, 
                function(x) {
@@ -475,7 +480,7 @@ to.dfs = function(object, output = dfs.tempfile(), output.specs = make.output.sp
     file.rename(tmp, dfsOutput)
   output}
 
-from.dfs = function(input, input.specs = make.input.specs(), to.data.frame = FALSE) {
+from.dfs = function(input, format = "native", to.data.frame = FALSE) {
   part.list = function(fname) {
     if(rmr.options.get('backend') == "local") fname
     else {
@@ -484,8 +489,8 @@ from.dfs = function(input, input.specs = make.input.specs(), to.data.frame = FAL
       else fname}}
   
   read.file = function(f) {
-    con = file(f, if(input.specs$mode == "text") "r" else "rb")
-    record.reader = make.record.reader(input.specs$mode, input.specs$format, con)
+    con = file(f, if(format$mode == "text") "r" else "rb")
+    record.reader = make.record.reader(format$mode, format$format, con)
     retval = list()
     rec = record.reader()
     i = 1
@@ -502,9 +507,10 @@ from.dfs = function(input, input.specs = make.input.specs(), to.data.frame = FAL
     lapply(src, function(x) system(paste(hadoop.cmd(), "dumptb", x, ">>", dest)))}
   
   fname = to.dfs.path(input)
+  if(is.character(format)) format = make.input.format(format)
   if(rmr.options.get("backend") == "hadoop") {
     tmp = tempfile()
-    if(input.specs$mode == "binary") dumptb(part.list(fname), tmp)
+    if(format$mode == "binary") dumptb(part.list(fname), tmp)
     else 
       hdfs.getmerge(fname, tmp)}
   else
@@ -537,8 +543,8 @@ mapreduce = function(
   reduce = NULL, 
   combine = NULL, 
   reduce.on.data.frame = FALSE, 
-  input.specs = make.input.specs(), 
-  output.specs = make.output.specs(), 
+  input.format = "native", 
+  output.format = "native", 
   tuning.parameters = list(), 
   verbose = TRUE) {
 
@@ -554,6 +560,8 @@ mapreduce = function(
   profile.nodes = rmr.options.get('profile.nodes')
     
   mr = switch(backend, hadoop = rhstream, local = mr.local, stop("Unsupported backend: ", backend))
+  if(is.character(input.format)) input.format = make.input.format(input.format)
+  if(is.character(output.format)) output.format = make.output.format(output.format)
   
   mr(map = map, 
      reduce = reduce, 
@@ -562,8 +570,8 @@ mapreduce = function(
      in.folder = if(is.list(input)) {lapply(input, to.dfs.path)} else to.dfs.path(input), 
      out.folder = to.dfs.path(output), 
      profile.nodes = profile.nodes, 
-     input.specs = input.specs, 
-     output.specs = output.specs, 
+     input.format = input.format, 
+     output.format = output.format, 
      tuning.parameters = tuning.parameters[[backend]], 
      verbose = verbose)
   output
@@ -580,8 +588,8 @@ mr.local = function(map,
                     in.folder, 
                     out.folder, 
                     profile.nodes, 
-                    input.specs, 
-                    output.specs, 
+                    input.format, 
+                    output.format, 
                     tuning.parameters, 
                     verbose = verbose) {
   if(is.null(reduce)) reduce = function(k, vv) lapply(vv, function(v) keyval(k, v))
@@ -589,7 +597,7 @@ mr.local = function(map,
                     lapply(do.call(c, 
                                    lapply(in.folder, 
                                           function(x) lapply(from.dfs(x, 
-                                                                      input.specs = input.specs), 
+                                                                      format = input.format), 
                                                              function(y) {attr(y$val, 'rmr.input') = x; y}))), 
                               function(kv) {retval = map(kv$key, kv$val)
                                             if(is.keyval(retval)) list(retval)
@@ -603,7 +611,7 @@ mr.local = function(map,
   if(!is.keyval(reduce.out[[1]]))
     reduce.out = do.call(c, reduce.out)
   names(reduce.out) = replicate(n=length(names(reduce.out)), "")
-  to.dfs(reduce.out, out.folder, output.specs = output.specs)}
+  to.dfs(reduce.out, out.folder, format = output.format)}
 
 #hadoop
 ## drivers section, or what runs on the nodes
@@ -688,8 +696,8 @@ rhstream = function(
   jarfiles = NULL, 
   otherparams = list(HADOOP_HOME = Sys.getenv('HADOOP_HOME'), 
     HADOOP_CONF = Sys.getenv("HADOOP_CONF")), 
-  input.specs, 
-  output.specs, 
+  input.format, 
+  output.format, 
   tuning.parameters, 
   verbose = TRUE, 
   debug = FALSE) {
@@ -704,19 +712,19 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
 
   map.line = 'load("rmr-map-env", envir = environment(map))
   rmr:::map.driver(map = map, 
-              record.reader = rmr:::make.record.reader(input.specs$mode, 
-                                                 input.specs$format), 
+              record.reader = rmr:::make.record.reader(input.format$mode, 
+                                                 input.format$format), 
               record.writer = if(is.null(reduce)) {
-                                rmr:::make.record.writer(output.specs$mode, 
-                                                   output.specs$format)}
+                                rmr:::make.record.writer(output.format$mode, 
+                                                   output.format$format)}
                               else {
                                 rmr:::make.record.writer()}, 
               profile = profile.nodes)'
   reduce.line  =  'load("rmr-reduce-env", envir = environment(reduce))
   rmr:::reduce.driver(reduce = reduce, 
                  record.reader = rmr:::make.record.reader(), 
-                 record.writer = rmr:::make.record.writer(output.specs$mode, 
-                                                    output.specs$format), 
+                 record.writer = rmr:::make.record.writer(output.format$mode, 
+                                                    output.format$format), 
                  reduce.on.data.frame = reduce.on.data.frame, 
                  profile = profile.nodes)'
   combine.line = 'load("rmr-combine-env", envir = environment(combine))
@@ -757,24 +765,24 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
   hadoop.command = hadoop.cmd()
   input =  make.input.files(in.folder)
   output = if(!missing(out.folder)) sprintf("-output %s", out.folder) else " "
-  input.format = if(is.null(input.specs$streaming.input.format)) {
+  input.format.opt = if(is.null(input.format$streaming.format)) {
     ' ' # default is TextInputFormat
   }else {
-    sprintf(" -inputformat %s", input.specs$streaming.input.format)
+    sprintf(" -inputformat %s", input.format$streaming.format)
   }
-  output.format = if(is.null(output.specs$streaming.output.format)) {
+  output.format.opt = if(is.null(output.format$streaming.format)) {
     ' '}
   else {
-    sprintf(" -outputformat %s", output.specs$streaming.output.format)
+    sprintf(" -outputformat %s", output.format$streaming.format)
   }
   stream.map.input =
-    if(input.specs$mode == "binary") {
+    if(input.format$mode == "binary") {
       " -D stream.map.input=typedbytes"}
     else {''}
   stream.map.output = " -D stream.map.output=typedbytes"
   stream.reduce.input = " -D stream.reduce.input=typedbytes"
   stream.reduce.output = 
-    if(output.specs$mode == "binary") {
+    if(output.format$mode == "binary") {
       " -D stream.reduce.output=typedbytes"}
     else {''}
   stream.mapred.io = paste(stream.map.input,
@@ -810,8 +818,8 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
       archives, 
       caches, 
       mkjars, 
-      input.format, 
-          output.format, 
+      input.format.opt, 
+      output.format.opt, 
       input, 
       output, 
       mapper, 

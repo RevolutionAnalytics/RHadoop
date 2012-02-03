@@ -12,8 +12,8 @@
   reduce = NULL,
   combine = NULL,
   reduce.on.data.frame = FALSE,
-  input.specs = make.input.specs(),
-  output.specs = make.output.specs(),
+  input.format = "native",
+  output.format = "native",
   tuning.parameters = list(),
   verbose = TRUE) }
 
@@ -27,8 +27,8 @@
     execute as part of a map reduce job}
 \item{combine}{turn on the combiner; if TRUE the reduce function is used, or specify your own}
 \item{reduce.on.data.frame}{flatten the list of values to a data frame in the reduce call}
-\item{input.specs}{Input specification, see make.input.specs}
-\item{output.specs}{Output specification, see make.outout.specs}
+\item{input.format}{Input specification, see  \code{\link{make.input.format}}}
+\item{output.format}{Output specification, see  \code{\link{make.output.format}}}
 \item{tuning.parameters}{Specify additional, backend-specific, performance-only-related options, as in \code{tuning.parameters = list(hadoop
       = list(D = "mapred.reduce.tasks=1"), local = list())}. It is invalid to use this argument to change the semantics of mapreduce (output
     should be independent of this argument). Each backend can only see the nested list named after the backend itself.  The interpretation
@@ -43,11 +43,11 @@
     call, even if the actual execution will happen in a different interpreter on a different machine. This is work in progress as we aim to
     provide exactly the same environement, but the current implementation seems to cover most use cases. Specifically, at \code{map} or
     \code{reduce} execution time, we load a copy of the environment inside the \code{mapreduce} call, as if \code{map} and \code{reduce}
-    where called from there and its parent environment, that is the one in which \code{mapreduce} call is executed. We do not follow the
-    environment chain further up or load the libraries that are loaded at the time of the call to \code{mapreduce}, but this can be improved
-    upon in future versions. Changes to the above environemnts performed inside the map and reduce functions won't have any effects on the
-    original environments, in a departure from established but rarely used R semantics. This is unlikely to change in the future because of
-    the challenges inherent in adopting reference semantics in a parallel environment.}
+    where called from there and its parent environment, that is the one in which \code{mapreduce} call is executed. Changes to the above
+    environemnts performed inside the map and reduce functions with the \code{<<-} operator will only affect a per-process copy of the
+    environment not the original one, in a departure from established but rarely used R semantics. This is unlikely to change in the future
+    because of the challenges inherent in adopting reference semantics in a parallel environment. See also the Tutorial
+    \url{https://github.com/RevolutionAnalytics/RHadoop/wiki/Tutorial}}
   
 \seealso{\code{\link{to.map}} and \code{\link{to.reduce}} can be used to convert other functions into suitable arguments for the map and
 reduce arguments; see the inst and tests directories in the source for more examples}
@@ -57,7 +57,7 @@ reduce arguments; see the inst and tests directories in the source for more exam
 wordcount = function (input, output, pattern = " ") {
  mapreduce(input = input ,
                    output = output,
-                   input.specs = make.input.specs("text"),
+                   input.format = make.input.format("text"),
                    map = function(k,v) {
                    lapply(
                      strsplit(
