@@ -143,24 +143,63 @@ for (be in c("local", "hadoop")) {
     generators = list(tdggkeyval()))
   
   ##from.dfs to.dfs
-  from.to.dfs.test = function(generator) {
-    unittest(function(kvl) {
-      isTRUE(all.equal(kvl, from.dfs(to.dfs(kvl)), tolerance = 1e-4, check.attributes = FALSE))},
-      generators = list(generator),
-      samplesize = 10)}
-  
-  from.to.dfs.test(tdggkeyvallist())
-  
+  unittest(function(kvl) {
+    isTRUE(all.equal(kvl, from.dfs(to.dfs(kvl)), tolerance = 1e-4, check.attributes = FALSE))},
+    generators = list(tdggkeyvallist()),
+    samplesize = 10)
+    
   ##mapreduce
   
+  ##unordered compare
+  
+  kv.cmp = function(l1, l2) {
+    l1 = l1[order(unlist(keys(l1)))]  
+    l2 = l2[order(unlist(keys(l2)))]
+    isTRUE(all.equal(l1, l2, tolerance=1e-4, check.attributes=FALSE))}
+  
+  ##simplest mapreduce, all default
   unittest(function(kvl) {
     if(length(kvl) == 0) TRUE
     else {
-      kvl = kvl[order(unlist(keys(kvl)))]
       kvl1 = from.dfs(mapreduce(input = to.dfs(kvl)))
-      kvl1 = kvl1[order(unlist(keys(kvl1)))]
-      isTRUE(all.equal(kvl, kvl1, tolerance = 1e-4, check.attributes = FALSE))}},
-    generators = list(tdggkeyvallist(lambda = 10)),
-    samplesize = 10)
-}  
-                                           
+      kv.cmp(kvl, kvl1)}},
+           generators = list(tdggkeyvallist(lambda = 10)),
+           samplesize = 10)
+  
+  ##put in a reduce for good measure
+  unittest(function(kvl) {
+    if(length(kvl) == 0) TRUE
+    else {
+      kvl1 = from.dfs(mapreduce(input = to.dfs(kvl),
+                                reduce = to.reduce.all(identity)))
+      kv.cmp(kvl, kvl1)}},
+           generators = list(tdggkeyvallist(lambda = 10)),
+           samplesize = 10)
+
+  
+  ## tour de formats
+  fmt = "native"
+  
+  unittest(function(kvl) {
+   isTRUE(all.equal(kvl, from.dfs(to.dfs(kvl,
+                                         format = fmt),
+                                  format = fmt),
+                    tolerance = 1e-4,
+                    check.attributes = FALSE))},
+          generators = list(tdggkeyvallist()),
+          samplesize = 3)
+         
+           
+  unittest(function(kvl) {
+    if(length(kvl) == 0) TRUE
+    else {
+      kvl1 = from.dfs(
+        mapreduce(input = to.dfs(kvl, format = fmt),
+                  reduce = to.reduce.all(identity),
+                  input.format = fmt,
+                  output.format = fmt),
+        format = fmt)
+      kv.cmp(kvl, kvl1)}},
+           generators = list(tdggkeyvallist(lambda = 10)),
+           samplesize = 3)
+  }                                           
