@@ -16,14 +16,16 @@
 unittest = function(predicate, generators, samplesize = 10, precondition = function(...) T) {
   set.seed(0)
   options(warning.length = 8125) #as big as allowed
-  lapply(1:samplesize, function(i) {
+  results = sapply(1:samplesize, function(i) {
     args = lapply(generators, function(a) a())
     if(do.call(precondition, args) && !do.call(predicate, args)){
-      stop(paste("FAIL: predicate:",
-                 paste(deparse(predicate), collapse = " "),
-                 "args:",
-                 paste(args, collapse = " ")))}})
-  print(paste ("Pass ", paste(deparse(predicate), "\n", collapse = " ")))}
+      print(paste("FAIL: predicate:",
+                 paste(deparse(predicate), collapse = " ")))
+      list(predicate = predicate, args = args)
+      }}, simplify = TRUE)
+  if(length(results) == 0)
+    print(paste ("Pass ", paste(deparse(predicate), "\n", collapse = " ")))
+  else results}
 
 ## test data  generators generators, some generic and some specific to the task at hand
 ## basic types
@@ -178,17 +180,27 @@ for (be in c("local", "hadoop")) {
 
   
   ## tour de formats
-  fmt = "native"
+
+  x = 1:10; 
+  lapply(c("text", "json", "native", "native.text", "sequence.typedbytes", "csv"),
+         function(fmt)
+           as.numeric(values(from.dfs(mapreduce(mapreduce(to.dfs(x), output.format=fmt), input.format=fmt)))) == x)
   
-  unittest(function(kvl) {
-   isTRUE(all.equal(kvl, from.dfs(to.dfs(kvl,
-                                         format = fmt),
-                                  format = fmt),
-                    tolerance = 1e-4,
-                    check.attributes = FALSE))},
-          generators = list(tdggkeyvallist()),
-          samplesize = 3)
-         
+  as.numeric(keys(from.dfs(mapreduce(mapreduce(to.dfs(1:10), output.format="csv"), input.format="csv")))) == x
+    
+  #roundtrip test without mr
+  rt.fmt = c("native", "sequence.typedbytes")
+  lapply(rt.fmt,
+         function(fmt)
+           unittest(function(kvl) {
+             isTRUE(all.equal(kvl, from.dfs(to.dfs(kvl,
+                                                   format = fmt),
+                                            format = fmt),
+                              tolerance = 1e-4,
+                              check.attributes = FALSE))},
+                    generators = list(tdggkeyvallist()),
+                    samplesize = 3))
+       
            
   unittest(function(kvl) {
     if(length(kvl) == 0) TRUE
