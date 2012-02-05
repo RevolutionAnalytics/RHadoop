@@ -187,10 +187,7 @@ make.input.format = function(format = native.input.format,
            native = {format = native.input.format; 
                             mode = "binary"}, 
            sequence.typedbytes = {format = typed.bytes.input.format; 
-                                  mode = "binary";
-                                  streaming.format = "org.apache.hadoop.mapred.SequenceFileInputFormat"}, 
-           raw.typedbytes = {format = typed.bytes.input.format; 
-                         mode = "binary"})}
+                                  mode = "binary"})}
   if(is.null(streaming.format) && mode == "binary") 
     streaming.format = "org.apache.hadoop.streaming.AutoInputFormat"
   list(mode = mode, format = format, streaming.format = streaming.format)}
@@ -246,9 +243,9 @@ json.input.format = function(line) {
 
 json.output.format = function(k, v) {
   paste(if(is.null(k))
-           toJSON(k, .escapeEscapes=TRUE, collapse = "")
+          gsub("\n", "", toJSON(k, .escapeEscapes=TRUE, collapse = ""))
         else NULL,
-        toJSON(v, .escapeEscapes=TRUE, collapse = ""),
+        gsub("\n", "", toJSON(v, .escapeEscapes=TRUE, collapse = "")),
         sep = "\t")}
 
 text.input.format = function(line) {keyval(NULL, line)}
@@ -299,9 +296,11 @@ typed.bytes.reader = function (con, type.code = NULL) {
                 "5" = r("numeric", size = 4),      
                 "6" = r("numeric", size = 8),      
                 "7" = readChar(con, nchars = read.length(), useBytes=TRUE), 
-                "8" = lapply(1:read.length(), function(i) tbr()), 
+                "8" = replicate(read.length(), tbr(), simplify=TRUE), 
                 "9" = two55.terminated.list(), 
-                "10" = lapply(1:(read.length()), function(i) keyval(tbr(), tbr())),
+                "10" = replicate(read.length(), keyval(tbr(), tbr()), simplify = TRUE),
+                "11" = r("integer", size = 2),
+                "12" = NULL,
                 "144" = unserialize(r("raw", n = read.length()))))} 
   else NULL}
 
@@ -333,6 +332,7 @@ typed.bytes.writer = function(value, con, native  = FALSE) {
       else {
         switch(class(value), 
                raw = {write.code(0); write.length(length(value)); w(value)}, 
+               #NULL = {write.code(12); write.length(0)}, #this spec was added by the hive folks, but not in streaming HIVE-1029
                {write.code(8); write.length(length(value)); lapply(value, tbw)})}}}
   TRUE}
     
@@ -473,11 +473,11 @@ to.dfs = function(object, output = dfs.tempfile(), format = "native") {
     
   write.file(object, tmp)      
   if(rmr.options.get('backend') == 'hadoop') {
-    system(paste(hadoop.cmd(),  "loadtb", dfsOutput, "<", tmp))
-#   hdfs.put(tmp, dfsOutput)
+    if(format$mode == "binary")
+      system(paste(hadoop.cmd(),  "loadtb", dfsOutput, "<", tmp))
+    else  hdfs.put(tmp, dfsOutput)
     file.remove(tmp)}
-  else
-    file.rename(tmp, dfsOutput)
+  else file.rename(tmp, dfsOutput)
   output}
 
 from.dfs = function(input, format = "native", to.data.frame = FALSE) {
@@ -506,13 +506,18 @@ from.dfs = function(input, format = "native", to.data.frame = FALSE) {
   dumptb = function(src, dest){
     lapply(src, function(x) system(paste(hadoop.cmd(), "dumptb", x, ">>", dest)))}
   
+  getmerge = function(src, dest) {
+    on.exit(unlink(tmp))
+    tmp = tempfile()
+    lapply(src, function(x) hdfs.get(x, tmp))
+    system(paste('cat', tmp, '>>' , dest))}
+  
   fname = to.dfs.path(input)
   if(is.character(format)) format = make.input.format(format)
   if(rmr.options.get("backend") == "hadoop") {
     tmp = tempfile()
     if(format$mode == "binary") dumptb(part.list(fname), tmp)
-    else 
-      hdfs.getmerge(fname, tmp)}
+    else getmerge(part.list(fname), tmp)}
   else
     tmp = fname
   retval = read.file(tmp)
@@ -779,12 +784,13 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
     if(input.format$mode == "binary") {
       " -D stream.map.input=typedbytes"}
     else {''}
-  stream.map.output = " -D stream.map.output=typedbytes"
+  stream.map.output = 
+    if(is.null(reduce) && output.format$mode == "text") "" 
+    else   " -D stream.map.output=typedbytes"
   stream.reduce.input = " -D stream.reduce.input=typedbytes"
   stream.reduce.output = 
-    if(output.format$mode == "binary") {
-      " -D stream.reduce.output=typedbytes"}
-    else {''}
+    if(output.format$mode == "binary") " -D stream.reduce.output=typedbytes"
+    else ''
   stream.mapred.io = paste(stream.map.input,
                            stream.map.output,
                            stream.reduce.input,
