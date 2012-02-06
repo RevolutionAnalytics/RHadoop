@@ -296,9 +296,9 @@ typed.bytes.reader = function (con, type.code = NULL) {
                 "5" = r("numeric", size = 4),      
                 "6" = r("numeric", size = 8),      
                 "7" = readChar(con, nchars = read.length(), useBytes=TRUE), 
-                "8" = replicate(read.length(), tbr(), simplify=TRUE), 
+                "8" = replicate(read.length(), tbr(), simplify=FALSE), 
                 "9" = two55.terminated.list(), 
-                "10" = replicate(read.length(), keyval(tbr(), tbr()), simplify = TRUE),
+                "10" = replicate(read.length(), keyval(tbr(), tbr()), simplify = FALSE),
                 "11" = r("integer", size = 2),
                 "12" = NULL,
                 "144" = unserialize(r("raw", n = read.length()))))} 
