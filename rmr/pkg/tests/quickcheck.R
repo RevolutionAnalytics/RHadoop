@@ -182,7 +182,7 @@ for (be in c("local", "hadoop")) {
   ## tour de formats
 
   x = 1:10; 
-  lapply(c("text", "json", "native", "native.text", "sequence.typedbytes", "csv"),
+  lapply(c("text", "json", "native", "native.text", "sequence.typedbytes"),
          function(fmt)
            as.numeric(values(from.dfs(mapreduce(mapreduce(to.dfs(x), output.format=fmt), input.format=fmt)))) == x)
   
