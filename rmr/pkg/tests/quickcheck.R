@@ -43,6 +43,16 @@ tdggraw = function(len = 8) {tdg = tdggcharacter(len); function() charToRaw(tdg(
 tdgglist = function(tdg = tdggany(listtdg = tdg, lambdalist = lambda, maxlevel = maxlevel), 
                     lambda = 10, maxlevel = 20) function() {if(sys.nframe() < maxlevel) replicate(rpois(1, lambda),tdg(), simplify = FALSE) else list()}
 tdggvector = function(tdg, lambda) {ltdg = tdgglist(tdg, lambda); function() unlist(ltdg())}
+tdggdata.frame = function(row.lambda = 20, col.lambda = 5){function() {ncol = 1 + rpois(1, col.lambda)
+                                                                       nrow = 1 + rpois(1, row.lambda)
+                                                                       gens = list(tdgglogical(), 
+                                                                             tdgginteger(), 
+                                                                             tdggdouble(), 
+                                                                             tdggcharacter())
+                                                                       columns = lapply(sample(gens,ncol, replace=TRUE), 
+                                                                                        function(g) replicate(nrow, g(), simplify = TRUE))
+                                                                       names(columns) = paste("col", 1:ncol)
+                                                                       do.call(data.frame, columns)}}
 
 ## special distributions
 tdggfixedlist = function(...) function() lapply(list(...), function(tdg) tdg())
