@@ -164,7 +164,7 @@ for (be in c("local", "hadoop")) {
   
   ##unordered compare
   
-  kv.cmp = function(l1, l2) {
+  kvl.cmp = function(l1, l2) {
     l1 = l1[order(unlist(keys(l1)))]  
     l2 = l2[order(unlist(keys(l2)))]
     isTRUE(all.equal(l1, l2, tolerance=1e-4, check.attributes=FALSE))}
@@ -174,7 +174,7 @@ for (be in c("local", "hadoop")) {
     if(length(kvl) == 0) TRUE
     else {
       kvl1 = from.dfs(mapreduce(input = to.dfs(kvl)))
-      kv.cmp(kvl, kvl1)}},
+      kvl.cmp(kvl, kvl1)}},
            generators = list(tdggkeyvallist(lambda = 10)),
            samplesize = 10)
   
@@ -184,7 +184,7 @@ for (be in c("local", "hadoop")) {
     else {
       kvl1 = from.dfs(mapreduce(input = to.dfs(kvl),
                                 reduce = to.reduce.all(identity)))
-      kv.cmp(kvl, kvl1)}},
+      kvl.cmp(kvl, kvl1)}},
            generators = list(tdggkeyvallist(lambda = 10)),
            samplesize = 10)
 
@@ -221,7 +221,7 @@ for (be in c("local", "hadoop")) {
                   input.format = fmt,
                   output.format = fmt),
         format = fmt)
-      kv.cmp(kvl, kvl1)}},
+      kvl.cmp(kvl, kvl1)}},
            generators = list(tdggkeyvallist(lambda = 10)),
            samplesize = 3)
   }                                           
