@@ -169,6 +169,7 @@ make.record.writer = function(mode = NULL, format = NULL, con = NULL) {
 
 IO.formats = c("text", "json", "csv", "native", "native.text",
                "sequence.typedbytes", "raw.typedbytes")
+
 make.input.format = function(format = native.input.format, 
                             mode = c("binary", "text"),
                             streaming.format = NULL, ...) {
@@ -198,29 +199,29 @@ make.output.format = function(format = native.output.format,
                              ...) {
   mode = match.arg(mode)
   if(is.character(format)) {
-  format = match.arg(format, IO.formats)
-  switch(format, 
-         text = {format = text.output.format; 
-                  mode = "text";
-                  streaming.format = NULL},
-         json = {format = json.output.format; 
-                 mode = "text";
-                 streaming.format = NULL}, 
-         csv = {format = csv.output.format(...); 
-                mode = "text";
-                streaming.format = NULL}, 
-         native.text = {format = native.text.output.format; 
+    format = match.arg(format, IO.formats)
+    switch(format, 
+           text = {format = text.output.format; 
+                   mode = "text";
+                   streaming.format = NULL},
+           json = {format = json.output.format; 
                    mode = "text";
                    streaming.format = NULL}, 
-         native = {format = native.output.format; 
-                   mode = "binary";
-                   streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"}, 
-         sequence.typedbytes = {format = typed.bytes.output.format; 
-                       mode = "binary";
-                       streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"}, 
-         raw.typedbytes = {format = typed.bytes.output.format; 
-                       mode = "binary";
-                       streaming.format = NULL})}
+           csv = {format = csv.output.format(...); 
+                  mode = "text";
+                  streaming.format = NULL}, 
+           native.text = {format = native.text.output.format; 
+                          mode = "text";
+                          streaming.format = NULL}, 
+           native = {format = native.output.format; 
+                     mode = "binary";
+                     streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"}, 
+           sequence.typedbytes = {format = typed.bytes.output.format; 
+                                  mode = "binary";
+                                  streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"}, 
+           raw.typedbytes = {format = typed.bytes.output.format; 
+                             mode = "binary";
+                             streaming.format = NULL})}
   mode = match.arg(mode)
   list(mode = mode, format = format, streaming.format = streaming.format)}
 
@@ -300,7 +301,7 @@ typed.bytes.reader = function (con, type.code = NULL) {
                 "8" = replicate(read.length(), tbr(), simplify=FALSE), 
                 "9" = two55.terminated.list(), 
                 "10" = replicate(read.length(), keyval(tbr(), tbr()), simplify = FALSE),
-                "11" = r("integer", size = 2),
+                "11" = r("integer", size = 2), #this and the next implemented only in hive, silly
                 "12" = NULL,
                 "144" = unserialize(r("raw", n = read.length()))))} 
   else NULL}
@@ -355,8 +356,24 @@ native.output.format = function(k, v, con){
 
 #data frame conversion
 flatten = function(x) if (is.list(x)) do.call(c, lapply(x, function(y) as.list(flatten(y)))) else if(is.factor(x)) as.character(x) else x
-list.to.data.frame = function(x) as.data.frame(apply(do.call(rbind, apply(cbind(rmr.key = keys(x), values(x)),1, flatten)),2,unlist))
-from.data.frame = function(df, keycol = 1) lapply(1:dim(df)[[1]], function(i) keyval(df[i, keycol], df[i, ] ))
+
+list.to.data.frame = 
+  function(x) 
+    as.data.frame(
+      apply(
+        do.call(
+          rbind, 
+          apply(
+            cbind(rmr.key = keys(x), 
+                  values(x)),
+            1, 
+            flatten)),
+        2,
+        unlist))
+
+from.data.frame = function(df, keycol = NULL) 
+  lapply(1:dim(df)[[1]], 
+         function(i) keyval(if(is.null(keycol)) NULL else df[i, keycol], df[i, ] ))
 
 #output cmp
 cmp = function(x, y) isTRUE(all.equal(x[order(unlist(keys(x)))], 
