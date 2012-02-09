@@ -485,7 +485,7 @@ from.dfs = function(input, format = "native", to.data.frame = FALSE) {
     if(rmr.options.get('backend') == "local") fname
     else {
       if(dfs.is.dir(fname))
-        lf = pretty.hdfs.ls(paste(fname, "part*", sep = "/"))$path
+        pretty.hdfs.ls(paste(fname, "part*", sep = "/"))$path
       else fname}}
   
   read.file = function(f) {
