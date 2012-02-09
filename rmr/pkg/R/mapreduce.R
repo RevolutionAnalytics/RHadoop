@@ -510,7 +510,7 @@ from.dfs = function(input, format = "native", to.data.frame = FALSE) {
   getmerge = function(src, dest) {
     on.exit(unlink(tmp))
     tmp = tempfile()
-    lapply(src, function(x) hdfs.get(x, tmp))
+    lapply(src, function(x) hdfs.get(as.character(x), tmp))
     system(paste('cat', tmp, '>>' , dest))}
   
   fname = to.dfs.path(input)
