@@ -5,7 +5,7 @@
 .Rhistory
 pkg.Rcheck
 #for RStudio users
-.Rproj.*
+.Rproj.user
 *.Rproj
 #for rmr users
 rhstr.*
