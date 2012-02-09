@@ -264,6 +264,7 @@ csv.input.format = function(key = 1, ...) function(line) {
   keyval(df[, key], df[, -key])}
 
 csv.output.format = function(...) function(k, v) {
+  on.exit(close(tc))
   tc = textConnection(object = NULL, open = "w")
   args = list(x = c(as.list(k), as.list(v)), file = tc, ..., row.names = FALSE, col.names = FALSE)
   do.call(write.table, args[unique(names(args))])
