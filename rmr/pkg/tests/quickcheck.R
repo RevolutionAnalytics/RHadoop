@@ -190,37 +190,37 @@ for (be in c("local", "hadoop")) {
   
   ## tour de formats
 
-  x = 1:10; 
-  lapply(c("text", "json", "native", "native.text", "sequence.typedbytes"),
-         function(fmt)
-           as.numeric(values(from.dfs(mapreduce(mapreduce(to.dfs(x), output.format=fmt), input.format=fmt)))) == x)
-  
-  as.numeric(keys(from.dfs(mapreduce(mapreduce(to.dfs(1:10), output.format="csv"), input.format="csv")))) == x
-    
-  #roundtrip test without mr
-  rt.fmt = c("native", "sequence.typedbytes")
-  lapply(rt.fmt,
-         function(fmt)
-           unit.test(function(kvl) {
-             isTRUE(all.equal(kvl, from.dfs(to.dfs(kvl,
-                                                   format = fmt),
-                                            format = fmt),
-                              tolerance = 1e-4,
-                              check.attributes = FALSE))},
-                    generators = list(tdgg.keyval.list()),
-                    sample.size = 3))
-       
-           
-  unit.test(function(kvl) {
-    if(length(kvl) == 0) TRUE
-    else {
-      kvl1 = from.dfs(
-        mapreduce(input = to.dfs(kvl, format = fmt),
-                  reduce = to.reduce.all(identity),
-                  input.format = fmt,
-                  output.format = fmt),
-        format = fmt)
-      kvl.cmp(kvl, kvl1)}},
-           generators = list(tdgg.keyval.list(lambda = 10)),
-           sample.size = 3)
-  }                                           
+#   x = 1:10; 
+#   lapply(c("text", "json", "native", "native.text", "sequence.typedbytes"),
+#          function(fmt)
+#            as.numeric(values(from.dfs(mapreduce(mapreduce(to.dfs(x), output.format=fmt), input.format=fmt)))) == x)
+#   
+#   as.numeric(keys(from.dfs(mapreduce(mapreduce(to.dfs(1:10), output.format="csv"), input.format="csv")))) == x
+#     
+#   #roundtrip test without mr
+#   rt.fmt = c("native", "sequence.typedbytes")
+#   lapply(rt.fmt,
+#          function(fmt)
+#            unit.test(function(kvl) {
+#              isTRUE(all.equal(kvl, from.dfs(to.dfs(kvl,
+#                                                    format = fmt),
+#                                             format = fmt),
+#                               tolerance = 1e-4,
+#                               check.attributes = FALSE))},
+#                     generators = list(tdgg.keyval.list()),
+#                     sample.size = 3))
+#        
+#            
+#   unit.test(function(kvl) {
+#     if(length(kvl) == 0) TRUE
+#     else {
+#       kvl1 = from.dfs(
+#         mapreduce(input = to.dfs(kvl, format = fmt),
+#                   reduce = to.reduce.all(identity),
+#                   input.format = fmt,
+#                   output.format = fmt),
+#         format = fmt)
+#       kvl.cmp(kvl, kvl1)}},
+#            generators = list(tdgg.keyval.list(lambda = 10)),
+#            sample.size = 3)
+ }                                           
