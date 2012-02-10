@@ -16,7 +16,6 @@
 source("quickcheck.R")
 
 ##app-specific generators
-tdgg.numericlist = function(lambda = 100) function() lapply(1:rpois(1,lambda), function(i) runif(1))
 tdgg.keyval = function(keytdg = tdgg.double(), valtdg = tdgg.any()) function() keyval(keytdg(), valtdg())
 tdgg.keyvalsimple = function() function() keyval(runif(1), runif(1)) #we can do better than this
 tdgg.keyval.list = function(keytdg = tdgg.double(), valtdg = tdgg.list(), lambda = 100) tdgg.list(tdg = tdgg.keyval(keytdg, valtdg), lambda = lambda)

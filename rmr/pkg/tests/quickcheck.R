@@ -56,6 +56,7 @@ tdgg.data.frame = function(row.lambda = 20, col.lambda = 5){function() {ncol = 1
 
 ## special distributions
 tdgg.fixedlist = function(...) function() lapply(list(...), function(tdg) tdg())
+tdgg.numeric.list = function(lambda = 100) function() lapply(1:rpois(1,lambda), function(i) runif(1))
 tdgg.prototype = function(prototype) function() rapply(prototype, function(tdg) tdg(), how = "list")
 tdgg.prototypelist = function(prototype, lambda) {tdg = tdgg.prototype(prototype); function() replicate(rpois(1, lambda), tdg(), simplify = FALSE)}
 tdgg.constant = function(const) function() const
