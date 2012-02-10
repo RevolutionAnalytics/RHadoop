@@ -13,10 +13,10 @@
 # limitations under the License.
 
 ##main function, should be factored out one day
-unittest = function(predicate, generators, samplesize = 10, precondition = function(...) T) {
+unit.test = function(predicate, generators, sample.size = 10, precondition = function(...) T) {
   set.seed(0)
   options(warning.length = 8125) #as big as allowed
-  results = sapply(1:samplesize, function(i) {
+  results = sapply(1:sample.size, function(i) {
     args = lapply(generators, function(a) a())
     if(do.call(precondition, args) && !do.call(predicate, args)){
       print(paste("FAIL: predicate:",
@@ -29,85 +29,85 @@ unittest = function(predicate, generators, samplesize = 10, precondition = funct
 
 ## test data  generators generators, some generic and some specific to the task at hand
 ## basic types
-tdgglogical = function(ptrue = .5) function() rbinom(1,1,ptrue) == 1
-tdgginteger = function(lambda = 100) {tdg = tdggdistribution(rpois, lambda); function() as.integer(tdg())} #why poisson? Why not? Why 100?
-tdggdouble = function(min = -1, max = 1)  tdggdistribution(runif, min, max)
-##tdggcomplex NAY
+tdgg.logical = function(ptrue = .5) function() rbinom(1,1,ptrue) == 1
+tdgg.integer = function(lambda = 100) {tdg = tdgg.distribution(rpois, lambda); function() as.integer(tdg())} #why poisson? Why not? Why 100?
+tdgg.double = function(min = -1, max = 1)  tdgg.distribution(runif, min, max)
+##tdgg.complex NAY
 library(digest)
-tdggcharacter = function(len = 8) function() substr(
+tdgg.character = function(len = 8) function() substr(
   paste(
     sapply(runif(ceiling(len/32)), digest), 
     collapse = ""), 
   1, len)
-tdggraw = function(len = 8) {tdg = tdggcharacter(len); function() charToRaw(tdg())}
-tdgglist = function(tdg = tdggany(listtdg = tdg, lambdalist = lambda, maxlevel = maxlevel), 
+tdgg.raw = function(len = 8) {tdg = tdgg.character(len); function() charToRaw(tdg())}
+tdgg.list = function(tdg = tdgg.any(listtdg = tdg, lambdalist = lambda, maxlevel = maxlevel), 
                     lambda = 10, maxlevel = 20) function() {if(sys.nframe() < maxlevel) replicate(rpois(1, lambda),tdg(), simplify = FALSE) else list()}
-tdggvector = function(tdg, lambda) {ltdg = tdgglist(tdg, lambda); function() unlist(ltdg())}
-tdggdata.frame = function(row.lambda = 20, col.lambda = 5){function() {ncol = 1 + rpois(1, col.lambda)
+tdgg.vector = function(tdg, lambda) {ltdg = tdgg.list(tdg, lambda); function() unlist(ltdg())}
+tdgg.data.frame = function(row.lambda = 20, col.lambda = 5){function() {ncol = 1 + rpois(1, col.lambda)
                                                                        nrow = 1 + rpois(1, row.lambda)
-                                                                       gens = list(tdgglogical(), 
-                                                                             tdgginteger(), 
-                                                                             tdggdouble(), 
-                                                                             tdggcharacter())
+                                                                       gens = list(tdgg.logical(), 
+                                                                             tdgg.integer(), 
+                                                                             tdgg.double(), 
+                                                                             tdgg.character())
                                                                        columns = lapply(sample(gens,ncol, replace=TRUE), 
                                                                                         function(g) replicate(nrow, g(), simplify = TRUE))
                                                                        names(columns) = paste("col", 1:ncol)
                                                                        do.call(data.frame, columns)}}
 
 ## special distributions
-tdggfixedlist = function(...) function() lapply(list(...), function(tdg) tdg())
-tdggprototype = function(prototype) function() rapply(prototype, function(tdg) tdg(), how = "list")
-tdggprototypelist = function(prototype, lambda) {tdg = tdggprototype(prototype); function() replicate(rpois(1, lambda), tdg(), simplify = FALSE)}
-tdggconstant = function(const) function() const
-tdggselect = function(l) function() sample(l,1)[[1]]
-tdggdistribution = function(distribution, ...) function() distribution(1, ...)
+tdgg.fixedlist = function(...) function() lapply(list(...), function(tdg) tdg())
+tdgg.prototype = function(prototype) function() rapply(prototype, function(tdg) tdg(), how = "list")
+tdgg.prototypelist = function(prototype, lambda) {tdg = tdgg.prototype(prototype); function() replicate(rpois(1, lambda), tdg(), simplify = FALSE)}
+tdgg.constant = function(const) function() const
+tdgg.select = function(l) function() sample(l,1)[[1]]
+tdgg.distribution = function(distribution, ...) function() distribution(1, ...)
 
 ##combiners
-tdggmixture = function(...) function() sample(list(...),1)[[1]]()
+tdgg.mixture = function(...) function() sample(list(...),1)[[1]]()
 
 ## combine everything
-tdggany = function(ptrue = .5, lambdaint = 100, min = -1, max = 1, lenchar = 8, lenraw = 8, lambdalist = 10, 
-                   listtdg = tdggany(), lambdavector = 10, maxlevel = 20, vectortdg = tdggdouble()) 
-  tdggmixture(tdgglogical(ptrue), 
-              tdgginteger(lambdaint), 
-              tdggdouble(min, max), 
-              tdggcharacter(lenchar), 
-  #           tdggraw(lenraw),
-              tdggvector(vectortdg, lambdavector),
-              tdgglist(listtdg, lambdalist, maxlevel))
+tdgg.any = function(ptrue = .5, lambdaint = 100, min = -1, max = 1, lenchar = 8, lenraw = 8, lambdalist = 10, 
+                   listtdg = tdgg.any(), lambdavector = 10, maxlevel = 20, vectortdg = tdgg.double()) 
+  tdgg.mixture(tdgg.logical(ptrue), 
+              tdgg.integer(lambdaint), 
+              tdgg.double(min, max), 
+              tdgg.character(lenchar), 
+  #           tdgg.raw(lenraw),
+              tdgg.vector(vectortdg, lambdavector),
+              tdgg.list(listtdg, lambdalist, maxlevel))
 
 ##app-specific generators
-tdggnumericlist = function(lambda = 100) function() lapply(1:rpois(1,lambda), function(i) runif(1))
-tdggkeyval = function(keytdg = tdggdouble(), valtdg = tdggany()) function() keyval(keytdg(), valtdg())
-tdggkeyvalsimple = function() function() keyval(runif(1), runif(1)) #we can do better than this
-tdggkeyvallist = function(keytdg = tdggdouble(), valtdg = tdgglist(), lambda = 100) tdgglist(tdg = tdggkeyval(keytdg, valtdg), lambda = lambda)
+tdgg.numericlist = function(lambda = 100) function() lapply(1:rpois(1,lambda), function(i) runif(1))
+tdgg.keyval = function(keytdg = tdgg.double(), valtdg = tdgg.any()) function() keyval(keytdg(), valtdg())
+tdgg.keyvalsimple = function() function() keyval(runif(1), runif(1)) #we can do better than this
+tdgg.keyvallist = function(keytdg = tdgg.double(), valtdg = tdgg.list(), lambda = 100) tdgg.list(tdg = tdgg.keyval(keytdg, valtdg), lambda = lambda)
 
 
 ## generator test thyself
-##tdgglogical 
-unittest(function(ptrue) {
+##tdgg.logical 
+unit.test(function(ptrue) {
   binom.test(
-    sum(replicate(1000,expr = tdgglogical(ptrue)())),1000, ptrue,"two.sided")$p.value > 0.001},
-         generators = list(tdggdistribution(runif, min = .1, max = .9)))
-##tdgginteger same as tdggdistribution
-##tdggdouble same as tdggdistribution
-##tdggcomplex NAY
-##tdggcharacter: test legnth, but is it uniform?
-unittest(function(l) nchar(tdggcharacter(l)()) == l,
-         generators = list(tdgginteger()))
+    sum(replicate(1000,expr = tdgg.logical(ptrue)())),1000, ptrue,"two.sided")$p.value > 0.001},
+         generators = list(tdgg.distribution(runif, min = .1, max = .9)))
+##tdgg.integer same as tdgg.distribution
+##tdgg.double same as tdgg.distribution
+##tdgg.complex NAY
+##tdgg.character: test legnth, but is it uniform?
+unit.test(function(l) nchar(tdgg.character(l)()) == l,
+         generators = list(tdgg.integer()))
     
 #tdgconstant
-unittest(function(x) tdggconstant(x)() == x, generators = list(tdggdistribution(runif)))
+unit.test(function(x) tdgg.constant(x)() == x, generators = list(tdgg.distribution(runif)))
 #tdgselect
-unittest(function(l) is.element(tdggselect(l)(), l), generators = list(tdggnumericlist(10)))
+unit.test(function(l) is.element(tdgg.select(l)(), l), generators = list(tdgg.numericlist(10)))
 #tdgmixture
-unittest(function(n) is.element(tdggmixture(tdggconstant(n), tdggconstant(2*n))(), list(n,2*n)), 
-     generators = list(tdggdistribution(runif)))
+unit.test(function(n) is.element(tdgg.mixture(tdgg.constant(n), tdgg.constant(2*n))(), list(n,2*n)), 
+     generators = list(tdgg.distribution(runif)))
 #tdgdistribution
-unittest(function(d) {
-  tdgd = tdggdistribution(d)
+unit.test(function(d) {
+  tdgd = tdgg.distribution(d)
   ks.test(d(10000), sapply(1:10000, function(i) tdgd()))$p > 0.001},
-     generators = list(tdggselect(list(runif, rnorm))))
+     generators = list(tdgg.select(list(runif, rnorm))))
 
 ## for short
 catch.out = function(...) capture.output(invisible(...))
@@ -122,7 +122,7 @@ for (be in c("local", "hadoop")) {
   ##counter and status -- unused for now
   
   ## test for typed bytes read/write
-  ## replace with unittest when possible
+  ## replace with unit.test when possible
   
   lapply(
     list(c(as.raw(66), as.raw(67)), #0
@@ -144,21 +144,21 @@ for (be in c("local", "hadoop")) {
       stopifnot( all.equal(x,y))})
     
   ##keys and values
-  unittest(function(kvl) isTRUE(all.equal(kvl, 
+  unit.test(function(kvl) isTRUE(all.equal(kvl, 
                                apply(cbind(keys(kvl), 
                                            values(kvl)),1,function(x) keyval(x[[1]], x[[2]])))), 
-           generators = list(tdggkeyvallist()))
+           generators = list(tdgg.keyvallist()))
   ##keyval
-  unittest(function(kv) {
+  unit.test(function(kv) {
     isTRUE(all.equal(kv,keyval(kv$key,kv$val))) &&      
     attr(kv, "rmr.keyval")},
-    generators = list(tdggkeyval()))
+    generators = list(tdgg.keyval()))
   
   ##from.dfs to.dfs
-  unittest(function(kvl) {
+  unit.test(function(kvl) {
     isTRUE(all.equal(kvl, from.dfs(to.dfs(kvl)), tolerance = 1e-4, check.attributes = FALSE))},
-    generators = list(tdggkeyvallist()),
-    samplesize = 10)
+    generators = list(tdgg.keyvallist()),
+    sample.size = 10)
     
   ##mapreduce
   
@@ -170,23 +170,23 @@ for (be in c("local", "hadoop")) {
     isTRUE(all.equal(l1, l2, tolerance=1e-4, check.attributes=FALSE))}
   
   ##simplest mapreduce, all default
-  unittest(function(kvl) {
+  unit.test(function(kvl) {
     if(length(kvl) == 0) TRUE
     else {
       kvl1 = from.dfs(mapreduce(input = to.dfs(kvl)))
       kvl.cmp(kvl, kvl1)}},
-           generators = list(tdggkeyvallist(lambda = 10)),
-           samplesize = 10)
+           generators = list(tdgg.keyvallist(lambda = 10)),
+           sample.size = 10)
   
   ##put in a reduce for good measure
-  unittest(function(kvl) {
+  unit.test(function(kvl) {
     if(length(kvl) == 0) TRUE
     else {
       kvl1 = from.dfs(mapreduce(input = to.dfs(kvl),
                                 reduce = to.reduce.all(identity)))
       kvl.cmp(kvl, kvl1)}},
-           generators = list(tdggkeyvallist(lambda = 10)),
-           samplesize = 10)
+           generators = list(tdgg.keyvallist(lambda = 10)),
+           sample.size = 10)
 
   
   ## tour de formats
@@ -202,17 +202,17 @@ for (be in c("local", "hadoop")) {
   rt.fmt = c("native", "sequence.typedbytes")
   lapply(rt.fmt,
          function(fmt)
-           unittest(function(kvl) {
+           unit.test(function(kvl) {
              isTRUE(all.equal(kvl, from.dfs(to.dfs(kvl,
                                                    format = fmt),
                                             format = fmt),
                               tolerance = 1e-4,
                               check.attributes = FALSE))},
-                    generators = list(tdggkeyvallist()),
-                    samplesize = 3))
+                    generators = list(tdgg.keyvallist()),
+                    sample.size = 3))
        
            
-  unittest(function(kvl) {
+  unit.test(function(kvl) {
     if(length(kvl) == 0) TRUE
     else {
       kvl1 = from.dfs(
@@ -222,6 +222,6 @@ for (be in c("local", "hadoop")) {
                   output.format = fmt),
         format = fmt)
       kvl.cmp(kvl, kvl1)}},
-           generators = list(tdggkeyvallist(lambda = 10)),
-           samplesize = 3)
+           generators = list(tdgg.keyvallist(lambda = 10)),
+           sample.size = 3)
   }                                           
