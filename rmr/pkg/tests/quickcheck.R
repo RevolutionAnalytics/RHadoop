@@ -29,7 +29,7 @@ unit.test = function(predicate, generators, sample.size = 10, precondition = fun
 
 ## test data  generators generators, some generic and some specific to the task at hand
 ## basic types
-tdgg.logical = function(ptrue = .5) function() rbinom(1,1,ptrue) == 1
+tdgg.logical = function(p.true = .5) function() rbinom(1,1,p.true) == 1
 tdgg.integer = function(lambda = 100) {tdg = tdgg.distribution(rpois, lambda); function() as.integer(tdg())} #why poisson? Why not? Why 100?
 tdgg.double = function(min = -1, max = 1)  tdgg.distribution(runif, min, max)
 ##tdgg.complex NAY
@@ -40,8 +40,8 @@ tdgg.character = function(len = 8) function() substr(
     collapse = ""), 
   1, len)
 tdgg.raw = function(len = 8) {tdg = tdgg.character(len); function() charToRaw(tdg())}
-tdgg.list = function(tdg = tdgg.any(listtdg = tdg, lambdalist = lambda, maxlevel = maxlevel), 
-                    lambda = 10, maxlevel = 20) function() {if(sys.nframe() < maxlevel) replicate(rpois(1, lambda),tdg(), simplify = FALSE) else list()}
+tdgg.list = function(tdg = tdgg.any(list.tdg = tdg, lambda.list = lambda, max.level = max.level), 
+                    lambda = 10, max.level = 20) function() {if(sys.nframe() < max.level) replicate(rpois(1, lambda),tdg(), simplify = FALSE) else list()}
 tdgg.vector = function(tdg, lambda) {ltdg = tdgg.list(tdg, lambda); function() unlist(ltdg())}
 tdgg.data.frame = function(row.lambda = 20, col.lambda = 5){function() {ncol = 1 + rpois(1, col.lambda)
                                                                        nrow = 1 + rpois(1, row.lambda)
@@ -55,10 +55,10 @@ tdgg.data.frame = function(row.lambda = 20, col.lambda = 5){function() {ncol = 1
                                                                        do.call(data.frame, columns)}}
 
 ## special distributions
-tdgg.fixedlist = function(...) function() lapply(list(...), function(tdg) tdg())
 tdgg.numeric.list = function(lambda = 100) function() lapply(1:rpois(1,lambda), function(i) runif(1))
+tdgg.fixed.list = function(...) function() lapply(list(...), function(tdg) tdg())
 tdgg.prototype = function(prototype) function() rapply(prototype, function(tdg) tdg(), how = "list")
-tdgg.prototypelist = function(prototype, lambda) {tdg = tdgg.prototype(prototype); function() replicate(rpois(1, lambda), tdg(), simplify = FALSE)}
+tdgg.prototype.list = function(prototype, lambda) {tdg = tdgg.prototype(prototype); function() replicate(rpois(1, lambda), tdg(), simplify = FALSE)}
 tdgg.constant = function(const) function() const
 tdgg.select = function(l) function() sample(l,1)[[1]]
 tdgg.distribution = function(distribution, ...) function() distribution(1, ...)
@@ -67,21 +67,21 @@ tdgg.distribution = function(distribution, ...) function() distribution(1, ...)
 tdgg.mixture = function(...) function() sample(list(...),1)[[1]]()
 
 ## combine everything
-tdgg.any = function(ptrue = .5, lambdaint = 100, min = -1, max = 1, lenchar = 8, lenraw = 8, lambdalist = 10, 
-                   listtdg = tdgg.any(), lambdavector = 10, maxlevel = 20, vectortdg = tdgg.double()) 
-  tdgg.mixture(tdgg.logical(ptrue), 
-              tdgg.integer(lambdaint), 
+tdgg.any = function(p.true = .5, lambda.int = 100, min = -1, max = 1, len.char = 8, len.raw = 8, lambda.list = 10, 
+                   list.tdg = tdgg.any(), lambda.vector = 10, max.level = 20, vector.tdg = tdgg.double()) 
+  tdgg.mixture(tdgg.logical(p.true), 
+              tdgg.integer(lambda.int), 
               tdgg.double(min, max), 
-              tdgg.character(lenchar), 
-  #           tdgg.raw(lenraw),
-              tdgg.vector(vectortdg, lambdavector),
-              tdgg.list(listtdg, lambdalist, maxlevel))
+              tdgg.character(len.char), 
+  #           tdgg.raw(len.raw),
+              tdgg.vector(vector.tdg, lambda.vector),
+              tdgg.list(list.tdg, lambda.list, max.level))
 
 ## generator test thyself
 ##tdgg.logical 
-unit.test(function(ptrue) {
+unit.test(function(p.true) {
   binom.test(
-    sum(replicate(1000,expr = tdgg.logical(ptrue)())),1000, ptrue,"two.sided")$p.value > 0.001},
+    sum(replicate(1000,expr = tdgg.logical(p.true)())),1000, p.true,"two.sided")$p.value > 0.001},
          generators = list(tdgg.distribution(runif, min = .1, max = .9)))
 ##tdgg.integer same as tdgg.distribution
 ##tdgg.double same as tdgg.distribution
@@ -93,7 +93,7 @@ unit.test(function(l) nchar(tdgg.character(l)()) == l,
 #tdgconstant
 unit.test(function(x) tdgg.constant(x)() == x, generators = list(tdgg.distribution(runif)))
 #tdgselect
-unit.test(function(l) is.element(tdgg.select(l)(), l), generators = list(tdgg.numericlist(10)))
+unit.test(function(l) is.element(tdgg.select(l)(), l), generators = list(tdgg.numeric.list(10)))
 #tdgmixture
 unit.test(function(n) is.element(tdgg.mixture(tdgg.constant(n), tdgg.constant(2*n))(), list(n,2*n)), 
      generators = list(tdgg.distribution(runif)))
