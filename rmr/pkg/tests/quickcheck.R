@@ -80,7 +80,7 @@ tdgg.any = function(ptrue = .5, lambdaint = 100, min = -1, max = 1, lenchar = 8,
 tdgg.numericlist = function(lambda = 100) function() lapply(1:rpois(1,lambda), function(i) runif(1))
 tdgg.keyval = function(keytdg = tdgg.double(), valtdg = tdgg.any()) function() keyval(keytdg(), valtdg())
 tdgg.keyvalsimple = function() function() keyval(runif(1), runif(1)) #we can do better than this
-tdgg.keyvallist = function(keytdg = tdgg.double(), valtdg = tdgg.list(), lambda = 100) tdgg.list(tdg = tdgg.keyval(keytdg, valtdg), lambda = lambda)
+tdgg.keyval.list = function(keytdg = tdgg.double(), valtdg = tdgg.list(), lambda = 100) tdgg.list(tdg = tdgg.keyval(keytdg, valtdg), lambda = lambda)
 
 
 ## generator test thyself
@@ -147,7 +147,7 @@ for (be in c("local", "hadoop")) {
   unit.test(function(kvl) isTRUE(all.equal(kvl, 
                                apply(cbind(keys(kvl), 
                                            values(kvl)),1,function(x) keyval(x[[1]], x[[2]])))), 
-           generators = list(tdgg.keyvallist()))
+           generators = list(tdgg.keyval.list()))
   ##keyval
   unit.test(function(kv) {
     isTRUE(all.equal(kv,keyval(kv$key,kv$val))) &&      
@@ -157,13 +157,12 @@ for (be in c("local", "hadoop")) {
   ##from.dfs to.dfs
   unit.test(function(kvl) {
     isTRUE(all.equal(kvl, from.dfs(to.dfs(kvl)), tolerance = 1e-4, check.attributes = FALSE))},
-    generators = list(tdgg.keyvallist()),
+    generators = list(tdgg.keyval.list()),
     sample.size = 10)
     
   ##mapreduce
   
   ##unordered compare
-  
   kvl.cmp = function(l1, l2) {
     l1 = l1[order(unlist(keys(l1)))]  
     l2 = l2[order(unlist(keys(l2)))]
@@ -175,7 +174,7 @@ for (be in c("local", "hadoop")) {
     else {
       kvl1 = from.dfs(mapreduce(input = to.dfs(kvl)))
       kvl.cmp(kvl, kvl1)}},
-           generators = list(tdgg.keyvallist(lambda = 10)),
+           generators = list(tdgg.keyval.list(lambda = 10)),
            sample.size = 10)
   
   ##put in a reduce for good measure
@@ -185,7 +184,7 @@ for (be in c("local", "hadoop")) {
       kvl1 = from.dfs(mapreduce(input = to.dfs(kvl),
                                 reduce = to.reduce.all(identity)))
       kvl.cmp(kvl, kvl1)}},
-           generators = list(tdgg.keyvallist(lambda = 10)),
+           generators = list(tdgg.keyval.list(lambda = 10)),
            sample.size = 10)
 
   
@@ -208,7 +207,7 @@ for (be in c("local", "hadoop")) {
                                             format = fmt),
                               tolerance = 1e-4,
                               check.attributes = FALSE))},
-                    generators = list(tdgg.keyvallist()),
+                    generators = list(tdgg.keyval.list()),
                     sample.size = 3))
        
            
@@ -222,6 +221,6 @@ for (be in c("local", "hadoop")) {
                   output.format = fmt),
         format = fmt)
       kvl.cmp(kvl, kvl1)}},
-           generators = list(tdgg.keyvallist(lambda = 10)),
+           generators = list(tdgg.keyval.list(lambda = 10)),
            sample.size = 3)
   }                                           
