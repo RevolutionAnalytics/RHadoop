@@ -68,7 +68,7 @@ for (be in c("local", "hadoop")) {
   
   ##from.dfs to.dfs
   unit.test(function(kvl) {
-    isTRUE(all.equal(kvl, from.dfs(to.dfs(kvl)), tolerance = 1e-4, check.attributes = FALSE))},
+    kvl.cmp(kvl, from.dfs(to.dfs(kvl)))},
     generators = list(tdgg.keyval.list()),
     sample.size = 10)
     
