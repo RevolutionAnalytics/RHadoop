@@ -87,7 +87,7 @@ for (be in c("local", "hadoop")) {
           to.data.frame = TRUE), 
         tolerance = 1e-4, 
         check.attributes = FALSE))},
-            generators = list(tdgg.data.frame(), tdgg.constant(fmt)),
+            generators = list(tdgg.data.frame()),
             sample.size = 10)
   
   
