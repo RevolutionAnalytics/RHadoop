@@ -67,12 +67,31 @@ for (be in c("local", "hadoop")) {
     generators = list(tdgg.keyval()))
   
   ##from.dfs to.dfs
+  ##native
   unit.test(function(kvl) {
     kvl.cmp(kvl, from.dfs(to.dfs(kvl)))},
     generators = list(tdgg.keyval.list()),
     sample.size = 10)
   
-  for(fmt in c("csv", "json", "sequence.typedbytes")) {
+  ## csv
+  unit.test(function(df) {
+    isTRUE(
+      all.equal(
+        df, 
+        from.dfs(
+          to.dfs(df, 
+                 format = "csv"), 
+          format = make.input.format(
+            format = "csv", 
+            colClasses = lapply(df[1,], class)), 
+          to.data.frame = TRUE), 
+        tolerance = 1e-4, 
+        check.attributes = FALSE))},
+            generators = list(tdgg.data.frame(), tdgg.constant(fmt)),
+            sample.size = 10)
+  
+  
+  for(fmt in c("json", "sequence.typedbytes")) {
     unit.test(function(df,fmt) {
       isTRUE(all.equal(df, from.dfs(to.dfs(df, format = fmt), format = fmt, to.data.frame = TRUE), tolerance = 1e-4, check.attributes = FALSE))},
               generators = list(tdgg.data.frame(), tdgg.constant(fmt)),
