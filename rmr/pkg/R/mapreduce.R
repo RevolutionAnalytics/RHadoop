@@ -330,6 +330,8 @@ typed.bytes.writer = function(value, con, native  = FALSE) {
                #doesn't happen in R numeric = {write.code(5); w(value)}, 
                numeric = {write.code(6); w(value)}, 
                character = {write.code(7); write.length(nchar(value)); writeChar(value, con, eos = NULL)}, 
+               factor = {value = as.character(value)
+                         write.code(7); write.length(nchar(value)); writeChar(value, con, eos = NULL)},
                stop("not implemented yet"))}
       else {
         switch(class(value), 
