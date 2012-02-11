@@ -71,7 +71,13 @@ for (be in c("local", "hadoop")) {
     kvl.cmp(kvl, from.dfs(to.dfs(kvl)))},
     generators = list(tdgg.keyval.list()),
     sample.size = 10)
-    
+  
+  for(fmt in c("csv", "json", "sequence.typedbytes")) {
+    unit.test(function(df,fmt) {
+      isTRUE(all.equal(df, from.dfs(to.dfs(df, format = fmt), format = fmt, to.data.frame = TRUE), tolerance = 1e-4, check.attributes = FALSE))},
+              generators = list(tdgg.data.frame(), tdgg.constant(fmt)),
+              sample.size = 10)}
+  
   ##mapreduce
   
   ##unordered compare
