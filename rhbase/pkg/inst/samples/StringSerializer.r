@@ -12,4 +12,4 @@ hb.insert("mytable",list( list(2,c("x","y","z"),list(10001,14,575))),sz=str_sz)
 str_usz<-function(x)(rawToChar(x))
  
 read the contents of the table
-hb.get("mytable",list(1,2),c("x:","y","z"), sz=str_sz, usz=str_usz)
+hb.get("mytable",list(1,2),c("x","y","z"), sz=str_sz, usz=str_usz)
