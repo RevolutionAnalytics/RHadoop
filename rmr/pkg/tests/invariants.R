@@ -69,7 +69,8 @@ for (be in c("local", "hadoop")) {
   ##from.dfs to.dfs
   ##native
   unit.test(function(kvl) {
-    kvl.cmp(kvl, from.dfs(to.dfs(kvl)))},
+    isTRUE(
+      all.equal(kvl, from.dfs(to.dfs(kvl))))},
     generators = list(tdgg.keyval.list()),
     sample.size = 10)
   
@@ -121,9 +122,42 @@ for (be in c("local", "hadoop")) {
       kvl1 = from.dfs(mapreduce(input = to.dfs(kvl),
                                 reduce = to.reduce.all(identity)))
       kvl.cmp(kvl, kvl1)}},
-           generators = list(tdgg.keyval.list(lambda = 10)),
-           sample.size = 10)
-
+            generators = list(tdgg.keyval.list(lambda = 10)),
+            sample.size = 10)
   
-
+  for(fmt in c("json", "sequence.typedbytes")) {
+    unit.test(function(df,fmt) {
+      isTRUE(all.equal(df, from.dfs(mapreduce(to.dfs(df, format = fmt),
+                                              reduce = to.reduce.all(identity),
+                                              input.format = fmt,
+                                              output.format = fmt),
+                                    format = fmt, 
+                                    to.data.frame = TRUE), 
+                       tolerance = 1e-4, check.attributes = FALSE))},
+              generators = list(tdgg.data.frame(), tdgg.constant(fmt)),
+              sample.size = 10)}
+  
+  ## csv
+  unit.test(function(df) {
+    inpf = make.input.format(
+      format = "csv", 
+      colClasses = lapply(df[1,], class))
+    df1 = from.dfs(
+      mapreduce(
+        to.dfs(df, 
+               format = "csv"),
+        input.format = inpf,
+        output.format = "csv"),
+      format = inpf, 
+      to.data.frame = TRUE)
+    isTRUE(
+      all.equal(
+        df[order(df[,1]),], 
+        df1[order(df1[,1]),], 
+        tolerance = 1e-4, 
+        check.attributes = FALSE))},
+            generators = list(tdgg.data.frame()),
+            sample.size = 10)
+  
+  
   }                                           
