@@ -14,8 +14,7 @@ from.dfs(input, format = "native", to.data.frame = FALSE)
   \item{object}{A list of key-value pairs as returned by keyvalue to write to HDFS; experimentally, a data frame}
   \item{input}{A file in HDFS to read from or write to; for from.dfs, the return value of \code{mapreduce}}
   \item{output}{A file in HDFS to read from or write to}
-  \item{format}{For \code{from.dfs} either a string naming a format, the same as those allowed by \code{make.input.format}, or the value returned by \code{\link{make.input.format}}. The same is true for \code{to.dfs}, but refer to \code{\link{make.output.format}} instead.
-  \item{output.format}Either a string naming a format, the same as those allowed by \code{make.output.format}, or the value returned by \code{\link{make.output.format}}}  
+  \item{format}{For \code{from.dfs} either a string naming a format, the same as those allowed by \code{make.input.format}, or the value returned by \code{\link{make.input.format}}. The same is true for \code{to.dfs}, but refer to \code{\link{make.output.format}} instead.}
   \item{to.data.frame}{Do what it takes to return a data frame.}
 }
 
