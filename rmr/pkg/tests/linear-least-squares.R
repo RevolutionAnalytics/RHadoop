@@ -59,6 +59,6 @@ y = do.call(c, lapply(1:4, function(i) lapply(1:1, function(j) keyval(c(i,j), rn
 out = list()
 for (be in c("local", "hadoop")) {
   rmr.options.set(backend = be)
-  out[[be]] }
+  out[[be]] = linear.least.squares(to.dfs(X), to.dfs(y))}
 
 stopifnot(rmr:::cmp(out[['local']], out[['hadoop']]))
