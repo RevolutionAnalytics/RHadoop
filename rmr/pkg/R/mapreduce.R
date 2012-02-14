@@ -733,11 +733,10 @@ options(warn=1)
 
 library(rmr)
 load("rmr-local-env")
+load("rmr-global-env")
 invisible(lapply(libs, function(l) library(l, character.only = T)))
 '  
-
-  map.line = 'load("rmr-map-env", envir = environment(map))
-  rmr:::map.driver(map = map, 
+  map.line = '  rmr:::map.driver(map = map, 
               record.reader = rmr:::make.record.reader(input.format$mode, 
                                                  input.format$format), 
               record.writer = if(is.null(reduce)) {
@@ -746,15 +745,13 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
                               else {
                                 rmr:::make.record.writer()}, 
               profile = profile.nodes)'
-  reduce.line  =  'load("rmr-reduce-env", envir = environment(reduce))
-  rmr:::reduce.driver(reduce = reduce, 
+  reduce.line  =  '  rmr:::reduce.driver(reduce = reduce, 
                  record.reader = rmr:::make.record.reader(), 
                  record.writer = rmr:::make.record.writer(output.format$mode, 
                                                     output.format$format), 
                  reduce.on.data.frame = reduce.on.data.frame, 
                  profile = profile.nodes)'
-  combine.line = 'load("rmr-combine-env", envir = environment(combine))
- rmr:::reduce.driver(reduce = combine, 
+  combine.line = '  rmr:::reduce.driver(reduce = combine, 
                  record.reader = rmr:::make.record.reader(), 
                  record.writer = rmr:::make.record.writer(), 
                  reduce.on.data.frame = reduce.on.data.frame, 
@@ -770,23 +767,21 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
   ## set up the execution environment for map and reduce
   if (!is.null(combine) && is.logical(combine) && combine) {
     combine = reduce}
-
+  
   save.env = function(fun = NULL, name) {
     fun.env = file.path(tempdir(), name)
-    envir = if(is.null(fun)) parent.env(environment()) else environment(fun)
+    envir = 
+      if(is.null(fun)) parent.env(environment()) else {
+        if (is.function(fun)) environment(fun)
+        else fun}
     save(list = ls(all = TRUE, envir = envir), file = fun.env, envir = envir)
     fun.env}
 
   libs = sub("package:", "", grep("package", search(), value = T))
-  image.cmd.line = paste("-file", 
-                         c(save.env(name = "rmr-local-env"), 
-                          save.env(map, "rmr-map-env"), 
-                          if(is.function(reduce)) {
-                            save.env(reduce, "rmr-reduce-env")}, 
-                          if(is.function(combine))   
-                            save.env(combine, "rmr-combine-env")), 
-                        collapse=" ")
-  
+  image.cmd.line = paste("-file",
+                         c(save.env(name = "rmr-local-env"),
+                           save.env(.GlobalEnv, "rmr-global-env")),
+                         collapse = " ")
   ## prepare hadoop streaming command
   hadoop.command = hadoop.cmd()
   input =  make.input.files(in.folder)
