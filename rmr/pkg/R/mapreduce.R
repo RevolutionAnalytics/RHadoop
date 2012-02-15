@@ -243,9 +243,7 @@ json.input.format = function(line) {
          fromJSON(x[2], asText = TRUE))}
 
 json.output.format = function(k, v) {
-  paste(if(!is.null(k))
-          gsub("\n", "", toJSON(k, .escapeEscapes=TRUE, collapse = ""))
-        else NULL,
+  paste(gsub("\n", "", toJSON(k, .escapeEscapes=TRUE, collapse = "")),
         gsub("\n", "", toJSON(v, .escapeEscapes=TRUE, collapse = "")),
         sep = "\t")}
 
