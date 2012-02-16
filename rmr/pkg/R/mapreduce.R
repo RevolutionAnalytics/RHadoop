@@ -530,7 +530,8 @@ from.dfs = function(input, format = "native", to.data.frame = FALSE) {
     tmp = tempfile()
     lapply(src, function(x) {
       hdfs.get(as.character(x), tmp)
-      system(paste('cat', tmp, '>>' , dest))})
+      system(paste('cat', tmp, '>>' , dest))
+      unlink(tmp)})
     dest}
   
   fname = to.dfs.path(input)
