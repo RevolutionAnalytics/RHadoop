@@ -18,7 +18,7 @@ unit.test = function(predicate, generators, sample.size = 10, precondition = fun
   options(warning.length = 8125) #as big as allowed
   results = sapply(1:sample.size, function(i) {
     args = lapply(generators, function(a) a())
-    if(do.call(precondition, args) && !do.call(predicate, args)){
+    if(do.call(precondition, args) && !do.call(function(...){tryCatch(predicate(...), error = function(e){traceback(); print(e); FALSE})}, args)){
       print(paste("FAIL: predicate:",
                  paste(deparse(predicate), collapse = " ")))
       list(predicate = predicate, args = args)
