@@ -572,7 +572,7 @@ mapreduce = function(
   reduce.on.data.frame = FALSE, 
   input.format = "native", 
   output.format = "native", 
-  tuning.parameters = list(), 
+  backend.parameters = list(), 
   verbose = TRUE) {
 
   on.exit(expr = gc(), add = TRUE) #this is here to trigger cleanup of tempfiles
@@ -599,7 +599,7 @@ mapreduce = function(
      profile.nodes = profile.nodes, 
      input.format = input.format, 
      output.format = output.format, 
-     tuning.parameters = tuning.parameters[[backend]], 
+     backend.parameters = backend.parameters[[backend]], 
      verbose = verbose)
   output
 }
@@ -617,7 +617,7 @@ mr.local = function(map,
                     profile.nodes, 
                     input.format, 
                     output.format, 
-                    tuning.parameters, 
+                    backend.parameters, 
                     verbose = verbose) {
   if(is.null(reduce)) reduce = function(k, vv) lapply(vv, function(v) keyval(k, v))
   map.out = do.call(c, 
@@ -725,7 +725,7 @@ rhstream = function(
     HADOOP_CONF = Sys.getenv("HADOOP_CONF")), 
   input.format, 
   output.format, 
-  tuning.parameters, 
+  backend.parameters, 
   verbose = TRUE, 
   debug = FALSE) {
     ## prepare map and reduce executables
@@ -836,7 +836,7 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
   final.command =
     paste(
       hadoop.command, 
-      paste.options(tuning.parameters), 
+      paste.options(backend.parameters), 
       stream.mapred.io,  
       archives, 
       caches, 

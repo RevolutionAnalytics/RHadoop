@@ -14,7 +14,7 @@
   reduce.on.data.frame = FALSE,
   input.format = "native",
   output.format = "native",
-  tuning.parameters = list(),
+  backend.parameters = list(),
   verbose = TRUE) }
 
 \arguments{
@@ -29,11 +29,12 @@
 \item{reduce.on.data.frame}{flatten the list of values to a data frame in the reduce call}
 \item{input.format}{Input specification, see  \code{\link{make.input.format}}}
 \item{output.format}{Output specification, see  \code{\link{make.output.format}}}
-\item{tuning.parameters}{Specify additional, backend-specific, performance-only-related options, as in \code{tuning.parameters = list(hadoop
-      = list(D = "mapred.reduce.tasks=1"), local = list())}. It is invalid to use this argument to change the semantics of mapreduce (output
+\item{backend.parameters}{Specify additional, backend-specific options, as in \code{backend.parameters = list(hadoop
+      = list(D = "mapred.reduce.tasks=1"), local = list())}. It is recommended not to use this argument to change the semantics of mapreduce (output
     should be independent of this argument). Each backend can only see the nested list named after the backend itself.  The interpretation
     is the following: for the hadoop backend, generate an additional hadoop streaming command line argument for each element of the list,
-    "-name value". If the value is TRUE generate "-name" only, if it is FALSE skip. For the local backend, the list is ignored.}
+    "-name value". If the value is TRUE generate "-name" only, if it is FALSE skip. One possible use is to specify the number of mappers and reducers 
+    on a per-job basis.For the local backend, the list is ignored.}
   \item{verbose}{Run hadoop in verbose mode}}
 
   \value{The value of \code{output}, or, when missing, an object that can be used as input to \code{\link{from.dfs}} or \code{mapreduce}}
@@ -45,7 +46,7 @@
     \code{reduce} execution time, we load a copy of the environment inside the \code{mapreduce} call, as if \code{map} and \code{reduce}
     where called from there and its parent environment, that is the one in which \code{mapreduce} call is executed. Changes to the above
     environemnts performed inside the map and reduce functions with the \code{<<-} operator will only affect a per-process copy of the
-    environment not the original one, in a departure from established but rarely used R semantics. This is unlikely to change in the future
+    environment, not the original one, in a departure from established but rarely used R semantics. This is unlikely to change in the future
     because of the challenges inherent in adopting reference semantics in a parallel environment. See also the Tutorial
     \url{https://github.com/RevolutionAnalytics/RHadoop/wiki/Tutorial}}
   
