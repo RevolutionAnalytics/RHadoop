@@ -26,7 +26,7 @@ will become the join key.}
   \item{reduce}{Function to be applied, key by key, on the lists of values associated with that key, one from the right side as produced
 by map.left and the other from the right side and map.right. This is a more mapreduce like API, very much like a reduce but with two lists
 of values, all sharing the same key. Returns 0 or more keyval pairs like any reduce function.}
-  \item{reduceall}{Function to be applied to each triple comprising a key, a value associated with that key from the left input and a
+  \item{reduce.all}{Function to be applied to each triple comprising a key, a value associated with that key from the left input and a
 value associated with that key from the right input. This is more an SQL like interface, like an equijoin. Returns 0 or more keyval pairs
 like any reduce function.}
 }

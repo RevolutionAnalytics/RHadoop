@@ -884,8 +884,8 @@ equijoin = function(
     do.call(c, 
             lapply(values.left, 
                    function(vl) lapply(values.right, 
-                                       function(vr) reduceall(k, vl, vr)))), 
-  reduceall  = function(k, vl, vr) keyval(k, list(left = vl, right = vr)))
+                                       function(vr) reduce.all(k, vl, vr)))), 
+  reduce.all  = function(k, vl, vr) keyval(k, list(left = vl, right = vr)))
  {
   stopifnot(xor(!is.null(left.input), !is.null(input) &&
                 (is.null(left.input)==is.null(right.input))))
