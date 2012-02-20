@@ -168,7 +168,7 @@ make.record.writer = function(mode = NULL, format = NULL, con = NULL) {
     function(k, v) format(k, v, con)}}
 
 IO.formats = c("text", "json", "csv", "native", "native.text",
-               "sequence.typedbytes", "raw.typedbytes")
+               "sequence.typedbytes")
 
 make.input.format = function(format = native.input.format, 
                             mode = c("binary", "text"),
@@ -218,10 +218,7 @@ make.output.format = function(format = native.output.format,
                      streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"}, 
            sequence.typedbytes = {format = typed.bytes.output.format; 
                                   mode = "binary";
-                                  streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"}, 
-           raw.typedbytes = {format = typed.bytes.output.format; 
-                             mode = "binary";
-                             streaming.format = NULL})}
+                                  streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"})}
   mode = match.arg(mode)
   list(mode = mode, format = format, streaming.format = streaming.format)}
 
