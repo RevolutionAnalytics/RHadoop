@@ -12,7 +12,7 @@ A generalized form of equijoin, hybrid between the SQL brethen and mapreduce
 
 \usage{equijoin(left.input = NULL, right.input = NULL, input = NULL, output = NULL, outer = c("", "left", "right", "full"), map.left =
 to.map(identity), map.right = to.map(identity), reduce = function(k, values.left, values.right) do.call(c, lapply(values.left, function(vl)
-lapply(values.right, function(vr) reduceall(k, vl, vr)))), reduceall = function(k, vl, vr) keyval(k, list(left = vl, right = vr)))}
+lapply(values.right, function(vr) reduce.all(k, vl, vr)))), reduce.all = function(k, vl, vr) keyval(k, list(left = vl, right = vr)))}
 
 \arguments{\item{left.input}{The left side input to the join.}
   \item{right.input}{The right side input to the join.}
