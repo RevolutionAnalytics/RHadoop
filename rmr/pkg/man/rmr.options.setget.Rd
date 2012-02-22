@@ -13,7 +13,7 @@ rmr.options.set(backend = c("hadoop", "local"), profile.nodes = NULL)
 }
 \arguments{
   \item{...}{Character names of option to get the value of}
-  \item{backend}{One of "hadoop" or "local", the latter being implemented entirely in the current R interpreter, sequentially.}
+  \item{backend}{One of "hadoop" or "local", the latter being implemented entirely in the current R interpreter, sequentially. Very useful for learning and debugging.}
   \item{profile.nodes}{Collect profiling information when running additional R interpreters (besides the current one) on the cluster. }
  %\item{depend.check}{Activate makefile-like dependency checking (under construction)}
  % \item{managed.dir}{Where to put intermediate result when makefile-like features are activated}

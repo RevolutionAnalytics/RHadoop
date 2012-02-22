@@ -19,13 +19,12 @@
 
 \arguments{
 \item{input}{Paths to the input folder(s) (on HDFS) or vector thereof
-    or or the return value of another mapreduce or to.dfs call}
-\item{output}{A path to the destination folder (on HDFS); if missing, use the return value as output}
-\item{map}{An optional R function(k,v), returning the return value of keyval or list thereof, that specifies the map operation to execute as
-    part of a map reduce job}
-\item{reduce}{An optional R function(k,vv), returning the return value of keyval or list thereof, that specifies the reduce operation to
+    or or the return value of another \code{mapreduce} or a \code{\link{to.dfs}} call}
+\item{output}{A path to the destination folder (on HDFS); if missing, use the return value of \code{mapreduce} itself as output}
+\item{map}{An optional R function of two arguments, a key and a value, returning either NULL or the return value of \code{\link{keyval}} or a list thereof, that specifies the map operation to execute as part of a mapreduce job}
+\item{reduce}{An optional R function of two arguments, a key and a list of all the values associated with that key, returning either NULL or the return value of \code{\link{keyval}} or a list thereof, that specifies the reduce operation to
     execute as part of a map reduce job}
-\item{combine}{turn on the combiner; if TRUE the reduce function is used, or specify your own}
+\item{combine}{a function with the same signature as the reduce function, or TRUE, which means use the reduce function as combiner}
 \item{reduce.on.data.frame}{flatten the list of values to a data frame in the reduce call}
 \item{input.format}{Input specification, see  \code{\link{make.input.format}}}
 \item{output.format}{Output specification, see  \code{\link{make.output.format}}}
@@ -37,21 +36,18 @@
     on a per-job basis.For the local backend, the list is ignored.}
   \item{verbose}{Run hadoop in verbose mode}}
 
-  \value{The value of \code{output}, or, when missing, an object that can be used as input to \code{\link{from.dfs}} or \code{mapreduce}}
+  \value{The value of \code{output}, or, when missing, an object that can be used as input to \code{\link{from.dfs}} or \code{mapreduce}, a stub representing the results of the job}
 
-  \details{Defines and executes a map reduce job. Jobs can be chained together by simply providing the return value of one as input to the
-    other. The map and reduce functions will run in an environment that is an approximation (explained below) of the environment of this
-    call, even if the actual execution will happen in a different interpreter on a different machine. This is work in progress as we aim to
-    provide exactly the same environement, but the current implementation seems to cover most use cases. Specifically, at \code{map} or
-    \code{reduce} execution time, we load a copy of the environment inside the \code{mapreduce} call, as if \code{map} and \code{reduce}
-    where called from there and its parent environment, that is the one in which \code{mapreduce} call is executed. Changes to the above
+  \details{Defines and executes a mapreduce job. Jobs can be chained together by simply providing the return value of one as input to the
+    other. The map and reduce functions will run in an environment that is an approximation of the environment of this
+    call, even if the actual execution happens in a different interpreter on a different machine.  Changes to the outer
     environemnts performed inside the map and reduce functions with the \code{<<-} operator will only affect a per-process copy of the
     environment, not the original one, in a departure from established but rarely used R semantics. This is unlikely to change in the future
     because of the challenges inherent in adopting reference semantics in a parallel environment. See also the Tutorial
     \url{https://github.com/RevolutionAnalytics/RHadoop/wiki/Tutorial}}
   
 \seealso{\code{\link{to.map}} and \code{\link{to.reduce}} can be used to convert other functions into suitable arguments for the map and
-reduce arguments; see the inst and tests directories in the source for more examples}
+reduce arguments; see the inst and tests directories in the source package for more examples}
 
 \examples{ ## Example 1: Word Count ## classic wordcount ## input can be any text
 

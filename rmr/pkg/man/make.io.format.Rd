@@ -22,7 +22,7 @@ Arguments:              Return value:
 text   line  k, v       text    kv       line  
 binary con   k, v, con  binary  kv       TRUE}
 
-Where k, v are R objects playing the role of key and value, resp., con is a connection, kv is a key-value pair and line is a string.
+Where \code{k, v} are R objects playing the role of key and value, resp., con is a connection, \code{kv} is a key-value pair and \code{line} is a string.
 }
   \item{mode}{
 Mode can be either "text" or "binary", which tells R what type of connection to use when opening the IO connections.
@@ -31,11 +31,10 @@ Mode can be either "text" or "binary", which tells R what type of connection to 
 Class to pass to hadoop streaming as inputformat or outputformat option. This class is the first in the input chain to perform its duties on the input side and the last on the output side. Right now this option is not honored in local mode.
 }
 \item{\dots}{
-Additional arguments to the format function, for instance for the csv format they detail the specifics of the csv dialect to use, see read.table and write.table for details
-}
+Additional arguments to the format function, for instance for the csv format they detail the specifics of the csv dialect to use, see \code{\link{read.table}} and \code{\link{write.table}} for details}
 }
 \details{
-The goal of these function is to encapsulate some of the complexity of the IO settings, providing meaningful defaults and predefined combinations. The input processing is the result of the composition of a Java class and an R function, and the same is true on the ouput side but in reverse order. If you don't want to deal with the full complexity of defining custom IO formats, there are pre-packaged combinations. "Text" is free text, useful mostly on the input side for NLP type applications; "json" is one or two tab separated JSON objects per record; "csv" is csv format, configurable through additional arguments; "native.text" uses the internal R serialization in text mode, and was the default, use only for backward compatibility; "native" uses the internal R serialization and is the default; "sequence.typedbytes" is a sequence file (in the Hadoop sense) where key and value are of type typedbytes, which is a simple serialization format used in connection with streaming for compatibility with other hadoop subsystems; "raw.typedbytes" is a sequence  of typedbytes objects, alternating key and value. Typedbytes is documented here \url{https://hadoop.apache.org/mapreduce/docs/current/api/org/apache/hadoop/typedbytes/package-summary.html}
+The goal of these function is to encapsulate some of the complexity of the IO settings, providing meaningful defaults and predefined combinations. The input processing is the result of the composition of a Java class and an R function, and the same is true on the output side but in reverse order. If you don't want to deal with the full complexity of defining custom IO formats, there are pre-packaged combinations. "text" is free text, useful mostly on the input side for NLP type applications; "json" is one or two tab separated JSON objects per record; "csv" is the csv format, configurable through additional arguments; "native.text" uses the internal R serialization in text mode, and was the default in previous releases, use only for backward compatibility; "native" uses the internal R serialization, offers the highest level of compatibility with R data types and is the default; "sequence.typedbytes" is a sequence file (in the Hadoop sense) where key and value are of type typedbytes, which is a simple serialization format used in connection with streaming for compatibility with other hadoop subsystems. Typedbytes is documented here \url{https://hadoop.apache.org/mapreduce/docs/current/api/org/apache/hadoop/typedbytes/package-summary.html}
 }
 \value{
 Return a list of IO specifications, to be passed as \code{input.format} and \code{output.format} to \code{\link{mapreduce}}, and as \code{format} to  \code{\link{from.dfs}} and  \code{\link{to.dfs}}. \code{from.dfs} accepts an input format and \code{to.dfs} accepts an output format.
