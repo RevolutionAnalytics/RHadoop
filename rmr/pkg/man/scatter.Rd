@@ -13,9 +13,9 @@ scatter(input, output = NULL)
   \item{input}{
 The input file}
   \item{output}{
-Output, defaults to the same as mapreduce output}
+Output, defaults to the same as \code{\link{mapreduce}} output}
 }
 
 \value{
-Returns output.
+Same as for \code{\link{mapreduce}}.
 }
