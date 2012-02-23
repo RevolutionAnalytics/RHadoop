@@ -1,7 +1,7 @@
 \name{dfs.empty}
 \alias{dfs.empty}
 \title{
-Check if a dfs file is emptt
+Check if a dfs file is empty
 }
 \description{
 Also takes objects returned by mapreduce

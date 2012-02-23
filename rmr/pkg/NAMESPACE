@@ -1,11 +1,8 @@
 export(mapreduce)
 export(from.dfs, to.dfs)
-export(equijoin)
+export(equijoin, scatter)
 export(dfs.empty)
-export(rmr.backend, rmr.profilenodes)
+export(rmr.options.set, rmr.options.get)
 export(keyval, keys, values)
-export(rawtextinputformat, rawtextoutputformat, 
-       csvtextinputformat, csvtextoutputformat, 
-       jsontextinputformat, jsontextoutputformat, 
-       nativetextinputformat, nativetextoutputformat)
+export(make.input.format, make.output.format)
 export(to.map, to.reduce, to.reduce.all)

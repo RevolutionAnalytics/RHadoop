@@ -33,7 +33,7 @@ mat.mult.map = function(i) function(k,v) keyval(k[[i]], list(pos = k, elem = v))
 mat.mult = function(left, right, result = NULL) {
   mapreduce(
                 input =
-                equijoin(leftinput = left, rightinput = right,
+                equijoin(left.input = left, right.input = right,
                                  map.left = mat.mult.map(2),
                                  map.right = mat.mult.map(1), 
                                  reduce = function(k, vvl, vvr) 
@@ -44,12 +44,12 @@ mat.mult = function(left, right, result = NULL) {
 
 `%x%` = mat.mult
 
-to.matrix = function(df) as.matrix(sparseMatrix(i=df$key1, j=df$key2, x=df$val))
+to.matrix = function(df) as.matrix(sparseMatrix(i=df$V1, j=df$V2, x=df$V3))
 
 weighted.linear.least.squares = function(X, y, W) {
   Xt = transpose(X)
-  XtWX = from.dfs(Xt %x% W %x% X, todataframe = TRUE)
-  XtWy = from.dfs(Xt %x% W %x% y, todataframe = TRUE)
+  XtWX = from.dfs(Xt %x% W %x% X, to.data.frame = TRUE)
+  XtWy = from.dfs(Xt %x% W %x% y, to.data.frame = TRUE)
   solve(to.matrix(XtWX),to.matrix(XtWy))}
 
 # test data
@@ -59,7 +59,7 @@ W = lapply(1:4, function(i)  keyval(c(i,i), rnorm(1)))
 
 out = list()
 for (be in c("local", "hadoop")) {
-  rmr.backend(be)
+  rmr.options.set(backend = be)
   out[[be]] = weighted.linear.least.squares(to.dfs(X), to.dfs(y), to.dfs(W))}
 
 stopifnot(rmr:::cmp(out[['local']], out[['hadoop']]))
