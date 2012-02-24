@@ -14,3 +14,5 @@ rmr-*-env
 *~
 #for whirr users
 whirr.log*
+#for emerge users
+*.orig
