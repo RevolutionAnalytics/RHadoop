@@ -12,12 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#Due to changes in licensing of Java by Oracle, this script will work only if you 
+#build from trunk as of 2/21/12. 0.7.1 should rectify this problem
+
 #To set up a hadoop/rmr cluster first launch the cluster
 
 $WHIRR_HOME/bin/whirr launch-cluster --config hadoop-ec2.properties
 #this config slightly tweaked from whirr distro, starts 5 large nodes
 
-# then install rmr
+# then install R and rmr
 $WHIRR_HOME/bin/whirr run-script --script rmr.sh --config hadoop-ec2.properties
 
 # remember to destroy when done. You are responsible for any AWS charges
