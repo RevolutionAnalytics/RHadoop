@@ -33,7 +33,7 @@ mat.mult.map = function(i) function(k,v) keyval(k[[i]], list(pos = k, elem = v))
 mat.mult = function(left, right, result = NULL) {
   mapreduce(
                 input =
-                equijoin(left.input = left, right.input = right,
+                equijoin(leftinput = left, rightinput = right,
                                  map.left = mat.mult.map(2),
                                  map.right = mat.mult.map(1), 
                                  reduce = function(k, vvl, vvr) 
@@ -42,12 +42,12 @@ mat.mult = function(left, right, result = NULL) {
                 output = result,
                 reduce = to.reduce(identity, function(x) sum(unlist(x))))}
 
-to.matrix = function(df) as.matrix(sparseMatrix(i=df$V1, j=df$V2, x=df$V3))
+to.matrix = function(df) as.matrix(sparseMatrix(i=df$key1, j=df$key2, x=df$val))
 
 linear.least.squares = function(X,y) {
   Xt = transpose(X)
-  XtX = from.dfs(mat.mult(Xt, X), to.data.frame = TRUE)
-  Xty = from.dfs(mat.mult(Xt, y), to.data.frame = TRUE)
+  XtX = from.dfs(mat.mult(Xt, X), todataframe = TRUE)
+  Xty = from.dfs(mat.mult(Xt, y), todataframe = TRUE)
   solve(to.matrix(XtX),to.matrix(Xty))}
 
 # test data
@@ -58,7 +58,7 @@ y = do.call(c, lapply(1:4, function(i) lapply(1:1, function(j) keyval(c(i,j), rn
 
 out = list()
 for (be in c("local", "hadoop")) {
-  rmr.options.set(backend = be)
+  rmr.backend(be)
   out[[be]] = linear.least.squares(to.dfs(X), to.dfs(y))}
 
 stopifnot(rmr:::cmp(out[['local']], out[['hadoop']]))

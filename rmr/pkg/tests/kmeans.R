@@ -25,7 +25,7 @@ kmeans.iter =
                                distances = apply(centers, 1, function(c) distfun(c,v))
                                keyval(centers[which.min(distances),], v)}},
                          reduce = function(k,vv) keyval(NULL, apply(do.call(rbind, vv), 2, mean))),
-             to.data.frame = T)}
+             todataframe = T)}
 
 
 #points grouped many-per-record something like 1000 should give most perf improvement, 
@@ -67,7 +67,7 @@ kmeans.iter.fast =
        reduce = function(k, vv) {
                keyval(k, apply(list.to.matrix(vv), 2, sum))},
      combine = T),
-to.data.frame = T)
+todataframe = T)
     ## convention is iteration returns sum of points not average and first element of each sum is the count
     newCenters = newCenters[newCenters[,2] > 0,-1]
     (newCenters/newCenters[,1])[,-1]}
@@ -110,19 +110,18 @@ kmeans =
 out = list()
 out.fast = list()
 
-for(be in c("local", "hadoop")) {
-  rmr.options.set(backend = "local")
+for (be in c("local", "hadoop")) {
+  rmr.backend(be)
   set.seed(0)
   input = to.dfs(lapply(1:1000, function(i) keyval(NULL, c(rnorm(1, mean = i%%3, sd = 0.1), 
-                                                         rnorm(1, mean = i%%4, sd = 0.1)))))
+                                                        rnorm(1, mean = i%%4, sd = 0.1)))))
   out[[be]] = kmeans(input, 12, iterations = 5)
-
   set.seed(0)
   recsize = 1000
   input = to.dfs(lapply(1:100, 
                         function(i) keyval(NULL, cbind(sample(0:2, recsize, replace = T) + rnorm(recsize, sd = .1),     
                                                        sample(0:3, recsize, replace = T) + rnorm(recsize, sd = .1)))))
-  out.fast[[be]] = kmeans(input, 12, iterations = 5, fast = T)}
+out.fast[[be]] = kmeans(input, 12, iterations = 5, fast = T)}
 
 # would love to take this step but kmeans in randomized in a way that makes it hard to be completely reprodubile
 #stopifnot(rmr:::cmp(out[['hadoop']], out[['local']]))

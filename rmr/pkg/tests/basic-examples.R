@@ -17,7 +17,7 @@
 library(rmr)
 
 for (be in c("local", "hadoop")) {
-  rmr.options.set(backend = be)
+  rmr.backend(be)
   small.ints = 1:1000
   lapply(small.ints, function(x) x^2)
   

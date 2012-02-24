@@ -14,7 +14,7 @@ reduce functions.}
 }
 
 \arguments{
-  \item{fun1}{a function to apply to the key, or to the key-value pair if the second argument is missing}
+  \item{fun1}{a function to apply to the key, or to the key, value pair if the second argument is missing}
   \item{fun2}{a function to apply to the value}
 }
 

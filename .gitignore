@@ -1,16 +1,17 @@
-#for Mac users
 .DS_Store
-#for R users
-.RData
-.Rhistory
-pkg.Rcheck
-#for RStudio users
-.Rproj.user
-*.Rproj
-#for rmr users
-rhstr.*
-rmr-*-env
-#for emacs users
 *~
-#for whirr users
-whirr.log*
+build
+*.tar.gz
+pkg.Rcheck/*
++.#*
+.Rhistory
+
+rhdfs/pkg.Rcheck/*
+
+rhdfs/rhdfs-Ex.ps
+
+rmr/pkg.Rcheck/*
+
+rmr/pkg/tools/whirr.log
+
+rmr/pkg/tools/whirr/whirr.log

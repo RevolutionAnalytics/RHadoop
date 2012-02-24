@@ -6,16 +6,16 @@
 \description{Utility function that reads and writes lists to HDFS}
 
 \usage{
-to.dfs(object, output = dfs.tempfile(), format = "native")
-from.dfs(input, format = "native", to.data.frame = FALSE)
+to.dfs(object, file = dfs.tempfile(), textoutputformat = defaulttextoutputformat)
+from.dfs(file, textinputformat = defaulttextinputformat, todataframe = F)
 }
 
 \arguments{
-  \item{object}{A list of key-value pairs as returned by keyvalue to write to HDFS; experimentally, a data frame}
-  \item{input}{A file in HDFS to read from or write to; for from.dfs, the return value of \code{mapreduce}}
-  \item{output}{A file in HDFS to read from or write to}
-  \item{format}{For \code{from.dfs} either a string naming a format, the same as those allowed by \code{make.input.format}, or the value returned by \code{\link{make.input.format}}. The same is true for \code{to.dfs}, but refer to \code{\link{make.output.format}} instead.}
-  \item{to.data.frame}{Do what it takes to return a data frame.}
+  \item{object}{An list of key-value pairs as returned by keyvalue to write to HDFS; experimentally, a data frame}
+  \item{file}{A file in HDFS to read from or write to; for from.dfs, the return value of \code{mapreduce}}
+  \item{textoutputformat}{The output format of the file being written (from.dfs only)}
+  \item{textinputformat}{The input format of the file being read (from.dfs only)}
+  \item{todataframe}{Do what it takes to return a data frame (from.dfs only). }
 }
 
 
@@ -24,8 +24,8 @@ from.dfs(input, format = "native", to.data.frame = FALSE)
 different by two or three orders of magnitude, roughly speaking, so the conversion will make sense only in specific situations. These
 functions do not perform any size control, so the responsibility is on the user.}
 
-\value{\code{from.dfs} returns the object whose representation is contained in \code{file}. \code{to.dfs} returns the file it wrote a
-representation of the object provided as argument to or, when \code{output} is missing, an object that can be passed as input to a \code{mapreduce}
+\value{\code{from.dfs} returns the object whose representation is contained in \code{file}. \code{from.dfs} returns the file it wrote a
+representation of the object provided as argument to or, when \code{file} is missing, an object that can be passed as input to a \code{mapreduce}
 or \code{from.dfs} call.  }
 
-\examples{##See \code{\link{mapreduce}} for examples}
+\examples{##See \code{mapreduce} for examples}

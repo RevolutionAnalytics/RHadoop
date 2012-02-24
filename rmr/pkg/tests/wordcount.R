@@ -22,7 +22,7 @@ library(rmr)
 wordcount = function (input, output = NULL, pattern = " ") {
   mapreduce(input = input ,
             output = output,
-            input.format = "text",
+            textinputformat = rawtextinputformat,
             map = function(k,v) {
                       lapply(
                          strsplit(
@@ -37,8 +37,8 @@ wordcount = function (input, output = NULL, pattern = " ") {
 rmr:::hdfs.put("/etc/passwd", "/tmp/wordcount-test")
 file.remove("/tmp/wordcount-test")
 file.copy("/etc/passwd",  "/tmp/wordcount-test")
-rmr.options.set(backend = "local")
+rmr.backend("local")
 out.local = from.dfs(wordcount("/tmp/wordcount-test", pattern = " +"))
-rmr.options.set(backend = "hadoop")
+rmr.backend("hadoop")
 out.hadoop = from.dfs(wordcount("/tmp/wordcount-test", pattern = " +"))
 stopifnot(rmr:::cmp(out.hadoop, out.local))

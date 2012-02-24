@@ -31,7 +31,7 @@ logistic.regression = function(input, iterations, dims, alpha){
     
 out = list()
 for (be in c("local", "hadoop")) {
-  rmr.options.set(backend = be)
+  rmr.backend(be)
   ## create test set 
   set.seed(0)
   testdata = to.dfs(lapply (1:100, function(i) {eps = rnorm(1, sd =10) ; keyval(i, list(x = c(i,i+eps), y = 2 * (eps > 0) - 1))}))
