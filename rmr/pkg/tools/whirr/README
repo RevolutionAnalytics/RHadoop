@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#Due to changes in licensing of Java by Oracle, this script will work only if you 
-#build from trunk as of 2/21/12. 0.7.1 should rectify this problem
+# Newly-released Whirr 0.7.1 fixes problems with the Java installation which 
+# were caused by changes in licensing of Java by Oracle
 
-#To set up a hadoop/rmr cluster first launch the cluster
+# To set up a hadoop/rmr cluster first launch the cluster
 
 $WHIRR_HOME/bin/whirr launch-cluster --config hadoop-ec2.properties
 #this config slightly tweaked from whirr distro, starts 5 large nodes
@@ -26,3 +26,6 @@ $WHIRR_HOME/bin/whirr run-script --script rmr.sh --config hadoop-ec2.properties
 # remember to destroy when done. You are responsible for any AWS charges
 
 $WHIRR_HOME/bin/whirr destroy-cluster --config hadoop-ec2.properties
+
+# 'hadoop-ec2-centos.properties' and 'rmr-master-centos.sh' can be used with 
+# the above steps to create a CentOS 4.6-based cluster using a RightScale AMI
