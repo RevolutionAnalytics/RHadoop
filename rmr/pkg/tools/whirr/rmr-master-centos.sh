@@ -18,7 +18,7 @@
 sudo yum -y --enablerepo=epel install R R-devel
 
 sudo R --no-save << EOF
-install.packages(c('RJSONIO', 'itertools', 'digest'), repos =  "http://lib.stat.cmu.edu/R/CRAN")
+install.packages(c('RJSONIO', 'itertools', 'digest'), repos="http://cran.revolutionanalytics.com", INSTALL_opts=c('--byte-compile') )
 EOF
 
 # install the rmr package from RHadoop:
@@ -27,7 +27,7 @@ branch=master
 
 wget --no-check-certificate https://github.com/RevolutionAnalytics/RHadoop/tarball/$branch -O - | tar zx
 mv RevolutionAnalytics-RHadoop* RHadoop
-sudo R CMD INSTALL RHadoop/rmr/pkg/
+sudo R CMD INSTALL --byte-compile RHadoop/rmr/pkg/
 
 sudo su << EOF1 
 cat >> /etc/profile <<EOF
