@@ -437,6 +437,13 @@ pretty.hdfs.ls = function(...) {
   df}
 
 # backend independent dfs section
+part.list = function(fname) {
+  if(rmr.options.get('backend') == "local") fname
+  else {
+    if(dfs.is.dir(fname))
+      pretty.hdfs.ls(paste(fname, "part*", sep = "/"))$path
+    else fname}}
+
 dfs.exists = function(f) {
   if (rmr.options.get('backend') == 'hadoop') 
     hdfs.test(e = f) 
@@ -455,7 +462,10 @@ dfs.is.dir = function(f) {
 dfs.empty = function(f) {
   if(rmr.options.get('backend') == 'hadoop') {
     if(dfs.is.dir(f)) {
-      hdfs.test(z = file.path(to.dfs.path(f), 'part-00000'))}
+      all(
+        lapply(
+          part.list(f),
+          function(x) hdfs.test(z = x)))}
     else {hdfs.test(z = f)}}
   else file.info(f)['size'] == 0}
 
@@ -497,12 +507,6 @@ to.dfs = function(object, output = dfs.tempfile(), format = "native") {
   output}
 
 from.dfs = function(input, format = "native", to.data.frame = FALSE) {
-  part.list = function(fname) {
-    if(rmr.options.get('backend') == "local") fname
-    else {
-      if(dfs.is.dir(fname))
-        pretty.hdfs.ls(paste(fname, "part*", sep = "/"))$path
-      else fname}}
   
   read.file = function(f) {
     con = file(f, if(format$mode == "text") "r" else "rb")
