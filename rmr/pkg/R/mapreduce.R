@@ -147,14 +147,10 @@ make.record.reader = function(mode = NULL, format = NULL, con = NULL) {
   if(is.null(mode)) mode = default$mode
   if(is.null(format)) format = default$format
   if(mode == "text") {
-    if(is.null(con)) con = file("stdin", "r") #not stdin() which is parsed by the interpreter
-    function() {
-      line = readLines(con, 1)
-      if(length(line) == 0) NULL
-      else format(line)}}
+    if(is.null(con)) con = file("stdin", "r")} #not stdin() which is parsed by the interpreter
   else {
-    if(is.null(con)) con = pipe("cat", "rb")
-    function() format(con)}}
+    if(is.null(con)) con = pipe("cat", "rb")}
+  function() format(con)}
 
 make.record.writer = function(mode = NULL, format = NULL, con = NULL) {
   default = make.output.format()
@@ -222,7 +218,8 @@ make.output.format = function(format = native.output.format,
   mode = match.arg(mode)
   list(mode = mode, format = format, streaming.format = streaming.format)}
 
-native.text.input.format = function(line) {
+native.text.input.format = function(con) {
+  line  = readLines(con, 1)
   if (length(line) == 0) NULL
   else {
     x = strsplit(line, "\t")[[1]]
@@ -233,31 +230,41 @@ native.text.output.format = function(k, v) {
   ser = function(x) gsub("\n", "\\\\n", rawToChar(serialize(x, ascii=T, conn = NULL)))
   paste(ser(k), ser(v), sep = "\t")}
   
-json.input.format = function(line) {
-  x =  strsplit(line, "\t")[[1]]
-  if(length(x) == 1)  keyval(NULL, fromJSON(x[1], asText = TRUE))
-  else keyval(fromJSON(x[1], asText = TRUE), 
-         fromJSON(x[2], asText = TRUE))}
+json.input.format = function(con) {
+  line = readLines(con, 1)
+  if (length(line) == 0) NULL
+  else {
+    x =  strsplit(line, "\t")[[1]]
+    if(length(x) == 1)  keyval(NULL, fromJSON(x[1], asText = TRUE))
+    else keyval(fromJSON(x[1], asText = TRUE), 
+                fromJSON(x[2], asText = TRUE))}}
 
 json.output.format = function(k, v) {
   paste(gsub("\n", "", toJSON(k, .escapeEscapes=TRUE, collapse = "")),
         gsub("\n", "", toJSON(v, .escapeEscapes=TRUE, collapse = "")),
         sep = "\t")}
 
-text.input.format = function(line) {keyval(NULL, line)}
+text.input.format = function(con) {
+  line = readLines(con, 1)
+  if (length(line) == 0) NULL
+  else keyval(NULL, line)}
+
 text.output.format = function(k, v) paste(k, v, collapse = "", sep = "\t")
 
-csv.input.format = function(key = 1, ...) function(line) {
-  tc = textConnection(line)
-  df = tryCatch(read.table(file = tc, header = FALSE, ...), 
-                error = 
-                  function(e) {
-                    if (e$message == "no lines available in input") 
-                      write(x="No data in this line", file=stderr()) 
-                    else stop(e)
-                    NULL})
-  close(tc)
-  keyval(df[, key], df[, -key])}
+csv.input.format = function(key = 1, ...) function(con) {
+  line = readLines(con, 1)
+  if (length(line) == 0) NULL
+  else {
+    tc = textConnection(line)
+    df = tryCatch(read.table(file = tc, header = FALSE, ...), 
+                  error = 
+                    function(e) {
+                      if (e$message == "no lines available in input") 
+                        write(x="No data in this line", file=stderr()) 
+                      else stop(e)
+                      NULL})
+    close(tc)
+    keyval(df[, key], df[, -key])}}
 
 csv.output.format = function(...) function(k, v) {
   on.exit(close(tc))
