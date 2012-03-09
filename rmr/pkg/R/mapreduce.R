@@ -268,26 +268,10 @@ text.input.format = function(con) {
 
 text.output.format = function(k, v) paste(k, v, collapse = "", sep = "\t")
 
-csv.input.format = function(key = 1, ...) function(con) {
-  line = readLines(con, 1)
-  if (length(line) == 0) NULL
-  else {
-    tc = textConnection(line)
-    df = tryCatch(read.table(file = tc, header = FALSE, ...), 
-                  error = 
-                    function(e) {
-                      if (e$message == "no lines available in input") 
-                        write(x="No data in this line", file=stderr()) 
-                      else stop(e)
-                      NULL})
-    close(tc)
-    keyval(df[, key], df[, -key])}}
-
-
 csv.input.format = function(..., nrows = 1000) function(con) {
   df = 
     tryCatch(
-      readLines(file = con, nrows = nrows, header = FALSE, ...),
+      read.table(file = con, nrows = nrows, header = FALSE, ...),
       error = function(e) NULL)
   if(is.null(df)) NULL
   else keyval(NULL, df)}
@@ -714,7 +698,7 @@ reduce.driver = function(reduce, record.reader, record.writer, reduce.on.data.fr
     else {
       reduce.flush(current.key, vv())
       current.key = kv$key
-      vv(kv$val)}
+      vv = make.fast.list(list(kv$val))}
     kv = record.reader()}
   if(length(vv()) > 0) reduce.flush(current.key, vv())
   if(profile) close.profiling()
