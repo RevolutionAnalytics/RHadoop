@@ -12,6 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#data structures
+
+make.fast.list = function(l = list()) {
+  l1 = l
+  l2 = list(NULL)
+  i = 1
+  function(el = NULL){
+    if(missing(el)) c(l1, l2[!sapply(l2, is.null)]) 
+    else{
+      if(i > length(l2)) {
+        l1 <<- c(l1, l2)
+        i <<- 1
+        l2 <<- rep(list(NULL), length(l1))}
+      l2[[i]] <<- el
+      i <<- i + 1}}}
+
+
 #options
 
 rmr.options = new.env(parent=emptyenv())
@@ -518,17 +535,13 @@ from.dfs = function(input, format = "native", to.data.frame = FALSE) {
   read.file = function(f) {
     con = file(f, if(format$mode == "text") "r" else "rb")
     record.reader = make.record.reader(format$mode, format$format, con)
-    retval = list()
+    retval = make.fast.list()
     rec = record.reader()
-    i = 1
     while(!is.null(rec)) {
-      logi = log2(i)
-      if(round(logi) == logi) retval = c(retval, rep(list(NULL), length(retval)))
-      retval[[i]] = rec
-      rec = record.reader()
-      i = i + 1}
+      retval(rec)
+      rec = record.reader()}
     close(con)
-    retval[!sapply(retval, is.null)]}
+    retval()}
   
   dumptb = function(src, dest){
     lapply(src, function(x) system(paste(hadoop.cmd(), "dumptb", x, ">>", dest)))}
@@ -686,25 +699,15 @@ reduce.driver = function(reduce, record.reader, record.writer, reduce.on.data.fr
   if(profile) activate.profiling()
   kv = record.reader()
   current.key = kv$key
-  vv = list()
-  i = 1
+  vv = make.fast.list()
   while(!is.null(kv)) {
-    if(identical(kv$key, current.key)) {
-      logi = log2(i)
-      if(round(logi)==logi) vv = c(vv, rep(list(NULL), length(vv)))
-      vv[[i]]  = kv$val
-      i = i + 1
-    }
+    if(identical(kv$key, current.key)) vv(kv$val)
     else {
-      reduce.flush(current.key, 
-                   vv[!sapply(vv, is.null)])
+      reduce.flush(current.key, vv())
       current.key = kv$key
-      vv = list(kv$val)
-      i = 2
-    }
-    kv = record.reader()         
-  }
-  if(length(vv) > 0) reduce.flush(current.key, vv[!sapply(vv, is.null)])
+      vv(kv$val)}
+    kv = record.reader()}
+  if(length(vv()) > 0) reduce.flush(current.key, vv())
   if(profile) close.profiling()
   invisible()
 }
