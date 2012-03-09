@@ -283,6 +283,15 @@ csv.input.format = function(key = 1, ...) function(con) {
     close(tc)
     keyval(df[, key], df[, -key])}}
 
+
+csv.input.format = function(..., nrows = 1000) function(con) {
+  df = 
+    tryCatch(
+      readLines(file = con, nrows = nrows, header = FALSE, ...),
+      error = function(e) NULL)
+  if(is.null(df)) NULL
+  else keyval(NULL, df)}
+
 csv.output.format = function(...) function(k, v) {
   on.exit(close(tc))
   tc = textConnection(object = NULL, open = "w")
