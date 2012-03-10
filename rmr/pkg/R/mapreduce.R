@@ -273,7 +273,7 @@ csv.input.format = function(..., nrows = 1000) function(con) {
     tryCatch(
       read.table(file = con, nrows = nrows, header = FALSE, ...),
       error = function(e) NULL)
-  if(is.null(df)) NULL
+  if(is.null(df) || dim(df)[[1]] == 0) NULL
   else keyval(NULL, df)}
 
 csv.output.format = function(...) function(k, v) {
