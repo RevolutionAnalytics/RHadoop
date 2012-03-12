@@ -33,7 +33,8 @@
     should be independent of this argument). Each backend can only see the nested list named after the backend itself.  The interpretation
     is the following: for the hadoop backend, generate an additional hadoop streaming command line argument for each element of the list,
     "-name value". If the value is TRUE generate "-name" only, if it is FALSE skip. One possible use is to specify the number of mappers and reducers 
-    on a per-job basis.For the local backend, the list is ignored.}
+    on a per-job basis. It is not guaranteed that the generated streaming command will be a legal command. In particular, remember to put any generic 
+    options before any specific ones, as per hadoop streaming manual.For the local backend, the list is ignored.}
   \item{verbose}{Run hadoop in verbose mode}}
 
   \value{The value of \code{output}, or, when missing, an object that can be used as input to \code{\link{from.dfs}} or \code{mapreduce}, a stub representing the results of the job}
