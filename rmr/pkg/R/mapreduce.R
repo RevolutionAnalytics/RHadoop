@@ -114,25 +114,6 @@ paste.options = function(optlist) {
   if(is.null(optlist)) "" 
   else paste(unlist(rbind(paste("-", names(optlist), sep = ""), optlist)), collapse = " ")}
 
-make.job.conf = function(m, pfx) {
-  N = names(m)
-  if(length(m) == 0) return(" ")
-  paste(unlist(lapply(1:length(N), 
-                      function(i) {
-                        sprintf("%s %s=%s ", pfx, N[[i]], as.character(m[[i]]))})), 
-        collapse = " ")}
-
-make.cache.files = function(caches, pfx, shorten = TRUE) {
-  if(length(caches) == 0) return(" ")
-  sprintf("%s %s", pfx, paste(sapply(caches, 
-                                    function(r) {
-                                      if(shorten) {
-                                        path.leaf = tail(strsplit(r, "/")[[1]], 1)
-                                        sprintf("'%s#%s'", r, path.leaf)
-                                      }else {
-                                        sprintf("'%s'", r)}}), 
-                             collapse = ", "))}
-
 make.input.files = function(infiles) {
   if(length(infiles) == 0) return(" ")
   paste(sapply(infiles, 
@@ -822,34 +803,25 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
   else {
     combiner = " "
     c.fl = " "}
-
-  cmds = make.job.conf(otherparams, pfx="-cmdenv")
   
   #debug.opts = "-mapdebug kdfkdfld -reducexdebug jfkdlfkja"
-  caches = if(length(cachefiles)>0) make.cache.files(cachefiles, "-files") else " " #<0.21
-  archives = if(length(archives)>0) make.cache.files(archives, "-archives") else " "
-  mkjars = if(length(jarfiles)>0) make.cache.files(jarfiles, "-libjars", shorten=FALSE) else " "
   
   final.command =
     paste(
       hadoop.command, 
-      paste.options(backend.parameters), 
       stream.mapred.io,  
-      archives, 
-      caches, 
-      mkjars, 
-      input.format.opt, 
-      output.format.opt, 
+      paste.options(backend.parameters), 
       input, 
       output, 
       mapper, 
+      combiner,
       reducer, 
-      combiner, 
+      image.cmd.line, 
       m.fl, 
       r.fl, 
-      c.fl, 
-      image.cmd.line, 
-      cmds, 
+      c.fl,
+      input.format.opt, 
+      output.format.opt, 
       "2>&1")
   if(verbose) {
     retval = system(final.command)
