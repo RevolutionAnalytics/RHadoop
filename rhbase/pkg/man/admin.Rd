@@ -20,7 +20,7 @@
 
 \usage{
 hb.defaults(arg)
-hb.init(host='127.0.0.1', port=9090, buffsize=3*1024*1024)
+hb.init(host='127.0.0.1', port=9090, buffsize=3*1024*1024, serialize=c("native", "raw"))
 hb.list.tables(hbc=hb.defaults('hbc'))
 hb.describe.table(tablename, hbc=hb.defaults('hbc'))
 hb.set.table.mode(tablename,enable,hbc=hb.defaults('hbc'))
@@ -40,6 +40,8 @@ internally.}
 \item{host,port}{The host name and port number on which the HBase Thrift server is running,
 see details}
 \item{buffsize}{The size of the transfer buffer}
+\item{serialize}{The default serialization scheme. "native" [default] - R native functions serialize/unserialize for reading and 
+writing to hbase tables.  "raw" - indicates raw bytes converted to string for reading and writing to hbase tables.}
 \item{tablename}{The name of an HBase table}
 \item{enable}{TRUE/FALSE to enable or disable the table - prevents
 modifications to the table}
