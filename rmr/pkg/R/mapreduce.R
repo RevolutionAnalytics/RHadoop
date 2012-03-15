@@ -285,8 +285,6 @@ csv.output.format = function(...) function(k, v) {
 
 typed.bytes.reader = function (con, type.code = NULL) {
   r = function(...) {
-    if(is.raw(con)) 
-      con = rawConnection(con, open = "r") 
     readBin(con, endian = "big", signed = TRUE, ...)}
   read.code = function() (256 + r(what = "integer", n = 1, size = 1)) %% 256
   read.length = function() r(what = "integer", n= 1, size = 4)
@@ -299,6 +297,8 @@ typed.bytes.reader = function (con, type.code = NULL) {
       code = read.code()}
     ll}#quadratic, fix later
   
+  if(is.raw(con)) 
+    con = rawConnection(con, open = "r") 
   if (is.null(type.code)) type.code = read.code()
   if(length(type.code) > 0) {
     list(switch(as.character(type.code), 
