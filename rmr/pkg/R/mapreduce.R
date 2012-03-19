@@ -367,24 +367,19 @@ native.output.format = function(k, v, con){
   typed.bytes.writer(k, con, TRUE)
   typed.bytes.writer(v, con, TRUE)}
 
-#data frame conversion
-flatten = function(x) if (is.list(x)) do.call(c, lapply(x, function(y) as.list(flatten(y)))) else if(is.factor(x)) as.character(x) else x
-
 list.to.data.frame = 
+keyval.list.to.data.frame =
   function(x) {
-      mat =   do.call(
-          rbind, 
           apply(
-            cbind(rmr.key = keys(x), 
-                  values(x)),
             1, 
-            flatten))
-      df = data.frame(
-        lapply(1:dim(mat)[[2]],
-               function(i) unlist(mat[,i])))
-      names(df) = paste("V", 1:dim(df)[[2]], sep = "")
-      df}
-    
+    kk = do.call(rbind, keys(x))
+    vv = do.call(rbind, values(x))
+    if(!is.null(nrow(kk)) && nrow(kk) == nrow(vv))
+      as.data.frame(cbind(kk, vv))
+    else {
+      warning("dropping keys")
+      as.data.frame(vv)}}
+
 from.data.frame = function(df, keycol = NULL) 
   lapply(1:dim(df)[[1]], 
          function(i) keyval(if(is.null(keycol)) NULL else df[i, keycol], df[i, ] ))
