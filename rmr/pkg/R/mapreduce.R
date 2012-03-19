@@ -279,9 +279,6 @@ csv.input.format = function(..., nrows = 1000) function(con) {
 csv.output.format = function(...) function(k, v) {
   on.exit(close(tc))
   tc = textConnection(object = NULL, open = "w")
-  args = list(x = c(as.list(k), as.list(v)), file = tc, ..., row.names = FALSE, col.names = FALSE)
-  do.call(write.table, args[unique(names(args))])
-  paste(textConnectionValue(con = tc), sep = "", collapse = "")}
 
 typed.bytes.reader = function (con, type.code = NULL) {
   r = function(...) {
@@ -317,6 +314,8 @@ typed.bytes.reader = function (con, type.code = NULL) {
                 "12" = NULL,
                 "144" = unserialize(r("raw", n = read.length()))))} 
   else NULL}
+  write.table(x=if(is.null(k)) v else cbind(k,v), file = tc, ..., row.names = FALSE, col.names = FALSE)
+  paste(textConnectionValue(con = tc), sep = "", collapse = "\n")}
 
 typed.bytes.writer = function(value, con, native  = FALSE) {
   w = function(x, size = NA_integer_) writeBin(x, con, size = size, endian = "big")

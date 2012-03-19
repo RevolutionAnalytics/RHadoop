@@ -51,7 +51,7 @@ for (be in c("local", "hadoop")) {
       rmr:::typed.bytes.writer(value=x, con=con)
       close(con)
       con = file(fname, 'rb')
-      y = rmr:::typed.bytes.reader(con=con)[[1]]
+      y = rmr:::typed.bytes.reader()(con=con)[[1]]
       close(con)
       stopifnot( all.equal(x,y))})
     
@@ -138,22 +138,24 @@ for (be in c("local", "hadoop")) {
               sample.size = 10)}
   
   ## csv
+  library(digest)
+  data.frame.order = function(x) order(apply(x, 1, function(y) digest(unlist(y))))
   unit.test(function(df) {
-    inpf = make.input.format(
-      format = "csv", 
-      colClasses = lapply(df[1,], class))
-    df1 = from.dfs(
-      mapreduce(
-        to.dfs(df, 
-               format = "csv"),
-        input.format = inpf,
-        output.format = "csv"),
-      format = inpf, 
-      to.data.frame = TRUE)
+      inpf = make.input.format(
+        format = "csv", 
+        colClasses = lapply(df[1,], class))
+      df1 = from.dfs(
+        mapreduce(
+          to.dfs(df, 
+                 format = "csv"),
+          input.format = inpf,
+          output.format = "csv"),
+        format = inpf, 
+        to.data.frame = TRUE)
     isTRUE(
       all.equal(
-        df[order(df[,1]),], 
-        df1[order(df1[,1]),], 
+        df[data.frame.order(df),], 
+        df1[data.frame.order(df1),], 
         tolerance = 1e-4, 
         check.attributes = FALSE))},
             generators = list(tdgg.data.frame()),
