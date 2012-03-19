@@ -367,11 +367,8 @@ native.output.format = function(k, v, con){
   typed.bytes.writer(k, con, TRUE)
   typed.bytes.writer(v, con, TRUE)}
 
-list.to.data.frame = 
 keyval.list.to.data.frame =
   function(x) {
-          apply(
-            1, 
     kk = do.call(rbind, keys(x))
     vv = do.call(rbind, values(x))
     if(!is.null(nrow(kk)) && nrow(kk) == nrow(vv))
@@ -552,7 +549,7 @@ from.dfs = function(input, format = "native", to.data.frame = FALSE) {
     tmp = fname
   retval = read.file(tmp)
   if(rmr.options.get("backend") == "hadoop") unlink(tmp)
-  if(to.data.frame) list.to.data.frame(retval)
+  if(to.data.frame) keyval.list.to.data.frame(retval)
   else retval}
 
 # mapreduce
@@ -641,7 +638,7 @@ mr.local = function(map,
   reduce.out = tapply(X = map.out, 
                       INDEX = sapply(keys(map.out), digest), 
                       FUN = function(x) reduce(x[[1]]$key, 
-                                             if(reduce.on.data.frame) list.to.data.frame(values(x)) else values(x)), 
+                                             if(reduce.on.data.frame) do.call(rbind, values(x)) else values(x)), 
                       simplify = FALSE)
   if(!is.keyval(reduce.out[[1]]))
     reduce.out = do.call(c, reduce.out)
@@ -678,7 +675,7 @@ reduce.driver = function(reduce, record.reader, record.writer, reduce.on.data.fr
   reduce.flush = function(current.key, vv) {
     out = reduce(current.key, 
                  if(reduce.on.data.frame) {
-                   list.to.data.frame(vv)}
+                   do.call(rbind, vv)}
                  else {vv})
     if(!is.null(out)) {
       if(is.keyval(out)) {record.writer(out$key, out$val)}
