@@ -86,6 +86,14 @@ is.keyval = function(kv) !is.null(attr(kv, 'rmr.keyval', exact = TRUE))
 keys = function(l) lapply(l, function(x) x[[1]])
 values = function(l) lapply(l, function(x) x[[2]])
 keyval.to.list = function(kvl) {l = values(kvl); names(l) = keys(kvl); l}
+
+as.something = function(cl, x) 
+  switch(as.character(cl), 
+         "character" = as.character(x), 
+         "logical" = as.logical(x), 
+         "numeric" = as.numeric(x),
+         "complex" = as.complex(x),
+         "integer" = as.integer(x))
 keyval.list.to.data.frame =
   function(x) {
     kk = do.call(rbind, keys(x))
