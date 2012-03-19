@@ -325,7 +325,7 @@ typed.bytes.reader =
                     "4" = r("integer", size = 8),      
                     "5" = r("numeric", size = 4),      
                     "6" = r("numeric", size = 8),      
-                    "7" = readChar(con, nchars = read.length(), useBytes=TRUE), 
+                    "7" = rawToChar(r("raw", n = read.length())), 
                     "8" = replicate(read.length(), tbr(), simplify=FALSE), 
                     "9" = two55.terminated.list(), 
                     "10" = replicate(read.length(), keyval(tbr(), tbr()), simplify = FALSE),
