@@ -139,7 +139,7 @@ for (be in c("local", "hadoop")) {
   
   ## csv
   library(digest)
-  data.frame.order = function(x) order(apply(x, 1, function(y) digest(unlist(y))))
+  data.frame.order = function(x) order(apply(x, 1, function(y) digest(as.character(y))))
   unit.test(function(df) {
       inpf = make.input.format(
         format = "csv", 
