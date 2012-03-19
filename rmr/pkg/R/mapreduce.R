@@ -94,15 +94,25 @@ as.something = function(cl, x)
          "numeric" = as.numeric(x),
          "complex" = as.complex(x),
          "integer" = as.integer(x))
+
+row.list.to.data.frame = function(x) {
+  col.classes = lapply(x[[1]], class) #assume all the same, trust user
+  do.call(
+    data.frame, 
+    lapply(seq_along(col.classes), 
+           function(i) as.something(col.classes[i], 
+                                    matrix(nrow = length(col.classes), 
+                                           unlist(x))[i,])))}
+
 keyval.list.to.data.frame =
   function(x) {
-    kk = do.call(rbind, keys(x))
-    vv = do.call(rbind, values(x))
+    kk = row.list.to.data.frame(keys(x))
+    vv = row.list.to.data.frame(values(x))
     if(!is.null(nrow(kk)) && nrow(kk) == nrow(vv))
-      as.data.frame(cbind(kk, vv))
+      cbind(kk, vv)
     else {
       warning("dropping keys")
-      as.data.frame(vv)}}
+      vv}}
 
 ## map and reduce function generation
 
@@ -665,7 +675,7 @@ mr.local = function(map,
   reduce.out = tapply(X = map.out, 
                       INDEX = sapply(keys(map.out), digest), 
                       FUN = function(x) reduce(x[[1]]$key, 
-                                             if(reduce.on.data.frame) do.call(rbind, values(x)) else values(x)), 
+                                             if(reduce.on.data.frame) row.list.to.data.frame(values(x)) else values(x)), 
                       simplify = FALSE)
   if(!is.keyval(reduce.out[[1]]))
     reduce.out = do.call(c, reduce.out)
@@ -702,7 +712,7 @@ reduce.driver = function(reduce, record.reader, record.writer, reduce.on.data.fr
   reduce.flush = function(current.key, vv) {
     out = reduce(current.key, 
                  if(reduce.on.data.frame) {
-                   do.call(rbind, vv)}
+                   raw.list.to.data.frame(vv)}
                  else {vv})
     if(!is.null(out)) {
       if(is.keyval(out)) {record.writer(out$key, out$val)}
