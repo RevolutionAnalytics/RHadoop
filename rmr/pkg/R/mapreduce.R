@@ -86,6 +86,15 @@ is.keyval = function(kv) !is.null(attr(kv, 'rmr.keyval', exact = TRUE))
 keys = function(l) lapply(l, function(x) x[[1]])
 values = function(l) lapply(l, function(x) x[[2]])
 keyval.to.list = function(kvl) {l = values(kvl); names(l) = keys(kvl); l}
+keyval.list.to.data.frame =
+  function(x) {
+    kk = do.call(rbind, keys(x))
+    vv = do.call(rbind, values(x))
+    if(!is.null(nrow(kk)) && nrow(kk) == nrow(vv))
+      as.data.frame(cbind(kk, vv))
+    else {
+      warning("dropping keys")
+      as.data.frame(vv)}}
 
 ## map and reduce function generation
 
@@ -386,16 +395,6 @@ native.input.format = typed.bytes.input.format
 native.output.format = function(k, v, con){
   typed.bytes.writer(k, con, TRUE)
   typed.bytes.writer(v, con, TRUE)}
-
-keyval.list.to.data.frame =
-  function(x) {
-    kk = do.call(rbind, keys(x))
-    vv = do.call(rbind, values(x))
-    if(!is.null(nrow(kk)) && nrow(kk) == nrow(vv))
-      as.data.frame(cbind(kk, vv))
-    else {
-      warning("dropping keys")
-      as.data.frame(vv)}}
 
 from.data.frame = function(df, keycol = NULL) 
   lapply(1:dim(df)[[1]], 
