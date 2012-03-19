@@ -183,7 +183,7 @@ make.record.writer = function(mode = NULL, format = NULL, con = NULL) {
 IO.formats = c("text", "json", "csv", "native", "native.text",
                "sequence.typedbytes")
 
-make.input.format = function(format = native.input.format, 
+make.input.format = function(format = native.input.format(), 
                             mode = c("binary", "text"),
                             streaming.format = NULL, ...) {
   mode = match.arg(mode)
@@ -198,9 +198,9 @@ make.input.format = function(format = native.input.format,
                   mode = "text"}, 
            native.text = {format = native.text.input.format; 
                      mode = "text"}, 
-           native = {format = native.input.format; 
+           native = {format = native.input.format(); 
                             mode = "binary"}, 
-           sequence.typedbytes = {format = typed.bytes.input.format; 
+           sequence.typedbytes = {format = typed.bytes.input.format(); 
                                   mode = "binary"})}
   if(is.null(streaming.format) && mode == "binary") 
     streaming.format = "org.apache.hadoop.streaming.AutoInputFormat"
@@ -279,43 +279,61 @@ csv.input.format = function(..., nrows = 1000) function(con) {
 csv.output.format = function(...) function(k, v) {
   on.exit(close(tc))
   tc = textConnection(object = NULL, open = "w")
-
-typed.bytes.reader = function (con, type.code = NULL) {
-  r = function(...) {
-    readBin(con, endian = "big", signed = TRUE, ...)}
-  read.code = function() (256 + r(what = "integer", n = 1, size = 1)) %% 256
-  read.length = function() r(what = "integer", n= 1, size = 4)
-  tbr = function() typed.bytes.reader(con)[[1]]
-  two55.terminated.list = function() {
-    ll = list()
-    code = read.code()
-    while(length(code) > 0 && code != 255) {
-      ll = append(ll,  typed.bytes.reader(con, code))
-      code = read.code()}
-    ll}#quadratic, fix later
-  
-  if(is.raw(con)) 
-    con = rawConnection(con, open = "r") 
-  if (is.null(type.code)) type.code = read.code()
-  if(length(type.code) > 0) {
-    list(switch(as.character(type.code), 
-                "0" = r("raw", n = read.length()), 
-                "1" = r("raw"),                    
-                "2" = r("logical", size = 1),      
-                "3" = r("integer", size = 4),      
-                "4" = r("integer", size = 8),      
-                "5" = r("numeric", size = 4),      
-                "6" = r("numeric", size = 8),      
-                "7" = readChar(con, nchars = read.length(), useBytes=TRUE), 
-                "8" = replicate(read.length(), tbr(), simplify=FALSE), 
-                "9" = two55.terminated.list(), 
-                "10" = replicate(read.length(), keyval(tbr(), tbr()), simplify = FALSE),
-                "11" = r("integer", size = 2), #this and the next implemented only in hive, silly
-                "12" = NULL,
-                "144" = unserialize(r("raw", n = read.length()))))} 
-  else NULL}
   write.table(x=if(is.null(k)) v else cbind(k,v), file = tc, ..., row.names = FALSE, col.names = FALSE)
   paste(textConnectionValue(con = tc), sep = "", collapse = "\n")}
+
+typed.bytes.reader = 
+  function(buf.size = 1000) {
+    raw.buffer = raw()
+    buffered.readBin = function(con, what, n = 1, size = NULL, ...) {
+      if(what == "raw") size = 1
+      raw.size = n * size
+      if(raw.size <= length(raw.buffer)){
+        retval = readBin(raw.buffer[1:(size*n)], what, n, size, ...)
+        raw.buffer <<- raw.buffer[-(1:(size*n))]
+        retval
+      }
+      else {
+        raw.buffer <<- c(raw.buffer, readBin(con, "raw", buf.size, ...))
+        if(length(raw.buffer) > 0) buffered.readBin(con, what, n, size, ...)
+        else NULL
+      }
+    }
+    reader = function (con, type.code = NULL) {
+      r = function(...) {
+        buffered.readBin(con, endian = "big", signed = TRUE, ...)}
+      read.code = function() (256 + r(what = "integer", n = 1, size = 1)) %% 256
+      read.length = function() r(what = "integer", n= 1, size = 4)
+      tbr = function() reader(con)[[1]]
+      two55.terminated.list = function() {
+        ll = list()
+        code = read.code()
+        while(length(code) > 0 && code != 255) {
+          ll = append(ll,  reader(con, code))
+          code = read.code()}
+        ll}#quadratic, fix later
+      
+      ##      if(is.raw(con)) 
+      ##        con = rawConnection(con, open = "r") 
+      if (is.null(type.code)) type.code = read.code()
+      if(length(type.code) > 0) {
+        list(switch(as.character(as.integer(type.code)), 
+                    "0" = r("raw", n = read.length()), 
+                    "1" = r("raw"),                    
+                    "2" = r("logical", size = 1),      
+                    "3" = r("integer", size = 4),      
+                    "4" = r("integer", size = 8),      
+                    "5" = r("numeric", size = 4),      
+                    "6" = r("numeric", size = 8),      
+                    "7" = readChar(con, nchars = read.length(), useBytes=TRUE), 
+                    "8" = replicate(read.length(), tbr(), simplify=FALSE), 
+                    "9" = two55.terminated.list(), 
+                    "10" = replicate(read.length(), keyval(tbr(), tbr()), simplify = FALSE),
+                    "11" = r("integer", size = 2), #this and the next implemented only in hive, silly
+                    "12" = NULL,
+                    "144" = unserialize(r("raw", n = read.length()))))} 
+      else NULL}
+    reader}
 
 typed.bytes.writer = function(value, con, native  = FALSE) {
   w = function(x, size = NA_integer_) writeBin(x, con, size = size, endian = "big")
@@ -351,11 +369,13 @@ typed.bytes.writer = function(value, con, native  = FALSE) {
                {write.code(8); write.length(length(value)); lapply(value, tbw)})}}}
   TRUE}
     
-typed.bytes.input.format = function(con) {
-  key = typed.bytes.reader(con)
-  val = typed.bytes.reader(con)
-  if(is.null(key) || is.null(val)) NULL
-  else keyval(key[[1]],val[[1]])}
+typed.bytes.input.format = function() {
+  tbr = typed.bytes.reader()
+  function(con) {
+    key = tbr(con)
+    val = tbr(con)
+    if(is.null(key) || is.null(val)) NULL
+    else keyval(key[[1]],val[[1]])}}
 
 typed.bytes.output.format = function(k, v, con) {
   typed.bytes.writer(k, con)
