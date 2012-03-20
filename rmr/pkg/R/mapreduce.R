@@ -96,16 +96,18 @@ as.something = function(cl, x)
          "integer" = as.integer(x))
 
 row.list.to.data.frame = function(x, col.names = NULL) {
-  col.classes = lapply(x[[1]], class) #assume all the same, trust user
-  if(is.null(col.names)) col.names = paste("V", 1:length(x[[1]]), sep = "")
-  df = do.call(
-    data.frame, 
-    lapply(seq_along(col.classes), 
-           function(i) as.something(col.classes[i], 
-                                    matrix(nrow = length(col.classes), 
-                                           unlist(x))[i,])))
-  names(df) = col.names
-  df}
+  if(is.null(x[[1]])) NULL
+  else{
+    col.classes = lapply(x[[1]], class) #assume all the same, trust user
+    if(is.null(col.names)) col.names = paste("V", 1:length(x[[1]]), sep = "")
+    df = do.call(
+      data.frame, 
+      lapply(seq_along(col.classes), 
+             function(i) as.something(col.classes[i], 
+                                      matrix(nrow = length(col.classes), 
+                                             unlist(x))[i,])))
+    names(df) = col.names
+    df}}
 
 keyval.list.to.data.frame =
   function(x) {
