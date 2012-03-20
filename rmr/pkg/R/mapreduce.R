@@ -95,14 +95,17 @@ as.something = function(cl, x)
          "complex" = as.complex(x),
          "integer" = as.integer(x))
 
-row.list.to.data.frame = function(x) {
+row.list.to.data.frame = function(x, col.names = NULL) {
   col.classes = lapply(x[[1]], class) #assume all the same, trust user
-  do.call(
+  if(is.null(col.names)) col.names = paste("V", 1:length(x[[1]]), sep = "")
+  df = do.call(
     data.frame, 
     lapply(seq_along(col.classes), 
            function(i) as.something(col.classes[i], 
                                     matrix(nrow = length(col.classes), 
-                                           unlist(x))[i,])))}
+                                           unlist(x))[i,])))
+  names(df) = col.names
+  df}
 
 keyval.list.to.data.frame =
   function(x) {
@@ -712,7 +715,7 @@ reduce.driver = function(reduce, record.reader, record.writer, reduce.on.data.fr
   reduce.flush = function(current.key, vv) {
     out = reduce(current.key, 
                  if(reduce.on.data.frame) {
-                   raw.list.to.data.frame(vv)}
+                   row.list.to.data.frame(vv)}
                  else {vv})
     if(!is.null(out)) {
       if(is.keyval(out)) {record.writer(out$key, out$val)}
