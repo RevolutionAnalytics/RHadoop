@@ -44,7 +44,7 @@ mat.mult = function(left, right, result = NULL) {
 
 `%x%` = mat.mult
 
-to.matrix = function(df) as.matrix(sparseMatrix(i=df$V1, j=df$V2, x=df$V3))
+to.matrix = function(df) as.matrix(sparseMatrix(i=df[,1], j=df[,2], x=df[,3]))
 
 weighted.linear.least.squares = function(X, y, W) {
   Xt = transpose(X)
