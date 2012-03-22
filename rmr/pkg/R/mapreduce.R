@@ -87,7 +87,7 @@ keys = function(l) lapply(l, function(x) x[[1]])
 values = function(l) lapply(l, function(x) x[[2]])
 keyval.to.list = function(kvl) {l = values(kvl); names(l) = keys(kvl); l}
 
-as.something = function(cl, x) 
+as.something = function(cl, x) #got tired of trying to troubleshoot as()
   switch(as.character(cl), 
          "character" = as.character(x), 
          "logical" = as.logical(x), 
