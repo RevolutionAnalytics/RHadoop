@@ -695,7 +695,7 @@ hadoop.streaming = function() {
     if(hadoop_home == "") stop("Please make sure that the env. variable HADOOP_STREAMING or HADOOP_HOME are set")
     stream.jar = list.files(path=sprintf("%s/contrib/streaming", hadoop_home), pattern="jar$", full=TRUE)
     sprintf("%s jar %s ", hadoop.cmd(), stream.jar)}
-  else hadoop_streaming}
+  else sprintf("%s jar %s ", hadoop.cmd(), hadoop_streaming)}
   
 rhstream = function(
   map, 
