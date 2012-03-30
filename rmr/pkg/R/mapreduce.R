@@ -408,7 +408,9 @@ for (hdfscmd in c("mv", "cp", "rm", "rmr", "expunge", "put", "copyFromLocal", "m
 
 pretty.hdfs.ls = function(...) {
   ls.out = hdfs.ls(...)
-  ls.out = ls.out[-grep("Found", ls.out[,1]),]
+  crud = grep("Found", ls.out[,1])
+  if(length(crud) > 0)
+    ls.out = ls.out[-crud,]
   if(class(ls.out) == "character") ls.out = t(ls.out)
   df = as.data.frame(ls.out)
   names(df) = c("mode", "links", "owner", "group", "size", "last.modified.date", "last.modified.time", "path")
