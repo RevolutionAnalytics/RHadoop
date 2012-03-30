@@ -118,7 +118,7 @@ hdfs.exists <- function(path, fs=hdfs.defaults("fs")){
 
 .hdfsCopy <- function(src,dest,srcFS=hdfs.defaults("fs"),dstFS=hdfs.defaults("fs"),deleteSource,overwrite,cfg=hdfs.defaults("conf")){
   if(length(dest)!=1) stop(sprintf("Destination must be a scalar"))
-  if(length(src)>1 && !hdfsfile.info(dest,dstFS)$isDir){
+  if(length(src)>1 && !hdfs.file.info(dest,dstFS)$isDir){
     stop(sprintf("When copying multiple source files, destination %s must be a folder", dest))
   }
   srcp <- rhdfs:::.hdfsEnv[["fu"]]$makePathsFromStrings(.jarray(as.character(src)))
