@@ -19,11 +19,13 @@ hb.defaults <- function(arg){
   } else rhbase:::.hbEnv[[arg]]
 }
 
-hb.init <- function(host='127.0.0.1', port=9090, buffsize=3*1024*1024){
+hb.init <- function(host='127.0.0.1', port=9090, buffsize=3*1024*1024, serialize=c("native", "raw")){
   ## initializes an hbase thrift connection
   ## host     = the hostname of the thrift server
   ## port     = the port on which the thrift server is listening
   ## buffsize = buffer size of subsequent reads
+  ## serialize= the serialization method used to read and write data to hbase
+  
   ## return: an object of class "hb.client.connection"
   y <- .Call("initialize",host,as.integer(port,buffsize),PACKAGE="rhbase")
   class(y) <- "hb.client.connection"
@@ -36,9 +38,17 @@ hb.init <- function(host='127.0.0.1', port=9090, buffsize=3*1024*1024){
   "bloomfiltervecsize"=as.integer, "bloomfilternbhashes"=as.integer,
   "blockcache"=as.logical, "timetolive"=as.integer)
   assign("opt.names",opt.names,env=rhbase:::.hbEnv)
-  assign("sz",function(r) serialize(r,NULL),env=rhbase:::.hbEnv)
-  assign("usz",unserialize,,env=rhbase:::.hbEnv)
+  if (serialize=="native") {
+      assign("sz",function(r) serialize(r,NULL),env=rhbase:::.hbEnv)
+      assign("usz",unserialize,,env=rhbase:::.hbEnv)
+  }else if (serialize=="raw") {
+      assign("sz",function(r) charToRaw(toString(r)),env=rhbase:::.hbEnv)
+      assign("usz",function(r) rawToChar(r),env=rhbase:::.hbEnv)
+  }else {
+     print(match.arg(serialize))
+  }
   y
+
 }
 
 hb.list.tables <- function(hbc=hb.defaults('hbc')){
@@ -183,21 +193,14 @@ hb.get <- function(tablename, rows, colspec,sz=hb.defaults("sz"),
 }
 
 
-hb.scan <- function(tablename,startrow, end=NULL,colspec,sz=hb.defaults("sz"), usz=hb.defaults("usz"),
+hb.scan <- function(tablename, startrow, end=NULL, colspec,sz=hb.defaults("sz"), usz=hb.defaults("usz"),
                     hbc=hb.defaults("hbc")){
   ## Scans thr
   if(missing(colspec)) stop("Enter a colspec vector, e.g. c('x:f','x:u')")
   if(!is.null(end)){
-    ## type <- c("prefix","stop")[pmatch(type,c("prefix","stop"))]
-    ## if(is.na(type)) stop("type is either prefix or stop")
-    ## if(is.null(end) && type=="stop") stop("Must provide a filter when type is stop")
-    ## scanner <- if(type=="stop"){
-    scanner <- .Call("hbScannerOpenFilter",hbc,tablename, sz(startrow),sz(end),colspec,as.integer(0))
-    ## }else {
-    ## .Call("hbScannerOpenFilter",hbc,tablename, sz(startrow),sz(filter),colspec,as.integer(1))
-    ## }
+    scanner <- .Call("hbScannerOpenFilter", hbc, tablename, sz(startrow), sz(end), colspec,as.integer(0))
   }else{
-    scanner <- .Call("hbScannerOpenFilter",hbc,tablename, sz(startrow),sz(filter),colspec,as.integer(2))
+    scanner <- .Call("hbScannerOpenFilter", hbc, tablename, sz(startrow), "", colspec,as.integer(2))
   }
   mu <- function(batchsize=1000){
     x <- .Call("hbScannerGetList",hbc,scanner, as.integer(batchsize))
