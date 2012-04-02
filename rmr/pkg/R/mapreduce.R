@@ -163,25 +163,6 @@ paste.options = function(optlist) {
   if(is.null(optlist)) "" 
   else paste(unlist(rbind(paste("-", names(optlist), sep = ""), optlist)), collapse = " ")}
 
-make.job.conf = function(m, pfx) {
-  N = names(m)
-  if(length(m) == 0) return(" ")
-  paste(unlist(lapply(1:length(N), 
-                      function(i) {
-                        sprintf("%s %s=%s ", pfx, N[[i]], as.character(m[[i]]))})), 
-        collapse = " ")}
-
-make.cache.files = function(caches, pfx, shorten = TRUE) {
-  if(length(caches) == 0) return(" ")
-  sprintf("%s %s", pfx, paste(sapply(caches, 
-                                    function(r) {
-                                      if(shorten) {
-                                        path.leaf = tail(strsplit(r, "/")[[1]], 1)
-                                        sprintf("'%s#%s'", r, path.leaf)
-                                      }else {
-                                        sprintf("'%s'", r)}}), 
-                             collapse = ", "))}
-
 make.input.files = function(infiles) {
   if(length(infiles) == 0) return(" ")
   paste(sapply(infiles, 
@@ -436,7 +417,7 @@ hdfs = function(cmd, intern, ...) {
   else {
     argnames = names(list(...))
   }
-  system(paste(Sys.getenv("HADOOP_HOME"), "/bin/hadoop dfs -", cmd, " ", 
+  system(paste(hadoop.cmd(), " dfs -", cmd, " ", 
               paste(
                 apply(cbind(argnames, list(...)), 1, 
                   function(x) paste(
@@ -477,8 +458,9 @@ for (hdfscmd in c("mv", "cp", "rm", "rmr", "expunge", "put", "copyFromLocal", "m
 
 pretty.hdfs.ls = function(...) {
   ls.out = hdfs.ls(...)
-  if(ls.out[1,1] == "Found") 
-    ls.out = ls.out[-1,]
+  crud = grep("Found", ls.out[,1])
+  if(length(crud) > 0)
+    ls.out = ls.out[-crud,]
   if(class(ls.out) == "character") ls.out = t(ls.out)
   df = as.data.frame(ls.out)
   names(df) = c("mode", "links", "owner", "group", "size", "last.modified.date", "last.modified.time", "path")
@@ -550,7 +532,7 @@ to.dfs = function(object, output = dfs.tempfile(), format = "native") {
   write.file(object, tmp)      
   if(rmr.options.get('backend') == 'hadoop') {
     if(format$mode == "binary")
-      system(paste(hadoop.cmd(),  "loadtb", dfsOutput, "<", tmp))
+      system(paste(hadoop.streaming(),  "loadtb", dfsOutput, "<", tmp))
     else  hdfs.put(tmp, dfsOutput)
     file.remove(tmp)}
   else file.rename(tmp, dfsOutput)
@@ -570,7 +552,7 @@ from.dfs = function(input, format = "native", to.data.frame = FALSE) {
     retval()}
   
   dumptb = function(src, dest){
-    lapply(src, function(x) system(paste(hadoop.cmd(), "dumptb", x, ">>", dest)))}
+    lapply(src, function(x) system(paste(hadoop.streaming(), "dumptb", x, ">>", dest)))}
   
   getmerge = function(src, dest) {
     on.exit(unlink(tmp))
@@ -741,12 +723,22 @@ reduce.driver = function(reduce, record.reader, record.writer, reduce.on.data.fr
 # the main function for the hadoop backend
 
 hadoop.cmd = function() {
-  hadoopHome = Sys.getenv("HADOOP_HOME")
-  if(hadoopHome == "") warning("Environment variable HADOOP_HOME is missing")
-  hadoopBin = file.path(hadoopHome, "bin")
-  stream.jar = list.files(path=sprintf("%s/contrib/streaming", hadoopHome), pattern="jar$", full=TRUE)
-  sprintf("%s/hadoop jar %s ", hadoopBin, stream.jar)}
-
+  hadoop_cmd = Sys.getenv("HADOOP_CMD")
+  if( hadoop_cmd == "") {
+    hadoop_home = Sys.getenv("HADOOP_HOME")
+    if(hadoop_home == "") stop("Please make sure that the env. variable HADOOP_CMD or HADOOP_HOME are set")
+      file.path(hadoop_home, "bin", "hadoop")}
+  else hadoop_cmd}
+  
+hadoop.streaming = function() {
+  hadoop_streaming = Sys.getenv("HADOOP_STREAMING")
+  if(hadoop_streaming == ""){
+    hadoop_home = Sys.getenv("HADOOP_HOME")
+    if(hadoop_home == "") stop("Please make sure that the env. variable HADOOP_STREAMING or HADOOP_HOME are set")
+    stream.jar = list.files(path=sprintf("%s/contrib/streaming", hadoop_home), pattern="jar$", full=TRUE)
+    sprintf("%s jar %s ", hadoop.cmd(), stream.jar)}
+  else sprintf("%s jar %s ", hadoop.cmd(), hadoop_streaming)}
+  
 rhstream = function(
   map, 
   reduce, 
@@ -755,11 +747,6 @@ rhstream = function(
   in.folder, 
   out.folder, 
   profile.nodes, 
-  cachefiles = NULL, 
-  archives = NULL, 
-  jarfiles = NULL, 
-  otherparams = list(HADOOP_HOME = Sys.getenv('HADOOP_HOME'), 
-    HADOOP_CONF = Sys.getenv("HADOOP_CONF")), 
   input.format, 
   output.format, 
   backend.parameters, 
@@ -820,7 +807,7 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
                            save.env(.GlobalEnv, "rmr-global-env")),
                          collapse = " ")
   ## prepare hadoop streaming command
-  hadoop.command = hadoop.cmd()
+  hadoop.command = hadoop.streaming()
   input =  make.input.files(in.folder)
   output = if(!missing(out.folder)) sprintf("-output %s", out.folder) else " "
   input.format.opt = if(is.null(input.format$streaming.format)) {
@@ -861,34 +848,25 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
   else {
     combiner = " "
     c.fl = " "}
-
-  cmds = make.job.conf(otherparams, pfx="-cmdenv")
   
   #debug.opts = "-mapdebug kdfkdfld -reducexdebug jfkdlfkja"
-  caches = if(length(cachefiles)>0) make.cache.files(cachefiles, "-files") else " " #<0.21
-  archives = if(length(archives)>0) make.cache.files(archives, "-archives") else " "
-  mkjars = if(length(jarfiles)>0) make.cache.files(jarfiles, "-libjars", shorten=FALSE) else " "
   
   final.command =
     paste(
       hadoop.command, 
-      paste.options(backend.parameters), 
       stream.mapred.io,  
-      archives, 
-      caches, 
-      mkjars, 
-      input.format.opt, 
-      output.format.opt, 
+      paste.options(backend.parameters), 
       input, 
       output, 
       mapper, 
+      combiner,
       reducer, 
-      combiner, 
+      image.cmd.line, 
       m.fl, 
       r.fl, 
-      c.fl, 
-      image.cmd.line, 
-      cmds, 
+      c.fl,
+      input.format.opt, 
+      output.format.opt, 
       "2>&1")
   if(verbose) {
     retval = system(final.command)
