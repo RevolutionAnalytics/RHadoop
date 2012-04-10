@@ -800,15 +800,15 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
                            stream.map.output,
                            stream.reduce.input,
                            stream.reduce.output)
-  mapper = sprintf('-mapper "Rscript %s" ', tail(strsplit(map.file, "/")[[1]], 1))
+  mapper = sprintf('-mapper "bash %s" ', basename(setup.script.file))
   m.fl = sprintf("-file %s ", map.file)
   if(!is.null(reduce) ) {
-      reducer = sprintf('-reducer "Rscript %s" ', tail(strsplit(reduce.file, "/")[[1]], 1))
+      reducer = sprintf('-reducer "Rscript %s" ', basename(reduce.file))
       r.fl = sprintf("-file %s ", reduce.file)}
   else {
       reducer=" ";r.fl = " "}
   if(!is.null(combine) && is.function(combine)) {
-    combiner = sprintf('-combiner "Rscript %s" ', tail(strsplit(combine.file, "/")[[1]], 1))
+    combiner = sprintf('-combiner "Rscript %s" ', basename(combine.file))
     c.fl = sprintf("-file %s ", combine.file)}
   else {
     combiner = " "
