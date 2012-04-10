@@ -716,6 +716,7 @@ rhstream = function(
   backend.parameters, 
   verbose = TRUE, 
   debug = FALSE) {
+    
     ## prepare map and reduce executables
 lines = '#! /usr/bin/env Rscript
 options(warn=1)
@@ -800,6 +801,15 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
                            stream.map.output,
                            stream.reduce.input,
                            stream.reduce.output)
+  R.tmp.home = "/tmp/R"
+
+  setup.script = sprintf('
+test -d %s ||  cp -R ./R/ %s
+%s/bin/Rscript %s', 
+                       R.tmp.home, R.tmp.home, R.tmp.home, basename(map.file))
+  setup.script.file = tempfile()
+  setup.fl = sprintf("-file %s", setup.script.file)
+  writeLines(setup.script, con=setup.script.file)
   mapper = sprintf('-mapper "bash %s" ', basename(setup.script.file))
   m.fl = sprintf("-file %s ", map.file)
   if(!is.null(reduce) ) {
@@ -827,6 +837,7 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
       combiner,
       reducer, 
       image.cmd.line, 
+      setup.fl,
       m.fl, 
       r.fl, 
       c.fl,
