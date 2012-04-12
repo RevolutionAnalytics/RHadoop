@@ -1,5 +1,5 @@
 #!/bin/bash 
-
+set -e
 tag=$(1:-0-install}
 #dependencies, deb style
 sudo apt-get -y update
@@ -17,12 +17,14 @@ R_PREFIX=$(env TMPDIR=/tmp/ mktemp -d)
 make -j
 make install
 #rmr dependencies
-$R_PREFIX/bin/R
-install.packages(c("digest", "RJSONIO", "itertools", "methods")) #methods not needed in recent Rs
-quit()
+echo  "install.packages(c("digest", "RJSONIO", "itertools", "methods"))" | $R_PREFIX/bin/R
+#methods not needed in recent Rs
+
 #rmr itself
 cd
 wget https://github.com/RevolutionAnalytics/RHadoop/tarball/$tag
+tar xvzf $tag
+$R_PREFIX/bin/R INSTALL $tag
 
 
 #copy all dynamic libs over
