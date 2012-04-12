@@ -17,7 +17,7 @@ R_PREFIX=$(env TMPDIR=/tmp/ mktemp -d)
 make -j
 make install
 #rmr dependencies
-echo  "install.packages(c("digest", "RJSONIO", "itertools", "methods"))" | $R_PREFIX/bin/R
+echo  'install.packages(c("digest", "RJSONIO", "itertools", "methods"))' | $R_PREFIX/bin/R --vanilla
 #methods not needed in recent Rs
 
 #rmr itself
