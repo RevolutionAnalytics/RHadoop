@@ -801,24 +801,24 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
                            stream.map.output,
                            stream.reduce.input,
                            stream.reduce.output)
-  R.tmp.home = "/tmp/R"
+  R.install.dir = Sys.getenv("R_INSTALL_DIR")
 
   setup.script = sprintf('
 test -d %s ||  cp -R ./R/ %s
 %s/bin/Rscript %s', 
-                       R.tmp.home, R.tmp.home, R.tmp.home, basename(map.file))
+                       R.install.dir, R.install.dir, R.install.dir, basename(map.file))
   setup.script.file = tempfile()
   setup.fl = sprintf("-file %s", setup.script.file)
   writeLines(setup.script, con=setup.script.file)
   mapper = sprintf('-mapper "bash %s" ', basename(setup.script.file))
   m.fl = sprintf("-file %s ", map.file)
   if(!is.null(reduce) ) {
-      reducer = sprintf('-reducer "%s/bin/Rscript %s" ', R.tmp.home, basename(reduce.file))
+      reducer = sprintf('-reducer "%s/bin/Rscript %s" ', R.install.dir, basename(reduce.file))
       r.fl = sprintf("-file %s ", reduce.file)}
   else {
       reducer=" ";r.fl = " "}
   if(!is.null(combine) && is.function(combine)) {
-    combiner = sprintf('-combiner "%s/bin/Rscript %s" ', R.tmp.home, basename(combine.file))
+    combiner = sprintf('-combiner "%s/bin/Rscript %s" ', R.install.dir, basename(combine.file))
     c.fl = sprintf("-file %s ", combine.file)}
   else {
     combiner = " "
@@ -831,6 +831,8 @@ test -d %s ||  cp -R ./R/ %s
       hadoop.command, 
       stream.mapred.io,  
       paste.options(backend.parameters), 
+      paste.options(list(cacheArchive = "hdfs://user/antonio/R.jar#R", 
+                         cmdenv=paste("LD_LIBRARY_PATH=", R.install.dir$R_INSTALL_DIR/lib64/R/lib)),
       input, 
       output, 
       mapper, 
