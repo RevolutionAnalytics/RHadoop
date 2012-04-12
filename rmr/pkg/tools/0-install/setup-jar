@@ -17,14 +17,15 @@ R_PREFIX=$(env TMPDIR=/tmp/ mktemp -d)
 make -j
 make install
 #rmr dependencies
-echo  'install.packages(c("digest", "RJSONIO", "itertools", "methods"))' | $R_PREFIX/bin/R --vanilla
+echo  'install.packages(c("digest", "RJSONIO", "itertools", "methods"), 
+                        repos = "http://cran.revolutionanalytics.com")' | $R_PREFIX/bin/R --vanilla
 #methods not needed in recent Rs
 
 #rmr itself
 cd
 wget https://github.com/RevolutionAnalytics/RHadoop/tarball/$tag
 tar xvzf $tag
-$R_PREFIX/bin/R INSTALL $tag
+$R_PREFIX/bin/R CMD INSTALL RevolutionAnalytics-RHadoop-*/rmr/pkg/
 
 
 #copy all dynamic libs over
