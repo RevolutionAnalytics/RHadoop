@@ -37,7 +37,7 @@ jar cvf R.jar -C $R_PREFIX .
 
 echo "You should set the R_PREFIX variable with 
 export R_PREFIX="$R_PREFIX
-and restart R"
+echo "and restart R"
 
 hadoop dfs -mkdir /user/antonio
 hadoop dfs -put R.jar /user/antonio
