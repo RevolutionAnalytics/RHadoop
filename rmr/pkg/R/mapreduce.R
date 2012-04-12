@@ -718,7 +718,7 @@ rhstream = function(
   debug = FALSE) {
     
     ## prepare map and reduce executables
-lines = '#! /usr/bin/env Rscript
+lines = '
 options(warn=1)
 
 library(rmr)
