@@ -1,6 +1,6 @@
 #!/bin/bash 
 set -e
-tag=$(1:-0-install}
+tag=${1:-0-install}
 #dependencies, deb style
 sudo apt-get -y update
 sudo apt-get -y install gfortran
