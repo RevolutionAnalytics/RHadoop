@@ -1,0 +1,43 @@
+#!/bin/bash 
+
+tag=$(1:-0-install}
+#dependencies, deb style
+sudo apt-get -y update
+sudo apt-get -y install gfortran
+sudo apt-get -y install libreadline6 libreadline6-dev
+sudo apt-get -y install build-essential
+
+#get R source and install
+wget http://cran.revolutionanalytics.com/src/base/R-2/R-2.14.2.tar.gz
+tar xvzf R-2.14.2.tar.gz
+cd R-2.14.2
+#I think the trick here is to use a path that is writable to the user on all nodes,
+R_PREFIX=$(env TMPDIR=/tmp/ mktemp -d)
+./configure --prefix=$R_PREFIX
+make -j
+make install
+#rmr dependencies
+$R_PREFIX/bin/R
+install.packages(c("digest", "RJSONIO", "itertools", "methods")) #methods not needed in recent Rs
+quit()
+#rmr itself
+cd
+wget https://github.com/RevolutionAnalytics/RHadoop/tarball/$tag
+
+
+#copy all dynamic libs over
+
+cp $(ldd $R_PREFIX/lib64/R/bin/exec/R $R_PREFIX/bin/Rscript | cut -d\ -f3|grep \.so\.|sort -u) $R_PREFIX/lib64/R/lib/
+
+#pack everything
+
+jar cvf R.jar -C $R_PREFIX .
+
+echo "You should set the R_PREFIX variable with 
+export R_PREFIX="$R_PREFIX
+and restart R"
+
+hadoop dfs -mkdir /user/antonio
+hadoop dfs -put R.jar /user/antonio
+
+
