@@ -36,12 +36,13 @@ cp $(ldd $R_PREFIX/lib64/R/bin/exec/R $R_PREFIX/bin/Rscript | cut -d\  -f3|grep 
 #pack everything
 
 jar cvf $R_JAR -C $R_PREFIX .
+rm -rf $R_PREFIX
 
 echo "You should set the R_PREFIX variable with 
 export R_PREFIX="$R_PREFIX
 echo "and restart R"
 
-hadoop dfs -mkdir /user/$USER
+hadoop dfs -l /user/$USER || hadoop dfs -mkdir /user/$USER
 hadoop dfs -put $R_JAR /user/$USER
 
 
