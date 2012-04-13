@@ -13,6 +13,7 @@ tar xvzf R-2.14.2.tar.gz
 cd R-2.14.2
 #I think the trick here is to use a path that is writable to the user on all nodes,
 R_PREFIX=$(env TMPDIR=/tmp/ mktemp -d)
+R_JAR=$(basename $R_PREFIX)
 ./configure --prefix=$R_PREFIX
 make -j
 make install
@@ -34,13 +35,13 @@ cp $(ldd $R_PREFIX/lib64/R/bin/exec/R $R_PREFIX/bin/Rscript | cut -d\  -f3|grep 
 
 #pack everything
 
-jar cvf R.jar -C $R_PREFIX .
+jar cvf $R_JAR -C $R_PREFIX .
 
 echo "You should set the R_PREFIX variable with 
 export R_PREFIX="$R_PREFIX
 echo "and restart R"
 
 hadoop dfs -mkdir /user/$USER
-hadoop dfs -put R.jar /user/$USER
+hadoop dfs -put $R_JAR /user/$USER
 
 
