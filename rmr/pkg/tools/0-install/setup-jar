@@ -31,7 +31,7 @@ $R_PREFIX/bin/R CMD INSTALL RevolutionAnalytics-RHadoop-*/rmr/pkg/
 
 #copy all dynamic libs over
 
-cp $(ldd $R_PREFIX/lib64/R/bin/exec/R $R_PREFIX/bin/Rscript | cut -d\ -f3|grep \.so\.|sort -u) $R_PREFIX/lib64/R/lib/
+cp $(ldd $R_PREFIX/lib64/R/bin/exec/R $R_PREFIX/bin/Rscript | cut -d\  -f3|grep \.so\.|sort -u) $R_PREFIX/lib64/R/lib/
 
 #pack everything
 
