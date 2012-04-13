@@ -717,7 +717,7 @@ rhstream = function(
   verbose = TRUE, 
   debug = FALSE) {
     
-  dash_files = c()
+  dash.files = c()
   
   ## prepare map and reduce scripts
   
@@ -782,7 +782,7 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
     fun.env}
 
   libs = sub("package:", "", grep("package", search(), value = T))
-  dash_files = c(dash_files, 
+  dash.files = c(dash.files, 
                  save.env(name = "rmr-local-env"),
                  save.env(.GlobalEnv, "rmr-global-env"))
                    ## prepare hadoop streaming command
@@ -817,18 +817,18 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
  
   map.script = setup.script(map.file)
   mapper = sprintf('-mapper "bash %s" ', basename(map.script))
-  dash_files = c(dash_files, map.script, map.file)
+  dash.files = c(dash.files, map.script, map.file)
   if(!is.null(reduce) ) {
       reduce.script = setup.script(reduce.file)
       reducer = sprintf('-reducer "bash %s" ', R.prefix, basename(reduce.script))
-      dash_files = c(dash_files, reduce.script, reduce.file)}
+      dash.files = c(dash.files, reduce.script, reduce.file)}
   else {
       reducer=" "
       r.fl = " "}
   if(!is.null(combine) && is.function(combine)) {
     combine.script = setup.script(combine.file)
     combiner = sprintf('-combiner "bash %s" ', R.prefix, basename(combine.script))
-    dash_files = c(dash_files, combine.script, combine.file)}
+    dash.files = c(dash.files, combine.script, combine.file)}
   else {
     combiner = " "
     c.fl = " "}
@@ -847,7 +847,7 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
       mapper, 
       combiner,
       reducer, 
-      paste("-file", dash_files, collapse = " ")
+      paste("-file", dash.files, collapse = " "),
       input.format.opt, 
       output.format.opt, 
       "2>&1")
