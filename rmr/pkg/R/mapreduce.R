@@ -717,7 +717,21 @@ rhstream = function(
   verbose = TRUE, 
   debug = FALSE) {
     
-    ## prepare map and reduce executables
+  dash_files = c()
+  
+  ## prepare map and reduce scripts
+  
+  R.prefix = Sys.getenv("R_PREFIX")
+  setup.script = function(phase.file) {
+     lines = sprintf('
+test -d %s ||  cp -R ./R/ %s
+%s/bin/Rscript %s', 
+                       R.prefix, R.prefix, R.prefix, basename(phase.file))
+  setup.script.file = tempfile()
+  writeLines(lines, con=setup.script.file)
+  setup.script.file}
+  
+    ## prepare map and reduce R executables
 lines = '
 options(warn=1)
 
@@ -768,11 +782,10 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
     fun.env}
 
   libs = sub("package:", "", grep("package", search(), value = T))
-  image.cmd.line = paste("-file",
-                         c(save.env(name = "rmr-local-env"),
-                           save.env(.GlobalEnv, "rmr-global-env")),
-                         collapse = " ")
-  ## prepare hadoop streaming command
+  dash_files = c(dash_files, 
+                 save.env(name = "rmr-local-env"),
+                 save.env(.GlobalEnv, "rmr-global-env"))
+                   ## prepare hadoop streaming command
   hadoop.command = hadoop.streaming()
   input =  make.input.files(in.folder)
   output = if(!missing(out.folder)) sprintf("-output %s", out.folder) else " "
@@ -801,25 +814,21 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
                            stream.map.output,
                            stream.reduce.input,
                            stream.reduce.output)
-  R.prefix = Sys.getenv("R_PREFIX")
-
-  setup.script = sprintf('
-test -d %s ||  cp -R ./R/ %s
-%s/bin/Rscript %s', 
-                       R.prefix, R.prefix, R.prefix, basename(map.file))
-  setup.script.file = tempfile()
-  setup.fl = sprintf("-file %s", setup.script.file)
-  writeLines(setup.script, con=setup.script.file)
-  mapper = sprintf('-mapper "bash %s" ', basename(setup.script.file))
-  m.fl = sprintf("-file %s ", map.file)
+ 
+  map.script = setup.script(map.file)
+  mapper = sprintf('-mapper "bash %s" ', basename(map.script))
+  dash_files = c(dash_files, map.script, map.file)
   if(!is.null(reduce) ) {
-      reducer = sprintf('-reducer "%s/bin/Rscript %s" ', R.prefix, basename(reduce.file))
-      r.fl = sprintf("-file %s ", reduce.file)}
+      reduce.script = setup.script(reduce.file)
+      reducer = sprintf('-reducer "bash %s" ', R.prefix, basename(reduce.script))
+      dash_files = c(dash_files, reduce.script, reduce.file)}
   else {
-      reducer=" ";r.fl = " "}
+      reducer=" "
+      r.fl = " "}
   if(!is.null(combine) && is.function(combine)) {
-    combiner = sprintf('-combiner "%s/bin/Rscript %s" ', R.prefix, basename(combine.file))
-    c.fl = sprintf("-file %s ", combine.file)}
+    combine.script = setup.script(combine.file)
+    combiner = sprintf('-combiner "bash %s" ', R.prefix, basename(combine.script))
+    dash_files = c(dash_files, combine.script, combine.file)}
   else {
     combiner = " "
     c.fl = " "}
@@ -838,11 +847,7 @@ test -d %s ||  cp -R ./R/ %s
       mapper, 
       combiner,
       reducer, 
-      image.cmd.line, 
-      setup.fl,
-      m.fl, 
-      r.fl, 
-      c.fl,
+      paste("-file", dash_files, collapse = " ")
       input.format.opt, 
       output.format.opt, 
       "2>&1")
