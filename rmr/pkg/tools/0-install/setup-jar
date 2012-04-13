@@ -42,7 +42,7 @@ echo "You should set the R_PREFIX variable with
 export R_PREFIX="$R_PREFIX
 echo "and restart R"
 
-hadoop dfs -l /user/$USER || hadoop dfs -mkdir /user/$USER
+hadoop dfs -ls /user/$USER || hadoop dfs -mkdir /user/$USER
 hadoop dfs -put $R_JAR /user/$USER
 
 
