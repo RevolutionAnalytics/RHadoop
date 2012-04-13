@@ -13,6 +13,7 @@ tar xvzf R-2.14.2.tar.gz
 cd R-2.14.2
 #I think the trick here is to use a path that is writable to the user on all nodes,
 R_PREFIX=$(env TMPDIR=/tmp/ mktemp -d)
+make clean
 ./configure --prefix=$R_PREFIX
 make -j
 make install
