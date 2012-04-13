@@ -831,7 +831,7 @@ test -d %s ||  cp -R ./R/ %s
       hadoop.command, 
       stream.mapred.io,  
       paste.options(backend.parameters), 
-      paste.options(list(cacheArchive = "hdfs://user/antonio/R.jar#R", 
+      paste.options(list(cacheArchive = "hdfs:///user/antonio/R.jar#R", 
                          cmdenv=paste("LD_LIBRARY_PATH=", R.prefix, "/lib64/R/lib", sep = ""))),
       input, 
       output, 
