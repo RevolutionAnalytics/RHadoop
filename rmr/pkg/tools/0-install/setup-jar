@@ -44,5 +44,6 @@ echo "and restart R"
 
 hadoop dfs -ls /user/$USER || hadoop dfs -mkdir /user/$USER
 hadoop dfs -put $R_JAR /user/$USER
+rm $R_JAR
 
 
