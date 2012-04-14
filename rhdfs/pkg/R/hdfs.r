@@ -26,7 +26,7 @@ hdfs.init <- function(hadoop=NULL,conf=NULL,libs=NULL,contrib=NULL,verbose=FALSE
                  ,list.files(contrib,full.names=TRUE,pattern="jar$",recursive=FALSE)
                  ,list.files(libs,full.names=TRUE,pattern="jar$",recursive=FALSE)
                  ,conf
-                 ,list.files(paste(system.file(package="rhdfs"),"java",sep=.Platform$file.sep),pattern="jar$",full=T)
+                 ,list.files(paste(system.file(package="rhdfs"),"java",sep=.Platform$file.sep),pattern="jar$",full.names=T)
                )
   assign("classpath",hadoop.CP,envir=.hdfsEnv)
   .jinit(classpath= hadoop.CP)
@@ -42,9 +42,9 @@ hdfs.init <- function(hadoop=NULL,conf=NULL,libs=NULL,contrib=NULL,verbose=FALSE
   assign("fu",J("com.revolutionanalytics.hadoop.hdfs.FileUtils"),envir=rhdfs:::.hdfsEnv)
 }
 
-"[[.jobjRef" <- function(x,namex,...){
-  x$get(as.character(namex))
-}
+#"[[.jobjRef" <- function(x,namex,...){
+#  x$get(as.character(namex))
+#}
 
 hdfs.defaults <- function(arg){
   if(missing(arg)){
@@ -183,12 +183,12 @@ hdfs.close <- function(con){
   fh$close()
   TRUE
 }
-print.hdfsFH <- function(r,...){
-  cat(sprintf("%s\n",as.character.hdfsFH(r)))
+print.hdfsFH <- function(x,...){
+  cat(sprintf("%s\n",as.character.hdfsFH(x)))
 }
-as.character.hdfsFH <- function(s){
+as.character.hdfsFH <- function(x,...){
   sprintf("DFS File: %s [blocksize=%s, replication=%s, buffersize=%s, mode='%s']\n",
-          s[["name"]], s[["blocksize"]],s[["replication"]],s[["buffersize"]],s[["mode"]])
+          x[["name"]], x[["blocksize"]],x[["replication"]],x[["buffersize"]],x[["mode"]])
 }
 hdfs.write <- function(object,con,hsync=FALSE){
   obj <- switch(typeof(object),

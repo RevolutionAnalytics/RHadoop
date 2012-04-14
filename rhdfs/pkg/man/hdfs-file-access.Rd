@@ -1,4 +1,4 @@
-\name{rhdfs-file-manip}
+\name{rhdfs-file-access}
 \alias{hdfs.file}
 \alias{hdfs.write}
 \alias{hdfs.close}
@@ -6,7 +6,9 @@
 \alias{hdfs.read}
 \alias{hdfs.seek}
 \alias{hdfs.tell}
-
+\alias{print.hdfsFH}
+\alias{as.character.hdfsFH}
+\docType{package}
 
 \title{Reading and Writing to Files on the HDFS}
 \description{
@@ -23,6 +25,9 @@ hdfs.flush(con)
 hdfs.read(con, n,start)
 hdfs.seek(con,n=0)
 hdfs.tell(con)
+\method{print}{hdfsFH}(x,\dots)
+\method{as.character}{hdfsFH}(x,\dots)
+
 }
 
 \arguments{
@@ -30,6 +35,7 @@ hdfs.tell(con)
 \item{mode}{'r' for reading and 'w' for writing. Appends are not allowed.}
 \item{fs}{The filesystem to write files to. To write to local filesystems use hdfs.defaults("local")}
 \item{buffersize}{The read/write buffer to use}
+\item{overwrite}{If the file exists, indicate whether or not it should be overwritten}
 \item{replication}{For files opened in mode "w", the replication factor. Only
     makes sense for the HDFS}
 \item{blocksize}{The blocksize of the written files}
@@ -38,7 +44,8 @@ hdfs.tell(con)
 \item{hsync}{If TRUE, the file will be synched after writing}
 \item{n}{Number of bytes to read}
 \item{start}{The position to read from,default is the current position}
-}
+\item{x}{An object of class \code{hdfsFH}.}
+\item{...}{Additional parameters for the S3 functions on class hdfsFH.  See:  \code{print} or \code{as.character}.}}
 
 \details{ 
   The functions can be used to read and write files both on the local filesystem

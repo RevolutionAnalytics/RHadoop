@@ -1,5 +1,7 @@
 \name{hdfs.init}
 \alias{hdfs.init}
+\docType{package}
+
 \title{Initialize the rhdfs Package}
 \description{
   Initializes the rhdfs package with paramaters specifying the location of the

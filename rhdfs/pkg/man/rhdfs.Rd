@@ -1,6 +1,7 @@
 \name{rhdfs}
 \alias{rhdfs}
 \docType{package}
+
 \title{rhdfs: R and Hadoop Distributed File System}
 \description{
 	Functions to interact with the HDFS from within R

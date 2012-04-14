@@ -3,13 +3,16 @@
 \alias{hdfslist.files}
 \alias{hdfs.delete}
 \alias{hdfs.rm}
+\alias{hdfs.rmr}
 \alias{hdfs.del}
 \alias{hdfs.dircreate}
 \alias{hdfs.mkdir}
 \alias{hdfs.chmod}
 \alias{hdfs.chown}
 \alias{hdfs.file.info}
+\alias{hdfs.stat}
 \alias{hdfs.exists}
+\docType{package}
 
 \title{File and Directory Manipulation Commands for the HDFS}
 \description{
@@ -21,18 +24,20 @@
   hdfs.delete(path, cfg=hdfs.defaults("conf"),fs=hdfs.defaults("fs"))	
   hdfs.del(path, cfg=hdfs.defaults("conf"),fs=hdfs.defaults("fs"))	
   hdfs.rm(path, cfg=hdfs.defaults("conf"),fs=hdfs.defaults("fs"))	
+  hdfs.rmr(path, cfg=hdfs.defaults("conf"),fs=hdfs.defaults("fs"))	
   hdfs.dircreate(paths,fs=hdfs.defaults("fs"))			
   hdfs.mkdir(paths,fs=hdfs.defaults("fs"))			
   hdfs.chmod(paths,permissions="777",fs=hdfs.defaults("fs"))
   hdfs.chown(paths,owner="",group="",fs=hdfs.defaults("fs"))
   hdfs.file.info(path,fs=hdfs.defaults("fs"))
+  hdfs.stat(path,fs=hdfs.defaults("fs"))
   hdfs.exists(path, fs=hdfs.defaults("fs"))
 }
 
 \arguments{
 \item{path}{The path to a file location on the HDFS
-    e.g. /airline/data/1987.csv}. In some cases it can be a character
-  vector, see Details.
+    e.g. /airline/data/1987.csv}. 
+\item{paths}{A vector of HDFS file paths}
 \item{recurse}{TRUE to recursively list subdirectories}
 \item{cfg}{The Hadoop configuration object. The user can specify this
     for different Hadoop installations, though usually not needed}

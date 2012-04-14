@@ -1,10 +1,12 @@
 \name{rhdfs-file-manip}
 \alias{hdfs.copy}
+\alias{hdfs.cp}
 \alias{hdfs.move}
+\alias{hdfs.mv}
 \alias{hdfs.rename}
 \alias{hdfs.put}
 \alias{hdfs.get}
-
+\docType{package}
 
 \title{File Copying Commands for the HDFS}
 \description{
@@ -13,7 +15,9 @@
 }
 \usage{
   hdfs.copy(src,dest,overwrite=FALSE,srcFS=hdfs.defaults("fs"),dstFS=hdfs.defaults("fs"))
+  hdfs.cp(src,dest,overwrite=FALSE,srcFS=hdfs.defaults("fs"),dstFS=hdfs.defaults("fs"))
   hdfs.move(src,dest,srcFS=hdfs.defaults("fs"),dstFS=hdfs.defaults("fs"))
+  hdfs.mv(src,dest,srcFS=hdfs.defaults("fs"),dstFS=hdfs.defaults("fs"))
   hdfs.rename(src,dest)
   hdfs.put(src,dest,dstFS=hdfs.defaults("fs"))
   hdfs.get(src,dest,srcFS=hdfs.defaults("fs"))
@@ -21,7 +25,8 @@
 
 \arguments{
 \item{src}{Location of the source file/directory. See Details}
-\item{dst}{Location of the destination file/directory.}
+\item{dest}{Location of the destination file/directory.}
+\item{overwrite}{If file exists, indicates whether or not it should be overwritten.}
 \item{srcFS}{The source file system.}
 \item{dstFS}{The destination file system.}
 }

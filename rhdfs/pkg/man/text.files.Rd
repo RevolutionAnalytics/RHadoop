@@ -1,6 +1,8 @@
 \name{rhdfs-text-manip}
 \alias{hdfs.line.reader}
 \alias{hdfs.read.text.file}
+\alias{hdfs.cat}
+\docType{package}
 
 \title{Reading Text Files from the HDFS}
 \description{
@@ -8,13 +10,15 @@
 }
 \usage{
 hdfs.line.reader(path,n=1000L,buffer=as.integer(5*1024^2),fs=hdfs.defaults("fs"))
-hdfs.read.text.file(path,...)
+hdfs.read.text.file(path,\dots)
+hdfs.cat(path,\dots)
 }
 \arguments{
 \item{path}{Location to file on HDFS to read}
 \item{n}{Number of lines to read}
 \item{buffer}{The size of the read buffer}
 \item{fs}{The filesystem on which the file is located}
+\item{...}{Same parameters passed to \code{hdfs.line.reader}. These are:  \code{n, buffer, fs}.  If these parameters are not specified then the defaults from \code{hdfs.line.reader} will be used.}
 }
 
 \details{ 

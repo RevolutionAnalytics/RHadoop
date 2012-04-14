@@ -32,20 +32,20 @@ hb.init <- function(host='127.0.0.1', port=9090, buffsize=3*1024*1024, serialize
   reg.finalizer(y,function(r){
     .Call("deleteclient",r,PACKAGE="rhbase")
   })
-  assign('hbc',y,env=rhbase:::.hbEnv)
+  assign('hbc',y,envir=rhbase:::.hbEnv)
   opt.names <- list("maxversions"=as.integer,"compression"=as.character,
   "inmemory"=as.logical, "bloomfiltertype"=as.character,
   "bloomfiltervecsize"=as.integer, "bloomfilternbhashes"=as.integer,
   "blockcache"=as.logical, "timetolive"=as.integer)
-  assign("opt.names",opt.names,env=rhbase:::.hbEnv)
+  assign("opt.names",opt.names,envir=rhbase:::.hbEnv)
+  
+  serialize<-match.arg(serialize)
   if (serialize=="native") {
-      assign("sz",function(r) serialize(r,NULL),env=rhbase:::.hbEnv)
-      assign("usz",unserialize,,env=rhbase:::.hbEnv)
+      assign("sz",function(r) serialize(r,NULL),envir=rhbase:::.hbEnv)
+      assign("usz",unserialize,,envir=rhbase:::.hbEnv)
   }else if (serialize=="raw") {
-      assign("sz",function(r) charToRaw(toString(r)),env=rhbase:::.hbEnv)
-      assign("usz",function(r) rawToChar(r),env=rhbase:::.hbEnv)
-  }else {
-     print(match.arg(serialize))
+      assign("sz",function(r) charToRaw(toString(r)),envir=rhbase:::.hbEnv)
+      assign("usz",function(r) rawToChar(r),envir=rhbase:::.hbEnv)
   }
   y
 

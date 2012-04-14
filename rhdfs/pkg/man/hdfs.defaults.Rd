@@ -1,5 +1,7 @@
 \name{hdfs.defaults}
 \alias{hdfs.defaults}
+\docType{package}
+
 \title{Retrieve and Set rhdfs Defaults}
 \description{
   Use this function to retrieve rhdfs defaults.
@@ -16,6 +18,7 @@
         \item{blocksize}{The default block size of files stored on the HDFS.}
         \item{fs}{An rJava object corresponding to HDFS}
         \item{fu}{Helper object for rhdfs}
+        \item{classpath}{The java classpath}
         \item{replication}{The default replication count for files stored on the HDFS}
         \item{conf}{An rJava object which contains name-value mappings for Hadoop configuration parameters.}
 }
@@ -25,6 +28,6 @@
   hdfs.defaults()
 
   ## get mapred.map.tasks
-  hdfs.defaults("conf")[["mapred.map.tasks"]]
+  hdfs.defaults("conf")
 }
 
