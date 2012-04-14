@@ -820,14 +820,14 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
   dash.files = c(dash.files, map.script, map.file)
   if(!is.null(reduce) ) {
       reduce.script = setup.script(reduce.file)
-      reducer = sprintf('-reducer "bash %s" ', R.prefix, basename(reduce.script))
+      reducer = sprintf('-reducer "bash %s" ', basename(reduce.script))
       dash.files = c(dash.files, reduce.script, reduce.file)}
   else {
       reducer=" "
       r.fl = " "}
   if(!is.null(combine) && is.function(combine)) {
     combine.script = setup.script(combine.file)
-    combiner = sprintf('-combiner "bash %s" ', R.prefix, basename(combine.script))
+    combiner = sprintf('-combiner "bash %s" ', basename(combine.script))
     dash.files = c(dash.files, combine.script, combine.file)}
   else {
     combiner = " "
