@@ -296,7 +296,9 @@ csv.input.format = function(..., nrows = 1000) function(con) {
 csv.output.format = function(...) function(k, v, con) 
   write.table(file = con, 
               x = if(is.null(k)) v else cbind(k,v), 
-              file = tc, ..., row.names = FALSE, col.names = FALSE)
+              ..., 
+              row.names = FALSE, 
+              col.names = FALSE)
   
 typed.bytes.reader = 
   function(buf.size = 1000) {
