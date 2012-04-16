@@ -186,12 +186,11 @@ make.record.writer = function(mode = NULL, format = NULL, con = NULL) {
   default = make.output.format()
   if(is.null(mode)) mode = default$mode
   if(is.null(format)) format = default$format
-  if(mode == "text") {
+  if(mode == "text") 
     if(is.null(con)) con = stdout()
-    function(k, v) writeLines(format(k, v), con)}
-  else {
+  else 
     if(is.null(con)) con = pipe("cat", "wb")
-    function(k, v) format(k, v, con)}}
+  function(k, v) format(k, v, con)}
 
 IO.formats = c("text", "json", "csv", "native", "native.text",
                "sequence.typedbytes")
@@ -256,9 +255,9 @@ native.text.input.format = function(con) {
     de = function(x) unserialize(charToRaw(gsub("\\\\n", "\n", x)))
     keyval(de(x[1]), de(x[2]))}}
 
-native.text.output.format = function(k, v) {
+native.text.output.format = function(k, v, con) {
   ser = function(x) gsub("\n", "\\\\n", rawToChar(serialize(x, ascii=T, conn = NULL)))
-  paste(ser(k), ser(v), sep = "\t")}
+  writeLines(text = paste(ser(k), ser(v), sep = "\t"), con = con, sep = "\n")}
   
 json.input.format = function(con) {
   line = readLines(con, 1)
@@ -269,17 +268,22 @@ json.input.format = function(con) {
     else keyval(fromJSON(x[1], asText = TRUE), 
                 fromJSON(x[2], asText = TRUE))}}
 
-json.output.format = function(k, v) {
-  paste(gsub("\n", "", toJSON(k, .escapeEscapes=TRUE, collapse = "")),
+json.output.format = function(k, v, con) {
+  writeLines(
+    text = paste(gsub("\n", "", toJSON(k, .escapeEscapes=TRUE, collapse = "")),
         gsub("\n", "", toJSON(v, .escapeEscapes=TRUE, collapse = "")),
-        sep = "\t")}
+        sep = "\t"),
+    con = con,
+    sep = "\n"}
 
 text.input.format = function(con) {
   line = readLines(con, 1)
   if (length(line) == 0) NULL
   else keyval(NULL, line)}
 
-text.output.format = function(k, v) paste(k, v, collapse = "", sep = "\t")
+text.output.format = function(k, v, con) writeLines(paste(k, v, collapse = "", sep = "\t"), 
+                                                    sep = "\n",
+                                                    con = con)
 
 csv.input.format = function(..., nrows = 1000) function(con) {
   df = 
@@ -289,12 +293,11 @@ csv.input.format = function(..., nrows = 1000) function(con) {
   if(is.null(df) || dim(df)[[1]] == 0) NULL
   else keyval(NULL, df)}
 
-csv.output.format = function(...) function(k, v) {
-  on.exit(close(tc))
-  tc = textConnection(object = NULL, open = "w")
-  write.table(x=if(is.null(k)) v else cbind(k,v), file = tc, ..., row.names = FALSE, col.names = FALSE)
-  paste(textConnectionValue(con = tc), sep = "", collapse = "\n")}
-
+csv.output.format = function(...) function(k, v, con) 
+  write.table(file = con, 
+              x = if(is.null(k)) v else cbind(k,v), 
+              file = tc, ..., row.names = FALSE, col.names = FALSE)
+  
 typed.bytes.reader = 
   function(buf.size = 1000) {
     raw.buffer = raw()
