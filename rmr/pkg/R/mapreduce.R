@@ -186,10 +186,10 @@ make.record.writer = function(mode = NULL, format = NULL, con = NULL) {
   default = make.output.format()
   if(is.null(mode)) mode = default$mode
   if(is.null(format)) format = default$format
-  if(mode == "text") 
-    if(is.null(con)) con = stdout()
-  else 
-    if(is.null(con)) con = pipe("cat", "wb")
+  if(mode == "text") {
+    if(is.null(con)) con = stdout()}
+  else {
+    if(is.null(con)) con = pipe("cat", "wb")}
   function(k, v) format(k, v, con)}
 
 IO.formats = c("text", "json", "csv", "native", "native.text",
