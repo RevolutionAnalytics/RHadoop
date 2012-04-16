@@ -172,7 +172,7 @@ make.input.files = function(infiles) {
 
 # I/O 
 
-make.record.reader = function(mode = NULL, format = NULL, con = NULL) {
+make.record.reader = function(mode = NULL, format = NULL, vectorized, con = NULL) {
   default = make.input.format()
   if(is.null(mode)) mode = default$mode
   if(is.null(format)) format = default$format
@@ -180,9 +180,9 @@ make.record.reader = function(mode = NULL, format = NULL, con = NULL) {
     if(is.null(con)) con = file("stdin", "r")} #not stdin() which is parsed by the interpreter
   else {
     if(is.null(con)) con = pipe("cat", "rb")}
-  function() format(con)}
+  function() format(con, vectorized)}
 
-make.record.writer = function(mode = NULL, format = NULL, con = NULL) {
+make.record.writer = function(mode = NULL, format = NULL, vectorized, con = NULL) {
   default = make.output.format()
   if(is.null(mode)) mode = default$mode
   if(is.null(format)) format = default$format
@@ -190,7 +190,7 @@ make.record.writer = function(mode = NULL, format = NULL, con = NULL) {
     if(is.null(con)) con = stdout()}
   else {
     if(is.null(con)) con = pipe("cat", "wb")}
-  function(k, v) format(k, v, con)}
+  function(k, v) format(k, v, con, vectorized)}
 
 IO.formats = c("text", "json", "csv", "native", "native.text",
                "sequence.typedbytes")
@@ -247,28 +247,36 @@ make.output.format = function(format = native.output.format,
   mode = match.arg(mode)
   list(mode = mode, format = format, streaming.format = streaming.format)}
 
-native.text.input.format = function(con) {
-  line  = readLines(con, 1)
-  if (length(line) == 0) NULL
-  else {
-    x = strsplit(line, "\t")[[1]]
-    de = function(x) unserialize(charToRaw(gsub("\\\\n", "\n", x)))
-    keyval(de(x[1]), de(x[2]))}}
+single.rec = funtion(l, nrec) if(nrec == 1) l[[1]] else l
 
-native.text.output.format = function(k, v, con) {
-  ser = function(x) gsub("\n", "\\\\n", rawToChar(serialize(x, ascii=T, conn = NULL)))
-  writeLines(text = paste(ser(k), ser(v), sep = "\t"), con = con, sep = "\n")}
-  
-json.input.format = function(con) {
-  line = readLines(con, 1)
-  if (length(line) == 0) NULL
+native.text.input.format = function(con, nrecs) {
+  lines  = readLines(con, nrecs)
+  if (length(lines) == 0) NULL
   else {
-    x =  strsplit(line, "\t")[[1]]
+    splits = strsplit(lines, "\t")
+    deser.one = function(x) unserialize(charToRaw(gsub("\\\\n", "\n", x)))
+    keyval(single.rec(lapply(splits, function(x) de(x[1]))),
+           single.rec(lapply(splits, function(x) de(x[2]))))}}
+
+native.text.output.format = function(k, v, con, vectorized) {
+  ser = function(x) gsub("\n", "\\\\n", rawToChar(serialize(x, ascii=T, conn = NULL)))
+  ser.pair = function(k,v) paste(ser(k), ser(v), sep = "\t")
+  out = 
+    if(vectorized)
+      mapply(ser.pair, k, v)
+    else ser.pair(k,v)
+  writeLines(out, con = acon, sep = "\n")}
+  
+json.input.format = function(con, nrecs) {
+  lines = readLines(con, nrecs)
+  if (length(lines) == 0) NULL
+  else {
+    splits =  strsplit(lines, "\t")
     if(length(x) == 1)  keyval(NULL, fromJSON(x[1], asText = TRUE))
     else keyval(fromJSON(x[1], asText = TRUE), 
                 fromJSON(x[2], asText = TRUE))}}
 
-json.output.format = function(k, v, con) {
+json.output.format = function(k, v, con, vectorized) {
   writeLines(
     text = paste(gsub("\n", "", toJSON(k, .escapeEscapes=TRUE, collapse = "")),
         gsub("\n", "", toJSON(v, .escapeEscapes=TRUE, collapse = "")),
@@ -276,24 +284,24 @@ json.output.format = function(k, v, con) {
     con = con,
     sep = "\n")}
 
-text.input.format = function(con) {
+text.input.format = function(con, nrecs) {
   line = readLines(con, 1)
   if (length(line) == 0) NULL
   else keyval(NULL, line)}
 
-text.output.format = function(k, v, con) writeLines(paste(k, v, collapse = "", sep = "\t"), 
+text.output.format = function(k, v, con, vectorized) writeLines(paste(k, v, collapse = "", sep = "\t"), 
                                                     sep = "\n",
                                                     con = con)
 
-csv.input.format = function(..., nrows = 1000) function(con) {
+csv.input.format = function(..., nrecs = 1000) function(con) {
   df = 
     tryCatch(
-      read.table(file = con, nrows = nrows, header = FALSE, ...),
+      read.table(file = con, nrows = nrecs, header = FALSE, ...),
       error = function(e) NULL)
   if(is.null(df) || dim(df)[[1]] == 0) NULL
   else keyval(NULL, df)}
 
-csv.output.format = function(...) function(k, v, con) 
+csv.output.format = function(...) function(k, v, con, vectorized) 
   write.table(file = con, 
               x = if(is.null(k)) v else cbind(k,v), 
               ..., 
@@ -389,19 +397,19 @@ typed.bytes.writer = function(value, con, native  = FALSE) {
     
 typed.bytes.input.format = function() {
   tbr = typed.bytes.reader()
-  function(con) {
+  function(con, nrecs) {
     key = tbr(con)
     val = tbr(con)
     if(is.null(key) || is.null(val)) NULL
     else keyval(key[[1]],val[[1]])}}
 
-typed.bytes.output.format = function(k, v, con) {
+typed.bytes.output.format = function(k, v, con, vectorized) {
   typed.bytes.writer(k, con)
   typed.bytes.writer(v, con)}
 
 native.input.format = typed.bytes.input.format
 
-native.output.format = function(k, v, con){
+native.output.format = function(k, v, con, vectorized){
   typed.bytes.writer(k, con, TRUE)
   typed.bytes.writer(v, con, TRUE)}
 
@@ -606,6 +614,8 @@ mapreduce = function(
   reduce.on.data.frame = FALSE, 
   input.format = "native", 
   output.format = "native", 
+  vectorized = list(map = FALSE, reduce = FALSE)
+  structured = list(map = FALSE, reduce = FALSE)
   backend.parameters = list(), 
   verbose = TRUE) {
 
@@ -615,24 +625,30 @@ mapreduce = function(
       dfs.managed.file(match.call())
     else
       dfs.tempfile()
-
+  if(is.character(input.format)) input.format = make.input.format(input.format)
+  if(is.character(output.format)) output.format = make.output.format(output.format)
+  if(is.logical(vectorized$map)){
+    vectorized$map = if (vectorized$map) 1000 else 1}
+  if(!missing(reduce.on.data.frame)) {
+    warning("reduce.on.data.frame deprecated, use structured instead")
+    structured$reduce = reduce.on.data.frame
+  
   backend  =  rmr.options.get('backend')
   
   profile.nodes = rmr.options.get('profile.nodes')
     
   mr = switch(backend, hadoop = rhstream, local = mr.local, stop("Unsupported backend: ", backend))
-  if(is.character(input.format)) input.format = make.input.format(input.format)
-  if(is.character(output.format)) output.format = make.output.format(output.format)
   
   mr(map = map, 
      reduce = reduce, 
-     reduce.on.data.frame = reduce.on.data.frame, 
      combine = combine, 
      in.folder = if(is.list(input)) {lapply(input, to.dfs.path)} else to.dfs.path(input), 
      out.folder = to.dfs.path(output), 
      profile.nodes = profile.nodes, 
      input.format = input.format, 
      output.format = output.format, 
+     vectorized = vectorized,
+     structured = structured,
      backend.parameters = backend.parameters[[backend]], 
      verbose = verbose)
   output
@@ -644,13 +660,14 @@ mapreduce = function(
 
 mr.local = function(map, 
                     reduce, 
-                    reduce.on.data.frame, 
                     combine, 
                     in.folder, 
                     out.folder, 
                     profile.nodes, 
                     input.format, 
                     output.format, 
+                    vectorized,
+                    structured,
                     backend.parameters, 
                     verbose = verbose) {
   if(is.null(reduce)) reduce = function(k, vv) lapply(vv, function(v) keyval(k, v))
@@ -667,7 +684,7 @@ mr.local = function(map,
   reduce.out = tapply(X = map.out, 
                       INDEX = sapply(keys(map.out), digest), 
                       FUN = function(x) reduce(x[[1]]$key, 
-                                             if(reduce.on.data.frame) row.list.to.data.frame(values(x)) else values(x)), 
+                                             if(structured$reduce) row.list.to.data.frame(values(x)) else values(x)), 
                       simplify = FALSE)
   if(!is.keyval(reduce.out[[1]]))
     reduce.out = do.call(c, reduce.out)
@@ -700,10 +717,10 @@ map.driver = function(map, record.reader, record.writer, profile) {
 list.cmp = function(ll, e) sapply(ll, function(l) isTRUE(all.equal(e, l)))
 ## using isTRUE(all.equal(x)) because identical() was too strict, but on paper it should be it
 
-reduce.driver = function(reduce, record.reader, record.writer, reduce.on.data.frame, profile) {
+reduce.driver = function(reduce, record.reader, record.writer, structured, profile) {
   reduce.flush = function(current.key, vv) {
     out = reduce(current.key, 
-                 if(reduce.on.data.frame) {
+                 if(structured) {
                    row.list.to.data.frame(vv)}
                  else {vv})
     if(!is.null(out)) {
@@ -747,13 +764,14 @@ hadoop.streaming = function() {
 rhstream = function(
   map, 
   reduce, 
-  reduce.on.data.frame, 
   combine, 
   in.folder, 
   out.folder, 
   profile.nodes, 
   input.format, 
   output.format, 
+  vectorized,
+  structured,
   backend.parameters, 
   verbose = TRUE, 
   debug = FALSE) {
@@ -778,12 +796,12 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
                  record.reader = rmr:::make.record.reader(), 
                  record.writer = rmr:::make.record.writer(output.format$mode, 
                                                     output.format$format), 
-                 reduce.on.data.frame = reduce.on.data.frame, 
+                 structured = structured$reduce, 
                  profile = profile.nodes)'
   combine.line = '  rmr:::reduce.driver(reduce = combine, 
                  record.reader = rmr:::make.record.reader(), 
                  record.writer = rmr:::make.record.writer(), 
-                 reduce.on.data.frame = reduce.on.data.frame, 
+                 structured = structured$reduce, 
                 profile = profile.nodes)'
 
   map.file = tempfile(pattern = "rhstr.map")
