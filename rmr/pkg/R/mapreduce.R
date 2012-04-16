@@ -274,7 +274,7 @@ json.output.format = function(k, v, con) {
         gsub("\n", "", toJSON(v, .escapeEscapes=TRUE, collapse = "")),
         sep = "\t"),
     con = con,
-    sep = "\n"}
+    sep = "\n")}
 
 text.input.format = function(con) {
   line = readLines(con, 1)
