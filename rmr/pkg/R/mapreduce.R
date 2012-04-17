@@ -722,7 +722,7 @@ mr.local = function(map,
   to.dfs(reduce.out, out.folder, format = output.format)}
 
 #hadoop
-## drivers section, or what runs on the nodes
+## loops section, or what runs on the nodes
 
 activate.profiling = function() {
   dir = file.path("/tmp/Rprof", Sys.getenv('mapred_job_id'), Sys.getenv('mapred_tip_id'))
@@ -732,7 +732,7 @@ activate.profiling = function() {
 close.profiling = function() Rprof(NULL)
 
 
-map.driver = function(map, record.reader, record.writer, profile) {
+map.loop = function(map, record.reader, record.writer, profile) {
   if(profile) activate.profiling()
   kv = record.reader()
   while(!is.null(kv)) { 
@@ -747,7 +747,7 @@ map.driver = function(map, record.reader, record.writer, profile) {
 list.cmp = function(ll, e) sapply(ll, function(l) isTRUE(all.equal(e, l)))
 ## using isTRUE(all.equal(x)) because identical() was too strict, but on paper it should be it
 
-reduce.driver = function(reduce, record.reader, record.writer, structured, profile) {
+reduce.loop = function(reduce, record.reader, record.writer, structured, profile) {
   reduce.flush = function(current.key, vv) {
     out = reduce(current.key, 
                  if(structured) {
@@ -813,7 +813,7 @@ load("rmr-local-env")
 load("rmr-global-env")
 invisible(lapply(libs, function(l) library(l, character.only = T)))
 '  
-  map.line = '  rmr:::map.driver(map = map, 
+  map.line = '  rmr:::map.loop(map = map, 
               record.reader = rmr:::make.record.reader(input.format$mode, 
                                                        input.format$format,
                                                        nrecs = vectorized$map), 
@@ -823,13 +823,13 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
                               else {
                                 rmr:::make.record.writer()}, 
               profile = profile.nodes)'
-  reduce.line  =  '  rmr:::reduce.driver(reduce = reduce, 
+  reduce.line  =  '  rmr:::reduce.loop(reduce = reduce, 
                  record.reader = rmr:::make.record.reader(), 
                  record.writer = rmr:::make.record.writer(output.format$mode, 
                                                     output.format$format), 
                  structured = structured$reduce, 
                  profile = profile.nodes)'
-  combine.line = '  rmr:::reduce.driver(reduce = combine, 
+  combine.line = '  rmr:::reduce.loop(reduce = combine, 
                  record.reader = rmr:::make.record.reader(), 
                  record.writer = rmr:::make.record.writer(), 
                  structured = structured$reduce,             
