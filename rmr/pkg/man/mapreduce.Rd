@@ -14,6 +14,8 @@
   reduce.on.data.frame = FALSE,
   input.format = "native",
   output.format = "native",
+  vectorized = list(map = FALSE, reduce = FALSE),
+  structured = list(map = FALSE, reduce = FALSE),
   backend.parameters = list(),
   verbose = TRUE) }
 
@@ -28,6 +30,8 @@
 \item{reduce.on.data.frame}{flatten the list of values to a data frame in the reduce call}
 \item{input.format}{Input specification, see  \code{\link{make.input.format}}}
 \item{output.format}{Output specification, see  \code{\link{make.output.format}}}
+\item{vectorized}{Whether to process multiple records in a single function call. Its value is a list with two named entries, map and reduce. The reduce entry is there for future use only. The map entry can be a boolean or an integer specifying the exact number of records to be processed (defaults to 1000 when set to TRUE). In this case the map arguments will be equal length lists of keys and values.}
+\item{structured}{Whether the input to map or reduce is structured data. This applies to the map function only when vectorized is on and will try to coerce the list of keys and the list of values to data frames (not implemented yet). It is on by default for certain formats that can only represent structured data such as csv (this statement is more or less accurate depending on what you mean by structured data, but here we take it to mean that it can represented by a data frame with atomic columns). On the reduce side it applies only to the list of values, also converted to a data frame when possible.}
 \item{backend.parameters}{Specify additional, backend-specific options, as in \code{backend.parameters = list(hadoop
       = list(D = "mapred.reduce.tasks=1"), local = list())}. It is recommended not to use this argument to change the semantics of mapreduce (output
     should be independent of this argument). Each backend can only see the nested list named after the backend itself.  The interpretation

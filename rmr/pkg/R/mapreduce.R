@@ -78,15 +78,17 @@ status = function(what) {
 ## could think of this as a utils section
 ## keyval manip
 keyval = function(k, v, vectorized = FALSE) {
-  make.kv = function(k, v){
+  if(vectorized) {
+    kv = keyval(k,v)
+    attr(kv, 'rmr.vectorized') = TRUE
+    kv}
+  else {
     kv = list(key = k, val = v)
     attr(kv, 'rmr.keyval') = TRUE
-    kv}
-  if(vectorized)
-    mapply(make.kv, k, v)
-  else make.kv(k,v)}
+    kv}}
 
 is.keyval = function(kv) !is.null(attr(kv, 'rmr.keyval', exact = TRUE))
+is.vectorized.keyval = function(kv) !is.null(attr(kv, 'rmr.vectorized', exact = TRUE))
 keys = function(l) lapply(l, function(x) x[[1]])
 values = function(l) lapply(l, function(x) x[[2]])
 keyval.to.list = function(kvl) {l = values(kvl); names(l) = keys(kvl); l}
@@ -186,7 +188,7 @@ make.record.reader = function(mode = NULL, format = NULL, con = NULL, nrecs = 1)
     if(is.null(con)) con = pipe("cat", "rb")}
   function() format(con, nrecs)}
 
-make.record.writer = function(mode = NULL, format = NULL, con = NULL, vectorized = FALSE) {
+make.record.writer = function(mode = NULL, format = NULL, con = NULL) {
   default = make.output.format()
   if(is.null(mode)) mode = default$mode
   if(is.null(format)) format = default$format
@@ -194,7 +196,7 @@ make.record.writer = function(mode = NULL, format = NULL, con = NULL, vectorized
     if(is.null(con)) con = stdout()}
   else {
     if(is.null(con)) con = pipe("cat", "wb")}
-  function(k, v) format(k, v, con, vectorized)}
+  function(k, v, vectorized) format(k, v, con, vectorized)}
 
 IO.formats = c("text", "json", "csv", "native", "native.text",
                "sequence.typedbytes")
@@ -262,7 +264,8 @@ native.text.input.format = function(con, nrecs) {
     splits = strsplit(lines, "\t")
     deser.one = function(x) unserialize(charToRaw(gsub("\\\\n", "\n", x)))
     keyval(lapply.nrecs(splits, function(x) de(x[1]), nrecs = nrecs),
-           lapply.nrecs(splits, function(x) de(x[2]), nrecs = nrecs))}}
+           lapply.nrecs(splits, function(x) de(x[2]), nrecs = nrecs),
+           vectorized = nrecs == 1)}}
 
 native.text.output.format = function(k, v, con, vectorized) {
   ser = function(x) gsub("\n", "\\\\n", rawToChar(serialize(x, ascii=T, conn = NULL)))
@@ -280,7 +283,8 @@ json.input.format = function(con, nrecs) {
     splits =  strsplit(lines, "\t")
     if(length(splits[[1]]) == 1)  keyval(NULL, lapply.nrecs(splits, function(x) fromJSON(x[1], asText = TRUE), nrecs = nrecs))
     else keyval(lapply.nrecs(splits, function(x) fromJSON(x[1], asText = TRUE), nrecs = nrecs), 
-                lapply.nrecs(splits, function(x) fromJSON(x[2], asText = TRUE), nrecs = nrecs))}}
+                lapply.nrecs(splits, function(x) fromJSON(x[2], asText = TRUE), nrecs = nrecs),
+                vectorized = nrecs == 1)}}
 
 json.output.format = function(k, v, con, vectorized) {
   ser = function(k, v) paste(gsub("\n", "", toJSON(k, .escapeEscapes=TRUE, collapse = "")),
@@ -296,7 +300,7 @@ json.output.format = function(k, v, con, vectorized) {
 text.input.format = function(con, nrecs) {
   lines = readLines(con, nrecs)
   if (length(lines) == 0) NULL
-  else keyval(NULL, lines)}
+  else keyval(NULL, lines, vectorized = nrecs == 1)}
 
 text.output.format = function(k, v, con, vectorized) {
   ser = function(k,v) paste(k, v, collapse = "", sep = "\t")
@@ -312,7 +316,7 @@ csv.input.format = function(..., nrecs) function(con) {
       read.table(file = con, nrows = nrecs, header = FALSE, ...),
       error = function(e) NULL)
   if(is.null(df) || dim(df)[[1]] == 0) NULL
-  else keyval(NULL, df)}
+  else keyval(NULL, df, vectorized = nrecs == 1)}
 
 csv.output.format = function(...) function(k, v, con, vectorized) 
   # this is vectorized only, need to think what that means
@@ -417,9 +421,9 @@ typed.bytes.input.format = function() {
     if(length(out) == 0) NULL
     else {
       if(nrecs == 1)
-        keyval(out[[1]][[1]],out[[2]][[1]])
+        keyval(out[[1]][[1]],out[[2]][[1]], vectorized = FALSE)
       else
-        keyval(out[2*(1:length(out)) - 1], out[2*(1:length(out))])}}}
+        keyval(out[2*(1:length(out)) - 1], out[2*(1:length(out))], vectorized = TRUE)}}}
 
 typed.bytes.output.format = function(k, v, con, vectorized) {
   ser = function(k,v) {
@@ -569,7 +573,7 @@ to.dfs = function(object, output = dfs.tempfile(), format = "native") {
         lapply(obj, 
                function(x) {
                  kv = if(is.keyval(x)) x else keyval(NULL, x)
-                 record.writer(kv$key, kv$val)})
+                 record.writer(kv$key, kv$val, is.vectorized.keyval(kv))})
       close(con)}
     
   write.file(object, tmp)      
@@ -738,8 +742,8 @@ map.loop = function(map, record.reader, record.writer, profile) {
   while(!is.null(kv)) { 
     out = map(kv$key, kv$val)
     if(!is.null(out)) {
-      if (is.keyval(out)) {record.writer(out$key, out$val)}
-      else {lapply(out, function(o) record.writer(o$key, o$val))}}
+      if (is.keyval(out)) {record.writer(out$key, out$val, is.vectorized.keyval(out))}
+      else {lapply(out, function(o) record.writer(o$key, o$val, is.vectorized.keyval(o)))}}
     kv = record.reader()}
   if(profile) close.profiling()
   invisible()}
@@ -754,8 +758,8 @@ reduce.loop = function(reduce, record.reader, record.writer, structured, profile
                    row.list.to.data.frame(vv)}
                  else {vv})
     if(!is.null(out)) {
-      if(is.keyval(out)) {record.writer(out$key, out$val)}
-      else {lapply(out, function(o) record.writer(o$key, o$val))}}}
+      if(is.keyval(out)) {record.writer(out$key, out$val, is.vectorized.keyval(out))}
+      else {lapply(out, function(o) record.writer(o$key, o$val, is.vectorized.keyval(o)))}}}
   if(profile) activate.profiling()
   kv = record.reader()
   current.key = kv$key

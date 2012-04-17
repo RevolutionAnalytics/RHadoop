@@ -9,18 +9,20 @@
 \usage{
   keys(l)
   values(l)
-  keyval(k, v)
+  keyval(k, v, vectorized = FALSE)
 }
 
 \arguments{
 \item{l}{list containing key/value pairs}
 \item{k}{the desired key or a list when v is missing}
 \item{v}{the desired value}
+\item{vectorized}{\code{k,v} are to be construed as a single key-value pair but as a list of keys and list of values of equal length, to be matched positionally}
 }
 
 \details{The keyval helper function should be used to create return values for the map and reduce functions passed as parameters to
-\code{mapreduce}, which can also return NULL or a list of key-value pairs. Lists of keyvalue pairs are also appropriate arguments for the \code{to.dfs}
-function and are returned by \code{from.dfs}. \code{keys} and \code{values} extract a list of keys or values resp. from a list of key value pairs}
+\code{mapreduce}, which can also return NULL or a list of key-value pairs. The \code{vectorized} option is used for efficiency when many,
+small key-value pairs need to be returned. Lists of keyvalue pairs are also appropriate arguments for the \code{to.dfs} function and are
+returned by \code{from.dfs}. \code{keys} and \code{values} extract a list of keys or values resp. from a list of key value pairs}
 
 \examples{  
   keyval(1,2)
