@@ -77,10 +77,14 @@ status = function(what) {
 
 ## could think of this as a utils section
 ## keyval manip
-keyval = function(k, v) {
-  kv = list(key = k, val = v)
-  attr(kv, 'rmr.keyval') = TRUE
-  kv}
+keyval = function(k, v, vectorized = FALSE) {
+  make.kv = function(k, v){
+    kv = list(key = k, val = v)
+    attr(kv, 'rmr.keyval') = TRUE
+    kv}
+  if(vectorized)
+    mapply(make.kv, k, v)
+  else make.kv(k,v)}
 
 is.keyval = function(kv) !is.null(attr(kv, 'rmr.keyval', exact = TRUE))
 keys = function(l) lapply(l, function(x) x[[1]])
