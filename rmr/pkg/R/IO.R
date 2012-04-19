@@ -3,78 +3,126 @@
   include = "
   #include <vector>
   #include <string>
-  
-  std::vector<unsigned char> int2raw(int i) {
-  std::vector<unsigned char> c;
-    c.resize(4);
-    c[0] = (i >> 24) & 255;
-    c[1] = (i >> 16) & 255;
-    c[2] = (i >>  8) & 255;
-    c[3] = (i      ) & 255;
-    return c;}
-  
-  std::vector<unsigned char> long2raw(long l){}
-  
-  std::vector<unsigned char> length_header(unsigned int l){
-    return int2raw(l);}
-  
-  template <typename T> std::vector<unsigned char> serialize_one(T data, unsigned char type_code) {
-    std::vector<unsigned char> serialized(0);
-    serialized.push_back(type_code);
-    serialized.push_back(data[0]);
+  #include <iostream>
+
+  typedef std::vector<unsigned char> raw;
+
+  //template <typename T> raw T2raw(T data) {
+  //  std::cerr << \"empty template implementation\";
+  //  return raw(0);
+  //};
+
+  raw T2raw(int data) {
+    raw serialized(4);
+    serialized[0] = (data >> 24) & 255;
+    serialized[1] = (data >> 16) & 255;
+    serialized[2] = (data >>  8) & 255;
+    serialized[3] = (data      ) & 255;
+    return serialized;}
+
+  raw T2raw(unsigned long data) {
+    raw serialized(8);
+    serialized[0] = (data >> 56) & 255;
+    serialized[1] = (data >> 48) & 255;
+    serialized[2] = (data >> 40) & 255;
+    serialized[3] = (data >> 32) & 255;
+    serialized[4] = (data >> 24) & 255;
+    serialized[5] = (data >> 16) & 255;
+    serialized[6] = (data >>  8) & 255;
+    serialized[7] = (data      ) & 255;
     return serialized;}
   
-  template <typename T> std::vector<unsigned char> serialize_many(T data, unsigned char type_code){
-    std::vector<unsigned char> serialized(0);
+  raw T2raw(double data) {
+    union udouble {
+      double d;
+      unsigned long u;} ud;
+    ud.d = data;
+    return T2raw(ud.u);}
+
+  raw length_header(int l){
+    return T2raw(l);}
+  
+  template <typename T> void serialize_one(const T & data, unsigned char type_code, raw & serialized) {
     serialized.push_back(type_code);
-    std::vector<unsigned char>lh(length_header(data.size()));
+    raw rd = T2raw(data);
+    serialized.insert(serialized.end(), rd.begin(), rd.end());}
+  
+  template <typename T> void serialize_many(const T & data, unsigned char type_code, raw & serialized){
+    serialized.push_back(type_code);
+    raw lh(length_header(data.size()));
     serialized.insert(serialized.end(),lh.begin(), lh.end());
-    serialized.insert(serialized.end(), data.begin(), data.end());
-    return serialized;}
+    serialized.insert(serialized.end(), data.begin(), data.end());}
   
-  
-  std::vector<unsigned char> serialize(SEXP object) {
+  void serialize(const SEXP & object, raw & serialized); 
+
+  template <typename T> void serialize_vector(const T & data, unsigned char type_code, raw & serialized){
+    serialized.push_back(8);
+    raw lh(length_header(data.size()));
+    serialized.insert(serialized.end(), lh.begin(), lh.end());
+    for(typename T::iterator i = data.begin(); i < data.end(); i++) {
+      serialize_one(*i, type_code, serialized);}}
+
+  template <typename T> void serialize_list(const T & data, raw & serialized){
+    serialized.push_back(8);
+    raw lh(length_header(data.size()));
+    serialized.insert(serialized.end(), lh.begin(), lh.end());
+    for(typename T::iterator i = data.begin(); i < data.end(); i++) {
+      serialize(Rcpp::wrap(*i), serialized);}}
+
+  void serialize(const SEXP & object, raw & serialized) {
     Rcpp::RObject robj(object);
-    std::vector<unsigned char> serialized(0);
     switch(robj.sexp_type()) {
       case 24: {//raw
-        Rcpp::RawVector rawvec(object);
-        if(rawvec.size() == 1){
-          serialized = serialize_one(rawvec, 1);}
+        Rcpp::RawVector data(object);
+        if(data.size() == 1){
+          serialize_one(data[0], 1, serialized);}
         else {
-          serialized = serialize_many(rawvec, 0);}}
+          serialize_many(data, 0, serialized);}}
         break;
       case 16: { //character
-        Rcpp::CharacterVector charvec(object);
-        if(charvec.size() == 1) {
-          std::string tmp = as<std::string>(charvec);
-          serialized.push_back(7);
-          std::vector<unsigned char> lh(length_header(tmp.size()));
-          serialized.insert(serialized.end(), lh.begin(), lh.end());
-          serialized.insert(serialized.end(), tmp.begin(), tmp.end());}
+        Rcpp::CharacterVector data(object);
+        if(data.size() == 1) {
+          serialize_many(data[0], 7, serialized);}
         else {
           serialized.push_back(8);
-          std::vector<unsigned char> lh = length_header(charvec.size());
+          raw lh(length_header(data.size()));
           serialized.insert(serialized.end(), lh.begin(), lh.end());
-          for(Rcpp::CharacterVector::iterator i = charvec.begin(); i < charvec.end(); i++){
-            serialized.push_back(7);
-            lh = length_header(i->size());
-            serialized.insert(serialized.end(), lh.begin(), lh.end());
-            serialized.insert(serialized.end(), i->begin(), i->end());}}}
+          for(int i = 0; i < data.size(); i++) {
+            serialize_many(data[i], 7, serialized);}}}
         break; 
-      case 10: //logical
-      case 14: //numeric
-      case 13: //factor
-      case 19: //list
+      case 10: { //logical
+        Rcpp::LogicalVector data(object);
+        if(data.size() == 1) {
+          serialize_one(data[0], 2, serialized);}
+        else {
+          serialize_vector(data, 2, serialized);}}
+        break;
+      case 14: { //numeric
+        Rcpp::NumericVector data(object);
+        if(data.size() == 1) {
+          serialize_one(data[0], 6, serialized);}
+        else {
+          serialize_vector(data, 6, serialized);}}
+        break;
+      case 13: { //factor, integer
+        Rcpp::IntegerVector data(object);
+        if(data.size() == 1) {
+          serialize_one(data[0], 3, serialized);}
+        else {
+          serialize_vector(data, 3, serialized);}
+        }
+        break;
+      case 19: { //list
+        Rcpp::List data(object);
+        serialize_list(data, serialized);}
+        break;
       default:
-      std::cerr << \"object type not supported\";
-      exit(-1);
-    }
-    
-    return serialized;}
+      std::cerr << \"object type not supported: \" << robj.sexp_type();}}
   "
   src = "
-  return Rcpp::wrap(serialize(object));
+  raw serialized(0);
+  serialize(object, serialized);
+  return Rcpp::wrap(serialized);
   "
   
   typed.bytes.Cpp.writer = cxxfunction(signature(object = "any"),  src, plugin = "Rcpp", includes=include)
