@@ -185,14 +185,18 @@
   native.input.format = typed.bytes.input.format
   
   native.output.format = function(k, v, con, vectorized){
-    ser = function(k,v) {
+    ser.native = function(k,v) {
       typed.bytes.writer(k, con, TRUE)
       typed.bytes.writer(v, con, TRUE)
     }
+    ser.non.native = function(k,v) {
+      typed.bytes.writer(k, con, FALSE)
+      typed.bytes.writer(v, con, FALSE)
+    }
     if(vectorized)
-      mapply(ser, k, v)
+      mapply(ser.non.native, k, v)
     else
-      ser(k,v)}
+      ser.native(k,v)}
   
   include = "
   #include <vector>
