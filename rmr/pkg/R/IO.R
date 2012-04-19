@@ -205,11 +205,6 @@
 
   typedef std::vector<unsigned char> raw;
 
-  //template <typename T> raw T2raw(T data) {
-  //  std::cerr << \"empty template implementation\";
-  //  return raw(0);
-  //};
-
   raw T2raw(int data) {
     raw serialized(4);
     serialized[0] = (data >> 24) & 255;
@@ -327,4 +322,113 @@
   return Rcpp::wrap(serialized);
   "
   
-  typed.bytes.Cpp.writer = cxxfunction(signature(k = "any", v = "any"),  src, plugin = "Rcpp", includes=include)
+#  typed.bytes.Cpp.writer = cxxfunction(signature(k = "any", v = "any"),  src, plugin = "Rcpp", includes = include)
+  
+  include = "
+  #include <deque>
+  #include <iostream>
+  
+  typedef std::deque<unsigned char> raw;
+
+  template <typename T> T raw2T(raw & data) {
+    std::cerr << \"general conversion not implemented\" << std::endl;}
+
+
+  template <> int raw2T<int>(raw & data) {
+    int retval =  ((data[0] & 255) << 24) + 
+                  ((data[1] & 255) << 16) +
+                  ((data[2] & 255) <<  8) + 
+                  ((data[3] & 255)      );
+    data.erase(data.begin(), data.begin() + 4);
+    return retval;}
+
+  template <> unsigned long raw2T<unsigned long>(raw & data) {
+    unsigned long retval = 
+           (((long long) data[0] & 255) << 56) + 
+           (((long long) data[1] & 255) << 48) +
+           (((long long) data[2] & 255) << 40) + 
+           (((long long) data[3] & 255) << 32) +
+           (((long long) data[4] & 255) << 24) +
+           (((long long) data[5] & 255) << 16) +
+           (((long long) data[6] & 255) <<  8) +
+           (((long long) data[7] & 255)      );
+    data.erase(data.begin(), data.begin() + 8);
+    return retval;}
+
+  template <> double raw2T<double>(raw & data) {} 
+ 
+  int get_length(raw & data) {
+    return raw2T<int>(data);}
+
+  unsigned char get_type(raw & data) {
+    unsigned char retval  = data[0];
+    data.pop_front();
+    return retval;}
+
+  int unserialize(raw & data, Rcpp::List & objs){
+    unsigned char type_code = get_type(data);
+    switch(type_code) {
+      case 0: {
+        int length = get_length(data);
+        raw tmp(data.begin(), data.begin() + length);
+        objs.insert(objs.end(), Rcpp::wrap(tmp));
+      }
+      break;
+      case 1: {
+
+      }
+      break;
+      case 2: {
+
+      }
+      break;
+      case 3: {
+
+      }
+      break;
+      case 4: {
+
+      }
+      break;
+      case 5: {
+
+      }
+      break;
+      case 6: {
+
+      }
+      break;
+      case 7: {
+
+      }
+      break;
+      case 8: {
+
+      }
+      break;
+      case 9: {
+
+      }
+      break;
+      case 10: {
+
+      }
+      case 144: {
+
+      }
+      break;
+      default: {
+
+      }
+    }
+  };
+  "
+  src = "
+  Rcpp::List kk(0);
+  Rcpp::RawVector tmp(data);
+  raw rd(tmp.begin(), tmp.end());
+  unserialize(rd, kk);
+  return Rcpp::wrap(kk);
+  "
+  
+  typed.bytes.Cpp.reader = cxxfunction(signature(data = "raw"), src, plugin = "Rcpp", includes = include)
