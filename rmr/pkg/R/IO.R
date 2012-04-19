@@ -319,8 +319,12 @@
   "
   src = "
   raw serialized(0);
-  serialize(object, serialized);
+  Rcpp::List kk(k);
+  Rcpp::List vv(v);
+  for(int i = 0; i < kk.size(); i++) {
+    serialize(Rcpp::wrap(kk[i]), serialized);
+    serialize(Rcpp::wrap(vv[i]), serialized);}
   return Rcpp::wrap(serialized);
   "
   
-  typed.bytes.Cpp.writer = cxxfunction(signature(object = "any"),  src, plugin = "Rcpp", includes=include)
+  typed.bytes.Cpp.writer = cxxfunction(signature(k = "any", v = "any"),  src, plugin = "Rcpp", includes=include)
