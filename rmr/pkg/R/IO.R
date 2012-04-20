@@ -152,6 +152,7 @@
                  character = {write.code(7); write.length(nchar(value)); writeChar(value, con, eos = NULL)}, 
                  factor = {value = as.character(value)
                            write.code(7); write.length(nchar(value)); writeChar(value, con, eos = NULL)},
+                 list = {write.code(8); write.length(1); tbw(value[[1]])},
                  stop("not implemented yet"))}
         else {
           switch(class(value), 
@@ -204,6 +205,9 @@
   #include <iostream>
 
   typedef std::vector<unsigned char> raw;
+
+  raw T2raw(unsigned char data) {
+    return data;}
 
   raw T2raw(int data) {
     raw serialized(4);
@@ -316,13 +320,16 @@
   raw serialized(0);
   Rcpp::List kk(k);
   Rcpp::List vv(v);
-  for(int i = 0; i < kk.size(); i++) {
-    serialize(Rcpp::wrap(kk[i]), serialized);
-    serialize(Rcpp::wrap(vv[i]), serialized);}
+  Rcpp::List::iterator i = kk.begin();
+  Rcpp::List::iterator j = vv.begin();
+  for(; i < kk.end() && j < vv.end(); i++, j++) {
+    serialize(Rcpp::wrap(*i), serialized);
+    serialize(Rcpp::wrap(*j), serialized);
+  }
   return Rcpp::wrap(serialized);
   "
   
-#  typed.bytes.Cpp.writer = cxxfunction(signature(k = "any", v = "any"),  src, plugin = "Rcpp", includes = include)
+typed.bytes.Cpp.writer = cxxfunction(signature(k = "any", v = "any"),  src, plugin = "Rcpp", includes = include)
   
   include = "
   #include <deque>
@@ -330,11 +337,7 @@
   
   typedef std::deque<unsigned char> raw;
 
-  template <typename T> T raw2T(raw & data) {
-    std::cerr << \"general conversion not implemented\" << std::endl;}
-
-
-  template <> int raw2T<int>(raw & data) {
+  int raw2int(raw & data) {
     int retval =  ((data[0] & 255) << 24) + 
                   ((data[1] & 255) << 16) +
                   ((data[2] & 255) <<  8) + 
@@ -342,23 +345,23 @@
     data.erase(data.begin(), data.begin() + 4);
     return retval;}
 
-  template <> unsigned long raw2T<unsigned long>(raw & data) {
-    unsigned long retval = 
-           (((long long) data[0] & 255) << 56) + 
-           (((long long) data[1] & 255) << 48) +
-           (((long long) data[2] & 255) << 40) + 
-           (((long long) data[3] & 255) << 32) +
-           (((long long) data[4] & 255) << 24) +
-           (((long long) data[5] & 255) << 16) +
-           (((long long) data[6] & 255) <<  8) +
-           (((long long) data[7] & 255)      );
-    data.erase(data.begin(), data.begin() + 8);
-    return retval;}
+//   long raw2long(raw & data) {
+//     long retval = 
+//            (((long long) data[0] & 255) << 56) + 
+//            (((long long) data[1] & 255) << 48) +
+//            (((long long) data[2] & 255) << 40) + 
+//            (((long long) data[3] & 255) << 32) +
+//            (((long long) data[4] & 255) << 24) +
+//            (((long long) data[5] & 255) << 16) +
+//            (((long long) data[6] & 255) <<  8) +
+//            (((long long) data[7] & 255)      );
+//     data.erase(data.begin(), data.begin() + 8);
+//     return retval;}
 
-  template <> double raw2T<double>(raw & data) {} 
+  double raw2double(raw & data) {} 
  
   int get_length(raw & data) {
-    return raw2T<int>(data);}
+    return raw2int(data);}
 
   unsigned char get_type(raw & data) {
     unsigned char retval  = data[0];
@@ -372,56 +375,46 @@
         int length = get_length(data);
         raw tmp(data.begin(), data.begin() + length);
         objs.insert(objs.end(), Rcpp::wrap(tmp));
-      }
+        data.erase(data.begin(), data.begin() + length);}
       break;
       case 1: {
-
-      }
+        objs.push_back(Rcpp::wrap((unsigned char)(data[0])));
+        data.pop_front(); }
       break;
       case 2: {
-
-      }
+        objs.push_back(Rcpp::wrap(bool(data[0])));
+        data.pop_front();}
       break;
       case 3: {
-
-      }
+        objs.push_back(Rcpp::wrap(raw2int(data)));}      
       break;
-      case 4: {
-
-      }
-      break;
+      case 4:
       case 5: {
-
-      }
+        std::cerr << type_code << \" type code not supported\" << std::endl;}
       break;
       case 6: {
-
-      }
+        objs.push_back(Rcpp::wrap(raw2double(data)));}
       break;
       case 7: {
-
-      }
+        int length = get_length(data);
+        std::string tmp(data.begin(), data.begin() + length);
+        objs.insert(objs.end(), Rcpp::wrap(tmp));
+        data.erase(data.begin(), data.begin() + length);}
       break;
       case 8: {
-
-      }
+        int length = get_length(data);
+        for(int i = 0; i < length; i++) {
+          unserialize(data, objs);}}
       break;
-      case 9: {
-
-      }
-      break;
+      case 9: 
       case 10: {
-
-      }
+        std::cerr << type_code << \" type code not supported\" << std::endl;}
+      break;
       case 144: {
-
-      }
+        std::cerr << type_code << \" type code not supported\" << std::endl;}
       break;
       default: {
-
-      }
-    }
-  };
+        std::cerr << \"Unknown type code \" << type_code << std::endl;}}}
   "
   src = "
   Rcpp::List kk(0);
