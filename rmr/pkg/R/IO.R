@@ -207,7 +207,9 @@
   typedef std::vector<unsigned char> raw;
 
   raw T2raw(unsigned char data) {
-    return data;}
+    raw serialized(1);
+    serialized[0] = data;
+    return serialized;}
 
   raw T2raw(int data) {
     raw serialized(4);
@@ -345,20 +347,25 @@ typed.bytes.Cpp.writer = cxxfunction(signature(k = "any", v = "any"),  src, plug
     data.erase(data.begin(), data.begin() + 4);
     return retval;}
 
-//   long raw2long(raw & data) {
-//     long retval = 
-//            (((long long) data[0] & 255) << 56) + 
-//            (((long long) data[1] & 255) << 48) +
-//            (((long long) data[2] & 255) << 40) + 
-//            (((long long) data[3] & 255) << 32) +
-//            (((long long) data[4] & 255) << 24) +
-//            (((long long) data[5] & 255) << 16) +
-//            (((long long) data[6] & 255) <<  8) +
-//            (((long long) data[7] & 255)      );
-//     data.erase(data.begin(), data.begin() + 8);
-//     return retval;}
+  long raw2long(raw & data) {
+    long retval = 
+      (((long long) data[0] & 255) << 56) + 
+      (((long long) data[1] & 255) << 48) +
+      (((long long) data[2] & 255) << 40) + 
+      (((long long) data[3] & 255) << 32) +
+      (((long long) data[4] & 255) << 24) +
+      (((long long) data[5] & 255) << 16) +
+      (((long long) data[6] & 255) <<  8) +
+      (((long long) data[7] & 255)      );
+  data.erase(data.begin(), data.begin() + 8);
+  return retval;}
 
-  double raw2double(raw & data) {} 
+  double raw2double(raw & data) {
+    union udouble {
+      double d;
+      unsigned long u;} ud;
+    ud.u = raw2long(data);
+    return ud.d;} 
  
   int get_length(raw & data) {
     return raw2int(data);}
@@ -403,8 +410,10 @@ typed.bytes.Cpp.writer = cxxfunction(signature(k = "any", v = "any"),  src, plug
       break;
       case 8: {
         int length = get_length(data);
+        Rcpp::List l(0);
         for(int i = 0; i < length; i++) {
-          unserialize(data, objs);}}
+          unserialize(data, l);}
+        objs.push_back(Rcpp::wrap(l));}
       break;
       case 9: 
       case 10: {
