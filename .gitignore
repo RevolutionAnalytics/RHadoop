@@ -18,3 +18,7 @@ whirr.log*
 *.orig
 
 rhbase/pkg/config.log
+
+#Compilation artifacts
+src-i386
+src-x86_64
