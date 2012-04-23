@@ -18,15 +18,15 @@ make.fast.list = function(l = list()) {
   l1 = l
   l2 = list(NULL)
   i = 1
-  function(el = NULL){
-    if(missing(el)) c(l1, l2[!sapply(l2, is.null)]) 
+  function(els = NULL){
+    if(missing(els)) c(l1, l2[!sapply(l2, is.null)]) 
     else{
-      if(i > length(l2)) {
-        l1 <<- c(l1, l2)
+      if(i + length(els) - 1 > length(l2)) {
+        l1 <<- c(l1, l2[!sapply(l2, is.null)])
         i <<- 1
-        l2 <<- rep(list(NULL), length(l1))}
-      l2[[i]] <<- el
-      i <<- i + 1}}}
+        l2 <<- rep(list(NULL), length(l1) + length(els))}
+      l2[i:(i + length(els) - 1)] <<- els
+      i <<- i + length(els)}}}
 
 
 #options
@@ -400,7 +400,7 @@ from.dfs = function(input, format = "native", to.data.frame = FALSE) {
     retval = make.fast.list()
     rec = record.reader()
     while(!is.null(rec)) {
-      retval(rec)
+      retval(if(is.keyval(rec)) list(rec) else rec)
       rec = record.reader()}
     close(con)
     retval()}
@@ -572,11 +572,11 @@ reduce.loop = function(reduce, record.reader, record.writer, structured, profile
   current.key = kv$key
   vv = make.fast.list()
   while(!is.null(kv)) {
-    if(identical(kv$key, current.key)) vv(kv$val)
+    if(identical(kv$key, current.key)) vv(if(is.vectorized.keyval(kv)) kv$val else list(kv$val))
     else {
       reduce.flush(current.key, vv())
       current.key = kv$key
-      vv = make.fast.list(list(kv$val))}
+      vv = make.fast.list(if(is.vectorized.keyval(kv)) kv$val else list(kv$val))}
     kv = record.reader()}
   if(length(vv()) > 0) reduce.flush(current.key, vv())
   if(profile) close.profiling()
