@@ -122,7 +122,6 @@ SEXP typed_bytes_reader(SEXP data){
     			unserialize(rd, start, objs);
     			current_start = start;}
   		catch (ReadPastEnd rpe){
-    			std::cerr << "Incomplete objects parsed" << std::endl;
     			break;}}
 	return Rcpp::wrap(Rcpp::List::create(
   		Rcpp::Named("objects") = Rcpp::wrap(objs),
