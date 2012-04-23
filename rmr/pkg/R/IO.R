@@ -216,7 +216,7 @@ typed.bytes.Cpp.input.format = function() {
   
 typed.bytes.Cpp.output.format = function(k, v, con, vectorized){
   writeBin(
-    typed.bytes.Cpp.writer(objs=
+    typed.bytes.Cpp.writer(
       if(vectorized){
         tmp = list()
         tmp[2*(1:length(k)) - 1] = k
