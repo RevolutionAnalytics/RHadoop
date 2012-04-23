@@ -203,9 +203,14 @@ typed.bytes.Cpp.input.format = function() {
       obj.buffer <<- c(obj.buffer, parsed.out$objects)
       raw.buffer <<- raw.buffer[-(1:parsed.out$parsed.length)]
       read.size = 1.2 * read.size}
-    retval = list()
-    retval[[1]] = obj.buffer[2*(1:nrecs) - 1]
-    retval[[2]] = obj.buffer[2*(1:nrecs)]
+    read.size = read.size/1.2
+    retval = if(length(obj.buffer) == 0) NULL 
+      else { 
+        if(nrecs == 1)
+          keyval(obj.buffer[[1]], obj.buffer[[2]], vectorized = FALSE)
+        else keyval(obj.buffer[2*(1:nrecs) - 1],
+                  obj.buffer[2*(1:nrecs)], 
+                  vectorized = TRUE)}
     obj.buffer <<- obj.buffer[-(1:nobjs)]
     retval}}
   
