@@ -111,7 +111,7 @@ out = list()
 out.fast = list()
 
 for(be in c("local", "hadoop")) {
-  rmr.options.set(backend = "local")
+  rmr.options.set(backend = be)
   set.seed(0)
   input = to.dfs(lapply(1:1000, function(i) keyval(NULL, c(rnorm(1, mean = i%%3, sd = 0.1), 
                                                          rnorm(1, mean = i%%4, sd = 0.1)))))
