@@ -201,7 +201,7 @@ make.record.writer = function(mode = NULL, format = NULL, con = NULL) {
 IO.formats = c("text", "json", "csv", "native", "native.text",
                "sequence.typedbytes")
 
-make.input.format = function(format = native.input.format, 
+make.input.format = function(format = native.input.format(), 
                             mode = c("binary", "text"),
                             streaming.format = NULL, ...) {
   mode = match.arg(mode)
@@ -216,7 +216,7 @@ make.input.format = function(format = native.input.format,
                   mode = "text"}, 
            native.text = {format = native.text.input.format(); 
                      mode = "text"}, 
-           native = {format = native.input.format; 
+           native = {format = native.input.format(); 
                             mode = "binary"}, 
            sequence.typedbytes = {format = typed.bytes.Cpp.input.format(); 
                                   mode = "binary"})}

@@ -226,7 +226,7 @@ typed.bytes.Cpp.output.format = function(k, v, con, vectorized){
         list(k,v)}),
     con)}
 
-native.input.format = typed.bytes.Cpp.input.format()
+native.input.format = typed.bytes.Cpp.input.format
 
 native.output.format = function(k, v, con, vectorized){
   ser.native = function(k,v) {
