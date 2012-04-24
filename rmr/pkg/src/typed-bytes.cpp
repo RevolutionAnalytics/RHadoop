@@ -125,7 +125,7 @@ SEXP typed_bytes_reader(SEXP data){
     			break;}}
 	return Rcpp::wrap(Rcpp::List::create(
   		Rcpp::Named("objects") = Rcpp::wrap(objs),
-  		Rcpp::Named("parsed.length") = Rcpp::wrap(current_start)));}
+  		Rcpp::Named("length") = Rcpp::wrap(current_start)));}
 
 
 

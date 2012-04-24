@@ -199,9 +199,9 @@ typed.bytes.Cpp.input.format = function() {
     while(length(obj.buffer) < nobjs) {
       raw.buffer <<- c(raw.buffer, readBin(con, raw(), read.size))
       if(length(raw.buffer) == 0) break;
-      parsed.out = typed.bytes.Cpp.reader(raw.buffer)
-      obj.buffer <<- c(obj.buffer, parsed.out$objects)
-      raw.buffer <<- raw.buffer[-(1:parsed.out$parsed.length)]
+      parsed = typed.bytes.Cpp.reader(raw.buffer)
+      obj.buffer <<- c(obj.buffer, parsed$objects)
+      if(parsed$length != 0) raw.buffer <<- raw.buffer[-(1:parsed$length)]
       read.size = as.integer(1.2 * read.size)}
     read.size = as.integer(read.size/1.2)
     retval = if(length(obj.buffer) == 0) NULL 
