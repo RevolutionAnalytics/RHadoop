@@ -247,7 +247,7 @@ make.output.format = function(format = native.output.format,
            native = {format = native.output.format; 
                      mode = "binary";
                      streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"}, 
-           sequence.typedbytes = {format = typed.bytes.Cpp.output.format(); 
+           sequence.typedbytes = {format = typed.bytes.Cpp.output.format; 
                                   mode = "binary";
                                   streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"})}
   mode = match.arg(mode)
