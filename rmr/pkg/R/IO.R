@@ -246,10 +246,6 @@ native.output.format = function(k, v, con, vectorized){
     typed.bytes.writer(k, con, TRUE)
     typed.bytes.writer(v, con, TRUE)
   }
-  ser.non.native = function(k,v) {
-    typed.bytes.writer(k, con, FALSE)
-    typed.bytes.writer(v, con, FALSE)
-  }
   if(vectorized)
     typed.bytes.Cpp.output.format(k, v, con, vectorized)
   else
