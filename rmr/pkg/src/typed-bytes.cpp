@@ -22,8 +22,25 @@ typedef std::deque<unsigned char> raw;
 
 class ReadPastEnd {
   public:
-    ReadPastEnd(){};
-};
+      ReadPastEnd(){};};
+
+class FastList {
+	public:
+		FastList(){
+			true_size = 0;}
+		Rcpp::List list;
+		int true_size;
+		void push_back(SEXPREC * ro){
+			if(true_size == list.size()) {
+				Rcpp::List newlist(2 * list.size() + 1);
+				if(true_size > 0) {
+					newlist[Rcpp::Range(0, true_size)] = list;}
+				list = newlist;}
+			list[true_size] = ro;
+			true_size = true_size + 1;}
+		void compact() {
+			std::cerr << "Compacting ..." << std::endl;
+			list.erase(true_size, list.size());}};
 
 int raw2int(const raw & data, int & start) {
   if(data.size() < start + 4) {
@@ -60,7 +77,7 @@ unsigned char get_type(const raw & data, int & start) {
   start = start + 1;
   return retval;}
 
-int unserialize(const raw & data, int & start, Rcpp::List & objs){
+int unserialize(const raw & data, int & start, FastList & objs){
   unsigned char type_code = get_type(data, start);
   switch(type_code) {
     case 0: {
@@ -68,7 +85,7 @@ int unserialize(const raw & data, int & start, Rcpp::List & objs){
       if(data.size() < start + length) {
         throw ReadPastEnd();}
       raw tmp(data.begin() + start, data.begin() + start + length);
-      objs.insert(objs.end(), Rcpp::wrap(tmp));
+      objs.push_back(Rcpp::wrap(tmp));
       start = start + length;}
     break;
     case 1: {
@@ -98,15 +115,15 @@ int unserialize(const raw & data, int & start, Rcpp::List & objs){
       if(data.size() < start + length) {
         throw ReadPastEnd();}
       std::string tmp(data.begin() + start, data.begin() + start + length);
-      objs.insert(objs.end(), Rcpp::wrap(tmp));
+      objs.push_back(Rcpp::wrap(tmp));
       start = start + length;}
     break;
     case 8: {
       int length = get_length(data, start);
-      Rcpp::List l(0);
+      FastList l;
       for(int i = 0; i < length; i++) {
         unserialize(data, start, l);}
-      objs.push_back(Rcpp::wrap(l));}
+      objs.push_back(Rcpp::wrap(l.list));}
     break;
     case 9: 
     case 10: {
@@ -118,7 +135,7 @@ int unserialize(const raw & data, int & start, Rcpp::List & objs){
         throw ReadPastEnd();}
       Rcpp::Function r_unserialize("unserialize");
       raw tmp(data.begin() + start, data.begin() + start + length);
-      objs.insert(objs.end(), r_unserialize(Rcpp::wrap(tmp)));
+      objs.push_back(r_unserialize(Rcpp::wrap(tmp)));
       start = start + length;}
     break;
     default: {
@@ -126,7 +143,7 @@ int unserialize(const raw & data, int & start, Rcpp::List & objs){
 
 
 SEXP typed_bytes_reader(SEXP data){
-	Rcpp::List objs(0);
+	FastList objs;
 	Rcpp::RawVector tmp(data);
 	raw rd(tmp.begin(), tmp.end());
 	int start = 0;
@@ -137,8 +154,10 @@ SEXP typed_bytes_reader(SEXP data){
     			current_start = start;}
   		catch (ReadPastEnd rpe){
     			break;}}
+    // crashes big time objs.compact();
 	return Rcpp::wrap(Rcpp::List::create(
-  		Rcpp::Named("objects") = Rcpp::wrap(objs),
+  		Rcpp::Named("objects") = Rcpp::wrap(objs.list),
+  		Rcpp::Named("true.size") = Rcpp::wrap(objs.true_size),
   		Rcpp::Named("length") = Rcpp::wrap(current_start)));}
 
 
