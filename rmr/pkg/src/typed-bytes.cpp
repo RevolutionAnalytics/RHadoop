@@ -123,7 +123,8 @@ int unserialize(const raw & data, int & start, FastList & objs){
       FastList l;
       for(int i = 0; i < length; i++) {
         unserialize(data, start, l);}
-      objs.push_back(Rcpp::wrap(l.list));}
+        Rcpp::List tmp(l.list.begin(), l.list.begin() + l.true_size);
+      objs.push_back(Rcpp::wrap(tmp));}
     break;
     case 9: 
     case 10: {
@@ -155,9 +156,9 @@ SEXP typed_bytes_reader(SEXP data){
   		catch (ReadPastEnd rpe){
     			break;}}
     // crashes big time objs.compact();
+    Rcpp::List list_tmp(objs.list.begin(), objs.list.begin() + objs.true_size);
 	return Rcpp::wrap(Rcpp::List::create(
-  		Rcpp::Named("objects") = Rcpp::wrap(objs.list),
-  		Rcpp::Named("true.size") = Rcpp::wrap(objs.true_size),
+  		Rcpp::Named("objects") = Rcpp::wrap(list_tmp),
   		Rcpp::Named("length") = Rcpp::wrap(current_start)));}
 
 
