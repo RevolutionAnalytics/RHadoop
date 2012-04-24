@@ -130,57 +130,47 @@ SEXP typed_bytes_reader(SEXP data){
 
 
 
-raw T2raw(unsigned char data) {
-  raw serialized(1);
-  serialized[0] = data;
-  return serialized;}
+void T2raw(unsigned char data, raw & serialized) {
+  serialized.push_back(data);}
 
-raw T2raw(int data) {
-  raw serialized(0);
+void T2raw(int data, raw & serialized) {
   for(int i = 0; i < 4; i++) {
-    serialized.push_back((data >> (8*(3 - i))) & 255);}
-  return serialized;}
+    serialized.push_back((data >> (8*(3 - i))) & 255);}}
 
-raw T2raw(unsigned long data) {
-  raw serialized(0);
+void T2raw(unsigned long data, raw & serialized) {
   for(int i = 0; i < 8; i++) {
-    serialized.push_back((data >> (8*(7 - i))) & 255);}
-  return serialized;}
+    serialized.push_back((data >> (8*(7 - i))) & 255);}}
 
-raw T2raw(double data) {
+void T2raw(double data, raw & serialized) {
   union udouble {
     double d;
     unsigned long u;} ud;
   ud.d = data;
-  return T2raw(ud.u);}
+  T2raw(ud.u, serialized);}
 
-raw length_header(int l){
-  return T2raw(l);}
+void length_header(int l, raw & serialized){
+  T2raw(l, serialized);}
 
 template <typename T> void serialize_one(const T & data, unsigned char type_code, raw & serialized) {
   serialized.push_back(type_code);
-  raw rd = T2raw(data);
-  serialized.insert(serialized.end(), rd.begin(), rd.end());}
+  T2raw(data, serialized);}
 
 template <typename T> void serialize_many(const T & data, unsigned char type_code, raw & serialized){
   serialized.push_back(type_code);
-  raw lh(length_header(data.size()));
-  serialized.insert(serialized.end(),lh.begin(), lh.end());
+  length_header(data.size(), serialized);
   serialized.insert(serialized.end(), data.begin(), data.end());}
 
 void serialize(const SEXP & object, raw & serialized); 
 
 template <typename T> void serialize_vector(const T & data, unsigned char type_code, raw & serialized){
   serialized.push_back(8);
-  raw lh(length_header(data.size()));
-  serialized.insert(serialized.end(), lh.begin(), lh.end());
+  length_header(data.size(), serialized);
   for(typename T::iterator i = data.begin(); i < data.end(); i++) {
     serialize_one(*i, type_code, serialized);}}
 
 template <typename T> void serialize_list(const T & data, raw & serialized){
   serialized.push_back(8);
-  raw lh(length_header(data.size()));
-  serialized.insert(serialized.end(), lh.begin(), lh.end());
+  length_header(data.size(), serialized);
   for(typename T::iterator i = data.begin(); i < data.end(); i++) {
     serialize(Rcpp::wrap(*i), serialized);}}
 
@@ -200,8 +190,7 @@ void serialize(const SEXP & object, raw & serialized) {
         serialize_many(data[0], 7, serialized);}
       else {
         serialized.push_back(8);
-        raw lh(length_header(data.size()));
-        serialized.insert(serialized.end(), lh.begin(), lh.end());
+        length_header(data.size(), serialized);
         for(int i = 0; i < data.size(); i++) {
           serialize_many(data[i], 7, serialized);}}}
       break; 
