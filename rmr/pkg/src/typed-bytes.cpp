@@ -211,6 +211,8 @@ template <typename T> void serialize_list(const T & data, raw & serialized){
 void serialize(const SEXP & object, raw & serialized) {
   Rcpp::RObject robj(object);
   switch(robj.sexp_type()) {
+  	case 0: {
+  	  std::cerr << "NULL not supported by typedbytes" << std::endl;}
     case 24: {//raw
       Rcpp::RawVector data(object);
       if(data.size() == 1){
@@ -255,7 +257,7 @@ void serialize(const SEXP & object, raw & serialized) {
       serialize_list(data, serialized);}
       break;
     default:
-    std::cerr << "object type not supported: " << robj.sexp_type();}}
+    std::cerr << "object type not supported: " << robj.sexp_type() << std::endl;}}
 
 SEXP typed_bytes_writer(SEXP objs){
 	raw serialized(0);
