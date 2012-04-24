@@ -202,8 +202,8 @@ typed.bytes.Cpp.input.format = function() {
       parsed.out = typed.bytes.Cpp.reader(raw.buffer)
       obj.buffer <<- c(obj.buffer, parsed.out$objects)
       raw.buffer <<- raw.buffer[-(1:parsed.out$parsed.length)]
-      read.size = 1.2 * read.size}
-    read.size = read.size/1.2
+      read.size = as.integer(1.2 * read.size)}
+    read.size = as.integer(read.size/1.2)
     retval = if(length(obj.buffer) == 0) NULL 
       else { 
         if(nrecs == 1)
