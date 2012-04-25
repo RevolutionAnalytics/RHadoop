@@ -179,12 +179,13 @@ typed.bytes.input.format = function() {
   function(con, nrecs) {
     out = replicate(2*nrecs, tbr(con), simplify = FALSE)
     out = out[!sapply(out, is.null)]
+    out = lapply(out, function(o)o[[1]])
     if(length(out) == 0) NULL
     else {
       if(nrecs == 1)
         keyval(out[[1]][[1]],out[[2]][[1]], vectorized = FALSE)
       else
-        keyval(out[2*(1:length(out)) - 1], out[2*(1:length(out))], vectorized = TRUE)}}}
+        keyval(out[2*(1:(length(out)/2)) - 1], out[2*(1:(length(out)/2))], vectorized = TRUE)}}}
 
 typed.bytes.output.format = function(k, v, con, vectorized) {
   ser = function(k,v) {
@@ -217,14 +218,15 @@ typed.bytes.Cpp.input.format = function() {
       if(parsed$length != 0) raw.buffer <<- raw.buffer[-(1:parsed$length)]
       read.size = as.integer(1.2 * read.size)}
     read.size = as.integer(read.size/1.2)
+    actual.recs = min(nrecs, length(obj.buffer)/2)
     retval = if(length(obj.buffer) == 0) NULL 
       else { 
         if(nrecs == 1)
           keyval(obj.buffer[[1]], obj.buffer[[2]], vectorized = FALSE)
-        else keyval(obj.buffer[2*(1:nrecs) - 1],
-                  obj.buffer[2*(1:nrecs)], 
+        else keyval(obj.buffer[2*(1:actual.recs) - 1],
+                  obj.buffer[2*(1:actual.recs)], 
                   vectorized = TRUE)}
-    obj.buffer <<- obj.buffer[-(1:nobjs)]
+    if(actual.recs > 0) obj.buffer <<- obj.buffer[-(1:(2*actual.recs))]
     retval}}
   
 typed.bytes.Cpp.output.format = function(k, v, con, vectorized){
