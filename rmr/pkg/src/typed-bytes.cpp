@@ -23,6 +23,10 @@ typedef std::deque<unsigned char> raw;
 class ReadPastEnd {
   public:
       ReadPastEnd(){};};
+      
+class UnsupportedType{
+	public:
+		UnsupportedType(){};};
 
 class FastList {
 	public:
@@ -37,6 +41,7 @@ class FastList {
 					newlist[Rcpp::Range(0, true_size)] = list;}
 				list = newlist;}
 			list[true_size] = ro;
+			true_size = true_size + 1;}};
 
 int raw2int(const raw & data, int & start) {
   if(data.size() < start + 4) {
@@ -101,7 +106,8 @@ int unserialize(const raw & data, int & start, FastList & objs){
     break;
     case 4:
     case 5: {
-      std::cerr << type_code << " type code not supported" << std::endl;}
+      std::cerr << type_code << " type code not supported" << std::endl;
+      throw UnsupportedType();}
     break;
     case 6: {
       objs.push_back(Rcpp::wrap(raw2double(data, start)));}
@@ -124,7 +130,8 @@ int unserialize(const raw & data, int & start, FastList & objs){
     break;
     case 9: 
     case 10: {
-      std::cerr << type_code << " type code not supported" << std::endl;}
+      std::cerr << type_code << " type code not supported" << std::endl;
+      throw UnsupportedType();}
     break;
     case 144: {
       int length = get_length(data, start);
@@ -136,7 +143,8 @@ int unserialize(const raw & data, int & start, FastList & objs){
       start = start + length;}
     break;
     default: {
-      std::cerr << "Unknown type code " << type_code << std::endl;}}}
+      std::cerr << "Unknown type code " << type_code << std::endl;
+      throw UnsupportedType();}}}
 
 
 SEXP typed_bytes_reader(SEXP data){
@@ -208,7 +216,9 @@ void serialize(const SEXP & object, raw & serialized) {
   Rcpp::RObject robj(object);
   switch(robj.sexp_type()) {
   	case 0: {
-  	  std::cerr << "NULL not supported by typedbytes" << std::endl;}
+  	  std::cerr << "NULL not supported by typedbytes" << std::endl;
+  	  //throw UnsupportedType;}
+  	  serialize_list(Rcpp::List(), serialized);}
     case 24: {//raw
       Rcpp::RawVector data(object);
       if(data.size() == 1){
@@ -252,8 +262,9 @@ void serialize(const SEXP & object, raw & serialized) {
       Rcpp::List data(object);
       serialize_list(data, serialized);}
       break;
-    default:
-    std::cerr << "object type not supported: " << robj.sexp_type() << std::endl;}}
+    default: {
+    std::cerr << "object type not supported: " << robj.sexp_type() << std::endl;
+    throw UnsupportedType();}}}
 
 SEXP typed_bytes_writer(SEXP objs){
 	raw serialized(0);
