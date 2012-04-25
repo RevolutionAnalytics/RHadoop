@@ -37,10 +37,6 @@ class FastList {
 					newlist[Rcpp::Range(0, true_size)] = list;}
 				list = newlist;}
 			list[true_size] = ro;
-			true_size = true_size + 1;}
-		void compact() {
-			std::cerr << "Compacting ..." << std::endl;
-			list.erase(true_size, list.size());}};
 
 int raw2int(const raw & data, int & start) {
   if(data.size() < start + 4) {
