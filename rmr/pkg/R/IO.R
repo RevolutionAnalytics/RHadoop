@@ -196,11 +196,11 @@ typed.bytes.output.format = function(k, v, con, vectorized) {
   else
     ser(k,v)}
 
-typed.bytes.Cpp.reader = function(objs) {
-  .Call("typed_bytes_reader", objs, PACKAGE = "rmr")
+typed.bytes.Cpp.reader = function(data) {
+  .Call("typed_bytes_reader", data, PACKAGE = "rmr")
 }
-typed.bytes.Cpp.writer = function(data) {
-  .Call("typed_bytes_writer", data, PACKAGE = "rmr")
+typed.bytes.Cpp.writer = function(objects) {
+  .Call("typed_bytes_writer", objects, PACKAGE = "rmr")
 }
 
 typed.bytes.Cpp.input.format = function() {
