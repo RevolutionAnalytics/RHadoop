@@ -392,11 +392,11 @@ to.dfs = function(object, output = dfs.tempfile(), format = "native") {
   else file.rename(tmp, dfsOutput)
   output}
 
-from.dfs = function(input, format = "native", to.data.frame = FALSE) {
+from.dfs = function(input, format = "native", to.data.frame = FALSE, vectorized = FALSE) {
   
   read.file = function(f) {
     con = file(f, if(format$mode == "text") "r" else "rb")
-    record.reader = make.record.reader(format$mode, format$format, con)
+    record.reader = make.record.reader(format$mode, format$format, con, if(vectorized) 1000 else 1)
     retval = make.fast.list()
     rec = record.reader()
     while(!is.null(rec)) {
