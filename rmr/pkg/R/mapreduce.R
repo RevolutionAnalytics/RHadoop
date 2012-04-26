@@ -470,6 +470,7 @@ mapreduce = function(
   if(is.character(output.format)) output.format = make.output.format(output.format)
   if(is.logical(vectorized$map)){
     vectorized$map = if (vectorized$map) 1000 else 1}
+  if(is.logical(structured)) structured = list(map = structured, reduce = structured)
   if(!missing(reduce.on.data.frame)) {
     warning("reduce.on.data.frame deprecated, use structured instead")
     structured$reduce = reduce.on.data.frame}
