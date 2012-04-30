@@ -91,32 +91,17 @@ keys = function(l) do.call(c, lapply(l, function(x) if(is.vectorized.keyval(x)) 
 values = function(l) do.call(c, lapply(l, function(x) if(is.vectorized.keyval(x)) x[[2]] else list(x[[2]])))
 keyval.to.list = function(kvl) {l = values(kvl); names(l) = keys(kvl); l}
 
-as.something = function(cl, x) #got tired of trying to troubleshoot as()
-  switch(as.character(cl), 
-         "character" = as.character(x), 
-         "logical" = as.logical(x), 
-         "numeric" = as.numeric(x),
-         "complex" = as.complex(x),
-         "integer" = as.integer(x))
-
-row.list.to.data.frame = function(x, col.names = NULL) {
-  if(is.null(x[[1]])) NULL
-  else{
-    col.classes = lapply(x[[1]], class) #assume all the same, trust user
-    if(is.null(col.names)) col.names = paste("V", 1:length(x[[1]]), sep = "")
-    df = do.call(
-      data.frame, 
-      lapply(seq_along(col.classes), 
-             function(i) as.something(col.classes[i], 
-                                      matrix(nrow = length(col.classes), 
-                                             unlist(x))[i,])))
-    names(df) = col.names
+to.data.frame = function(x, col.names = names(x[[1]])) {
+  if(is.data.frame(x)) x
+  else {
+    df = do.call(data.frame, do.call(function(...) mapply(function(...) list(c(...)), ...), x))
+    if(!is.null(col.names)) col.namenames(df) = col.names
     df}}
-
+  
 keyval.list.to.data.frame =
   function(x) {
-    kk = row.list.to.data.frame(keys(x))
-    vv = row.list.to.data.frame(values(x))
+    kk = to.data.frame(keys(x))
+    vv = to.data.frame(values(x))
     if(!is.null(nrow(kk)) && nrow(kk) == nrow(vv))
       cbind(kk, vv)
     else {
@@ -390,7 +375,7 @@ to.dfs = function(object, output = dfs.tempfile(), format = "native") {
   else file.rename(tmp, dfsOutput)
   output}
 
-from.dfs = function(input, format = "native", to.data.frame = FALSE, vectorized = FALSE) {
+from.dfs = function(input, format = "native", to.data.frame = FALSE, vectorized = FALSE, structured = FALSE) {
   
   read.file = function(f) {
     con = file(f, if(format$mode == "text") "r" else "rb")
@@ -425,7 +410,8 @@ from.dfs = function(input, format = "native", to.data.frame = FALSE, vectorized 
     tmp = fname
   retval = read.file(tmp)
   if(rmr.options.get("backend") == "hadoop") unlink(tmp)
-  if(to.data.frame) keyval.list.to.data.frame(retval)
+  if(to.data.frame) warning("to.data.frame deprecated, use structured instead")
+  if(to.data.frame || structured) keyval.list.to.data.frame(retval)
   else retval}
 
 # mapreduce
@@ -469,9 +455,11 @@ mapreduce = function(
   if(is.logical(vectorized$map)){
     vectorized$map = if (vectorized$map) 1000 else 1}
   if(is.logical(structured)) structured = list(map = structured, reduce = structured)
+  structured$map = structured$map && (vectorized$map != 1)
   if(!missing(reduce.on.data.frame)) {
     warning("reduce.on.data.frame deprecated, use structured instead")
     structured$reduce = reduce.on.data.frame}
+  if(is.null(structured$reduce)) structured$reduce = FALSE
   
   backend  =  rmr.options.get('backend')
   
@@ -515,16 +503,18 @@ mr.local = function(map,
                     lapply(do.call(c, 
                                    lapply(in.folder, 
                                           function(x) lapply(from.dfs(x, 
-                                                                      format = input.format), 
+                                                                      format = input.format,
+                                                                      vectorized = vectorized$map), 
                                                              function(y) {attr(y$val, 'rmr.input') = x; y}))), 
-                              function(kv) {retval = map(kv$key, kv$val)
+                              function(kv) {retval = map(if(structured$map) to.data.frame(kv$key) else kv$key, 
+                                                         if(structured$map) to.data.frame(kv$val) else kv$val)
                                             if(is.keyval(retval)) list(retval)
                                             else retval}))
   map.out = from.dfs(to.dfs(map.out))
   reduce.out = tapply(X = map.out, 
                       INDEX = sapply(keys(map.out), digest), 
                       FUN = function(x) reduce(x[[1]]$key, 
-                                             if(structured$reduce) row.list.to.data.frame(values(x)) else values(x)), 
+                                             if(structured$reduce) to.data.frame(values(x)) else values(x)), 
                       simplify = FALSE)
   if(!is.keyval(reduce.out[[1]]))
     reduce.out = do.call(c, reduce.out)
@@ -546,7 +536,8 @@ map.loop = function(map, record.reader, record.writer, profile) {
   if(profile) activate.profiling()
   kv = record.reader()
   while(!is.null(kv)) { 
-    out = map(kv$key, kv$val)
+    out = map(if(structured$map) to.data.frame(kv$key) else kv$key, 
+              if(structured$map) to.data.frame(kv$val) else kv$val)
     if(!is.null(out)) {
       if (is.keyval(out)) {record.writer(out$key, out$val, is.vectorized.keyval(out))}
       else {lapply(out, function(o) record.writer(o$key, o$val, is.vectorized.keyval(o)))}}
@@ -561,7 +552,7 @@ reduce.loop = function(reduce, record.reader, record.writer, structured, profile
   reduce.flush = function(current.key, vv) {
     out = reduce(current.key, 
                  if(structured) {
-                   row.list.to.data.frame(vv)}
+                   to.data.frame(vv)}
                  else {vv})
     if(!is.null(out)) {
       if(is.keyval(out)) {record.writer(out$key, out$val, is.vectorized.keyval(out))}
