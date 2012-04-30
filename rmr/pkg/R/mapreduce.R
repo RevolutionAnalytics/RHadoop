@@ -93,7 +93,7 @@ keyval.to.list = function(kvl) {l = values(kvl); names(l) = keys(kvl); l}
 
 
 from.data.frame = function(df, keycol = NULL) 
-  lapply(1:dim(df)[[1]], 
+  lapply(1:nrow(df), 
          function(i) keyval(if(is.null(keycol)) NULL else df[i, keycol], df[i, ] ))
 
 to.data.frame = function(x, col.names = names(x[[1]])) {
