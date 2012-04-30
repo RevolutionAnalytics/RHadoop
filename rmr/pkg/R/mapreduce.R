@@ -87,8 +87,8 @@ keyval = function(k, v, vectorized = FALSE) {
 
 is.keyval = function(kv) !is.null(attr(kv, 'rmr.keyval', exact = TRUE))
 is.vectorized.keyval = function(kv) !is.null(attr(kv, 'rmr.vectorized', exact = TRUE))
-keys = function(l) lapply(l, function(x) x[[1]])
-values = function(l) lapply(l, function(x) x[[2]])
+keys = function(l) do.call(c, lapply(l, function(x) if(is.vectorized.keyval(x)) x[[1]] else list(x[[1]])))
+values = function(l) do.call(c, lapply(l, function(x) if(is.vectorized.keyval(x)) x[[2]] else list(x[[2]])))
 keyval.to.list = function(kvl) {l = values(kvl); names(l) = keys(kvl); l}
 
 as.something = function(cl, x) #got tired of trying to troubleshoot as()
