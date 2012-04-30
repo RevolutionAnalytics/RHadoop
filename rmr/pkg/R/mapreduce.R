@@ -91,6 +91,11 @@ keys = function(l) do.call(c, lapply(l, function(x) if(is.vectorized.keyval(x)) 
 values = function(l) do.call(c, lapply(l, function(x) if(is.vectorized.keyval(x)) x[[2]] else list(x[[2]])))
 keyval.to.list = function(kvl) {l = values(kvl); names(l) = keys(kvl); l}
 
+
+from.data.frame = function(df, keycol = NULL) 
+  lapply(1:dim(df)[[1]], 
+         function(i) keyval(if(is.null(keycol)) NULL else df[i, keycol], df[i, ] ))
+
 to.data.frame = function(x, col.names = names(x[[1]])) {
   if(is.data.frame(x)) x
   else {
@@ -237,9 +242,6 @@ make.output.format = function(format = native.output.format,
   list(mode = mode, format = format, streaming.format = streaming.format)}
 
 
-from.data.frame = function(df, keycol = NULL) 
-  lapply(1:dim(df)[[1]], 
-         function(i) keyval(if(is.null(keycol)) NULL else df[i, keycol], df[i, ] ))
 
 #output cmp
 cmp = function(x, y) isTRUE(all.equal(x[order(unlist(keys(x)))], 
