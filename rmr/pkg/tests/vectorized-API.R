@@ -1,8 +1,8 @@
+library(rmr)
 #timings from macbook pro i7 2011, standalone CDH3, one core
 
 #create input
 input = to.dfs(list(keyval(rep(list(1), 10^6),1:10^6, vectorized=T)))
-
 
 
 #pass through
@@ -38,7 +38,7 @@ system.time({out.vec = mapreduce(input,
 #default both FALSE
 mapreduce(input, 
           map = function(k,v) {filter = predicate(k,v); 
-                               keyval(k[filter,], v[filter,], vectorized = TRUE)},
+                               keyval(k[filter,1], v[filter,1], vectorized = TRUE)},
           vectorized = list(map = TRUE),
           structured = list(map = TRUE))
 
