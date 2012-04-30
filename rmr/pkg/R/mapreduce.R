@@ -78,14 +78,12 @@ status = function(what) {
 ## could think of this as a utils section
 ## keyval manip
 keyval = function(k, v, vectorized = FALSE) {
+  kv = list(key = k, val = v)
+  attr(kv, 'rmr.keyval') = TRUE
   if(vectorized) {
-    kv = keyval(k,v)
     attr(kv, 'rmr.vectorized') = TRUE
-    kv}
-  else {
-    kv = list(key = k, val = v)
-    attr(kv, 'rmr.keyval') = TRUE
-    kv}}
+  }
+  kv}
 
 is.keyval = function(kv) !is.null(attr(kv, 'rmr.keyval', exact = TRUE))
 is.vectorized.keyval = function(kv) !is.null(attr(kv, 'rmr.vectorized', exact = TRUE))
