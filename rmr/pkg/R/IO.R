@@ -70,7 +70,7 @@ text.output.format = function(k, v, con, vectorized) {
     ser(k,v)
   writeLines(out, sep = "\n", con = con)}
 
-csv.input.format = function(..., nrecs) function(con) {
+csv.input.format = function(...) function(con, nrecs) {
   df = 
     tryCatch(
       read.table(file = con, nrows = nrecs, header = FALSE, ...),
