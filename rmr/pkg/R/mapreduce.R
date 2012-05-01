@@ -99,7 +99,7 @@ from.data.frame = function(df, keycol = NULL)
 to.data.frame = function(x, col.names = names(x[[1]])) {
   if(is.data.frame(x)) x
   else {
-    df = do.call(data.frame, do.call(function(...) mapply(function(...) list(c(...)), ...), x))
+    df = do.call(data.frame, do.call(function(...) mapply(function(...) list(c(...)), ...), as.list(x)))
     if(!is.null(col.names)) col.namenames(df) = col.names
     df}}
   
