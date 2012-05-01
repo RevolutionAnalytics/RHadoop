@@ -100,7 +100,7 @@ to.data.frame = function(x, col.names = names(x[[1]])) {
   if(is.data.frame(x)) x
   else {
     df = do.call(data.frame, do.call(function(...) mapply(function(...) list(c(...)), ...), as.list(x)))
-    if(!is.null(col.names)) col.namenames(df) = col.names
+    if(!is.null(col.names)) names(df) = col.names
     df}}
   
 keyval.list.to.data.frame =
@@ -378,10 +378,11 @@ to.dfs = function(object, output = dfs.tempfile(), format = "native") {
   output}
 
 from.dfs = function(input, format = "native", to.data.frame = FALSE, vectorized = FALSE, structured = FALSE) {
-  
+  if(is.logical(vectorized)) nrecs = if(vectorized) 1000 else 1
+  else nrecs = vectorized 
   read.file = function(f) {
     con = file(f, if(format$mode == "text") "r" else "rb")
-    record.reader = make.record.reader(format$mode, format$format, con, if(vectorized) 1000 else 1)
+    record.reader = make.record.reader(format$mode, format$format, con, nrecs)
     retval = make.fast.list()
     rec = record.reader()
     while(!is.null(rec)) {
@@ -454,6 +455,7 @@ mapreduce = function(
       dfs.tempfile()
   if(is.character(input.format)) input.format = make.input.format(input.format)
   if(is.character(output.format)) output.format = make.output.format(output.format)
+  if(is.logical(vectorized)) vectorized = list(map = vectorized, reduce = vectorized)
   if(is.logical(vectorized$map)){
     vectorized$map = if (vectorized$map) 1000 else 1}
   if(is.logical(structured)) structured = list(map = structured, reduce = structured)

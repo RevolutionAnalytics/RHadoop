@@ -86,10 +86,11 @@ system.time({out.vec = mapreduce(input.bigsum,
 # 43.190   2.063  41.723 
 #vec version, structured case
 mapreduce(input, 
-          map  = function(k,v) keyval(group(k,v),v, vectorized = TRUE), 
+          map  = function(k,v) keyval(1, sum(v), vectorized = TRUE), 
           reduce = function(k, vv) keyval(k, sum(vv)) , 
+          combine = T,
           vectorized = list(map = TRUE),
-          structured = list(map = TRUE))
+          structured = T)
 #or structured = c(T,T) or list(map = TRUE, reduce = TRUE)
 
 
@@ -113,8 +114,8 @@ system.time({out.vec = mapreduce(input.ep,
 # user  system elapsed 
 # 114.444   3.720 110.314 
 #vec version, structured case
-mapreduce(input, 
+mapreduce(input.ep, 
           map = function(k,v) keyval(group(k,v), v),
-          reduce = function(k, vv) keyval(k, some.function(vv))
-          vectorized.map = TRUE,
-          structured = list(map = TRUE))
+          reduce = function(k, vv) keyval(k, aggregate(vv)),
+          vectorized = list(map = TRUE),
+          structured = T)
