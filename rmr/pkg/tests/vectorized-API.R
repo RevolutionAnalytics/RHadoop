@@ -59,8 +59,9 @@ system.time({out.vec = mapreduce(input.select,
 # user  system elapsed 
 # 38.363   1.790  32.683 
 #vec version, structured case
-mapreduce(input,
-          map = function(k,v) keyval(k, v[,fields], vectorized = TRUE),
+field = 2
+mapreduce(input = input.select,
+          map = function(k,v) keyval(k[,1], v[,field], vectorized = TRUE),
           vectorized = list(map = TRUE),
           structured = list(map = TRUE))
 
