@@ -155,11 +155,12 @@ SEXP typed_bytes_reader(SEXP data){
 	int current_start = 0;
 	while(rd.size() > start) {
  		try{
-    			unserialize(rd, start, objs);
-    			current_start = start;}
+   			unserialize(rd, start, objs);
+   			current_start = start;}
   		catch (ReadPastEnd rpe){
-    			break;}}
-    // crashes big time objs.compact();
+    			break;}
+		catch (UnsupportedType ue) {
+    			return R_NilValue;}}
     Rcpp::List list_tmp(objs.list.begin(), objs.list.begin() + objs.true_size);
 	return Rcpp::wrap(Rcpp::List::create(
   		Rcpp::Named("objects") = Rcpp::wrap(list_tmp),
@@ -270,7 +271,10 @@ SEXP typed_bytes_writer(SEXP objs){
 	raw serialized(0);
 	Rcpp::List objects(objs);
 	for(Rcpp::List::iterator i = objects.begin(); i < objects.end(); i++) {
-	  serialize(Rcpp::wrap(*i), serialized);}
+	  	try{
+	  		serialize(Rcpp::wrap(*i), serialized);}
+  		catch(UnsupportedType ut){
+  			return R_NilValue;}}
 	return Rcpp::wrap(serialized);}	
 
 
