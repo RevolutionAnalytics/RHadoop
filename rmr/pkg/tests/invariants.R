@@ -85,7 +85,7 @@ for (be in c("local", "hadoop")) {
           format = make.input.format(
             format = "csv", 
             colClasses = lapply(df[1,], class)), 
-          to.data.frame = TRUE), 
+          structured = TRUE), 
         tolerance = 1e-4, 
         check.attributes = FALSE))},
             generators = list(tdgg.data.frame()),
