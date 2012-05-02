@@ -26,7 +26,13 @@ class ReadPastEnd {
       
 class UnsupportedType{
 	public:
-		UnsupportedType(){};};
+		unsigned char type_code;
+		UnsupportedType(unsigned char _type_code){
+			type_code = _type_code;};};
+		
+class NegativeLength {
+	public:
+		NegativeLength(){};};
 
 class FastList {
 	public:
@@ -69,7 +75,10 @@ double raw2double(const raw & data, int & start) {
   return ud.d;} 
 
 int get_length(const raw & data, int & start) {
-  return raw2int(data, start);}
+  int len = raw2int(data, start);
+  if(len < 0) {
+  	throw NegativeLength();}
+  return len;}
 
 unsigned char get_type(const raw & data, int & start) {
   if(data.size() < start + 1) {
@@ -106,8 +115,7 @@ int unserialize(const raw & data, int & start, FastList & objs){
     break;
     case 4:
     case 5: {
-      std::cerr << type_code << " type code not supported" << std::endl;
-      throw UnsupportedType();}
+      throw UnsupportedType(type_code);}
     break;
     case 6: {
       objs.push_back(Rcpp::wrap(raw2double(data, start)));}
@@ -130,8 +138,7 @@ int unserialize(const raw & data, int & start, FastList & objs){
     break;
     case 9: 
     case 10: {
-      std::cerr << type_code << " type code not supported" << std::endl;
-      throw UnsupportedType();}
+      throw UnsupportedType(type_code);}
     break;
     case 144: {
       int length = get_length(data, start);
@@ -143,8 +150,7 @@ int unserialize(const raw & data, int & start, FastList & objs){
       start = start + length;}
     break;
     default: {
-      std::cerr << "Unknown type code " << type_code << std::endl;
-      throw UnsupportedType();}}}
+      throw UnsupportedType(type_code);}}}
 
 
 SEXP typed_bytes_reader(SEXP data){
@@ -160,7 +166,10 @@ SEXP typed_bytes_reader(SEXP data){
   		catch (ReadPastEnd rpe){
     			break;}
 		catch (UnsupportedType ue) {
-    			return R_NilValue;}}
+				std::cerr << "Unsupported type: " << ue.type_code << std::endl;
+    			return R_NilValue;}
+		catch (NegativeLength nl) {
+			    std::cerr << "Negative length Exception" << std::endl;}}
     Rcpp::List list_tmp(objs.list.begin(), objs.list.begin() + objs.true_size);
 	return Rcpp::wrap(Rcpp::List::create(
   		Rcpp::Named("objects") = Rcpp::wrap(list_tmp),
@@ -187,8 +196,10 @@ void T2raw(double data, raw & serialized) {
   ud.d = data;
   T2raw(ud.u, serialized);}
 
-void length_header(int l, raw & serialized){
-  T2raw(l, serialized);}
+void length_header(int len, raw & serialized){
+  if(len < 0) {
+  	throw NegativeLength();}
+  T2raw(len, serialized);}
 
 template <typename T> void serialize_one(const T & data, unsigned char type_code, raw & serialized) {
   serialized.push_back(type_code);
@@ -217,9 +228,8 @@ void serialize(const SEXP & object, raw & serialized) {
   Rcpp::RObject robj(object);
   switch(robj.sexp_type()) {
   	case NILSXP: {
-  	  std::cerr << "NULL not supported by typedbytes" << std::endl;
-  	  //throw UnsupportedType;}
-  	  serialize_list(Rcpp::List(), serialized);}
+  	  throw UnsupportedType(NILSXP);}
+  	  break;
     case RAWSXP: {//raw
       Rcpp::RawVector data(object);
       if(data.size() == 1){
@@ -264,8 +274,7 @@ void serialize(const SEXP & object, raw & serialized) {
       serialize_list(data, serialized);}
       break;
     default: {
-    std::cerr << "object type not supported: " << robj.sexp_type() << std::endl;
-    throw UnsupportedType();}}}
+    throw UnsupportedType(robj.sexp_type());}}}
 
 SEXP typed_bytes_writer(SEXP objs){
 	raw serialized(0);
