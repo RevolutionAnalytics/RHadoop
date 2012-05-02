@@ -25,7 +25,7 @@ native.text.input.format = function(con, nrecs) {
     deser.one = function(x) unserialize(charToRaw(gsub("\\\\n", "\n", x)))
     keyval(lapply.nrecs(splits, function(x) de(x[1]), nrecs = nrecs),
            lapply.nrecs(splits, function(x) de(x[2]), nrecs = nrecs),
-           vectorized = nrecs == 1)}}
+           vectorized = nrecs > 1)}}
 
 native.text.output.format = function(k, v, con, vectorized) {
   ser = function(x) gsub("\n", "\\\\n", rawToChar(serialize(x, ascii=T, conn = NULL)))
@@ -76,7 +76,7 @@ csv.input.format = function(...) function(con, nrecs) {
       read.table(file = con, nrows = nrecs, header = FALSE, ...),
       error = function(e) NULL)
   if(is.null(df) || dim(df)[[1]] == 0) NULL
-  else keyval(NULL, df, vectorized = nrecs == 1)}
+  else keyval(NULL, df, vectorized = nrecs > 1)}
 
 csv.output.format = function(...) function(k, v, con, vectorized) 
   # this is vectorized only, need to think what that means
