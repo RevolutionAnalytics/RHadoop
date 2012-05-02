@@ -215,18 +215,18 @@ template <typename T> void serialize_list(const T & data, raw & serialized){
 void serialize(const SEXP & object, raw & serialized) {
   Rcpp::RObject robj(object);
   switch(robj.sexp_type()) {
-  	case 0: {
+  	case NILSXP: {
   	  std::cerr << "NULL not supported by typedbytes" << std::endl;
   	  //throw UnsupportedType;}
   	  serialize_list(Rcpp::List(), serialized);}
-    case 24: {//raw
+    case RAWSXP: {//raw
       Rcpp::RawVector data(object);
       if(data.size() == 1){
         serialize_one(data[0], 1, serialized);}
       else {
         serialize_many(data, 0, serialized);}}
       break;
-    case 16: { //character
+    case STRSXP: { //character
       Rcpp::CharacterVector data(object);
       if(data.size() == 1) {
         serialize_many(data[0], 7, serialized);}
@@ -236,21 +236,21 @@ void serialize(const SEXP & object, raw & serialized) {
         for(int i = 0; i < data.size(); i++) {
           serialize_many(data[i], 7, serialized);}}}
       break; 
-    case 10: { //logical
+    case LGLSXP: { //logical
       Rcpp::LogicalVector data(object);
       if(data.size() == 1) {
         serialize_one(data[0], 2, serialized);}
       else {
         serialize_vector(data, 2, serialized);}}
       break;
-    case 14: { //numeric
+    case REALSXP: { //numeric
       Rcpp::NumericVector data(object);
       if(data.size() == 1) {
         serialize_one(data[0], 6, serialized);}
       else {
         serialize_vector(data, 6, serialized);}}
       break;
-    case 13: { //factor, integer
+    case INTSXP: { //factor, integer
       Rcpp::IntegerVector data(object);
       if(data.size() == 1) {
         serialize_one(data[0], 3, serialized);}
@@ -258,7 +258,7 @@ void serialize(const SEXP & object, raw & serialized) {
         serialize_vector(data, 3, serialized);}
       }
       break;
-    case 19: { //list
+    case VECSXP: { //list
       Rcpp::List data(object);
       serialize_list(data, serialized);}
       break;
