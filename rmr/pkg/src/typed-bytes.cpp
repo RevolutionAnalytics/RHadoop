@@ -169,7 +169,8 @@ SEXP typed_bytes_reader(SEXP data){
 				std::cerr << "Unsupported type: " << ue.type_code << std::endl;
     			return R_NilValue;}
 		catch (NegativeLength nl) {
-			    std::cerr << "Negative length Exception" << std::endl;}}
+			    std::cerr << "Negative length Exception" << std::endl;
+			    return R_NilValue;}}
     Rcpp::List list_tmp(objs.list.begin(), objs.list.begin() + objs.true_size);
 	return Rcpp::wrap(Rcpp::List::create(
   		Rcpp::Named("objects") = Rcpp::wrap(list_tmp),

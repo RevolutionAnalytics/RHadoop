@@ -197,7 +197,10 @@ typed.bytes.output.format = function(k, v, con, vectorized) {
   else
     ser(k,v)}
 
+
+
 typed.bytes.Cpp.reader = function(data) {
+  cat(data, file = "/tmp/rmr-errors", append=T)
   .Call("typed_bytes_reader", data, PACKAGE = "rmr")
 }
 typed.bytes.Cpp.writer = function(objects) {
