@@ -251,7 +251,7 @@ void serialize(const SEXP & object, raw & serialized) {
     case LGLSXP: { //logical
       Rcpp::LogicalVector data(object);
       if(data.size() == 1) {
-        serialize_one(data[0], 2, serialized);}
+        serialize_one((unsigned char)data[0], 2, serialized);}
       else {
         serialize_vector(data, 2, serialized);}}
       break;
