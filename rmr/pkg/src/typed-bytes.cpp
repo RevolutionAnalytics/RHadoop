@@ -90,7 +90,7 @@ unsigned char get_type(const raw & data, int & start) {
 int unserialize(const raw & data, int & start, FastList & objs){
   unsigned char type_code = get_type(data, start);
   switch(type_code) {
-    case 0: {
+    case 0: { //raw bytes
       int length = get_length(data, start);
       if(data.size() < start + length) {
         throw ReadPastEnd();}
@@ -98,29 +98,29 @@ int unserialize(const raw & data, int & start, FastList & objs){
       objs.push_back(Rcpp::wrap(tmp));
       start = start + length;}
     break;
-    case 1: {
+    case 1: { //byte
       if(data.size() < start + 1) {
         throw ReadPastEnd();}
       objs.push_back(Rcpp::wrap((unsigned char)(data[start])));
       start = start + 1; }
     break;
-    case 2: {
+    case 2: { //boolean
       if(data.size() < start + 1) {
         throw ReadPastEnd();}
       objs.push_back(Rcpp::wrap(bool(data[start])));
       start = start + 1;}
     break;
-    case 3: {
+    case 3: { //integer
       objs.push_back(Rcpp::wrap(raw2int(data, start)));}      
     break;
-    case 4:
-    case 5: {
+    case 4: //long
+    case 5: { //float
       throw UnsupportedType(type_code);}
     break;
-    case 6: {
+    case 6: { //double
       objs.push_back(Rcpp::wrap(raw2double(data, start)));}
     break;
-    case 7: {
+    case 7: { //string
       int length = get_length(data, start);
       if(data.size() < start + length) {
         throw ReadPastEnd();}
@@ -128,7 +128,7 @@ int unserialize(const raw & data, int & start, FastList & objs){
       objs.push_back(Rcpp::wrap(tmp));
       start = start + length;}
     break;
-    case 8: {
+    case 8: { //vector
       int length = get_length(data, start);
       FastList l;
       for(int i = 0; i < length; i++) {
@@ -136,11 +136,11 @@ int unserialize(const raw & data, int & start, FastList & objs){
         Rcpp::List tmp(l.list.begin(), l.list.begin() + l.true_size);
       objs.push_back(Rcpp::wrap(tmp));}
     break;
-    case 9: 
-    case 10: {
+    case 9: // list (255 terminated vector
+    case 10: { //map
       throw UnsupportedType(type_code);}
     break;
-    case 144: {
+    case 144: { //R serialization
       int length = get_length(data, start);
       if(data.size() < start + length) {
         throw ReadPastEnd();}
