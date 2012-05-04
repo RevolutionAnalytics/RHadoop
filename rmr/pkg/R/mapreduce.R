@@ -837,7 +837,7 @@ optimize = function(mrex) {
 
 ##other
 
-rmr.reload = function() {
+reload = function() {
   detach("package:rmr", unload=T)
   library.dynam.unload("rmr",system.file(package="rmr"))
   library(rmr)}
