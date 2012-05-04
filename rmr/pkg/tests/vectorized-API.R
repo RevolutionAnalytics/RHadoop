@@ -10,7 +10,7 @@ system.time({out = mapreduce(input, map = function(k,v) keyval(k,v))})
 # user  system elapsed 
 # 179.345   4.671 179.111
 #vec version
-#vectorized.map says how many records to process in one map, default 1
+#vectorized$map says how many records to process in one map, default 1000 when T, 1 when F
 system.time({out.vec = mapreduce(input,
                        map = function(k,v) keyval(k,v, vectorized = TRUE), 
                        vectorized = list(map = TRUE))})
