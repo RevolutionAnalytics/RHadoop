@@ -197,11 +197,8 @@ typed.bytes.output.format = function(k, v, con, vectorized) {
   else
     ser(k,v)}
 
-
-
-typed.bytes.Cpp.reader = function(data) {
-  cat(data, file = "/tmp/rmr-errors", append=T)
-  .Call("typed_bytes_reader", data, PACKAGE = "rmr")
+typed.bytes.Cpp.reader = function(data, nobjs) {
+    .Call("typed_bytes_reader", data, nobjs, PACKAGE = "rmr") 
 }
 typed.bytes.Cpp.writer = function(objects) {
   .Call("typed_bytes_writer", objects, PACKAGE = "rmr")
@@ -216,7 +213,7 @@ typed.bytes.Cpp.input.format = function() {
     while(length(obj.buffer) < nobjs) {
       raw.buffer <<- c(raw.buffer, readBin(con, raw(), read.size))
       if(length(raw.buffer) == 0) break;
-      parsed = typed.bytes.Cpp.reader(raw.buffer)
+      parsed = typed.bytes.Cpp.reader(raw.buffer, nobjs)
       obj.buffer <<- c(obj.buffer, parsed$objects)
       if(parsed$length != 0) raw.buffer <<- raw.buffer[-(1:parsed$length)]
       read.size = as.integer(1.2 * read.size)}

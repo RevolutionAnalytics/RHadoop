@@ -15,6 +15,7 @@
 #include "typed-bytes.h"
 #include <deque>
 #include <iostream>
+#include <algorithm>
 
 typedef std::deque<unsigned char> raw;
 #include <string>
@@ -33,21 +34,6 @@ class UnsupportedType{
 class NegativeLength {
 	public:
 		NegativeLength(){};};
-
-class FastList {
-	public:
-		FastList(){
-			true_size = 0;}
-		Rcpp::List list;
-		int true_size;
-		void push_back(SEXPREC * ro){
-			if(true_size == list.size()) {
-				Rcpp::List newlist(2 * list.size() + 1);
-				if(true_size > 0) {
-					newlist[Rcpp::Range(0, true_size)] = list;}
-				list = newlist;}
-			list[true_size] = ro;
-			true_size = true_size + 1;}};
 
 int raw2int(const raw & data, int & start) {
   if(data.size() < start + 4) {
@@ -87,82 +73,92 @@ unsigned char get_type(const raw & data, int & start) {
   start = start + 1;
   return retval;}
 
-int unserialize(const raw & data, int & start, FastList & objs){
-  unsigned char type_code = get_type(data, start);
+int unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & objs_end){
+  unsigned char type_code = get_type(data, raw_start);
   switch(type_code) {
     case 0: { //raw bytes
-      int length = get_length(data, start);
-      if(data.size() < start + length) {
+      int length = get_length(data, raw_start);
+      if(data.size() < raw_start + length) {
         throw ReadPastEnd();}
-      raw tmp(data.begin() + start, data.begin() + start + length);
-      objs.push_back(Rcpp::wrap(tmp));
-      start = start + length;}
+      raw tmp(data.begin() + raw_start, data.begin() + raw_start + length);
+      objs[objs_end] = Rcpp::wrap(tmp);
+      raw_start = raw_start + length;
+      objs_end = objs_end + 1;}
     break;
     case 1: { //byte
-      if(data.size() < start + 1) {
+      if(data.size() < raw_start + 1) {
         throw ReadPastEnd();}
-      objs.push_back(Rcpp::wrap((unsigned char)(data[start])));
-      start = start + 1; }
+      objs[objs_end] = Rcpp::wrap((unsigned char)(data[raw_start]));
+      raw_start = raw_start + 1; 
+      objs_end = objs_end + 1;}
     break;
     case 2: { //boolean
-      if(data.size() < start + 1) {
+      if(data.size() < raw_start + 1) {
         throw ReadPastEnd();}
-      objs.push_back(Rcpp::wrap(bool(data[start])));
-      start = start + 1;}
+      objs[objs_end] = Rcpp::wrap(bool(data[raw_start]));
+      raw_start = raw_start + 1;
+      objs_end = objs_end + 1;}
     break;
     case 3: { //integer
-      objs.push_back(Rcpp::wrap(raw2int(data, start)));}      
+      objs[objs_end] = Rcpp::wrap(raw2int(data, raw_start));
+      objs_end = objs_end + 1;}      
     break;
     case 4: //long
     case 5: { //float
       throw UnsupportedType(type_code);}
     break;
     case 6: { //double
-      objs.push_back(Rcpp::wrap(raw2double(data, start)));}
+      objs[objs_end] = Rcpp::wrap(raw2double(data, raw_start));
+      objs_end = objs_end + 1;}
     break;
     case 7: { //string
-      int length = get_length(data, start);
-      if(data.size() < start + length) {
+      int length = get_length(data, raw_start);
+      if(data.size() < raw_start + length) {
         throw ReadPastEnd();}
-      std::string tmp(data.begin() + start, data.begin() + start + length);
-      objs.push_back(Rcpp::wrap(tmp));
-      start = start + length;}
+      std::string tmp(data.begin() + raw_start, data.begin() + raw_start + length);
+      objs[objs_end] = Rcpp::wrap(tmp);
+      raw_start = raw_start + length;
+      objs_end = objs_end + 1;}
     break;
     case 8: { //vector
-      int length = get_length(data, start);
-      FastList l;
+      int length = get_length(data, raw_start);
+      Rcpp::List list(length);
+      int list_end = 0; 
       for(int i = 0; i < length; i++) {
-        unserialize(data, start, l);}
-        Rcpp::List tmp(l.list.begin(), l.list.begin() + l.true_size);
-      objs.push_back(Rcpp::wrap(tmp));}
+   	    unserialize(data, raw_start, list, list_end);}
+        objs[objs_end] = Rcpp::wrap(list);
+        objs_end = objs_end + 1;}
     break;
-    case 9: // list (255 terminated vector
+    case 9: // list (255 terminated vector)
     case 10: { //map
       throw UnsupportedType(type_code);}
     break;
     case 144: { //R serialization
-      int length = get_length(data, start);
-      if(data.size() < start + length) {
+      int length = get_length(data, raw_start);
+      if(data.size() < raw_start + length) {
         throw ReadPastEnd();}
       Rcpp::Function r_unserialize("unserialize");
-      raw tmp(data.begin() + start, data.begin() + start + length);
-      objs.push_back(r_unserialize(Rcpp::wrap(tmp)));
-      start = start + length;}
+      raw tmp(data.begin() + raw_start, data.begin() + raw_start + length);
+      objs[objs_end] = r_unserialize(Rcpp::wrap(tmp));
+      raw_start = raw_start + length;
+      objs_end = objs_end + 1;}
     break;
     default: {
       throw UnsupportedType(type_code);}}}
 
 
-SEXP typed_bytes_reader(SEXP data){
-	FastList objs;
+SEXP typed_bytes_reader(SEXP data, SEXP _nobjs){
+	Rcpp::NumericVector nobjs(_nobjs);
+	Rcpp::List objs(nobjs[0]);
 	Rcpp::RawVector tmp(data);
 	raw rd(tmp.begin(), tmp.end());
-	int start = 0;
-	int current_start = 0;
-	while(rd.size() > start) {
+	int raw_start = 0;
+	int parsed_raw_start = 0;
+	int objs_end = 0;
+	while(rd.size() > raw_start, objs_end < nobjs[0]) {
  		try{
-   			unserialize(rd, start, objs);
-   			current_start = start;}
+   			unserialize(rd, raw_start, objs, objs_end);
+   			parsed_raw_start = raw_start;}
   		catch (ReadPastEnd rpe){
     			break;}
 		catch (UnsupportedType ue) {
@@ -171,10 +167,10 @@ SEXP typed_bytes_reader(SEXP data){
 		catch (NegativeLength nl) {
 			    std::cerr << "Negative length Exception" << std::endl;
 			    return R_NilValue;}}
-    Rcpp::List list_tmp(objs.list.begin(), objs.list.begin() + objs.true_size);
+    Rcpp::List list_tmp(objs.begin(), objs.begin() + objs_end);
 	return Rcpp::wrap(Rcpp::List::create(
   		Rcpp::Named("objects") = Rcpp::wrap(list_tmp),
-  		Rcpp::Named("length") = Rcpp::wrap(current_start)));}
+  		Rcpp::Named("length") = Rcpp::wrap(parsed_raw_start)));}
 
 
 
