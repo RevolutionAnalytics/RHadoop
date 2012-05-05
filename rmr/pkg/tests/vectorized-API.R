@@ -17,7 +17,7 @@ system.time({out.vec = mapreduce(input,
 # user  system elapsed 
 # 46.370   1.830  42.669 
 
-
+ 
 
 #filter
 predicate = function(k,v) unlist(v)%%2 == 0
