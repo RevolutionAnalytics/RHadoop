@@ -100,8 +100,9 @@ to.data.frame = function(x, col.names = names(x[[1]])) {
   if(is.data.frame(x)) x
   else {
     df = as.data.frame(do.call(rbind, as.list(x)))
-    for(col in 1:ncol(df)){
-      df[,col] = unlist(df[,col ])}
+    if(ncol(df) > 0) 
+      for(col in 1:ncol(df)){
+        df[,col] = unlist(df[,col ])}
     if(!is.null(col.names)) names(df) = col.names
     df}}
   
@@ -209,7 +210,7 @@ make.input.format = function(format = native.input.format(),
                           warning("The native.text format is deprecated in favor of native. Please switch and convert your data.")}, 
            native = {format = native.input.format() 
                             mode = "binary"}, 
-           sequence.typedbytes = {format = typed.bytes.Cpp.input.format() 
+           sequence.typedbytes = {format = typed.bytes.input.format() 
                                   mode = "binary"})}
   if(is.null(streaming.format) && mode == "binary") 
     streaming.format = "org.apache.hadoop.streaming.AutoInputFormat"
@@ -239,7 +240,7 @@ make.output.format = function(format = native.output.format,
            native = {format = native.output.format 
                      mode = "binary"
                      streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"}, 
-           sequence.typedbytes = {format = typed.bytes.Cpp.output.format 
+           sequence.typedbytes = {format = typed.bytes.output.format 
                                   mode = "binary"
                                   streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"})}
   mode = match.arg(mode)
