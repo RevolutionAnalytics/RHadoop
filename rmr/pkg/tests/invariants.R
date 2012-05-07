@@ -55,6 +55,14 @@ for (be in c("local", "hadoop")) {
       close(con)
       stopifnot( all.equal(x,y))})
     
+  unit.test(function(l) {
+    l = rapply(l, how = 'replace', 
+               function(x){
+                 if(is.null(x)) list()
+                 else as.list(x)})
+    isTRUE(all.equal(l, rmr:::typed.bytes.Cpp.reader(rmr:::typed.bytes.Cpp.writer(l), length(l) + 5)$objects))},
+            generators = list(tdgg.list()))
+  
   ##keys and values
   unit.test(function(kvl) isTRUE(all.equal(kvl, 
                                apply(cbind(keys(kvl), 
