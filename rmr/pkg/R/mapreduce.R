@@ -255,11 +255,9 @@ cmp = function(x, y) isTRUE(all.equal(x[order(unlist(keys(x)))],
 
 hdfs = function(cmd, intern, ...) {
   if (is.null(names(list(...)))) {
-    argnames = sapply(1:length(list(...)), function(i) "")
-  }
+    argnames = sapply(1:length(list(...)), function(i) "")}
   else {
-    argnames = names(list(...))
-  }
+    argnames = names(list(...))}
   system(paste(hadoop.cmd(), " dfs -", cmd, " ", 
               paste(
                 apply(cbind(argnames, list(...)), 1, 
