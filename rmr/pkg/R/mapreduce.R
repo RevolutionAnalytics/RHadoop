@@ -99,7 +99,9 @@ from.data.frame = function(df, keycol = NULL)
 to.data.frame = function(x, col.names = names(x[[1]])) {
   if(is.data.frame(x)) x
   else {
-    df = do.call(rbind, as.list(x))
+    df = as.data.frame(do.call(rbind, as.list(x)))
+    for(col in 1:ncol(df)){
+      df[,col] = unlist(df[,col ])}
     if(!is.null(col.names)) names(df) = col.names
     df}}
   
