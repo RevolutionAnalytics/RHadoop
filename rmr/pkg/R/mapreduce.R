@@ -249,8 +249,11 @@ make.output.format = function(format = native.output.format,
 
 
 #output cmp
-cmp = function(x, y) isTRUE(all.equal(x[order(unlist(keys(x)))], 
-                                      y[order(unlist(keys(y)))]))
+cmp = function(x, y) {
+  ox = order(lapply(keys(x), digest))
+  oy = order(lapply(keys(y), digest))
+  isTRUE(all.equal(keys(x)[ox], keys(y)[oy])) &&
+  isTRUE(all.equal(values(x)[ox], values(y)[oy]))}
 
 #hdfs section
 
