@@ -205,7 +205,8 @@ make.input.format = function(format = native.input.format(),
            csv = {format = csv.input.format(...); 
                   mode = "text"}, 
            native.text = {format = native.text.input.format(); 
-                     mode = "text"}, 
+                          mode = "text"
+                          warning("The native.text format is deprecated in favor of native. Please switch and convert your data.")}, 
            native = {format = native.input.format(); 
                             mode = "binary"}, 
            sequence.typedbytes = {format = typed.bytes.Cpp.input.format(); 
@@ -233,7 +234,8 @@ make.output.format = function(format = native.output.format,
                   streaming.format = NULL}, 
            native.text = {format = native.text.output.format; 
                           mode = "text";
-                          streaming.format = NULL}, 
+                          streaming.format = NULL;
+                          warning("The native.text format is deprecated in favor of native. Please switch and convert your data.")}, 
            native = {format = native.output.format; 
                      mode = "binary";
                      streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"}, 
