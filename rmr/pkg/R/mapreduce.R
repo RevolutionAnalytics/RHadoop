@@ -198,18 +198,18 @@ make.input.format = function(format = native.input.format(),
   if(is.character(format)) {
     format = match.arg(format, IO.formats)
     switch(format, 
-           text = {format = text.input.format; 
+           text = {format = text.input.format 
                    mode = "text"}, 
-           json = {format = json.input.format; 
+           json = {format = json.input.format 
                    mode = "text"}, 
-           csv = {format = csv.input.format(...); 
+           csv = {format = csv.input.format(...) 
                   mode = "text"}, 
-           native.text = {format = native.text.input.format(); 
+           native.text = {format = native.text.input.format() 
                           mode = "text"
                           warning("The native.text format is deprecated in favor of native. Please switch and convert your data.")}, 
-           native = {format = native.input.format(); 
+           native = {format = native.input.format() 
                             mode = "binary"}, 
-           sequence.typedbytes = {format = typed.bytes.Cpp.input.format(); 
+           sequence.typedbytes = {format = typed.bytes.Cpp.input.format() 
                                   mode = "binary"})}
   if(is.null(streaming.format) && mode == "binary") 
     streaming.format = "org.apache.hadoop.streaming.AutoInputFormat"
@@ -223,24 +223,24 @@ make.output.format = function(format = native.output.format,
   if(is.character(format)) {
     format = match.arg(format, IO.formats)
     switch(format, 
-           text = {format = text.output.format; 
-                   mode = "text";
+           text = {format = text.output.format
+                   mode = "text"
                    streaming.format = NULL},
-           json = {format = json.output.format; 
-                   mode = "text";
+           json = {format = json.output.format
+                   mode = "text"
                    streaming.format = NULL}, 
-           csv = {format = csv.output.format(...); 
-                  mode = "text";
+           csv = {format = csv.output.format(...)
+                  mode = "text"
                   streaming.format = NULL}, 
-           native.text = {format = native.text.output.format; 
-                          mode = "text";
-                          streaming.format = NULL;
+           native.text = {format = native.text.output.format
+                          mode = "text"
+                          streaming.format = NULL
                           warning("The native.text format is deprecated in favor of native. Please switch and convert your data.")}, 
-           native = {format = native.output.format; 
-                     mode = "binary";
+           native = {format = native.output.format 
+                     mode = "binary"
                      streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"}, 
-           sequence.typedbytes = {format = typed.bytes.Cpp.output.format; 
-                                  mode = "binary";
+           sequence.typedbytes = {format = typed.bytes.Cpp.output.format 
+                                  mode = "binary"
                                   streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"})}
   mode = match.arg(mode)
   list(mode = mode, format = format, streaming.format = streaming.format)}
