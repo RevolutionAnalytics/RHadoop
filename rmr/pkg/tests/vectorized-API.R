@@ -19,6 +19,8 @@ for (be in c("local", "hadoop")) {
   
   system.time({out = from.dfs(input, vectorized = input.size)})
   stopifnot(rmr:::cmp(data, out))
+#   user  system elapsed 
+#   12.534   4.175  15.644 
   
   #pass through
   system.time({out = mapreduce(input, map = function(k,v) keyval(k,v))})
