@@ -13,12 +13,13 @@ for (be in c("local", "hadoop")) {
   input.size = if(be == "local") 10^4
               else 10^6
   
-  input = to.dfs(list(keyval(rep(list(1), input.size),as.list(1:input.size), vectorized=T)))
+  data = list(keyval(rep(list(1), input.size),as.list(1:input.size), vectorized=T))
+  input = to.dfs(data)
   
   #read and write
   
-  system.time({out = from.dfs(to.dfs(), vectorized = TRUE)})
-  stopifnot(rmr:::cmp(input, out))
+  system.time({out = from.dfs(input, vectorized = input.size)})
+  stopifnot(rmr:::cmp(data, out))
   
   #pass through
   system.time({out = mapreduce(input, map = function(k,v) keyval(k,v))})
