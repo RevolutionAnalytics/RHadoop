@@ -1,6 +1,12 @@
 library(rmr)
 #timings from macbook pro i7 2011, standalone CDH3, one core
   
+test = function (out.1, out.2) {
+  stopifnot(
+    rmr:::cmp(
+      from.dfs(out.1),
+      from.dfs(out.2)))}
+
 for (be in c("local", "hadoop")) {
   rmr.options.set(backend = be)
   #create input
