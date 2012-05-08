@@ -63,7 +63,7 @@ for (be in c("local", "hadoop")) {
   #select
   #input for select
   input.select = to.dfs(list(keyval(1:input.size, replicate(input.size, list(a=1,b=2,c=3), simplify=F), vectorized=T)))
-  select = function(v) v$b
+  select = function(v) v[[2]]
   select.vect = function(v) do.call(rbind,v)[,2] #names not preserved with current impl. of typedbytes
   system.time({out = mapreduce(input.select,
             map = function(k,v) keyval(k, select(v)))})
