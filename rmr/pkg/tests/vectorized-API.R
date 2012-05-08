@@ -10,8 +10,7 @@ test = function (out.1, out.2) {
 for (be in c("local", "hadoop")) {
   rmr.options.set(backend = be)
   #create input
-  input.size = if(be == "local") 10^4
-              else 10^6
+  input.size = if(be == "local") 10^4 else 10^6
   
   data = list(keyval(rep(list(1), input.size),as.list(1:input.size), vectorized=T))
   input = to.dfs(data)
