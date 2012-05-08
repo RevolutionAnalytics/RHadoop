@@ -250,8 +250,8 @@ make.output.format = function(format = native.output.format,
 
 #output cmp
 cmp = function(x, y) {
-  ox = order(lapply(keys(x), digest))
-  oy = order(lapply(keys(y), digest))
+  ox = order(sapply(keys(x), digest))
+  oy = order(sapply(keys(y), digest))
   isTRUE(all.equal(keys(x)[ox], keys(y)[oy])) &&
   isTRUE(all.equal(values(x)[ox], values(y)[oy]))}
 
