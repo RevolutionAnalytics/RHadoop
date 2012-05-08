@@ -62,4 +62,4 @@ for (be in c("local", "hadoop")) {
   rmr.options.set(backend = be)
   out[[be]] = weighted.linear.least.squares(to.dfs(X), to.dfs(y), to.dfs(W))}
 
-stopifnot(rmr:::cmp(out[['local']], out[['hadoop']]))
+stopifnot(isTRUE(all.equal(out[['local']], out[['hadoop']])))
