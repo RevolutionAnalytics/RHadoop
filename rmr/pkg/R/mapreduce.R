@@ -252,8 +252,8 @@ make.output.format = function(format = native.output.format,
 cmp = function(x, y) {
   ox = order(sapply(keys(x), digest))
   oy = order(sapply(keys(y), digest))
-  isTRUE(all.equal(keys(x)[ox], keys(y)[oy])) &&
-  isTRUE(all.equal(values(x)[ox], values(y)[oy]))}
+  isTRUE(all.equal(keys(x)[ox], keys(y)[oy], check.attributes = FALSE)) &&
+  isTRUE(all.equal(values(x)[ox], values(y)[oy], check.attributes = FALSE))}
 
 #hdfs section
 
@@ -555,7 +555,7 @@ map.loop = function(map, record.reader, record.writer, profile) {
   if(profile) close.profiling()
   invisible()}
 
-list.cmp = function(ll, e) sapply(ll, function(l) isTRUE(all.equal(e, l)))
+list.cmp = function(ll, e) sapply(ll, function(l) isTRUE(all.equal(e, l, check.attributes = FALSE)))
 ## using isTRUE(all.equal(x)) because identical() was too strict, but on paper it should be it
 
 reduce.loop = function(reduce, record.reader, record.writer, structured, profile) {

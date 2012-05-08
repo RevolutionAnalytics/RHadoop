@@ -32,7 +32,7 @@ for (be in c("local", "hadoop")) {
                          vectorized = list(map = TRUE))})
   # user  system elapsed 
   # 46.370   1.830  42.669 
-  stopifnot(rmr:::cmp(out, out.vec))  
+  test(out, out.vec)  
    
   
   #filter
@@ -48,7 +48,7 @@ for (be in c("local", "hadoop")) {
             vectorized = list(map = TRUE))})
   # user  system elapsed 
   # 44.716   1.707  40.361 
-  stopifnot(rmr:::cmp(out, out.vec))  
+  test(out, out.vec)  
   #vec version, structured case
   #structured says to convert list to data frame. Fails if not possible. If TRUE,
   #it means both map and reduce, or it is a named vector or list(map = TRUE, reduce = FALSE)
@@ -76,7 +76,7 @@ for (be in c("local", "hadoop")) {
             vectorized = list(map = TRUE))})
   # user  system elapsed 
   # 38.363   1.790  32.683
-  stopifnot(rmr:::cmp(out, out.vec))  
+  test(out, out.vec)  
   #vec version, structured case
   field = 2
   system.time({out.struct = 
@@ -104,7 +104,7 @@ for (be in c("local", "hadoop")) {
                                    vectorized = list(map = TRUE))})
   # user  system elapsed 
   # 43.190   2.063  41.723 
-  stopifnot(rmr:::cmp(out, out.vec))  
+  test(out, out.vec)  
   #vec version, structured case
   system.time({out.struct = 
     mapreduce(input, 
@@ -133,7 +133,7 @@ for (be in c("local", "hadoop")) {
                                    vectorized = list(map = TRUE))})
   # user  system elapsed 
   # 114.444   3.720 110.314 
-  stopifnot(rmr:::cmp(out, out.vec))  
+  test(out, out.vec)  
   #vec version, structured case
   system.time({out.struct = 
     mapreduce(input.ep, 
