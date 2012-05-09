@@ -106,7 +106,7 @@ for (be in c("local", "hadoop")) {
   test(out, out.vec)  
   #vec version, structured case
   system.time({out.struct = 
-    mapreduce(input, 
+    mapreduce(input.bigsum, 
               map  = function(k,v) keyval(1, sum(v), vectorized = TRUE), 
               reduce = function(k, vv) keyval(k, sum(vv)) , 
               combine = T,
