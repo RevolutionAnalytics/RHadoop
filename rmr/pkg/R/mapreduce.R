@@ -33,6 +33,7 @@ make.fast.list = function(l = list()) {
 
 rmr.options = new.env(parent=emptyenv())
 rmr.options$backend = "hadoop"
+rmr.options$vectorized.nrows = 1000
 rmr.options$profile.nodes = FALSE
 rmr.options$depend.check = FALSE
 #rmr.options$managed.dir = "/var/rmr/managed"
@@ -384,7 +385,7 @@ to.dfs = function(object, output = dfs.tempfile(), format = "native") {
   output}
 
 from.dfs = function(input, format = "native", to.data.frame = FALSE, vectorized = FALSE, structured = FALSE) {
-  if(is.logical(vectorized)) nrecs = if(vectorized) 1000 else 1
+  if(is.logical(vectorized)) nrecs = if(vectorized) rmr.options$vectorized.nrows else 1
   else nrecs = vectorized 
   read.file = function(f) {
     con = file(f, if(format$mode == "text") "r" else "rb")
@@ -463,7 +464,7 @@ mapreduce = function(
   if(is.character(output.format)) output.format = make.output.format(output.format)
   if(is.logical(vectorized)) vectorized = list(map = vectorized, reduce = vectorized)
   if(is.logical(vectorized$map)){
-    vectorized$map = if (vectorized$map) 1000 else 1}
+    vectorized$map = if (vectorized$map) rmr.options$vectorized.nrows else 1}
   if(is.logical(structured)) structured = list(map = structured, reduce = structured)
   structured$map = structured$map && (vectorized$map != 1)
   if(!missing(reduce.on.data.frame)) {
