@@ -15,7 +15,7 @@
 branch=master
 sudo apt-get install -y r-base-core
 sudo R --no-save << EOF
-install.packages(c('RJSONIO', 'itertools', 'digest'), repos="http://cran.revolutionanalytics.com", INSTALL_opts=c('--byte-compile') )
+install.packages(c('Rcpp', 'RJSONIO', 'itertools', 'digest'), repos="http://cran.revolutionanalytics.com", INSTALL_opts=c('--byte-compile') )
 EOF
 
 curl  -L   https://github.com/RevolutionAnalytics/RHadoop/tarball/$branch | tar zx

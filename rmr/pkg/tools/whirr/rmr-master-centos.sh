@@ -18,7 +18,7 @@
 sudo yum -y --enablerepo=epel install R R-devel
 
 sudo R --no-save << EOF
-install.packages(c('RJSONIO', 'itertools', 'digest'), repos="http://cran.revolutionanalytics.com", INSTALL_opts=c('--byte-compile') )
+install.packages(c('Rcpp', 'RJSONIO', 'itertools', 'digest'), repos="http://cran.revolutionanalytics.com", INSTALL_opts=c('--byte-compile') )
 EOF
 
 # install the rmr package from RHadoop:
