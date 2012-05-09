@@ -4,8 +4,8 @@ library(rmr)
 test = function (out.1, out.2) {
   stopifnot(
     rmr:::cmp(
-      from.dfs(out.1),
-      from.dfs(out.2)))}
+      from.dfs(out.1, vectorized = TRUE),
+      from.dfs(out.2, vectorized = TRUE)))}
 
 for (be in c("local", "hadoop")) {
   rmr.options.set(backend = be)
@@ -60,7 +60,7 @@ for (be in c("local", "hadoop")) {
                                    keyval(k[filter,1], v[filter,1], vectorized = TRUE)},
               vectorized = list(map = TRUE),
               structured = list(map = TRUE))})
-              
+  test(out, out.struct)              
   
   #select
   #input for select
@@ -85,9 +85,7 @@ for (be in c("local", "hadoop")) {
               map = function(k,v) keyval(k[,1], v[,field], vectorized = TRUE),
               vectorized = list(map = TRUE),
               structured = list(map = TRUE))})
-    
-  
-  
+  test(out, out.struct)              
                
   #bigsum
   input.bigsum = to.dfs(list(keyval(rep(1, input.size), rnorm(input.size), vectorized=T)))
@@ -114,7 +112,7 @@ for (be in c("local", "hadoop")) {
               combine = T,
               vectorized = list(map = TRUE),
               structured = T)})
-    
+  test(out, out.struct)              
                
   #embarrassingly parallel
   input.ep = to.dfs(list(keyval(1:input.size, rnorm(input.size), vectorized=T)))
@@ -142,4 +140,6 @@ for (be in c("local", "hadoop")) {
               reduce = function(k, vv) keyval(k, aggregate(vv)),
               vectorized = list(map = TRUE),
               structured = T)})
+  test(out, out.struct)              
+  
 }
