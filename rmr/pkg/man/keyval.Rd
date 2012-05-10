@@ -7,16 +7,16 @@
 \description{Creates a key-value pair from its arguments or extracts keys or values from a list of pairs.}
 
 \usage{
-  keys(l)
-  values(l)
+  keys(kvl)
+  values(kvl)
   keyval(k, v, vectorized = FALSE)
 }
 
 \arguments{
-\item{l}{list containing key/value pairs}
+\item{kvl}{list containing key/value pairs}
 \item{k}{the desired key or a list when v is missing}
 \item{v}{the desired value}
-\item{vectorized}{\code{k,v} are to be construed as a single key-value pair but as a list of keys and list of values of equal length, to be matched positionally}
+\item{vectorized}{\code{k,v} are to be construed not as a single key-value pair but as a list of keys and list of values of equal length, to be matched positionally}
 }
 
 \details{The keyval helper function should be used to create return values for the map and reduce functions passed as parameters to

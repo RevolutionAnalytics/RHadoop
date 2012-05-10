@@ -7,7 +7,7 @@
 
 \usage{
 to.dfs(object, output = dfs.tempfile(), format = "native")
-from.dfs(input, format = "native", to.data.frame = FALSE)
+from.dfs(input, format = "native", to.data.frame = FALSE, vectorized = FALSE, structured = FALSE)
 }
 
 \arguments{
@@ -15,7 +15,9 @@ from.dfs(input, format = "native", to.data.frame = FALSE)
   \item{input}{A file in HDFS to read from or the return value of \code{mapreduce}}
   \item{output}{A file in HDFS to read from}
   \item{format}{For \code{from.dfs} either a string naming a format, the same as those allowed by \code{make.input.format}, or the value returned by \code{\link{make.input.format}}. The same is true for \code{to.dfs}, but refer to \code{\link{make.output.format}} instead.}
-  \item{to.data.frame}{Do what it takes to return a data frame.}
+  \item{to.data.frame}{Deprecated, use \code{structured} instead}
+  \item{vectorized}{Return a list of vectorized key-value pairs, that is each key value contains multiple keys and values (see \code{\link{keyval}})}
+  \item{structured}{When data is structured, that is a well defined concept of a column that can be represented with an atomic vector, return a data frame; it will likely fail on unstructured data and results are unpredictable.}
 }
 
 
