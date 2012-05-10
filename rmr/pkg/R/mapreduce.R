@@ -88,8 +88,16 @@ keyval = function(k, v, vectorized = FALSE) {
 
 is.keyval = function(kv) !is.null(attr(kv, 'rmr.keyval', exact = TRUE))
 is.vectorized.keyval = function(kv) !is.null(attr(kv, 'rmr.vectorized', exact = TRUE))
-keys = function(l) do.call(c, lapply(l, function(x) if(is.vectorized.keyval(x)) x[[1]] else list(x[[1]])))
-values = function(l) do.call(c, lapply(l, function(x) if(is.vectorized.keyval(x)) x[[2]] else list(x[[2]])))
+
+keyval.project = function(i) {
+  function(kvl) {
+    vectorized = all(sapply(kvl, is.vectorized.keyval))
+    a.list = lapply(kvl, function(x) x[[i]])
+    if(all(sapply(a.list, is.data.frame)) && vectorized) do.call(rbind, a.list)
+    else do.call(c, lapply(a.list, function(x) if(is.vectorized.keyval(x)) x else list(x)))}}
+keys = keyval.project(1)
+values = keyval.project(2)
+
 keyval.to.list = function(kvl) {l = values(kvl); names(l) = keys(kvl); l}
 
 
@@ -421,7 +429,8 @@ from.dfs = function(input, format = "native", to.data.frame = FALSE, vectorized 
   retval = read.file(tmp)
   if(rmr.options.get("backend") == "hadoop") unlink(tmp)
   if(to.data.frame) warning("to.data.frame deprecated, use structured instead")
-  if(to.data.frame || structured) keyval.list.to.data.frame(retval)
+  if(to.data.frame || structured) 
+    keyval.list.to.data.frame(retval)
   else retval}
 
 # mapreduce
