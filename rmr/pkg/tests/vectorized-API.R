@@ -146,7 +146,7 @@ for (be in c("local", "hadoop")) {
   #vec version, structured case
   system.time({out.struct = 
     mapreduce(input.ep, 
-              map = function(k,v) keyval(group(k,v), v),
+              map = function(k,v) keyval(group(k,v), v[,1], vectorized = TRUE),
               reduce = function(k, vv) keyval(k, aggregate(vv)),
               vectorized = list(map = TRUE),
               structured = TRUE)})
