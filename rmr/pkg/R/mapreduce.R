@@ -664,7 +664,7 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
       if(is.null(fun)) parent.env(environment()) else {
         if (is.function(fun)) environment(fun)
         else fun}
-    save(list = ls(all = TRUE, envir = envir), file = fun.env, envir = envir)
+    save(list = ls(all.names = TRUE, envir = envir), file = fun.env, envir = envir)
     fun.env}
 
   libs = sub("package:", "", grep("package", search(), value = T))
