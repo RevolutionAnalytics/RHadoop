@@ -28,7 +28,7 @@ native.text.input.format = function(con, nrecs) {
            vectorized = nrecs > 1)}}
 
 native.text.output.format = function(k, v, con, vectorized) {
-  ser = function(x) gsub("\n", "\\\\n", rawToChar(serialize(x, ascii=T, conn = NULL)))
+  ser = function(x) gsub("\n", "\\\\n", rawToChar(serialize(x, ascii=T, connection = NULL)))
   ser.pair = function(k,v) paste(ser(k), ser(v), sep = "\t")
   out = 
     if(vectorized)
