@@ -2,8 +2,8 @@
 \alias{from.dfs}
 \alias{to.dfs}
 
-\title{Read and write R lists to HDFS}
-\description{Utility function that reads and writes lists to HDFS}
+\title{Read or write R lists from or to HDFS}
+\description{Functions that read or write lists from or to HDFS}
 
 \usage{
 to.dfs(object, output = dfs.tempfile(), format = "native")
