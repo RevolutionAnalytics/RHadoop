@@ -50,7 +50,8 @@ rmr.options.get = function(...) {
       opts[[args]]}}
 
 rmr.options.set = function(backend = c("hadoop", "local"), 
-                           profile.nodes = NULL#, 
+                           profile.nodes = NULL,
+                           vectorized.nrows = NULL#, 
                            #depend.check = NULL, 
                            #managed.dir = NULL
                            ) {
