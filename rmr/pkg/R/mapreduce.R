@@ -347,6 +347,7 @@ dfs.is.dir = function(f) {
   else file.info(f)['isdir']}
 
 dfs.empty = function(f) {
+  f = to.dfs.path(f)
   if(rmr.options.get('backend') == 'hadoop') {
     if(dfs.is.dir(f)) {
       all(
