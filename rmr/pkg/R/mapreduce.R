@@ -317,7 +317,7 @@ pretty.hdfs.ls = function(...) {
   if(length(crud) > 0)
     ls.out = ls.out[-crud,]
   if(class(ls.out) == "character") ls.out = t(ls.out)
-  df = as.data.frame(ls.out)
+  df = as.data.frame(ls.out,stringsAsFactors=F)
   names(df) = c("mode", "links", "owner", "group", "size", "last.modified.date", "last.modified.time", "path")
   df$links = as.numeric(sapply(as.character(df$links), function(x) if (x=="-") 0 else x))
   df$size = as.numeric(as.character(df$size))
