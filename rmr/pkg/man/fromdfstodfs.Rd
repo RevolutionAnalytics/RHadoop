@@ -12,15 +12,12 @@ from.dfs(input, format = "native", to.data.frame = FALSE, vectorized = FALSE, st
 
 \arguments{
   \item{object}{A list of key-value pairs as returned by keyvalue to write to HDFS; also, experimentally, a data frame}
-  \item{input}{A file in HDFS to read from or the return value of \code{mapreduce}}
-  \item{output}{A file in HDFS to read from}
+  \item{input}{A file in HDFS or other storage layer as specified by active backend to read from or the return value of \code{mapreduce}}
+  \item{output}{A file in HDFS or other storage layer as specified by active backend to read from}
   \item{format}{For \code{from.dfs} either a string naming a format, the same as those allowed by \code{make.input.format}, or the value returned by \code{\link{make.input.format}}. The same is true for \code{to.dfs}, but refer to \code{\link{make.output.format}} instead.}
   \item{to.data.frame}{Deprecated, use \code{structured} instead}
   \item{vectorized}{Return a list of vectorized key-value pairs, that is each key value contains multiple keys and values (see \code{\link{keyval}})}
-  \item{structured}{When data is structured, that is a well defined concept of a column that can be represented with an atomic vector, return a data frame; it will likely fail on unstructured data and results are unpredictable.}
-}
-
-
+  \item{structured}{When data is structured, that is it has columns that can be represented as atomic vectors, return a data frame; it will likely fail on unstructured data and results are unpredictable.}}
 
 \details{ These functions allow to move data from RAM to HDFS and back. Keep in mind that the capacity of these two storage media is
 different by two or three orders of magnitude, roughly speaking, so the conversion will make sense only in specific situations. These
