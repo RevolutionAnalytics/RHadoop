@@ -18,6 +18,7 @@ sudo R --no-save << EOF
 install.packages(c('Rcpp', 'RJSONIO', 'itertools', 'digest'), repos="http://cran.revolutionanalytics.com", INSTALL_opts=c('--byte-compile') )
 EOF
 
+rm -rf $branch RHadoop
 curl  -L   https://github.com/RevolutionAnalytics/RHadoop/tarball/$branch | tar zx
 mv RevolutionAnalytics-RHadoop* RHadoop
 sudo R CMD INSTALL --byte-compile RHadoop/rmr/pkg/

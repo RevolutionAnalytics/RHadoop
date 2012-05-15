@@ -18,6 +18,7 @@ sudo R --no-save << EOF
 install.packages(c('Rcpp', 'RJSONIO', 'itertools', 'digest'), repos =  "http://lib.stat.cmu.edu/R/CRAN")
 EOF
 
+rm -rf $branch RHadoop
 curl  -L   https://github.com/RevolutionAnalytics/RHadoop/tarball/$branch | tar zx
 mv RevolutionAnalytics-RHadoop* RHadoop
 sudo R CMD INSTALL RHadoop/rmr/pkg/
