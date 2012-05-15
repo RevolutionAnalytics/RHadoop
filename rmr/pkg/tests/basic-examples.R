@@ -35,7 +35,7 @@ for (be in c("local", "hadoop")) {
   from.dfs(mapreduce(input = groups, map = function(k,v) keyval(v, 1), reduce = function(k,vv) keyval(k, length(vv))))
   
   
-  ##input can be any RevoStreaming file (our own format)
+  ## input can be any rmr-native format file
   ## pred can be function(x) x > 0
   ## it will be evaluated on the value only, not on the key
   
