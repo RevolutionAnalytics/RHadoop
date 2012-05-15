@@ -47,8 +47,8 @@ for (be in c("local", "hadoop")) {
               map = filtermap(pred))
   }
 
-  filtertest = to.dfs(lapply (1:10, function(i) keyval(NULL, rnorm(2))))
-  from.dfs(mrfilter(input = filtertest, pred =function(x) x > 0))}
+  filtertest = to.dfs(lapply (1:10, function(i) keyval(NULL, rnorm(1))))
+  from.dfs(mrfilter(input = filtertest, pred = function(x) x > 0))}
 
 
 ## pipeline of two filters, sweet
