@@ -22,18 +22,18 @@ typedef std::deque<unsigned char> raw;
 #include <iostream>
 
 class ReadPastEnd {
-  public:
-      ReadPastEnd(){};};
-      
+public:
+  ReadPastEnd(){};};
+
 class UnsupportedType{
-	public:
-		unsigned char type_code;
-		UnsupportedType(unsigned char _type_code){
-			type_code = _type_code;};};
-		
+public:
+  unsigned char type_code;
+  UnsupportedType(unsigned char _type_code){
+    type_code = _type_code;};};
+
 class NegativeLength {
-	public:
-		NegativeLength(){};};
+public:
+  NegativeLength(){};};
 
 int raw2int(const raw & data, int & start) {
   if(data.size() < start + 4) {
@@ -49,9 +49,9 @@ long raw2long(const raw & data, int & start) {
     throw ReadPastEnd();  }
   long retval = 0;
   for(int i = 0; i < 8; i++) {
-    retval = retval + (((long long) data[start + i] & 255) << (8*(7 - i)));}
+    retval = retval + (((long) data[start + i] & 255) << (8*(7 - i)));}
   start = start + 8; 
-return retval;}
+  return retval;}
 
 double raw2double(const raw & data, int & start) {
   union udouble {
@@ -84,33 +84,36 @@ int unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & objs
       objs[objs_end] = Rcpp::wrap(tmp);
       raw_start = raw_start + length;
       objs_end = objs_end + 1;}
-    break;
+      break;
     case 1: { //byte
       if(data.size() < raw_start + 1) {
         throw ReadPastEnd();}
       objs[objs_end] = Rcpp::wrap((unsigned char)(data[raw_start]));
       raw_start = raw_start + 1; 
       objs_end = objs_end + 1;}
-    break;
+      break;
     case 2: { //boolean
       if(data.size() < raw_start + 1) {
         throw ReadPastEnd();}
       objs[objs_end] = Rcpp::wrap(bool(data[raw_start]));
       raw_start = raw_start + 1;
       objs_end = objs_end + 1;}
-    break;
+      break;
     case 3: { //integer
       objs[objs_end] = Rcpp::wrap(raw2int(data, raw_start));
       objs_end = objs_end + 1;}      
-    break;
-    case 4: //long
+      break;
+    case 4: { //long
+      objs[objs_end] = Rcpp::wrap(raw2long(data, raw_start));
+      objs_end = objs_end + 1;} 
+      break;
     case 5: { //float
       throw UnsupportedType(type_code);}
-    break;
+      break;
     case 6: { //double
       objs[objs_end] = Rcpp::wrap(raw2double(data, raw_start));
       objs_end = objs_end + 1;}
-    break;
+      break;
     case 7: { //string
       int length = get_length(data, raw_start);
       if(data.size() < raw_start + length) {
@@ -119,20 +122,20 @@ int unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & objs
       objs[objs_end] = Rcpp::wrap(tmp);
       raw_start = raw_start + length;
       objs_end = objs_end + 1;}
-    break;
+      break;
     case 8: { //vector
       int length = get_length(data, raw_start);
       Rcpp::List list(length);
       int list_end = 0; 
       for(int i = 0; i < length; i++) {
    	    unserialize(data, raw_start, list, list_end);}
-        objs[objs_end] = Rcpp::wrap(list);
-        objs_end = objs_end + 1;}
-    break;
+      objs[objs_end] = Rcpp::wrap(list);
+      objs_end = objs_end + 1;}
+      break;
     case 9: // list (255 terminated vector)
     case 10: { //map
       throw UnsupportedType(type_code);}
-    break;
+      break;
     case 144: { //R serialization
       int length = get_length(data, raw_start);
       if(data.size() < raw_start + length) {
@@ -142,7 +145,7 @@ int unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & objs
       objs[objs_end] = r_unserialize(Rcpp::wrap(tmp));
       raw_start = raw_start + length;
       objs_end = objs_end + 1;}
-    break;
+      break;
     default: {
       throw UnsupportedType(type_code);}}}
 
@@ -157,20 +160,20 @@ SEXP typed_bytes_reader(SEXP data, SEXP _nobjs){
 	int objs_end = 0;
 	while(rd.size() > raw_start, objs_end < nobjs[0]) {
  		try{
-   			unserialize(rd, raw_start, objs, objs_end);
-   			parsed_raw_start = raw_start;}
-  		catch (ReadPastEnd rpe){
-    			break;}
+      unserialize(rd, raw_start, objs, objs_end);
+      parsed_raw_start = raw_start;}
+    catch (ReadPastEnd rpe){
+      break;}
 		catch (UnsupportedType ue) {
-				std::cerr << "Unsupported type: " << ue.type_code << std::endl;
-    			return R_NilValue;}
+      std::cerr << "Unsupported type: " << ue.type_code << std::endl;
+      return R_NilValue;}
 		catch (NegativeLength nl) {
-			    std::cerr << "Negative length Exception" << std::endl;
-			    return R_NilValue;}}
-    Rcpp::List list_tmp(objs.begin(), objs.begin() + objs_end);
+      std::cerr << "Negative length Exception" << std::endl;
+      return R_NilValue;}}
+  Rcpp::List list_tmp(objs.begin(), objs.begin() + objs_end);
 	return Rcpp::wrap(Rcpp::List::create(
-  		Rcpp::Named("objects") = Rcpp::wrap(list_tmp),
-  		Rcpp::Named("length") = Rcpp::wrap(parsed_raw_start)));}
+                                       Rcpp::Named("objects") = Rcpp::wrap(list_tmp),
+                                       Rcpp::Named("length") = Rcpp::wrap(parsed_raw_start)));}
 
 
 
@@ -183,7 +186,7 @@ void T2raw(int data, raw & serialized) {
     serialized.push_back((data >> (8*(3 - i))) & 255);}}
 
 void T2raw(unsigned long data, raw & serialized) {
-  for(int i = 0; i < 8; i++) {
+  for(int i = 0; i < 8; i++) {  
     serialized.push_back((data >> (8*(7 - i))) & 255);}}
 
 void T2raw(double data, raw & serialized) {
@@ -264,23 +267,23 @@ void serialize(const SEXP & object, raw & serialized) {
         serialize_one(data[0], 3, serialized);}
       else {
         serialize_vector(data, 3, serialized);}
-      }
+    }
       break;
     case VECSXP: { //list
       Rcpp::List data(object);
       serialize_list(data, serialized);}
       break;
     default: {
-    throw UnsupportedType(robj.sexp_type());}}}
+      throw UnsupportedType(robj.sexp_type());}}}
 
 SEXP typed_bytes_writer(SEXP objs){
 	raw serialized(0);
 	Rcpp::List objects(objs);
 	for(Rcpp::List::iterator i = objects.begin(); i < objects.end(); i++) {
-	  	try{
-	  		serialize(Rcpp::wrap(*i), serialized);}
-  		catch(UnsupportedType ut){
-  			return R_NilValue;}}
+    try{
+      serialize(Rcpp::wrap(*i), serialized);}
+    catch(UnsupportedType ut){
+      return R_NilValue;}}
 	return Rcpp::wrap(serialized);}	
 
 
