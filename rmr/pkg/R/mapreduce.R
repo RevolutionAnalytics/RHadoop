@@ -827,7 +827,7 @@ equijoin = function(
 ## data is unchanged
 
 scatter = function(input, output = NULL)
-  mapreduce(input, output, map = function(k, v) keyval(runif(1), keyval(k, v)), 
+  mapreduce(input, output, map = function(k, v) keyval(sample(1:1000, 1), keyval(k, v)), 
             reduce = function(k, vv) vv)
 
 ##optimizer
