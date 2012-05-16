@@ -87,6 +87,8 @@ csv.output.format = function(...) function(k, v, con, vectorized)
               col.names = FALSE)
 
 typed.bytes.reader = function(data, nobjs) {
+  if(is.null(data)) NULL
+  else
     .Call("typed_bytes_reader", data, nobjs, PACKAGE = "rmr") 
 }
 typed.bytes.writer = function(objects) {
