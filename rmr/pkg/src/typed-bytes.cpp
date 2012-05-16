@@ -165,7 +165,7 @@ SEXP typed_bytes_reader(SEXP data, SEXP _nobjs){
     catch (ReadPastEnd rpe){
       break;}
 		catch (UnsupportedType ue) {
-      std::cerr << "Unsupported type: " << ue.type_code << std::endl;
+      std::cerr << "Unsupported type: " << (int)ue.type_code << std::endl;
       return R_NilValue;}
 		catch (NegativeLength nl) {
       std::cerr << "Negative length Exception" << std::endl;
