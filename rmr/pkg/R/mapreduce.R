@@ -554,12 +554,12 @@ activate.profiling = function() {
 close.profiling = function() Rprof(NULL)
 
 
-map.loop = function(map, record.reader, record.writer, profile) {
+map.loop = function(map, record.reader, record.writer, structured, profile) {
   if(profile) activate.profiling()
   kv = record.reader()
   while(!is.null(kv)) { 
-    out = map(if(structured$map) to.data.frame(kv$key) else kv$key, 
-              if(structured$map) to.data.frame(kv$val) else kv$val)
+    out = map(if(structured) to.data.frame(kv$key) else kv$key, 
+              if(structured) to.data.frame(kv$val) else kv$val)
     if(!is.null(out)) {
       if (is.keyval(out)) {record.writer(out$key, out$val, is.vectorized.keyval(out))}
       else {lapply(out, function(o) record.writer(o$key, o$val, is.vectorized.keyval(o)))}}
@@ -645,6 +645,7 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
                                                    output.format$format)}
                               else {
                                 rmr:::make.record.writer()}, 
+              structured$map,
               profile = profile.nodes)'
   reduce.line  =  '  rmr:::reduce.loop(reduce = reduce, 
                  record.reader = rmr:::make.record.reader(), 
