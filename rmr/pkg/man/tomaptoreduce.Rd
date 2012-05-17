@@ -14,8 +14,8 @@ reduce functions.}
 }
 
 \arguments{
-  \item{fun1}{a function to apply to the key, or to the key-value pair if the second argument is missing}
-  \item{fun2}{a function to apply to the value}
+  \item{fun1}{A function to apply to the key, or to the key-value pair if the second argument is missing}
+  \item{fun2}{A function to apply to the value}
 }
 
 \details{Sometimes there are functions that we could use almost directly as map or reduce functions but for a bit of boilerplate code, and
@@ -23,10 +23,7 @@ we hate boilerplate code. That's where the functions documented herein can help.
 return a valid map or reduce function. In the case of \code{to.map} when two functions are specified they are applied independently to the
 key and the value and the return values are returned as a key-value pair; when only one is, it is applied to the key-value pair. For
 \code{to.reduce} the behavior is the same with the only difference the a single value is replaced by a list of values. In the case of
-\code{to.reduce.all} the function(s) are applied to the key and value for each value in the list passed to reduce.}
-
-
-
+\code{to.reduce.all} the function(s) are applied to the key and value for each value in the list passed to reduce as the second argument.}
 
 \examples{ 
 ##The identity map: 
