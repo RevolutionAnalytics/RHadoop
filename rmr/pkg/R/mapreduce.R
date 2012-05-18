@@ -95,7 +95,7 @@ keyval.project = function(i) {
     vectorized = all(sapply(kvl, is.vectorized.keyval))
     a.list = lapply(kvl, function(x) x[[i]])
     if(all(sapply(a.list, is.data.frame)) && vectorized) do.call(rbind, a.list)
-    else do.call(c, lapply(a.list, function(x) if(is.vectorized.keyval(x)) x else list(x)))}}
+    else do.call(c, lapply(a.list, function(x) if(vectorized) x else list(x)))}}
 keys = keyval.project(1)
 values = keyval.project(2)
 
