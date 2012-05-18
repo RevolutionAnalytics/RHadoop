@@ -169,8 +169,8 @@ hdfs.file <- function(path,mode="r",fs=hdfs.defaults("fs"),buffersize=5242880,ov
   wrapp$name        <- path
   class(wrapp)      <- "hdfsFH"
   reg.finalizer(wrapp, function(h) {
-    hdfs.close(h)
-    warning(sprintf("Closed unused DFS stream: %s",h$name))
+    #hdfs.close(h)
+    #warning(sprintf("Closed unused DFS stream: %s",h$name))
   }, onexit = TRUE)
   wrapp
 }
