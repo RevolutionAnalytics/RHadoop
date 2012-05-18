@@ -2,8 +2,8 @@
 \alias{from.dfs}
 \alias{to.dfs}
 
-\title{Read or write R lists from or to HDFS}
-\description{Functions that read or write lists from or to HDFS}
+\title{Read or write R objects from or to the file system}
+\description{Functions that read or write R objects from or to the file system}
 
 \usage{
 to.dfs(object, output = dfs.tempfile(), format = "native")
@@ -19,9 +19,9 @@ from.dfs(input, format = "native", to.data.frame = FALSE, vectorized = FALSE, st
   \item{vectorized}{Return a list of vectorized key-value pairs, that is each key value contains multiple keys and values (see \code{\link{keyval}})}
   \item{structured}{When data is structured, that is it has columns that can be represented as atomic vectors, return a data frame; it will likely fail on unstructured data and results are unpredictable.}}
 
-\details{ These functions allow to move data from RAM to HDFS and back. Keep in mind that the capacity of these two storage media is
-different by two or three orders of magnitude, roughly speaking, so the conversion will make sense only in specific situations. These
-functions do not perform any size control, so the responsibility is on the user.}
+\details{ These functions allow to move data from RAM to file system and back. Keep in mind that the capacity of these two storage media is
+different by two or more orders of magnitude, so the conversion will make sense only in specific situations. These
+functions do not perform any size control, so the responsibility is on the user. For the local backend, file system means the local file system. For the Hadooop backend it means HDFS}
 
 \value{\code{from.dfs} returns the object whose representation is contained in \code{file}. \code{to.dfs} returns the file it wrote a
 representation of the object provided as argument to or, when \code{output} is missing, an object that can be passed as input to a \code{mapreduce}
