@@ -23,7 +23,6 @@ for (be in c("local", "hadoop")) {
   # user  system elapsed 
   # 12.534   4.175  15.644 
   
-  #pass through
   system.time({out = 
 ## @knitr pass-through
     mapreduce(input, map = function(k,v) keyval(k,v))
@@ -42,7 +41,6 @@ for (be in c("local", "hadoop")) {
   # 46.370   1.830  42.669 
   test(out, out.vec)  
    
-  
 ## @knitr predicate            
   predicate = function(k,v) unlist(v)%%2 == 0
 ## @knitr             
