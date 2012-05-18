@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+<title>What&#39;s new</title>
+
+<base target="_blank"/>
+
+<style type="text/css">
+
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 12px;
+   margin: 8px;
+}
+
+tt, code, pre {
+   font-family: Monaco, 'DejaVu Sans Mono', 'Droid Sans Mono', Consolas, 'Lucida Console', monospace;
+}
+
+h1 { 
+   font-size:2.2em; 
+}
+
+h2 { 
+   font-size:1.8em; 
+}
+
+h3 { 
+   font-size:1.4em; 
+}
+
+h4 { 
+   font-size:1.0em; 
+}
+
+h5 { 
+   font-size:0.9em; 
+}
+
+h6 { 
+   font-size:0.8em; 
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre {	
+   margin-top: 0;
+   max-width: 95%;
+   border: 1px solid #ccc;
+}
+
+.r {
+   background-color: #F8F8F8;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+	border-top-style: dotted;
+	border-top-color: #999999;
+}
+
+
+
+
+@media print {
+   * { 
+      background: transparent !important; 
+      color: black !important; 
+      filter:none !important; 
+      -ms-filter: none !important; 
+   }
+
+   body { 
+      font-size:12pt; 
+      max-width:100%; 
+   }
+       
+   a, a:visited { 
+      text-decoration: underline; 
+   }
+
+   hr { 
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote { 
+      padding-right: 1em; 
+      page-break-inside: avoid; 
+   }
+
+   tr, img { 
+      page-break-inside: avoid; 
+   }
+
+   img { 
+      max-width: 100% !important; 
+   }
+
+   @page :left { 
+      margin: 15mm 20mm 15mm 10mm; 
+   }
+     
+   @page :right { 
+      margin: 15mm 10mm 15mm 20mm; 
+   }
+
+   p, h2, h3 { 
+      orphans: 3; widows: 3; 
+   }
+
+   h2, h3 { 
+      page-break-after: avoid; 
+   }
+}
+
+</style>
+
+<script type="text/javascript">
+     
+</script>
+
+
+
+</head>
+
+<body>
+<h1>What&#39;s new</h1>
+
+<ul>
+<li>A new vectorized API supports a vectorized style of programming, an efficient programming style for R which can achieve C-like 
+speeds when followed consistently. The old API is still the default and has undergone only cosmetic changes, but when 
+efficiency is important and with small record sizes using the vectorized interface is recommended. On the other hand the
+old API allows slightly simpler programs and has better compatibility with complext R objects used as keys and values. See the 
+[Introduction to the vectorized API](introduction-to-vectorized-API.md) for more information.</li>
+<li>In support of the vectorized API, there are completely new C implementations of serialization and deserialization from and to 
+the typedbytes serialization format. This format is also important to exchange data with other members 
+of the Hadoop system as typedbytes is the preferred serialiation format for non-java streaming applications (HADOOP-1722). 
+The implementation supports the most common and useful cases for R users but is not yet fully adherent to the specification.</li>
+<li>All formats are compatible with the new vectorized API but &ldquo;text&rdquo; and &ldquo;csv&rdquo; readers and writers are substantially faster
+and the &ldquo;csv&rdquo; reader is more stable.</li>
+</ul>
+
+</body>
+
+</html>
+
