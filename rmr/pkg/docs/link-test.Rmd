@@ -1,1 +1,0 @@
-Test link [New in rmr 1.3](new-in-rmr1.3.md)
