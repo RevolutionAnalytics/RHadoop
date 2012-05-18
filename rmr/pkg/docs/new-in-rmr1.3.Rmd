@@ -1,14 +1,8 @@
-This is my first Rmd doc
-```{r}
-1+2
-```
 
 `r read_chunk('../tests/vectorized-API.R')`
 `r opts_chunk$set(echo=TRUE, eval=FALSE, cache=FALSE)`
 
-```{r setup}
-library(rmr)
-```
+
 
 Some text
 
