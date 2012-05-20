@@ -1,3 +1,6 @@
+#Compatibility testing
+Please contribute with additional reports. To claim compatibility you need to run R CMD  <path-to-rmr> successfully.
+
 <table>
 <thead>
 <tr><th>Hadoop</th><th>R</th><th>OS</th><th>Compatibility</th></tr>
