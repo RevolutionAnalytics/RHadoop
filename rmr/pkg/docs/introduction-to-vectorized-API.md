@@ -1,6 +1,6 @@
 
-`r read_chunk('../tests/vectorized-API.R')`
-`r opts_chunk$set(echo=TRUE, eval=FALSE, cache=FALSE)`
+
+
 
 
 
@@ -14,5 +14,11 @@ switch automatically to a different serialization format,
  boost, if any. If one is processing graphs and each record is a just an integer pair `(start, stop)`, that's where the
  vectorized interface gives the biggest speed boost and typedbytes serialization is adequate for simple records.
  
-```{r read-write}
+
+
+```r
+from.dfs(input, vectorized = input.size)
 ```
+
+
+
