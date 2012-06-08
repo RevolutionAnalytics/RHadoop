@@ -634,7 +634,7 @@ rhstream = function(
 library(rmr)
 load("rmr-local-env")
 load("rmr-global-env")
-invisible(lapply(libs, function(l) library(l, character.only = T)))
+invisible(lapply(libs, function(l) require(l, character.only = T)))
 '  
   map.line = '  rmr:::map.loop(map = map, 
               record.reader = rmr:::make.record.reader(input.format$mode, 
