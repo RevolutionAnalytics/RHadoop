@@ -5,7 +5,7 @@
 # Introduction to the `vectorized` and `structured` options in `rmr` 1.3
 
 ## Goals for 1.3
-The main goal for 1.3 was to do a first pass performance review and implement changes to eliminate the main performance bottlenecks. Following the review, we determined that better support for a vectorized programming style was necessary to allow writing efficient R and hence efficient `rmr` programs in the case of small record size &mdash; for large record size the vectorization can happen at the record level. It was also determined that the native format parser was unacceptably slow for small objects and other parsers could benefit from a vectorized version.  
+The main goal for 1.3 was to do a performance review and implement changes to eliminate the main performance bottlenecks. Following the review, we determined that better support for a vectorized programming style was necessary to allow writing efficient R and hence efficient `rmr` programs in the case of small record size &mdash; for large record size the vectorization can happen at the record level. We also concluded that the native format parser was unacceptably slow for small objects and other parsers could benefit from a vectorized version.  
 We selected a number of very basic use cases to exercise different aspects of the library and the focus was on speed gains on those cases while minimizing code changes. Since API changes were necessary, it was decided to tackle at the same time the issue of better supporting the structured data case, to try and make API changes as soon and as rarely as possible and to keep the `vectorized` and `structured` options consistent. The structured data features are mostly implemented but not necessarily with great attention to speed.
 
 ## Changes Overview
