@@ -10,7 +10,6 @@
 <base target="_blank"/>
 
 <style type="text/css">
-
 body, td {
    font-family: sans-serif;
    background-color: white;
@@ -19,7 +18,7 @@ body, td {
 }
 
 tt, code, pre {
-   font-family: Monaco, 'DejaVu Sans Mono', 'Droid Sans Mono', Consolas, 'Lucida Console', monospace;
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
 }
 
 h1 { 
@@ -56,8 +55,16 @@ pre {
    border: 1px solid #ccc;
 }
 
-.r {
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code.r {
    background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
 }
 
 blockquote {
@@ -71,12 +78,9 @@ hr {
    height: 0px;
    border-bottom: none;
    border-top-width: thin;
-	border-top-style: dotted;
-	border-top-color: #999999;
+   border-top-style: dotted;
+   border-top-color: #999999;
 }
-
-
-
 
 @media print {
    * { 
@@ -132,9 +136,7 @@ hr {
 
 </style>
 
-<script type="text/javascript">
-     
-</script>
+
 
 
 
@@ -148,7 +150,7 @@ hr {
 speeds when followed consistently. The old API is still the default and has undergone only cosmetic changes, but when 
 efficiency is important and with small record sizes using the vectorized interface is recommended. On the other hand the
 old API allows simpler programs and has better compatibility with complex R objects used as keys and values. See the 
-[Introduction to the vectorized API](introduction-to-vectorized-API.md) for more information.</li>
+<a href="introduction-to-vectorized-API.md">Introduction to the vectorized API</a> for more information.</li>
 <li>In support of the vectorized API, there are completely new C implementations of serialization and deserialization from and to 
 the typedbytes serialization format. This format is also important to exchange data with other members 
 of the Hadoop system as typedbytes is the preferred serialiation format for non-java streaming applications (HADOOP-1722). 
