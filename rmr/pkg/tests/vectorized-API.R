@@ -40,7 +40,7 @@ for (be in c("local", "hadoop")) {
   # user  system elapsed 
   # 179.345   4.671 179.111
   system.time({out.vec = 
-## @knitr pass-through-vec-version         
+## @knitr pass-through-vec         
     mapreduce(input,
               map = function(k,v) keyval(k,v, vectorized = TRUE), 
               vectorized = list(map = TRUE))
@@ -86,12 +86,16 @@ for (be in c("local", "hadoop")) {
               })
   test(out, out.struct)              
   
-## @knitr input-select            
-  input.select = to.dfs(list(keyval(1:input.size, replicate(input.size, list(a=1,b=2,c=3), simplify=F), vectorized=T)))
+## @knitr select-input           
+  input.select = to.dfs(list(keyval(1:input.size, 
+                                    replicate(input.size, list(a=1,b=2,c=3), 
+                                              simplify=FALSE), vectorized=TRUE)))
 ## @knitr select-fun
   select = function(v) v[[2]]
-## @knitr select-vec-fun
-  select.vect = function(v) do.call(rbind,v)[,2] #names not preserved with current impl. of typedbytes
+## @knitr select-fun-vec
+  select.vec = function(v) do.call(rbind,v)[,2] #names not preserved with current impl. of typedbytes
+## @knitr select-fun-vec-struct
+  field = 2
 ## @knitr             
   system.time({out = 
 ## @knitr select                 
@@ -102,16 +106,15 @@ for (be in c("local", "hadoop")) {
   # user  system elapsed 
   # 175.964   3.874 169.601 
   system.time({out.vec = 
-## @knitr-select-vec
+## @knitr select-vec
     mapreduce(input.select,
-              map = function(k,v) keyval(k, select.vect(v), vectorized = TRUE),
+              map = function(k,v) keyval(k, select.vec(v), vectorized = TRUE),
               vectorized = list(map = TRUE))
 ## @knitr                                   
               })
   # user  system elapsed 
   # 38.363   1.790  32.683
   test(out, out.vec)  
-  field = 2
   system.time({out.struct = 
 ## @knitr select-vec-struct
     mapreduce(input = input.select,
@@ -122,8 +125,9 @@ for (be in c("local", "hadoop")) {
               })
   test(out, out.struct)              
                
-## @knitr input-bigsum            
-  input.bigsum = to.dfs(list(keyval(rep(1, input.size), rnorm(input.size), vectorized=T)))
+## @knitr bigsum-input
+  input.bigsum = to.dfs(list(keyval(rep(1, input.size), rnorm(input.size), vectorized=TRUE)))
+## @knitr 
   system.time({out = 
 ## @knitr bigsum                
     mapreduce(input.bigsum, 
@@ -159,8 +163,9 @@ for (be in c("local", "hadoop")) {
               })
   test(out, out.struct)              
                
-## @knitr input-group-aggregate
-  input.ga = to.dfs(list(keyval(1:input.size, rnorm(input.size), vectorized=T)))
+## @knitr group-aggregate-input
+  input.ga = to.dfs(list(keyval(1:input.size, rnorm(input.size), vectorized=TRUE)))
+## @knitr group-aggregate-functions
   group = function(k,v) unlist(k)%%100
   aggregate = function(x) sum(unlist(x))
 ## @knitr             
