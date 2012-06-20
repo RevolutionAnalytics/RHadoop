@@ -5,12 +5,11 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
-<title></title>
+<title>Introduction to the <code>vectorized</code> and <code>structured</code> options in <code>rmr</code> 1.3</title>
 
 <base target="_blank"/>
 
 <style type="text/css">
-
 body, td {
    font-family: sans-serif;
    background-color: white;
@@ -19,7 +18,7 @@ body, td {
 }
 
 tt, code, pre {
-   font-family: Monaco, 'DejaVu Sans Mono', 'Droid Sans Mono', Consolas, 'Lucida Console', monospace;
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
 }
 
 h1 { 
@@ -56,8 +55,16 @@ pre {
    border: 1px solid #ccc;
 }
 
-.r {
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code.r {
    background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
 }
 
 blockquote {
@@ -71,122 +78,9 @@ hr {
    height: 0px;
    border-bottom: none;
    border-top-width: thin;
-	border-top-style: dotted;
-	border-top-color: #999999;
+   border-top-style: dotted;
+   border-top-color: #999999;
 }
-
-/*
- * highlight.styles.css
- *
- * RStudio style for highlight.js in HTML preview. Initial template based
- * on highlight.js VS style by JasonDiamond, tweaked to look more like
- * the default RStudio TextMate theme.
- *
- * Copyright (C) 2009-12 by RStudio, Inc.
- * Copyright (C) Jason Diamond <jason@diamond.name>
- *
- * This program is licensed to you under the terms of version 3 of the
- * GNU Affero General Public License. This program is distributed WITHOUT
- * ANY EXPRESS OR IMPLIED WARRANTY, INCLUDING THOSE OF NON-INFRINGEMENT,
- * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE. Please refer to the
- * AGPL (http://www.gnu.org/licenses/agpl-3.0.txt) for more details.
- *
- */
-
-pre code {
-  display: block; padding: 0.5em;
-}
-
-pre .operator,
-pre .paren {
-  color: rgb(104, 118, 135)
-}
-
-pre .literal {
-  color: rgb(88, 72, 246)
-}
-
-pre .number {
-  color: rgb(0, 0, 205);
-}
-
-pre .comment,
-pre .annotation,
-pre .template_comment,
-pre .diff .header,
-pre .chunk,
-pre .apache .cbracket {
-  color: rgb(76, 136, 107);
-}
-
-pre .keyword,
-pre .id,
-pre .title,
-pre .built_in,
-pre .aggregate,
-pre .smalltalk .class,
-pre .winutils,
-pre .bash .variable,
-pre .tex .command {
-  color: rgb(0, 0, 255);
-}
-
-pre .string,
-pre .title,
-pre .parent,
-pre .tag .value,
-pre .rules .value,
-pre .rules .value .number,
-pre .ruby .symbol,
-pre .ruby .symbol .string,
-pre .ruby .symbol .keyword,
-pre .ruby .symbol .keymethods,
-pre .instancevar,
-pre .aggregate,
-pre .template_tag,
-pre .django .variable,
-pre .addition,
-pre .flow,
-pre .stream,
-pre .apache .tag,
-pre .date,
-pre .tex .formula {
-  color: rgb(3, 106, 7);
-}
-
-pre .ruby .string,
-pre .decorator,
-pre .filter .argument,
-pre .localvars,
-pre .array,
-pre .attr_selector,
-pre .pseudo,
-pre .pi,
-pre .doctype,
-pre .deletion,
-pre .envvar,
-pre .shebang,
-pre .preprocessor,
-pre .userType,
-pre .apache .sqbracket,
-pre .nginx .built_in,
-pre .tex .special,
-pre .input_number {
-  color: rgb(43, 145, 175);
-}
-
-pre .phpdoc,
-pre .javadoc,
-pre .xmlDocTag {
-  color: rgb(128, 159, 191);
-}
-
-pre .vhdl .type { font-weight: bold; }
-pre .vhdl .string { color: #666666; }
-pre .vhdl .literal { color: rgb(163, 21, 21); }
-
-
-
 
 @media print {
    * { 
@@ -242,27 +136,243 @@ pre .vhdl .literal { color: rgb(163, 21, 21); }
 
 </style>
 
+<!-- Styles for R syntax highlighter -->
+<style type="text/css">
+   pre .operator,
+   pre .paren {
+     color: rgb(104, 118, 135)
+   }
+
+   pre .literal {
+     color: rgb(88, 72, 246)
+   }
+
+   pre .number {
+     color: rgb(0, 0, 205);
+   }
+
+   pre .comment {
+     color: rgb(76, 136, 107);
+   }
+
+   pre .keyword {
+     color: rgb(0, 0, 255);
+   }
+
+   pre .identifier {
+     color: rgb(0, 0, 0);
+   }
+
+   pre .string {
+     color: rgb(3, 106, 7);
+   }
+</style>
+
+<!-- R syntax highlighter -->
 <script type="text/javascript">
-   var hljs=new function(){function m(p){return p.replace(/&/gm,"&amp;").replace(/</gm,"&lt;")}function f(r,q,p){return RegExp(q,"m"+(r.cI?"i":"")+(p?"g":""))}function b(r){for(var p=0;p<r.childNodes.length;p++){var q=r.childNodes[p];if(q.nodeName=="CODE"){return q}if(!(q.nodeType==3&&q.nodeValue.match(/\s+/))){break}}}function h(t,s){var p="";for(var r=0;r<t.childNodes.length;r++){if(t.childNodes[r].nodeType==3){var q=t.childNodes[r].nodeValue;if(s){q=q.replace(/\n/g,"")}p+=q}else{if(t.childNodes[r].nodeName=="BR"){p+="\n"}else{p+=h(t.childNodes[r])}}}if(/MSIE [678]/.test(navigator.userAgent)){p=p.replace(/\r/g,"\n")}return p}function a(s){var r=s.className.split(/\s+/);r=r.concat(s.parentNode.className.split(/\s+/));for(var q=0;q<r.length;q++){var p=r[q].replace(/^language-/,"");if(e[p]||p=="no-highlight"){return p}}}function c(q){var p=[];(function(s,t){for(var r=0;r<s.childNodes.length;r++){if(s.childNodes[r].nodeType==3){t+=s.childNodes[r].nodeValue.length}else{if(s.childNodes[r].nodeName=="BR"){t+=1}else{if(s.childNodes[r].nodeType==1){p.push({event:"start",offset:t,node:s.childNodes[r]});t=arguments.callee(s.childNodes[r],t);p.push({event:"stop",offset:t,node:s.childNodes[r]})}}}}return t})(q,0);return p}function k(y,w,x){var q=0;var z="";var s=[];function u(){if(y.length&&w.length){if(y[0].offset!=w[0].offset){return(y[0].offset<w[0].offset)?y:w}else{return w[0].event=="start"?y:w}}else{return y.length?y:w}}function t(D){var A="<"+D.nodeName.toLowerCase();for(var B=0;B<D.attributes.length;B++){var C=D.attributes[B];A+=" "+C.nodeName.toLowerCase();if(C.value!==undefined&&C.value!==false&&C.value!==null){A+='="'+m(C.value)+'"'}}return A+">"}while(y.length||w.length){var v=u().splice(0,1)[0];z+=m(x.substr(q,v.offset-q));q=v.offset;if(v.event=="start"){z+=t(v.node);s.push(v.node)}else{if(v.event=="stop"){var p,r=s.length;do{r--;p=s[r];z+=("</"+p.nodeName.toLowerCase()+">")}while(p!=v.node);s.splice(r,1);while(r<s.length){z+=t(s[r]);r++}}}}return z+m(x.substr(q))}function j(){function q(x,y,v){if(x.compiled){return}var u;var s=[];if(x.k){x.lR=f(y,x.l||hljs.IR,true);for(var w in x.k){if(!x.k.hasOwnProperty(w)){continue}if(x.k[w] instanceof Object){u=x.k[w]}else{u=x.k;w="keyword"}for(var r in u){if(!u.hasOwnProperty(r)){continue}x.k[r]=[w,u[r]];s.push(r)}}}if(!v){if(x.bWK){x.b="\\b("+s.join("|")+")\\s"}x.bR=f(y,x.b?x.b:"\\B|\\b");if(!x.e&&!x.eW){x.e="\\B|\\b"}if(x.e){x.eR=f(y,x.e)}}if(x.i){x.iR=f(y,x.i)}if(x.r===undefined){x.r=1}if(!x.c){x.c=[]}x.compiled=true;for(var t=0;t<x.c.length;t++){if(x.c[t]=="self"){x.c[t]=x}q(x.c[t],y,false)}if(x.starts){q(x.starts,y,false)}}for(var p in e){if(!e.hasOwnProperty(p)){continue}q(e[p].dM,e[p],true)}}function d(B,C){if(!j.called){j();j.called=true}function q(r,M){for(var L=0;L<M.c.length;L++){if((M.c[L].bR.exec(r)||[null])[0]==r){return M.c[L]}}}function v(L,r){if(D[L].e&&D[L].eR.test(r)){return 1}if(D[L].eW){var M=v(L-1,r);return M?M+1:0}return 0}function w(r,L){return L.i&&L.iR.test(r)}function K(N,O){var M=[];for(var L=0;L<N.c.length;L++){M.push(N.c[L].b)}var r=D.length-1;do{if(D[r].e){M.push(D[r].e)}r--}while(D[r+1].eW);if(N.i){M.push(N.i)}return f(O,M.join("|"),true)}function p(M,L){var N=D[D.length-1];if(!N.t){N.t=K(N,E)}N.t.lastIndex=L;var r=N.t.exec(M);return r?[M.substr(L,r.index-L),r[0],false]:[M.substr(L),"",true]}function z(N,r){var L=E.cI?r[0].toLowerCase():r[0];var M=N.k[L];if(M&&M instanceof Array){return M}return false}function F(L,P){L=m(L);if(!P.k){return L}var r="";var O=0;P.lR.lastIndex=0;var M=P.lR.exec(L);while(M){r+=L.substr(O,M.index-O);var N=z(P,M);if(N){x+=N[1];r+='<span class="'+N[0]+'">'+M[0]+"</span>"}else{r+=M[0]}O=P.lR.lastIndex;M=P.lR.exec(L)}return r+L.substr(O,L.length-O)}function J(L,M){if(M.sL&&e[M.sL]){var r=d(M.sL,L);x+=r.keyword_count;return r.value}else{return F(L,M)}}function I(M,r){var L=M.cN?'<span class="'+M.cN+'">':"";if(M.rB){y+=L;M.buffer=""}else{if(M.eB){y+=m(r)+L;M.buffer=""}else{y+=L;M.buffer=r}}D.push(M);A+=M.r}function G(N,M,Q){var R=D[D.length-1];if(Q){y+=J(R.buffer+N,R);return false}var P=q(M,R);if(P){y+=J(R.buffer+N,R);I(P,M);return P.rB}var L=v(D.length-1,M);if(L){var O=R.cN?"</span>":"";if(R.rE){y+=J(R.buffer+N,R)+O}else{if(R.eE){y+=J(R.buffer+N,R)+O+m(M)}else{y+=J(R.buffer+N+M,R)+O}}while(L>1){O=D[D.length-2].cN?"</span>":"";y+=O;L--;D.length--}var r=D[D.length-1];D.length--;D[D.length-1].buffer="";if(r.starts){I(r.starts,"")}return R.rE}if(w(M,R)){throw"Illegal"}}var E=e[B];var D=[E.dM];var A=0;var x=0;var y="";try{var s,u=0;E.dM.buffer="";do{s=p(C,u);var t=G(s[0],s[1],s[2]);u+=s[0].length;if(!t){u+=s[1].length}}while(!s[2]);if(D.length>1){throw"Illegal"}return{r:A,keyword_count:x,value:y}}catch(H){if(H=="Illegal"){return{r:0,keyword_count:0,value:m(C)}}else{throw H}}}function g(t){var p={keyword_count:0,r:0,value:m(t)};var r=p;for(var q in e){if(!e.hasOwnProperty(q)){continue}var s=d(q,t);s.language=q;if(s.keyword_count+s.r>r.keyword_count+r.r){r=s}if(s.keyword_count+s.r>p.keyword_count+p.r){r=p;p=s}}if(r.language){p.second_best=r}return p}function i(r,q,p){if(q){r=r.replace(/^((<[^>]+>|\t)+)/gm,function(t,w,v,u){return w.replace(/\t/g,q)})}if(p){r=r.replace(/\n/g,"<br>")}return r}function n(t,w,r){var x=h(t,r);var v=a(t);var y,s;if(v=="no-highlight"){return}if(v){y=d(v,x)}else{y=g(x);v=y.language}var q=c(t);if(q.length){s=document.createElement("pre");s.innerHTML=y.value;y.value=k(q,c(s),x)}y.value=i(y.value,w,r);var u=t.className;if(!u.match("(\\s|^)(language-)?"+v+"(\\s|$)")){u=u?(u+" "+v):v}if(/MSIE [678]/.test(navigator.userAgent)&&t.tagName=="CODE"&&t.parentNode.tagName=="PRE"){s=t.parentNode;var p=document.createElement("div");p.innerHTML="<pre><code>"+y.value+"</code></pre>";t=p.firstChild.firstChild;p.firstChild.cN=s.cN;s.parentNode.replaceChild(p.firstChild,s)}else{t.innerHTML=y.value}t.className=u;t.result={language:v,kw:y.keyword_count,re:y.r};if(y.second_best){t.second_best={language:y.second_best.language,kw:y.second_best.keyword_count,re:y.second_best.r}}}function o(){if(o.called){return}o.called=true;var r=document.getElementsByTagName("pre");for(var p=0;p<r.length;p++){var q=b(r[p]);if(q){n(q,hljs.tabReplace)}}}function l(){if(window.addEventListener){window.addEventListener("DOMContentLoaded",o,false);window.addEventListener("load",o,false)}else{if(window.attachEvent){window.attachEvent("onload",o)}else{window.onload=o}}}var e={};this.LANGUAGES=e;this.highlight=d;this.highlightAuto=g;this.fixMarkup=i;this.highlightBlock=n;this.initHighlighting=o;this.initHighlightingOnLoad=l;this.IR="[a-zA-Z][a-zA-Z0-9_]*";this.UIR="[a-zA-Z_][a-zA-Z0-9_]*";this.NR="\\b\\d+(\\.\\d+)?";this.CNR="\\b(0[xX][a-fA-F0-9]+|(\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?)";this.BNR="\\b(0b[01]+)";this.RSR="!|!=|!==|%|%=|&|&&|&=|\\*|\\*=|\\+|\\+=|,|\\.|-|-=|/|/=|:|;|<|<<|<<=|<=|=|==|===|>|>=|>>|>>=|>>>|>>>=|\\?|\\[|\\{|\\(|\\^|\\^=|\\||\\|=|\\|\\||~";this.ER="(?![\\s\\S])";this.BE={b:"\\\\.",r:0};this.ASM={cN:"string",b:"'",e:"'",i:"\\n",c:[this.BE],r:0};this.QSM={cN:"string",b:'"',e:'"',i:"\\n",c:[this.BE],r:0};this.CLCM={cN:"comment",b:"//",e:"$"};this.CBLCLM={cN:"comment",b:"/\\*",e:"\\*/"};this.HCM={cN:"comment",b:"#",e:"$"};this.NM={cN:"number",b:this.NR,r:0};this.CNM={cN:"number",b:this.CNR,r:0};this.BNM={cN:"number",b:this.BNR,r:0};this.inherit=function(r,s){var p={};for(var q in r){p[q]=r[q]}if(s){for(var q in s){p[q]=s[q]}}return p}}();hljs.LANGUAGES.r={dM:{c:[hljs.HCM,{cN:"number",b:"\\b0[xX][0-9a-fA-F]+[Li]?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+(?:[eE][+\\-]?\\d*)?L\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+\\.(?!\\d)(?:i\\b)?",e:hljs.IMMEDIATE_RE,r:1},{cN:"number",b:"\\b\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\.\\d+(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"keyword",b:"(?:tryCatch|library|setGeneric|setGroupGeneric)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\.",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\d+(?![\\w.])",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\b(?:function)",e:hljs.IMMEDIATE_RE,r:2},{cN:"keyword",b:"(?:if|in|break|next|repeat|else|for|return|switch|while|try|stop|warning|require|attach|detach|source|setMethod|setClass)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"literal",b:"(?:NA|NA_integer_|NA_real_|NA_character_|NA_complex_)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"literal",b:"(?:NULL|TRUE|FALSE|T|F|Inf|NaN)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"identifier",b:"[a-zA-Z.][a-zA-Z0-9._]*\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"<\\-(?!\\s*\\d)",e:hljs.IMMEDIATE_RE,r:2},{cN:"operator",b:"\\->|<\\-",e:hljs.IMMEDIATE_RE,r:1},{cN:"operator",b:"%%|~",e:hljs.IMMEDIATE_RE},{cN:"operator",b:">=|<=|==|!=|\\|\\||&&|=|\\+|\\-|\\*|/|\\^|>|<|!|&|\\||\\$|:",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"%",e:"%",i:"\\n",r:1},{cN:"identifier",b:"`",e:"`",r:0},{cN:"string",b:'"',e:'"',c:[hljs.BE],r:0},{cN:"string",b:"'",e:"'",c:[hljs.BE],r:0},{cN:"paren",b:"[[({\\])}]",e:hljs.IMMEDIATE_RE,r:0}]}};
-   hljs.initHighlightingOnLoad();  
+var hljs=new function(){function m(p){return p.replace(/&/gm,"&amp;").replace(/</gm,"&lt;")}function f(r,q,p){return RegExp(q,"m"+(r.cI?"i":"")+(p?"g":""))}function b(r){for(var p=0;p<r.childNodes.length;p++){var q=r.childNodes[p];if(q.nodeName=="CODE"){return q}if(!(q.nodeType==3&&q.nodeValue.match(/\s+/))){break}}}function h(t,s){var p="";for(var r=0;r<t.childNodes.length;r++){if(t.childNodes[r].nodeType==3){var q=t.childNodes[r].nodeValue;if(s){q=q.replace(/\n/g,"")}p+=q}else{if(t.childNodes[r].nodeName=="BR"){p+="\n"}else{p+=h(t.childNodes[r])}}}if(/MSIE [678]/.test(navigator.userAgent)){p=p.replace(/\r/g,"\n")}return p}function a(s){var r=s.className.split(/\s+/);r=r.concat(s.parentNode.className.split(/\s+/));for(var q=0;q<r.length;q++){var p=r[q].replace(/^language-/,"");if(e[p]){return p}}}function c(q){var p=[];(function(s,t){for(var r=0;r<s.childNodes.length;r++){if(s.childNodes[r].nodeType==3){t+=s.childNodes[r].nodeValue.length}else{if(s.childNodes[r].nodeName=="BR"){t+=1}else{if(s.childNodes[r].nodeType==1){p.push({event:"start",offset:t,node:s.childNodes[r]});t=arguments.callee(s.childNodes[r],t);p.push({event:"stop",offset:t,node:s.childNodes[r]})}}}}return t})(q,0);return p}function k(y,w,x){var q=0;var z="";var s=[];function u(){if(y.length&&w.length){if(y[0].offset!=w[0].offset){return(y[0].offset<w[0].offset)?y:w}else{return w[0].event=="start"?y:w}}else{return y.length?y:w}}function t(D){var A="<"+D.nodeName.toLowerCase();for(var B=0;B<D.attributes.length;B++){var C=D.attributes[B];A+=" "+C.nodeName.toLowerCase();if(C.value!==undefined&&C.value!==false&&C.value!==null){A+='="'+m(C.value)+'"'}}return A+">"}while(y.length||w.length){var v=u().splice(0,1)[0];z+=m(x.substr(q,v.offset-q));q=v.offset;if(v.event=="start"){z+=t(v.node);s.push(v.node)}else{if(v.event=="stop"){var p,r=s.length;do{r--;p=s[r];z+=("</"+p.nodeName.toLowerCase()+">")}while(p!=v.node);s.splice(r,1);while(r<s.length){z+=t(s[r]);r++}}}}return z+m(x.substr(q))}function j(){function q(x,y,v){if(x.compiled){return}var u;var s=[];if(x.k){x.lR=f(y,x.l||hljs.IR,true);for(var w in x.k){if(!x.k.hasOwnProperty(w)){continue}if(x.k[w] instanceof Object){u=x.k[w]}else{u=x.k;w="keyword"}for(var r in u){if(!u.hasOwnProperty(r)){continue}x.k[r]=[w,u[r]];s.push(r)}}}if(!v){if(x.bWK){x.b="\\b("+s.join("|")+")\\s"}x.bR=f(y,x.b?x.b:"\\B|\\b");if(!x.e&&!x.eW){x.e="\\B|\\b"}if(x.e){x.eR=f(y,x.e)}}if(x.i){x.iR=f(y,x.i)}if(x.r===undefined){x.r=1}if(!x.c){x.c=[]}x.compiled=true;for(var t=0;t<x.c.length;t++){if(x.c[t]=="self"){x.c[t]=x}q(x.c[t],y,false)}if(x.starts){q(x.starts,y,false)}}for(var p in e){if(!e.hasOwnProperty(p)){continue}q(e[p].dM,e[p],true)}}function d(B,C){if(!j.called){j();j.called=true}function q(r,M){for(var L=0;L<M.c.length;L++){if((M.c[L].bR.exec(r)||[null])[0]==r){return M.c[L]}}}function v(L,r){if(D[L].e&&D[L].eR.test(r)){return 1}if(D[L].eW){var M=v(L-1,r);return M?M+1:0}return 0}function w(r,L){return L.i&&L.iR.test(r)}function K(N,O){var M=[];for(var L=0;L<N.c.length;L++){M.push(N.c[L].b)}var r=D.length-1;do{if(D[r].e){M.push(D[r].e)}r--}while(D[r+1].eW);if(N.i){M.push(N.i)}return f(O,M.join("|"),true)}function p(M,L){var N=D[D.length-1];if(!N.t){N.t=K(N,E)}N.t.lastIndex=L;var r=N.t.exec(M);return r?[M.substr(L,r.index-L),r[0],false]:[M.substr(L),"",true]}function z(N,r){var L=E.cI?r[0].toLowerCase():r[0];var M=N.k[L];if(M&&M instanceof Array){return M}return false}function F(L,P){L=m(L);if(!P.k){return L}var r="";var O=0;P.lR.lastIndex=0;var M=P.lR.exec(L);while(M){r+=L.substr(O,M.index-O);var N=z(P,M);if(N){x+=N[1];r+='<span class="'+N[0]+'">'+M[0]+"</span>"}else{r+=M[0]}O=P.lR.lastIndex;M=P.lR.exec(L)}return r+L.substr(O,L.length-O)}function J(L,M){if(M.sL&&e[M.sL]){var r=d(M.sL,L);x+=r.keyword_count;return r.value}else{return F(L,M)}}function I(M,r){var L=M.cN?'<span class="'+M.cN+'">':"";if(M.rB){y+=L;M.buffer=""}else{if(M.eB){y+=m(r)+L;M.buffer=""}else{y+=L;M.buffer=r}}D.push(M);A+=M.r}function G(N,M,Q){var R=D[D.length-1];if(Q){y+=J(R.buffer+N,R);return false}var P=q(M,R);if(P){y+=J(R.buffer+N,R);I(P,M);return P.rB}var L=v(D.length-1,M);if(L){var O=R.cN?"</span>":"";if(R.rE){y+=J(R.buffer+N,R)+O}else{if(R.eE){y+=J(R.buffer+N,R)+O+m(M)}else{y+=J(R.buffer+N+M,R)+O}}while(L>1){O=D[D.length-2].cN?"</span>":"";y+=O;L--;D.length--}var r=D[D.length-1];D.length--;D[D.length-1].buffer="";if(r.starts){I(r.starts,"")}return R.rE}if(w(M,R)){throw"Illegal"}}var E=e[B];var D=[E.dM];var A=0;var x=0;var y="";try{var s,u=0;E.dM.buffer="";do{s=p(C,u);var t=G(s[0],s[1],s[2]);u+=s[0].length;if(!t){u+=s[1].length}}while(!s[2]);if(D.length>1){throw"Illegal"}return{r:A,keyword_count:x,value:y}}catch(H){if(H=="Illegal"){return{r:0,keyword_count:0,value:m(C)}}else{throw H}}}function g(t){var p={keyword_count:0,r:0,value:m(t)};var r=p;for(var q in e){if(!e.hasOwnProperty(q)){continue}var s=d(q,t);s.language=q;if(s.keyword_count+s.r>r.keyword_count+r.r){r=s}if(s.keyword_count+s.r>p.keyword_count+p.r){r=p;p=s}}if(r.language){p.second_best=r}return p}function i(r,q,p){if(q){r=r.replace(/^((<[^>]+>|\t)+)/gm,function(t,w,v,u){return w.replace(/\t/g,q)})}if(p){r=r.replace(/\n/g,"<br>")}return r}function n(t,w,r){var x=h(t,r);var v=a(t);var y,s;if(v){y=d(v,x)}else{return}var q=c(t);if(q.length){s=document.createElement("pre");s.innerHTML=y.value;y.value=k(q,c(s),x)}y.value=i(y.value,w,r);var u=t.className;if(!u.match("(\\s|^)(language-)?"+v+"(\\s|$)")){u=u?(u+" "+v):v}if(/MSIE [678]/.test(navigator.userAgent)&&t.tagName=="CODE"&&t.parentNode.tagName=="PRE"){s=t.parentNode;var p=document.createElement("div");p.innerHTML="<pre><code>"+y.value+"</code></pre>";t=p.firstChild.firstChild;p.firstChild.cN=s.cN;s.parentNode.replaceChild(p.firstChild,s)}else{t.innerHTML=y.value}t.className=u;t.result={language:v,kw:y.keyword_count,re:y.r};if(y.second_best){t.second_best={language:y.second_best.language,kw:y.second_best.keyword_count,re:y.second_best.r}}}function o(){if(o.called){return}o.called=true;var r=document.getElementsByTagName("pre");for(var p=0;p<r.length;p++){var q=b(r[p]);if(q){n(q,hljs.tabReplace)}}}function l(){if(window.addEventListener){window.addEventListener("DOMContentLoaded",o,false);window.addEventListener("load",o,false)}else{if(window.attachEvent){window.attachEvent("onload",o)}else{window.onload=o}}}var e={};this.LANGUAGES=e;this.highlight=d;this.highlightAuto=g;this.fixMarkup=i;this.highlightBlock=n;this.initHighlighting=o;this.initHighlightingOnLoad=l;this.IR="[a-zA-Z][a-zA-Z0-9_]*";this.UIR="[a-zA-Z_][a-zA-Z0-9_]*";this.NR="\\b\\d+(\\.\\d+)?";this.CNR="\\b(0[xX][a-fA-F0-9]+|(\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?)";this.BNR="\\b(0b[01]+)";this.RSR="!|!=|!==|%|%=|&|&&|&=|\\*|\\*=|\\+|\\+=|,|\\.|-|-=|/|/=|:|;|<|<<|<<=|<=|=|==|===|>|>=|>>|>>=|>>>|>>>=|\\?|\\[|\\{|\\(|\\^|\\^=|\\||\\|=|\\|\\||~";this.ER="(?![\\s\\S])";this.BE={b:"\\\\.",r:0};this.ASM={cN:"string",b:"'",e:"'",i:"\\n",c:[this.BE],r:0};this.QSM={cN:"string",b:'"',e:'"',i:"\\n",c:[this.BE],r:0};this.CLCM={cN:"comment",b:"//",e:"$"};this.CBLCLM={cN:"comment",b:"/\\*",e:"\\*/"};this.HCM={cN:"comment",b:"#",e:"$"};this.NM={cN:"number",b:this.NR,r:0};this.CNM={cN:"number",b:this.CNR,r:0};this.BNM={cN:"number",b:this.BNR,r:0};this.inherit=function(r,s){var p={};for(var q in r){p[q]=r[q]}if(s){for(var q in s){p[q]=s[q]}}return p}}();hljs.LANGUAGES.r={dM:{c:[hljs.HCM,{cN:"number",b:"\\b0[xX][0-9a-fA-F]+[Li]?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+(?:[eE][+\\-]?\\d*)?L\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+\\.(?!\\d)(?:i\\b)?",e:hljs.IMMEDIATE_RE,r:1},{cN:"number",b:"\\b\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\.\\d+(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"keyword",b:"(?:tryCatch|library|setGeneric|setGroupGeneric)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\.",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\d+(?![\\w.])",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\b(?:function)",e:hljs.IMMEDIATE_RE,r:2},{cN:"keyword",b:"(?:if|in|break|next|repeat|else|for|return|switch|while|try|stop|warning|require|attach|detach|source|setMethod|setClass)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"literal",b:"(?:NA|NA_integer_|NA_real_|NA_character_|NA_complex_)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"literal",b:"(?:NULL|TRUE|FALSE|T|F|Inf|NaN)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"identifier",b:"[a-zA-Z.][a-zA-Z0-9._]*\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"<\\-(?!\\s*\\d)",e:hljs.IMMEDIATE_RE,r:2},{cN:"operator",b:"\\->|<\\-",e:hljs.IMMEDIATE_RE,r:1},{cN:"operator",b:"%%|~",e:hljs.IMMEDIATE_RE},{cN:"operator",b:">=|<=|==|!=|\\|\\||&&|=|\\+|\\-|\\*|/|\\^|>|<|!|&|\\||\\$|:",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"%",e:"%",i:"\\n",r:1},{cN:"identifier",b:"`",e:"`",r:0},{cN:"string",b:'"',e:'"',c:[hljs.BE],r:0},{cN:"string",b:"'",e:"'",c:[hljs.BE],r:0},{cN:"paren",b:"[[({\\])}]",e:hljs.IMMEDIATE_RE,r:0}]}};
+hljs.initHighlightingOnLoad();
 </script>
+
 
 
 
 </head>
 
 <body>
-<p>##Caveats</p>
+<h1>Introduction to the <code>vectorized</code> and <code>structured</code> options in <code>rmr</code> 1.3</h1>
 
-<p>Because of the inefficiency of the native R serialization on small objects, even using a C implementation, we decided to<br/>
-switch automatically to a different serialization format,<br/>
- typedbytes, when the vectorized API is used. This means that we are not going to enjoy the same kind of absolute compatibility with R<br/>
- but this usually is not a huge drawback when dealing with small records. For example, if each record contains a 100x100 <br/>
- submatrix of a larger matrix, the vectorized API doesn&#39;t support matrix directly but it&#39;s also not going to give a big speed <br/>
- boost, if any. If one is processing graphs and each record is a just an integer pair <code>(start, stop)</code>, that&#39;s where the<br/>
- vectorized interface gives the biggest speed boost and typedbytes serialization is adequate for simple records.</p>
+<h2>Goals for 1.3</h2>
 
-<pre><code class="r">from.dfs(input, vectorized = input.size)
+<p>The main goal for 1.3 was to do a first pass performance review and implement changes to eliminate the main performance bottlenecks. Following the review, we determined that better support for a vectorized programming style was necessary to allow writing efficient R and hence efficient <code>rmr</code> programs in the case of small record size &mdash; for large record size the vectorization can happen at the record level. It was also determined that the native format parser was unacceptably slow for small objects and other parsers could benefit from a vectorized version.<br/><br/>
+We selected a number of very basic use cases to exercise different aspects of the library and the focus was on speed gains on those cases while minimizing code changes. Since API changes were necessary, it was decided to tackle at the same time the issue of better supporting the structured data case, to try and make API changes as soon and as rarely as possible and to keep the <code>vectorized</code> and <code>structured</code> options consistent. The structured data features are mostly implemented but not necessarily with great attention to speed.</p>
+
+<h2>Changes Overview</h2>
+
+<p>We have added a <code>vectorized</code> option to <code>from.dfs</code>, <code>mapreduce</code> and <code>keyval</code>. The precise syntax and semantics will be clear from the examples and is described in the R <code>help()</code> but the main idea is to instruct the library that the user intends to process or generate multiple key-value pairs in one call. We have also provided vectorized implementations for the typedbytes, CSV and text formats. We have also added a <code>structured</code> option to the same functions that in general means that key-value pairs are provided or expected by the user as data frames. For the <code>keyval</code> function, this is not yet implemented and only atomic vectors can be used.</p>
+
+<h2>Caveats</h2>
+
+<p>Because of the inefficiency of the native R serialization on small objects, even using a C implementation, we decided to switch automatically to a different serialization format, typedbytes, when the <code>vectorized</code> option is on. This means that we are not going to enjoy the same kind of absolute compatibility with R but this usually is not a huge drawback when dealing with small records, typically scalars. For example, if each record contains a 100x100 submatrix of a larger matrix, the <code>vectorized</code> API doesn&#39;t support matrices very well but it&#39;s also not going to give a big speed boost, if any. If one is processing graphs and each record is a just an integer pair <code>(start, stop)</code>, that&#39;s where the <code>vectorized</code> interface gives the biggest speed boost and typedbytes serialization is adequate for simple records. In the future we may expand typedbytes with additional types to be more R-friendly.</p>
+
+<h2>Examples</h2>
+
+<p>First let&#39;s create some input. Input size is arbitrary but it is the one used in the automated tests included in the package and to obtain the timings. Here we are assuming a <code>&quot;hadoop&quot;</code> backend. By setting <code>vectorized</code> to <code>TRUE</code> we instruct keyval to consider its arguments collections of keys and values, not individual ones. At the same time <code>to.dfs</code> automatically switches to a simplified serialization format. The nice thing is that we don&#39;t have to remember if a data set was written out with one or the other serialization, as they are compatible on the read side. For testing purposes  we need to create a data set in this format to maximize the benefits of the <code>vectorized</code> option.</p>
+
+<pre><code class="r">  input.size = if(rmr.options.get(&#39;backend&#39;) == &quot;local&quot;) 10^4 else 10^6
+  data = list(keyval(rep(list(1), input.size),as.list(1:input.size), vectorized = TRUE))
+  input = to.dfs(data)
+</code></pre>
+
+<h3>Read it back</h3>
+
+<p>The simplest possible task is to read back what we just wrote out, and we know how to do that already.</p>
+
+<pre><code class="r">    from.dfs(input)
+</code></pre>
+
+<p>In the next code block we switch on vectorization. That is, instead of reading in a list of key-value pairs we are going to have list of vectorized key-value pairs, that is every pair contains a list of keys and a list of values of the same length. The <code>vectorized</code> argument can be set to an integer as well for more precise control of how many keys and values should be stored in a key-value pair. With this change alone, from my limited, standalone mode testing we have achieved an almost 7X speed-up (raw timing data is in vectorized-API.R)</p>
+
+<pre><code class="r">    from.dfs(input, vectorized = TRUE)
+</code></pre>
+
+<h3>Pass-through</h3>
+
+<p>Next on the complexity scale, or lack thereof, is the pass-through or identity map-reduce job. First in its plain-vanilla incarnation, same as <code>rmr</code>-1.2.</p>
+
+<pre><code class="r">    mapreduce(input, map = function(k,v) keyval(k,v))
+</code></pre>
+
+<p>Next we turn on vectorization. Vectorization can be turned on independently on the map and reduce side but the reduce side is not implemented yet, nor it is completely clear what the equivalent should be; we are going to let real use cases accumulate before working on vectorization on the reduce side. By tuning on map-side vectorization, the arguments <code>k</code> and <code>v</code> are going to be equal-sized lists of key and values. To write them back as they are, we need to also turn on vectorization in the <code>keyval</code> function, lest we make one key out of many or as an alternative to using inefficient <code>apply</code> family calls. The speed up here is about 4X.</p>
+
+<pre><code class="r">    mapreduce(input,
+              map = function(k,v) keyval(k,v, vectorized = TRUE), 
+              vectorized = list(map = TRUE))
+</code></pre>
+
+<h3>General Filter</h3>
+
+<p>Let&#39;s now look at a very simple but potentially useful example, filtering. We have a function  returning <code>logical</code>, for instance the following:</p>
+
+<pre><code class="r">  predicate = function(k,v) unlist(v)%%2 == 0
+</code></pre>
+
+<p>with the goal of dropping all records for which <code>predicate</code> returns <code>FALSE</code>. This particular one is handy for this document because it works equally well for the vectorized and unvectorized cases. The plain-vanilla implementation is the following:</p>
+
+<pre><code class="r">    mapreduce(input,
+              map = function(k,v) if(predicate(k,v)) keyval(k,v))
+</code></pre>
+
+<p>For the vectorized version, we want to switch on vectorization for the map function and in <code>keyval</code> at the same time. Remember, this is not always the case, it makes sense when we have small records in and small records out. The speedup here is about 3X.</p>
+
+<pre><code class="r">    mapreduce(input, 
+              map = function(k,v) {filter = predicate(k,v); 
+                                   keyval(k[filter], v[filter], vectorized = TRUE)},
+              vectorized = list(map = TRUE))
+</code></pre>
+
+<p>This is the first case where we can show what changes by turning on the <code>structured</code> option. On the map side it makes sense only in conjunction with <code>vectorized</code> or otherwise with only one row of data there isn&#39;t much to turn into a data frame. In this case we have a single column data frame, so it is not particularly interesting, but it is possible. The vectorized form of <code>keyval</code> unfortunately only accepts atomic vectors as arguments, this is a limitation that will be removed in the future.</p>
+
+<pre><code class="r">    mapreduce(input, 
+              map = function(k,v) {filter = predicate(k,v); 
+                                   keyval(k[filter,1], v[filter,1], vectorized = TRUE)},
+              vectorized = list(map = TRUE),
+              structured = list(map = TRUE))
+</code></pre>
+
+<h3>Select Columns</h3>
+
+<p>In this example we want to select specific elements of each record or columns, if we are dealing with structured data. We need to generate slightly more complex  input data so that this operation makes sense.</p>
+
+<pre><code class="r">  input.select = to.dfs(list(keyval(1:input.size, 
+                                    replicate(input.size, list(a=1,b=2,c=3), 
+                                              simplify=FALSE), vectorized=TRUE)))
+</code></pre>
+
+<p>The selection function takes slightly different forms for the unvectorized and vectorized cases. Here we are picking the second column just for illustration purposes.</p>
+
+<pre><code class="r">  select = function(v) v[[2]]
+</code></pre>
+
+<pre><code class="r">  select.vec = function(v) do.call(rbind,v)[,2] #names not preserved with current impl. of typedbytes
+</code></pre>
+
+<p>In the latter case we do not have an option to refer to the column by name, as in <code>do.call(rbind,v)[,&#39;b&#39;]</code>. Unfortunately names are nor preserved by the simplified serialization method used when vectorization is on, a shortcoming we plan to address in the future.<br/>
+In the structured case we don&#39;t even need a function to perform a column selection, just an index number.</p>
+
+<pre><code class="r">  field = 2
+</code></pre>
+
+<p>As usual, we start showing the plain-vanilla implementation. Nothing major to report here.</p>
+
+<pre><code class="r">    mapreduce(input.select,
+              map = function(k,v) keyval(k, select(v)))
+</code></pre>
+
+<p>In the vectorized version, we turn on vectorization both in input and output and we switch to a vectorized selection function. The speed up is 5X. </p>
+
+<pre><code class="r">    mapreduce(input.select,
+              map = function(k,v) keyval(k, select.vec(v), vectorized = TRUE),
+              vectorized = list(map = TRUE))
+</code></pre>
+
+<p>As selecting a column is a typical operation that is well defined and natural on structured data, in the structured version we don&#39;t even need a selection function, just a column number. Unfortunately column names are lost in the current implementation, something we would like to address in the future.</p>
+
+<pre><code class="r">    mapreduce(input = input.select,
+              map = function(k,v) keyval(k[,1], v[,field], vectorized = TRUE),
+              vectorized = list(map = TRUE),
+              structured = list(map = TRUE))
+</code></pre>
+
+<h3>Big Sum</h3>
+
+<p>We now move on to the first example including a reduce. It&#39;s an extreme case of data reduction as our only goal is to perform a large sum. Let&#39;s start by generating some data.</p>
+
+<pre><code class="r">  input.bigsum = to.dfs(list(keyval(rep(1, input.size), rnorm(input.size), vectorized=TRUE)))
+</code></pre>
+
+<p>This the plain-vanilla implementation. Turning on the combiner when possible is always recommended, but in this case it is mandatory: without it the reduce process would likely run out of memory.</p>
+
+<pre><code class="r">    mapreduce(input.bigsum, 
+              map  = function(k,v) keyval(1,v), 
+              reduce = function(k, vv) keyval(k, sum(unlist(vv))),
+              combine = TRUE)
+</code></pre>
+
+<p>In its vectorized form, this program applies an additional trick, which is to start summing in the map function, which becomes an early reduce of sorts. In fact, it would be possible to use the same function for both map and reduce. Like a combine, this early reduction happens locally near the data but, in addition, it doesn&#39;t require the data to be serialized and unserialized in between. It&#39;s an extreme application of the <em>mantram</em> &ldquo;reduce early, reduce often&rdquo;, for a speed gain in excess of 6X.</p>
+
+<pre><code class="r">    mapreduce(input.bigsum,
+              map  = function(k,v) keyval(1,sum(unlist(v)), vectorized = TRUE),
+              reduce = function(k, vv) keyval(k, sum(unlist(vv))),
+              combine = TRUE,
+              vectorized = list(map = TRUE))
+</code></pre>
+
+<p>In the structured version we rely on the implicit conversion to data frame to save a couple of <code>unlist</code> calls, for a cleaner look.</p>
+
+<pre><code class="r">    mapreduce(input.bigsum, 
+              map  = function(k,v) keyval(1, sum(v), vectorized = TRUE), 
+              reduce = function(k, vv) keyval(k, sum(vv)) , 
+              combine = TRUE,
+              vectorized = list(map = TRUE),
+              structured = TRUE)
+</code></pre>
+
+<h3>Group and Aggregate</h3>
+
+<p>This is an example of a more realistic aggregation on a user-defined number of groups expressed in a more generic form with <code>group</code> and <code>aggregate</code> functions. First let&#39;s generate some data.</p>
+
+<pre><code class="r">  input.ga = to.dfs(list(keyval(1:input.size, rnorm(input.size), vectorized=TRUE)))
+</code></pre>
+
+<p>Then pick specific group and aggregate functions to make the example fully specified and runnable. For simplicity&#39;s sake, these are written to work in all cases, plain, vectorized and structured. Some further optimizations are possible.</p>
+
+<pre><code class="r">  group = function(k,v) unlist(k)%%100
+  aggregate = function(x) sum(unlist(x))
+</code></pre>
+
+<p>What this means is that we are again calculating sum of numbers, but this time we are going to have a separate sum for each of 100 different groups. Let&#39;s start with the plain vanilla one.</p>
+
+<pre><code class="r">    mapreduce(input.ga, 
+              map = function(k,v) keyval(group(k,v), v),
+              reduce = function(k, vv) keyval(k, aggregate(vv)),
+              combine = TRUE)
+</code></pre>
+
+<p>In the vectorized version we could again apply the trick of in-map aggregation, but it wouldn&#39;t by us as much as in the previous example. The speedup here is 2.5X</p>
+
+<pre><code class="r">    mapreduce(input.ga, 
+              map = function(k,v) keyval(group(k,v), v, vectorized = TRUE),
+              reduce = function(k, vv) keyval(k, aggregate(vv)),
+              combine = TRUE,
+              vectorized = list(map = TRUE))
+</code></pre>
+
+<pre><code class="r">    mapreduce(input.ga, 
+              map = function(k,v) keyval(group(k,v), v[,1], vectorized = TRUE),
+              reduce = function(k, vv) keyval(k, aggregate(vv)),
+              vectorized = list(map = TRUE),
+              structured = TRUE)
 </code></pre>
 
 </body>
