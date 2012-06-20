@@ -9,19 +9,28 @@ test = function (out.1, out.2) {
 
 for (be in c("local", "hadoop")) {
   rmr.options.set(backend = be)
-  input.size = if(be == "local") 10^4 else 10^6
-## @knitr create-input
-  data = list(keyval(rep(list(1), input.size),as.list(1:input.size), vectorized=T))
+## @knitr input
+  input.size = if(rmr.options.get('backend') == "local") 10^4 else 10^6
+  data = list(keyval(rep(list(1), input.size),as.list(1:input.size), vectorized = TRUE))
   input = to.dfs(data)
-  
+## @knitr  
   system.time({out = 
 ## @knitr read-write
-    from.dfs(input, vectorized = input.size)
+    from.dfs(input)
 ## @knitr         
-               })
+  })
   stopifnot(rmr:::cmp(data, out))
-  # user  system elapsed 
-  # 12.534   4.175  15.644 
+  #   user  system elapsed 
+  #   61.570   4.515  66.154 
+## @knitr  
+  system.time({out = 
+## @knitr read-write-vec
+    from.dfs(input, vectorized = TRUE)
+## @knitr         
+  })
+  stopifnot(rmr:::cmp(data, out))
+  #   user  system elapsed 
+  #   9.633   3.727  12.671 
   
   system.time({out = 
 ## @knitr pass-through
