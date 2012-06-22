@@ -124,6 +124,8 @@ typed.bytes.output.format = function(k, v, con, vectorized){
   writeBin(
     typed.bytes.writer(
       if(vectorized){
+        k = to.list(k)
+        v = to.list(v)
         tmp = list()
         tmp[2*(1:length(k)) - 1] = k
         tmp[2*(1:length(k))] = v
