@@ -101,10 +101,11 @@ values = keyval.project(2)
 
 keyval.to.list = function(kvl) {l = values(kvl); names(l) = keys(kvl); l}
 
-
-from.data.frame = function(df, keycol = NULL) 
-  lapply(1:nrow(df), 
-         function(i) keyval(if(is.null(keycol)) NULL else df[i, keycol], df[i, ] ))
+to.list = function(x) {
+  if(is.data.frame(x) || is.matrix(x))
+    lapply(1:nrow(x), function(i) as.list(x[i,]))
+  else
+    as.list(x)}
 
 to.data.frame = function(x, col.names = names(x[[1]])) {
   if(is.data.frame(x)) x
@@ -367,8 +368,7 @@ to.dfs.path = function(input) {
       input()}}}
 
 to.dfs = function(object, output = dfs.tempfile(), format = "native") {
-  if(is.data.frame(object) || is.matrix(object)) {
-    object = from.data.frame(object)}
+  object = to.list(object)
   tmp = tempfile()
   dfsOutput = to.dfs.path(output)
   if(is.character(format)) format = make.output.format(format)
@@ -477,7 +477,7 @@ mapreduce = function(
   if(is.logical(vectorized$map)){
     vectorized$map = if (vectorized$map) rmr.options$vectorized.nrows else 1}
   if(is.logical(structured)) structured = list(map = structured, reduce = structured)
-  structured$map = !is.null(structured.map) && structured$map && (vectorized$map != 1)
+  structured$map = !is.null(structured$map) && structured$map && (vectorized$map != 1)
   if(!missing(reduce.on.data.frame)) {
     warning("reduce.on.data.frame deprecated, use structured instead")
     structured$reduce = reduce.on.data.frame}
@@ -533,11 +533,11 @@ mr.local = function(map,
                                             if(is.keyval(retval)) list(retval)
                                             else retval}))
   map.out = from.dfs(to.dfs(map.out))
-  reduce.out = tapply(X = map.out, 
+  reduce.out = as.list(tapply(X = map.out, 
                       INDEX = sapply(keys(map.out), digest), 
                       FUN = function(x) reduce(x[[1]]$key, 
                                              if(structured$reduce) to.data.frame(values(x)) else values(x)), 
-                      simplify = FALSE)
+                      simplify = FALSE))
   if(!is.keyval(reduce.out[[1]]))
     reduce.out = do.call(c, reduce.out)
   names(reduce.out) = replicate(n=length(names(reduce.out)), "")
