@@ -14,8 +14,9 @@
 
 branch=rmr-1.3
 sudo apt-get install -y r-base-core
+sudo apt-get install -y r-cran-rcpp
 sudo R --no-save << EOF
-install.packages(c('Rcpp', 'RJSONIO', 'itertools', 'digest'), repos =  "http://lib.stat.cmu.edu/R/CRAN")
+install.packages(c('RJSONIO', 'itertools', 'digest', 'robustbase'), repos =  "http://lib.stat.cmu.edu/R/CRAN")
 EOF
 
 rm -rf $branch RHadoop
@@ -24,9 +25,8 @@ mv RevolutionAnalytics-RHadoop* RHadoop
 sudo R CMD INSTALL RHadoop/rmr/pkg/
 
 sudo su << EOF1 
-cat >> /etc/profile <<EOF
- 
+echo ' 
 export HADOOP_HOME=/usr/lib/hadoop
-
-EOF
+' >> /etc/profile 
+ 
 EOF1
