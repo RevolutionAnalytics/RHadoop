@@ -32,7 +32,7 @@ source = "/tmp/fake-ngram-data"
 rmr.options.set(backend = "hadoop")
 
 ngram.format = function(lines){
-  data = as.data.frame(do.call(rbind, strsplit(lines, "\t"))[,1:3])
+  data = as.data.frame(do.call(rbind, strsplit(unlist(lines), "\t"))[,1:3])
   names(data) = c("ngram", "year", "count")
   data$year = as.integer(as.character(data$year))
   data$count = as.integer(as.character(data$count))
@@ -52,7 +52,7 @@ filter.reduce =
 
 filter.norm.data = 
   mapreduce(input = source,
-            input.format = "text", #comment this on real data
+  #          input.format = "text", #comment this on real data
             map = filter.map,
             reduce = filter.reduce,
             vectorized = list(map = TRUE),
