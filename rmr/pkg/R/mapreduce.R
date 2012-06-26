@@ -475,7 +475,9 @@ to.dfs = function(object, output = dfs.tempfile(), format = "native") {
       system(paste(hadoop.streaming(),  "loadtb", dfsOutput, "<", tmp))
     else  hdfs.put(tmp, dfsOutput)
     file.remove(tmp)}
-  else file.rename(tmp, dfsOutput)
+  else {
+    file.copy(tmp, dfsOutput)
+    file.remove(tmp)}
   output}
 
 from.dfs = function(input, format = "native", to.data.frame = FALSE) {
