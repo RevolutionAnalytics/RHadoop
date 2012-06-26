@@ -102,10 +102,13 @@ values = keyval.project(2)
 keyval.to.list = function(kvl) {l = values(kvl); names(l) = keys(kvl); l}
 
 to.list = function(x) {
-  if(is.data.frame(x) || is.matrix(x))
-    lapply(1:nrow(x), function(i) as.list(x[i,]))
-  else
-    as.list(x)}
+  if(is.data.frame(x)) {
+    .Call('dataframe_to_list', x, nrow(x), ncol(x), replicate(nrow(x), as.list(1:ncol(x)), simplify=F))}
+    else {
+      if(is.matrix(x))
+        lapply(1:nrow(x), function(i) as.list(x[i,]))
+      else
+        as.list(x)}}
 
 to.data.frame = function(x, col.names = names(x[[1]])) {
   if(is.data.frame(x)) x
