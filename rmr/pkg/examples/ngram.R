@@ -52,7 +52,7 @@ filter.reduce =
 
 filter.norm.data = 
   mapreduce(input = source,
-  #          input.format = "text", #comment this on real data
+            input.format = "text", #comment this on real data
             map = filter.map,
             reduce = filter.reduce,
             vectorized = list(map = TRUE),
