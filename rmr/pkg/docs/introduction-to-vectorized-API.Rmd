@@ -49,7 +49,7 @@ with the goal of dropping all records for which `predicate` returns `FALSE`. Thi
 For the vectorized version, we want to switch on vectorization for the map function and in `keyval` at the same time. Remember, this is not always the case, it makes sense when we have small records in and small records out. The speedup here is about 3X.
 ```{r filter-vec}
 ```
-This is the first case where we can show what changes by turning on the `structured` option. On the map side it makes sense only in conjunction with `vectorized` or otherwise with only one row of data there isn't much to turn into a data frame. On the reduce side the `structured` option is equivalent to the now deprecated `reduce.on.data.frame`, which turns the second argument of the reduce function into a data frame, before it is evaluated. In this case we have a single column data frame, so it is not particularly interesting, but it is possible. The vectorized form of `keyval` unfortunately only accepts atomic vectors as arguments, this is a limitation that will be removed in the future.
+This is the first case where we can show what changes by turning on the `structured` option. On the map side it makes sense only in conjunction with `vectorized` or otherwise with only one row of data there isn't much to turn into a data frame. On the reduce side the `structured` option is equivalent to the now deprecated `reduce.on.data.frame`, which turns the second argument of the reduce function into a data frame, before it is evaluated. In this case we have a single column data frame, so it is not particularly interesting, but it is possible.
 ```{r filter-vec-struct}
 ```
 
