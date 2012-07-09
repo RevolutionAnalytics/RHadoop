@@ -11,7 +11,7 @@ for (be in c("local", "hadoop")) {
   rmr.options.set(backend = be)
 ## @knitr input
   input.size = if(rmr.options.get('backend') == "local") 10^4 else 10^6
-  data = list(keyval(rep(list(1), input.size),as.list(1:input.size), vectorized = TRUE))
+  data = keyval(rep(list(1), input.size),as.list(1:input.size), vectorized = TRUE)
   input = to.dfs(data)
 ## @knitr  
   system.time({out = 
@@ -87,9 +87,9 @@ for (be in c("local", "hadoop")) {
   test(out, out.struct)              
   
 ## @knitr select-input           
-  input.select = to.dfs(list(keyval(1:input.size, 
+  input.select = to.dfs(keyval(1:input.size, 
                                     replicate(input.size, list(a=1,b=2,c=3), 
-                                              simplify=FALSE), vectorized=TRUE)))
+                                              simplify=FALSE), vectorized=TRUE))
 ## @knitr select-fun
   select = function(v) v[[2]]
 ## @knitr select-fun-vec
@@ -126,7 +126,7 @@ for (be in c("local", "hadoop")) {
   test(out, out.struct)              
                
 ## @knitr bigsum-input
-  input.bigsum = to.dfs(list(keyval(rep(1, input.size), rnorm(input.size), vectorized=TRUE)))
+  input.bigsum = to.dfs(keyval(rep(1, input.size), rnorm(input.size), vectorized=TRUE))
 ## @knitr 
   system.time({out = 
 ## @knitr bigsum                
@@ -164,7 +164,7 @@ for (be in c("local", "hadoop")) {
   test(out, out.struct)              
                
 ## @knitr group-aggregate-input
-  input.ga = to.dfs(list(keyval(1:input.size, rnorm(input.size), vectorized=TRUE)))
+  input.ga = to.dfs(keyval(1:input.size, rnorm(input.size), vectorized=TRUE))
 ## @knitr group-aggregate-functions
   group = function(k,v) unlist(k)%%100
   aggregate = function(x) sum(unlist(x))

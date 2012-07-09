@@ -92,10 +92,11 @@ is.vectorized.keyval = function(kv) !is.null(attr(kv, 'rmr.vectorized', exact = 
 
 keyval.project = function(i) {
   function(kvl) {
-    vectorized = all(sapply(kvl, is.vectorized.keyval))
-    a.list = lapply(kvl, function(x) x[[i]])
-    if(all(sapply(a.list, is.data.frame)) && vectorized) do.call(rbind, a.list)
-    else do.call(c, lapply(a.list, function(x) if(vectorized) x else list(x)))}}
+    if(is.vectorized.keyval(kvl))
+      kvl[[i]]
+    else
+      lapply(kvl, function(x) x[[i]])}}
+  
 keys = keyval.project(1)
 values = keyval.project(2)
 
@@ -382,10 +383,13 @@ to.dfs = function(object, output = dfs.tempfile(), format = "native") {
         record.writer = make.record.writer(format$mode, 
                                            format$format, 
                                            con)
+      if(is.vectorized.keyval(obj))
+        record.writer(obj$key, obj$val, TRUE)
+      else
         lapply(obj, 
                function(x) {
                  kv = if(is.keyval(x)) x else keyval(NULL, x)
-                 record.writer(kv$key, kv$val, is.vectorized.keyval(kv))})
+                 record.writer(kv$key, kv$val, FALSE)})
       close(con)}
     
   write.file(object, tmp)      
@@ -436,7 +440,9 @@ from.dfs = function(input, format = "native", to.data.frame = FALSE, vectorized 
   if(to.data.frame) warning("to.data.frame deprecated, use structured instead")
   if(to.data.frame || structured) 
     keyval.list.to.data.frame(retval)
-  else retval}
+  else if(vectorized)
+    keyval(do.call(c, lapply(retval,keys)), do.call(c, lapply(retval, values)), vectorized = TRUE)
+  else(retval)}
 
 # mapreduce
 
@@ -524,17 +530,31 @@ mr.local = function(map,
                     backend.parameters, 
                     verbose = verbose) {
   if(is.null(reduce)) reduce = function(k, vv) lapply(vv, function(v) keyval(k, v))
-  map.out = do.call(c, 
-                    lapply(do.call(c, 
-                                   lapply(in.folder, 
-                                          function(x) lapply(from.dfs(x, 
-                                                                      format = input.format,
-                                                                      vectorized = vectorized$map), 
-                                                             function(y) {attr(y$val, 'rmr.input') = x; y}))), 
-                              function(kv) {retval = map(if(structured$map) to.data.frame(kv$key) else kv$key, 
-                                                         if(structured$map) to.data.frame(kv$val) else kv$val)
-                                            if(is.keyval(retval)) list(retval)
-                                            else retval}))
+  
+  catply = function(x, fun) do.call(c, lapply(x, fun))
+  apply.map =   
+    function(kv) {
+      retval = map(if(structured$map) to.data.frame(kv$key) else kv$key, 
+                   if(structured$map) to.data.frame(kv$val) else kv$val)
+
+      if(is.keyval(retval) && !is.vectorized.keyval(retval)) list(retval)
+      else {
+        if(is.vectorized.keyval(retval)) lapply(seq_along(keys(retval)), function(i) keyval(keys(retval)[[i]], values(retval)[[i]]))
+              else retval}}
+  get.data =
+    function(fname) {
+      in.data = from.dfs(fname, format = input.format, vectorized = vectorized$map > 1)
+      if(vectorized$map == 1) {
+        lapply(in.data, function(rec) {attr(rec$val, 'rmr.input') = fname; rec})}
+      else {
+        attr(in.data$val, 'rmr.input') = fname
+        list(in.data)}}
+  map.out = 
+    catply(
+      catply(
+        in.folder,
+        get.data),
+      apply.map)
   map.out = from.dfs(to.dfs(map.out))
   reduce.out = as.list(tapply(X = map.out, 
                       INDEX = sapply(keys(map.out), digest), 
