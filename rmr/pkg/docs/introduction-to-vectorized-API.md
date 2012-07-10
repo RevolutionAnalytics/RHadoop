@@ -6,10 +6,13 @@
 
 ## Goals for 1.3
 The main goal for 1.3 was to do a performance review and implement changes to eliminate the main performance bottlenecks. Following the review, we determined that better support for a vectorized programming style was necessary to allow writing efficient R and hence efficient `rmr` programs in the case of small record size &mdash; for large record size the vectorization can happen at the record level. We also concluded that the native format parser was unacceptably slow for small objects and other parsers could benefit from a vectorized version.  
-We selected a number of very basic use cases to exercise different aspects of the library and the focus was on speed gains on those cases while minimizing code changes. Since API changes were necessary, it was decided to tackle at the same time the issue of better supporting the structured data case, to try and make API changes as soon and as rarely as possible and to keep the `vectorized` and `structured` options consistent. The structured data features are mostly implemented but not necessarily with great attention to speed.
+We selected a number of very basic use cases to exercise different aspects of the library and the focus was on speed gains on those cases while minimizing code changes. Since API changes were necessary, it was decided to tackle at the same time the issue of better supporting the structured data case, to try and make API changes as soon and as rarely as possible and to keep the `vectorized` and `structured` options consistent. The structured data features are mostly implemented but not necessarily with great attention to speed and backward incompatible changes are possible in the future. The goal was to try and get an expanded, consitent API to the users as quickly as possible as well speed-enhancing features.
 
 ## Changes Overview
 We have added a `vectorized` option to `from.dfs`, `mapreduce` and `keyval`. The precise syntax and semantics will be clear from the examples and is described in the R `help()` but the main idea is to instruct the library that the user intends to process or generate multiple key-value pairs in one call. We have also provided vectorized implementations for the typedbytes, CSV and text formats. We have also added a `structured` option to the same functions that in general means that key-value pairs are provided or expected by the user as data frames. 
+
+## Data types
+The main data type in rmr is they key-value pair, a two element list with some attributes generated with the function `keyal`. Any R object can take the role of key or value (but see [Caveats](##Caveats) below). Collections of key-value pairs can be represented as lists thereof. This is a row-first representation that is close to how Hadoop does things, but not very natural or efficient in R. Therefore we support an alternative, the *vectorized*
 
 ## Caveats
 Because of the inefficiency of the native R serialization on small objects, even using a C implementation, we decided to switch automatically to a different serialization format, typedbytes, when the `vectorized` option is on. This means that users are not going to enjoy the same kind of absolute compatibility with R but this usually is not a huge drawback when dealing with small records, typically scalars. For example, if each record contains a 100x100 submatrix of a larger matrix, the `vectorized` API doesn't support matrices very well but it's also not going to give a speed boost. If one is processing graphs and each record is a just an integer pair `(start, stop)`, that's where the `vectorized` interface gives the biggest speed boost and typedbytes serialization is adequate for simple records. There may be "in between" cases, for instance when keys or values are very small matrices, where neither option is ideal. In consideration of that, in the future we may expand typedbytes with additional types to be more R-friendly.
@@ -21,7 +24,7 @@ First let's create some input. Input size is arbitrary but it is the one used in
 
 ```r
   input.size = if(rmr.options.get('backend') == "local") 10^4 else 10^6
-  data = list(keyval(rep(list(1), input.size),as.list(1:input.size), vectorized = TRUE))
+  data = keyval(rep(list(1), input.size),as.list(1:input.size), vectorized = TRUE)
   input = to.dfs(data)
 ```
 
@@ -124,9 +127,9 @@ In this example we want to select specific elements of each record or columns, i
 
 
 ```r
-  input.select = to.dfs(list(keyval(1:input.size, 
+  input.select = to.dfs(keyval(1:input.size, 
                                     replicate(input.size, list(a=1,b=2,c=3), 
-                                              simplify=FALSE), vectorized=TRUE)))
+                                              simplify=FALSE), vectorized=TRUE))
 ```
 
 
@@ -197,7 +200,7 @@ We now move on to the first example including a reduce. It's an extreme case of 
 
 
 ```r
-  input.bigsum = to.dfs(list(keyval(rep(1, input.size), rnorm(input.size), vectorized=TRUE)))
+  input.bigsum = to.dfs(keyval(rep(1, input.size), rnorm(input.size), vectorized=TRUE))
 ```
 
 
@@ -247,7 +250,7 @@ This is an example of a more realistic aggregation on a user-defined number of g
 
 
 ```r
-  input.ga = to.dfs(list(keyval(1:input.size, rnorm(input.size), vectorized=TRUE)))
+  input.ga = to.dfs(keyval(1:input.size, rnorm(input.size), vectorized=TRUE))
 ```
 
 
@@ -287,6 +290,7 @@ In the vectorized version we could again apply the trick of in-map aggregation, 
 
 
 
+Finally, the structured version to complete these test cases.
 
 
 ```r
