@@ -396,9 +396,6 @@ to.dfs = function(object, output = dfs.tempfile(), format = "native") {
   if(rmr.options.get('backend') == 'hadoop') {
     if(format$mode == "binary")
       system(paste(hadoop.streaming(),  "loadtb", dfsOutput, "<", tmp))
-    else  hdfs.put(tmp, dfsOutput)
-    file.remove(tmp)}
-  else file.rename(tmp, dfsOutput)
   output}
 
 from.dfs = function(input, format = "native", to.data.frame = FALSE, vectorized = FALSE, structured = FALSE) {
