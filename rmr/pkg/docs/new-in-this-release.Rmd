@@ -1,5 +1,6 @@
 # What's new
 
+## Major changes
 * A new vectorized API supports a vectorized programming style, which can achieve C-like 
 speeds when followed consistently. The old API is still the default and has undergone only cosmetic changes, but when 
 efficiency is important and with small record sizes using the vectorized interface is recommended. On the other hand the
@@ -17,3 +18,11 @@ and the "csv" reader is even more stable when using the vectorized API.
  conversions from and to data frames would be avoided. This is still in a planning stage and we welcome your feedback (issue 
  #102)
 
+## Minor changes
+* Updated whirr scripts run R 2.15, can optionally use lzo compression and work around unavaialbility of some packages from CRAN
+* Packages are loaded on the cluster nodes with `require` to avoid failure when not available, nontheless your code will fail
+if such packages are needed by the map and reduce functions. The tradeoff here is that one doesn't have to detach packages before 
+calling mapreduce when those packages are neither needed nor available on the nodes but the errors when packages are needed will be 
+less intuitive (but a warning will be in stderr before the error, which should help)
+* Fixed a bug (#111) whereby `from.dfs` would fail when tmp dir and destination are on two different volumes when the local 
+backend is active (thanks Saar).
