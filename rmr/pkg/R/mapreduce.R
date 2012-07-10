@@ -137,7 +137,7 @@ keyval.list.to.data.frame =
     kk = to.data.frame(keys(x))
     vv = to.data.frame(values(x))
     if(!is.null(nrow(kk)) && nrow(kk) == nrow(vv))
-      cbind(kk, vv)
+      keyval(kk, vv, vectorized = TRUE)
     else {
       warning("dropping keys")
       vv}}
