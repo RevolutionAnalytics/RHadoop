@@ -28,6 +28,9 @@ make.fast.list = function(l = list()) {
       l2[i:(i + length(els) - 1)] <<- els
       i <<- i + length(els)}}}
 
+#list manip
+
+catply = function(x, fun) do.call(c, lapply(x, fun))
 
 #options
 
@@ -531,7 +534,6 @@ mr.local = function(map,
                     verbose = verbose) {
   if(is.null(reduce)) reduce = function(k, vv) lapply(vv, function(v) keyval(k, v))
   
-  catply = function(x, fun) do.call(c, lapply(x, fun))
   apply.map =   
     function(kv) {
       retval = map(if(structured$map) to.data.frame(kv$key) else kv$key, 
