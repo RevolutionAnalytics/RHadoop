@@ -25,7 +25,7 @@ kmeans.iter =
                                distances = apply(centers, 1, function(c) distfun(c,v))
                                keyval(centers[which.min(distances),], v)}},
                          reduce = function(k,vv) keyval(NULL, apply(do.call(rbind, vv), 2, mean))),
-             to.data.frame = T)}
+             structured = T)}
 
 
 #points grouped many-per-record something like 1000 should give most perf improvement, 
@@ -67,9 +67,10 @@ kmeans.iter.fast =
        reduce = function(k, vv) {
                keyval(k, apply(list.to.matrix(vv), 2, sum))},
      combine = T),
-to.data.frame = T)
+structured = T)
     ## convention is iteration returns sum of points not average and first element of each sum is the count
-    newCenters = newCenters[newCenters[,2] > 0,-1]
+    newCenters = cbind(newCenters$key, newCenters$val)
+    newCenters = newCenters[newCenters[,2] > 0, -1]
     (newCenters/newCenters[,1])[,-1]}
 
 fast.dist = function(yy, x) { #compute all the distances between x and rows of yy
