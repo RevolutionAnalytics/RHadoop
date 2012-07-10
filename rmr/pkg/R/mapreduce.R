@@ -94,11 +94,19 @@ is.keyval = function(kv) !is.null(attr(kv, 'rmr.keyval', exact = TRUE))
 is.vectorized.keyval = function(kv) !is.null(attr(kv, 'rmr.vectorized', exact = TRUE))
 
 keyval.project = function(i) {
+  list.singleton = 
+    function(kv){
+      if(is.keyval(kv))
+        list(kv)
+      else
+        kv}
   function(kvl) {
-    if(is.vectorized.keyval(kvl))
-      kvl[[i]]
-    else
-      lapply(kvl, function(x) x[[i]])}}
+    catply(list.singleton(kvl),
+           function(kv) {
+               if(is.vectorized.keyval(kv))
+                 kv[[i]]
+               else
+                 list(kv[[i]])})}}
   
 keys = keyval.project(1)
 values = keyval.project(2)
