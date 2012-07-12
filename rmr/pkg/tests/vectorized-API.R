@@ -1,11 +1,15 @@
 library(rmr)
+library(digest)
 #timings from macbook pro i7 2011, standalone CDH3, one core
   
+rmr.digest = function(input, output = NULL)
+  mapreduce(input, output, map = function(k,v) {attr(v, "rmr.input") = NULL
+                                                keyval(digest(keyval(k,v)), 1)})
+
 test = function (out.1, out.2) {
   stopifnot(
-    rmr:::cmp(
-      from.dfs(out.1, vectorized = TRUE),
-      from.dfs(out.2, vectorized = TRUE)))}
+    sort(unlist(keys(from.dfs(rmr.digest(out.1), vectorized = TRUE)))) ==
+    sort(unlist(keys(from.dfs(rmr.digest(out.2), vectorized = TRUE)))))}
 
 for (be in c("local", "hadoop")) {
   rmr.options.set(backend = be)
