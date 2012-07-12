@@ -276,10 +276,14 @@ make.output.format = function(format = native.output.format,
 
 #output cmp
 cmp = function(x, y) {
-  ox = order(sapply(keys(x), digest), sapply(values(x), function(z){attr(z, "rmr.input") = NULL; digest(z)}))
-  oy = order(sapply(keys(y), digest), sapply(values(y), function(z){attr(z, "rmr.input") = NULL; digest(z)}))
-  isTRUE(all.equal(keys(x)[ox], keys(y)[oy], check.attributes = FALSE)) &&
-  isTRUE(all.equal(values(x)[ox], values(y)[oy], check.attributes = FALSE))}
+  kx  = keys(x)
+  ky = keys(y)
+  vx = values(x)
+  vy = values(y)
+  ox = order(sapply(kx, digest), sapply(vx, function(z){attr(z, "rmr.input") = NULL; digest(z)}))
+  oy = order(sapply(ky, digest), sapply(vy, function(z){attr(z, "rmr.input") = NULL; digest(z)}))
+  isTRUE(all.equal(kx[ox], ky[oy], check.attributes = FALSE)) &&
+  isTRUE(all.equal(vx[ox], vy[oy], check.attributes = FALSE))}
 
 #hdfs section
 
