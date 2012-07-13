@@ -15,13 +15,13 @@ rmr.options.set(backend = c("hadoop", "local"), profile.nodes = NULL, vectorized
   \item{...}{Character names of option to get the value of}
   \item{backend}{One of "hadoop" or "local", the latter being implemented entirely in the current R interpreter, sequentially. Very useful for learning and debugging.}
   \item{profile.nodes}{Collect profiling information when running additional R interpreters (besides the current one) on the cluster. }
-  \item{vectorized.nrows}{How many records to read into a single, vectorized, key-value pair, when the vectorized option in \code{\link{mapreduce}} ore \code{\link{from.dfs}} is set to TRUE. See also \code{\link{keyval}}.}
+  \item{vectorized.nrows}{How many records to read into a single, vectorized, key-value pair, when the vectorized option in \code{\link{mapreduce}} or \code{\link{from.dfs}} is set to TRUE. See also \code{\link{keyval}}.}
  %\item{depend.check}{Activate makefile-like dependency checking (under construction)}
  % \item{managed.dir}{Where to put intermediate result when makefile-like features are activated}
 }
 \details{
  Mapreduce has come to mean massive, fault tolerant distributed computing because of its use by Google and Hadoop, but it is also
-an abstract model of computation amenable to different implementations. Here we provide access to Hadoop through the hadoop backend and
+an abstract model of computation amenable to different implementations. Here we provide access to mapreduce through the hadoop backend and
 provide an all-R, single interpreter implementation (local) that's good for experimentation and debugging, in particular to debug mappers and
 reducers. Profiling data is collected in the following file: \code{file.path("/tmp/Rprof", Sys.getenv('mapred_job_id'), Sys.getenv('mapreduce_tip_id'))}. 
 %Describe dependency checking here 
