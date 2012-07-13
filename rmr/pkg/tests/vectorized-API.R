@@ -166,7 +166,9 @@ for (be in c("local", "hadoop")) {
               structured = TRUE)
 ## @knitr                                   
               })
-  stopifnot(isTRUE(all.equal(from.dfs(out), from.dfs(out.stuct), check.attributes=F)))
+  stopifnot(isTRUE(all.equal(from.dfs(out), 
+                             from.dfs(out.struct), 
+                             check.attributes=F)))
   
 ## @knitr group-aggregate-input
   input.ga = to.dfs(keyval(1:input.size, rnorm(input.size), vectorized=TRUE))
