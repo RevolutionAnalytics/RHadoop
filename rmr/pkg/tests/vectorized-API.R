@@ -172,7 +172,7 @@ for (be in c("local", "hadoop")) {
   input.ga = to.dfs(keyval(1:input.size, rnorm(input.size), vectorized=TRUE))
 ## @knitr group-aggregate-functions
   group = function(k,v) unlist(k)%%100
-  aggregate = function(x) sum(unlist(x))
+  aggregate = function(x) signif(sum(unlist(x)), 6)
 ## @knitr             
   system.time({out = 
 ## @knitr group-aggregate
