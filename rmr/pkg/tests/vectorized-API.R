@@ -172,7 +172,7 @@ for (be in c("local", "hadoop")) {
   input.ga = to.dfs(keyval(1:input.size, rnorm(input.size), vectorized=TRUE))
 ## @knitr group-aggregate-functions
   group = function(k,v) unlist(k)%%100
-  aggregate = function(x) signif(sum(unlist(x)), 6)
+  aggregate = function(x) sum(unlist(x))
 ## @knitr             
   system.time({out = 
 ## @knitr group-aggregate
@@ -195,7 +195,9 @@ for (be in c("local", "hadoop")) {
               })
   # user  system elapsed 
   # 114.444   3.720 110.314 
-  test(out, out.vec)  
+  stopifnot(isTRUE(all.equal(sort(unlist(values(from.dfs(out)))), 
+                             sort(unlist(values(from.dfs(out.vec)))),
+                             check.attributes=F)))
   #vec version, structured case
   system.time({out.struct = 
 ## @knitr group-aggregate-vec-struct
@@ -206,6 +208,7 @@ for (be in c("local", "hadoop")) {
               structured = TRUE)
 ## @knitr                                   
               })
-  test(out, out.struct)              
-  
+  stopifnot(isTRUE(all.equal(sort(unlist(values(from.dfs(out)))), 
+                             sort(unlist(values(from.dfs(out.struct)))),
+                             check.attributes=F)))
 }
