@@ -553,8 +553,11 @@ mr.local = function(map,
 
       if(is.keyval(retval) && !is.vectorized.keyval(retval)) list(retval)
       else {
-        if(is.vectorized.keyval(retval)) lapply(seq_along(keys(retval)), function(i) keyval(keys(retval)[[i]], values(retval)[[i]]))
-              else retval}}
+        if(is.vectorized.keyval(retval)){
+          kr = keys(retval)
+          vr = values(retval)
+          lapply(seq_along(kr), function(i) keyval(kr[[i]], vr[[i]]))}
+        else retval}}
   get.data =
     function(fname) {
       in.data = from.dfs(fname, format = input.format, vectorized = vectorized$map > 1)
