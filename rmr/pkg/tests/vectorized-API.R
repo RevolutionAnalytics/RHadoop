@@ -154,7 +154,8 @@ for (be in c("local", "hadoop")) {
               })
   # user  system elapsed 
   # 43.190   2.063  41.723 
-  test(out, out.vec)  
+  stopifnot(isTRUE(all.equal(from.dfs(out), from.dfs(out.vec), check.attributes=F)))
+  
   system.time({out.struct = 
 ## @knitr bigsum-vec-struct                
     mapreduce(input.bigsum, 
@@ -165,8 +166,8 @@ for (be in c("local", "hadoop")) {
               structured = TRUE)
 ## @knitr                                   
               })
-  test(out, out.struct)              
-               
+  stopifnot(isTRUE(all.equal(from.dfs(out), from.dfs(out.stuct), check.attributes=F)))
+  
 ## @knitr group-aggregate-input
   input.ga = to.dfs(keyval(1:input.size, rnorm(input.size), vectorized=TRUE))
 ## @knitr group-aggregate-functions
