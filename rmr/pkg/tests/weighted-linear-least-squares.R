@@ -44,7 +44,7 @@ mat.mult = function(left, right, result = NULL) {
 
 `%x%` = mat.mult
 
-to.matrix = function(df) as.matrix(sparseMatrix(i=df$V1, j=df$V2, x=df$V3))
+to.matrix = function(df) as.matrix(sparseMatrix(i=df$key[,1], j=df$key[,2], x=df$val[,1]))
 
 weighted.linear.least.squares = function(X, y, W) {
   Xt = transpose(X)
@@ -62,4 +62,4 @@ for (be in c("local", "hadoop")) {
   rmr.options.set(backend = be)
   out[[be]] = weighted.linear.least.squares(to.dfs(X), to.dfs(y), to.dfs(W))}
 
-stopifnot(rmr:::cmp(out[['local']], out[['hadoop']]))
+stopifnot(isTRUE(all.equal(out[['local']], out[['hadoop']])))

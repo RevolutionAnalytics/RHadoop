@@ -16,3 +16,12 @@ rmr-*-env
 whirr.log*
 #for emerge users
 *.orig
+
+rhbase/pkg/config.log
+
+#Compilation artifacts
+src-i386
+src-x86_64
+*.o
+*.so
+*.rds

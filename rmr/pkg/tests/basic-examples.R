@@ -24,7 +24,7 @@ for (be in c("local", "hadoop")) {
   small.ints = to.dfs(1:1000)
   mapreduce(input = small.ints, map = function(k,v) keyval(v, v^2))
   
-  from.dfs(mapreduce(input=small.ints, map = function(k,v) keyval(v, v^2)))
+  from.dfs(mapreduce(input = small.ints, map = function(k,v) keyval(v, v^2)))
   
   ## tapply like job
   
@@ -35,11 +35,11 @@ for (be in c("local", "hadoop")) {
   from.dfs(mapreduce(input = groups, map = function(k,v) keyval(v, 1), reduce = function(k,vv) keyval(k, length(vv))))
   
   
-  ##input can be any RevoStreaming file (our own format)
+  ## input can be any rmr-native format file
   ## pred can be function(x) x > 0
   ## it will be evaluated on the value only, not on the key
   
-  filtermap= function(pred) function(k,v) {if (pred(v)) keyval(k,v) else NULL}
+  filtermap = function(pred) function(k,v) {if (pred(v)) keyval(k,v) else NULL}
   
   mrfilter = function (input, output = NULL, pred) {
     mapreduce(input = input,
@@ -47,8 +47,8 @@ for (be in c("local", "hadoop")) {
               map = filtermap(pred))
   }
 
-  filtertest = to.dfs(lapply (1:10, function(i) keyval(NULL, rnorm(2))))
-  from.dfs(mrfilter(input = filtertest, pred =function(x) x > 0))}
+  filtertest = to.dfs(lapply (1:10, function(i) keyval(NULL, rnorm(1))))
+  from.dfs(mrfilter(input = filtertest, pred = function(x) x > 0))}
 
 
 ## pipeline of two filters, sweet

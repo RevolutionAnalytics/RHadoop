@@ -1,3 +1,4 @@
+useDynLib(rmr)
 export(mapreduce)
 export(from.dfs, to.dfs)
 export(equijoin, scatter)

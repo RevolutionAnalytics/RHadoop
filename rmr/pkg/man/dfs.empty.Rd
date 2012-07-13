@@ -11,7 +11,7 @@ dfs.empty(f)
 }
 \arguments{
   \item{f}{
-An hdfs path or object returned by mapreduce
+An file path or object returned by mapreduce
 }
 }
 

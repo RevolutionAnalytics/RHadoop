@@ -14,18 +14,19 @@
 
 branch=master
 sudo apt-get install -y r-base-core
+sudo apt-get install -y r-cran-rcpp
 sudo R --no-save << EOF
-install.packages(c('methods', 'RJSONIO', 'itertools', 'digest'), repos =  "http://lib.stat.cmu.edu/R/CRAN")
+install.packages(c('RJSONIO', 'itertools', 'digest'), repos="http://cran.revolutionanalytics.com", INSTALL_opts=c('--byte-compile') )
 EOF
 
+rm -rf $branch RHadoop
 curl  -L   https://github.com/RevolutionAnalytics/RHadoop/tarball/$branch | tar zx
 mv RevolutionAnalytics-RHadoop* RHadoop
-sudo R CMD INSTALL RHadoop/rmr/pkg/
+sudo R CMD INSTALL --byte-compile RHadoop/rmr/pkg/
 
 sudo su << EOF1 
-cat >> /etc/profile <<EOF
- 
+echo ' 
 export HADOOP_HOME=/usr/lib/hadoop
-
-EOF
+' >> /etc/profile 
+ 
 EOF1

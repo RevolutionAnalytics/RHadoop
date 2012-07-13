@@ -35,26 +35,15 @@ for (be in c("local", "hadoop")) {
   
   ## test for typed bytes read/write
   ## replace with unit.test when possible
-  
-  lapply(
-    list(c(as.raw(66), as.raw(67)), #0
-         as.raw(2), #1
-         FALSE, #2
-         10L, #4
-         3.124, #6
-         "foobar", #7 
-         list(1,"ab", 1L), #8 
-         list(keyval(1,"1"), keyval(2, "2"))), #10
-    function(x) {
-      fname = "/tmp/tbtest"
-      con = file(fname, 'wb')
-      rmr:::typed.bytes.writer(value=x, con=con)
-      close(con)
-      con = file(fname, 'rb')
-      y = rmr:::typed.bytes.reader(con=con)[[1]]
-      close(con)
-      stopifnot( all.equal(x,y))})
     
+  unit.test(function(l) {
+    l = rapply(l, how = 'replace', 
+               function(x){
+                 if(is.null(x)) list()
+                 else as.list(x)})
+    isTRUE(all.equal(l, rmr:::typed.bytes.reader(rmr:::typed.bytes.writer(l), length(l) + 5)$objects))},
+            generators = list(tdgg.list()))
+  
   ##keys and values
   unit.test(function(kvl) isTRUE(all.equal(kvl, 
                                apply(cbind(keys(kvl), 
@@ -85,7 +74,7 @@ for (be in c("local", "hadoop")) {
           format = make.input.format(
             format = "csv", 
             colClasses = lapply(df[1,], class)), 
-          to.data.frame = TRUE), 
+          structured = TRUE), 
         tolerance = 1e-4, 
         check.attributes = FALSE))},
             generators = list(tdgg.data.frame()),
@@ -138,22 +127,24 @@ for (be in c("local", "hadoop")) {
               sample.size = 10)}
   
   ## csv
+  library(digest)
+  data.frame.order = function(x) order(apply(x, 1, function(y) digest(as.character(y))))
   unit.test(function(df) {
-    inpf = make.input.format(
-      format = "csv", 
-      colClasses = lapply(df[1,], class))
-    df1 = from.dfs(
-      mapreduce(
-        to.dfs(df, 
-               format = "csv"),
-        input.format = inpf,
-        output.format = "csv"),
-      format = inpf, 
-      to.data.frame = TRUE)
+      inpf = make.input.format(
+        format = "csv", 
+        colClasses = lapply(df[1,], class))
+      df1 = from.dfs(
+        mapreduce(
+          to.dfs(df, 
+                 format = "csv"),
+          input.format = inpf,
+          output.format = "csv"),
+        format = inpf, 
+        to.data.frame = TRUE)
     isTRUE(
       all.equal(
-        df[order(df[,1]),], 
-        df1[order(df1[,1]),], 
+        df[data.frame.order(df),], 
+        df1[data.frame.order(df1),], 
         tolerance = 1e-4, 
         check.attributes = FALSE))},
             generators = list(tdgg.data.frame()),

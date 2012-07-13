@@ -39,4 +39,4 @@ for (be in c("local", "hadoop")) {
   out[[be]] = logistic.regression(testdata, 3, 2, 0.05)
   ## max likelihood solution diverges for separable dataset, (-inf, inf) such as the above
 }
-stopifnot(rmr:::cmp(out[['local']], out[['hadoop']]))
+stopifnot(isTRUE(all.equal(out[['local']], out[['hadoop']])))

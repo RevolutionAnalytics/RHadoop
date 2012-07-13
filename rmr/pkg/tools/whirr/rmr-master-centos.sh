@@ -1,3 +1,6 @@
+# rmr-master-centos.sh by Jeffrey Breen, based on rmr-master.sh
+# original copyright attached:
+#
 # Copyright 2011 Revolution Analytics
 #    
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,15 +15,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-branch=v1.2
-sudo apt-get install -y r-base-core
+sudo yum -y --enablerepo=epel install R R-devel
+
 sudo R --no-save << EOF
-install.packages(c('methods', 'RJSONIO', 'itertools', 'digest'), repos =  "http://lib.stat.cmu.edu/R/CRAN")
+install.packages(c('Rcpp', 'RJSONIO', 'itertools', 'digest'), repos="http://cran.revolutionanalytics.com", INSTALL_opts=c('--byte-compile') )
 EOF
 
-curl  -L   https://github.com/RevolutionAnalytics/RHadoop/tarball/$branch | tar zx
+# install the rmr package from RHadoop:
+
+branch=master
+
+wget --no-check-certificate https://github.com/RevolutionAnalytics/RHadoop/tarball/$branch -O - | tar zx
 mv RevolutionAnalytics-RHadoop* RHadoop
-sudo R CMD INSTALL RHadoop/rmr/pkg/
+sudo R CMD INSTALL --byte-compile RHadoop/rmr/pkg/
 
 sudo su << EOF1 
 cat >> /etc/profile <<EOF
