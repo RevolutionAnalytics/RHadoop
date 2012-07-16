@@ -18,6 +18,7 @@
 
 library(rmr)
 
+## @knitr logistic.regression
 logistic.regression = function(input, iterations, dims, alpha){
   plane = rep(0, dims)
   g = function(z) 1/(1 + exp(-z))
@@ -28,7 +29,7 @@ logistic.regression = function(input, iterations, dims, alpha){
       combine = T))
     plane = plane + alpha * gradient[[1]]$val }
   plane }
-    
+## @knitr end
 out = list()
 for (be in c("local", "hadoop")) {
   rmr.options.set(backend = be)

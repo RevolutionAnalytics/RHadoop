@@ -14,6 +14,7 @@
 
 library(rmr)
 
+## @knitr kmeans.iter
 kmeans.iter =
   function(points, distfun, ncenters = dim(centers)[1], centers = NULL) {
     from.dfs(mapreduce(input = points,
@@ -26,7 +27,7 @@ kmeans.iter =
                                keyval(centers[which.min(distances),], v)}},
                          reduce = function(k,vv) keyval(NULL, apply(do.call(rbind, vv), 2, mean))),
              structured = T)}
-
+## @knitr end
 
 #points grouped many-per-record something like 1000 should give most perf improvement, 
 #assume centers fewer than points, loop over centers never points, use vectorised C primitives
@@ -78,6 +79,7 @@ fast.dist = function(yy, x) { #compute all the distances between x and rows of y
       ##sum the columns, take the root, loop on dimension
       sqrt(Reduce(`+`, lapply(1:dim(yy)[2], function(d) squared.diffs[,d])))}
  
+## @knitr kmeans.control
 kmeans =
   function(points, ncenters, iterations = 10, distfun = NULL, 
            plot = FALSE, fast = F) {
@@ -91,19 +93,9 @@ kmeans =
         points, 
         distfun,
         ncenters = ncenters)
-    if(plot) pdf = rmr:::to.data.frame(do.call(c,values(from.dfs(points))))
-    for(i in 1:iterations) {
-      if(plot) {
-        names(newCenters) = c("V1", "V2")
-        library(ggplot2)
-        png(paste(Sys.time(), "png", sep = "."))
-        print(ggplot(data = pdf, aes(x=V1, y=V2, size = .1, alpha = .1) ) + 
-          geom_point() +
-          geom_point(data = newCenters, aes(x = V1, y = V2, size = .3, alpha = 1), color = "red"))
-        dev.off()}
       newCenters = kmeans.iter(points, distfun, centers = newCenters)}
     newCenters}
-
+## @knitr end
 
 ## sample runs
 ## 
@@ -114,10 +106,14 @@ out.fast = list()
 for(be in c("local", "hadoop")) {
   rmr.options.set(backend = be)
   set.seed(0)
+## @knitr kmeans.data
   input = to.dfs(lapply(1:1000, function(i) keyval(NULL, c(rnorm(1, mean = i%%3, sd = 0.1), 
                                                          rnorm(1, mean = i%%4, sd = 0.1)))))
-  out[[be]] = kmeans(input, 12, iterations = 5)
-
+## @knitr end
+  out[[be]] = 
+## @knitr kmeans.run    
+    kmeans(input, 12, iterations = 5)
+## @knitr end
   set.seed(0)
   recsize = 1000
   input = to.dfs(lapply(1:100, 
