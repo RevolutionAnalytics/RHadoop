@@ -212,7 +212,7 @@ And this is a simple test of what we've just implemented,
 
   With a little extra work you can even get pretty visualizations like this one:
 
-![Kmeans animation](kmeans.gif)
+![Kmeans animation](../../../../../raw/dev/rmr/pkg/docs/kmeans.gif)
 
 <a name="linearleastsquares"></a>
 ## Linear Least Squares
