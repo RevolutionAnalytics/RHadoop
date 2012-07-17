@@ -15,7 +15,8 @@
  
 
 ```r
-  small.ints = 1:1000  lapply(small.ints, function(x) x^2)
+  small.ints = 1:1000
+  lapply(small.ints, function(x) x^2)
 ```
 
 
@@ -23,7 +24,8 @@ The example is trivial, just computing the first 10 squares, but we just want to
 
 
 ```r
-  small.ints = to.dfs(1:1000)  mapreduce(input = small.ints, map = function(k,v) keyval(v, v^2))
+  small.ints = to.dfs(1:1000)
+  mapreduce(input = small.ints, map = function(k,v) keyval(v, v^2))
 ```
 
 
@@ -50,14 +52,16 @@ We've just created a simple job that was logically equivalent to a lapply but ca
 
 
 ```r
-  groups = rbinom(32, n = 50, prob = 0.4)  tapply(groups, groups, length)
+  groups = rbinom(32, n = 50, prob = 0.4)
+  tapply(groups, groups, length)
 ```
 
 This creates a sample from the binomial and counts how many times each outcome occurred. Now onto the mapreduce  equivalent:
   
 
 ```r
-  groups = to.dfs(groups)  from.dfs(mapreduce(input = groups, map = function(k,v) keyval(v, 1), reduce = function(k,vv) keyval(k, length(vv))))
+  groups = to.dfs(groups)
+  from.dfs(mapreduce(input = groups, map = function(k,v) keyval(v, 1), reduce = function(k,vv) keyval(k, length(vv))))
 ```
 
 
@@ -70,7 +74,19 @@ The word count program has become a sort of "hello world" of the mapreduce world
 
 
 ```r
-wordcount = function (input, output = NULL, pattern = " ") {  mapreduce(input = input ,            output = output,            input.format = "text",            map = function(k,v) {                      lapply(                         strsplit(                                  x = v,                                  split = pattern)[[1]],                         function(w) keyval(w,1))},                reduce = function(k,vv) {                    keyval(k, sum(unlist(vv)))},                combine = T)}
+wordcount = function (input, output = NULL, pattern = " ") {
+  mapreduce(input = input ,
+            output = output,
+            input.format = "text",
+            map = function(k,v) {
+                      lapply(
+                         strsplit(
+                                  x = v,
+                                  split = pattern)[[1]],
+                         function(w) keyval(w,1))},
+                reduce = function(k,vv) {
+                    keyval(k, sum(unlist(vv)))},
+                combine = T)}
 ```
 
 
@@ -92,7 +108,16 @@ Now onto an example from supervised learning, specifically logistic regression b
 
 
 ```r
-logistic.regression = function(input, iterations, dims, alpha){  plane = rep(0, dims)  g = function(z) 1/(1 + exp(-z))  for (i in 1:iterations) {    gradient = from.dfs(mapreduce(input,      map = function(k, v) keyval (1, v$y * v$x * g(-v$y * (plane %*% v$x))),      reduce = function(k, vv) keyval(k, apply(do.call(rbind,vv),2,sum)),      combine = T))    plane = plane + alpha * gradient[[1]]$val }  plane }
+logistic.regression = function(input, iterations, dims, alpha){
+  plane = rep(0, dims)
+  g = function(z) 1/(1 + exp(-z))
+  for (i in 1:iterations) {
+    gradient = from.dfs(mapreduce(input,
+      map = function(k, v) keyval (1, v$y * v$x * g(-v$y * (plane %*% v$x))),
+      reduce = function(k, vv) keyval(k, apply(do.call(rbind,vv),2,sum)),
+      combine = T))
+    plane = plane + alpha * gradient[[1]]$val }
+  plane }
 ```
 
 
@@ -123,7 +148,21 @@ We are talking about k-means and we are going to implement it in two parts: a fu
 
 
 ```r
-kmeans =  function(points, ncenters, iterations = 10, distfun = NULL,            plot = FALSE, fast = F) {    if(is.null(distfun))       distfun =         if (!fast) function(a,b) norm(as.matrix(a-b), type = 'F')        else fast.dist      if (fast) kmeans.iter = kmeans.iter.fast    newCenters =       kmeans.iter(        points,         distfun,        ncenters = ncenters)      newCenters = kmeans.iter(points, distfun, centers = newCenters)}    newCenters}
+kmeans =
+  function(points, ncenters, iterations = 10, distfun = NULL, 
+           plot = FALSE, fast = F) {
+    if(is.null(distfun)) 
+      distfun = 
+        if (!fast) function(a,b) norm(as.matrix(a-b), type = 'F')
+        else fast.dist  
+    if (fast) kmeans.iter = kmeans.iter.fast
+    newCenters = 
+      kmeans.iter(
+        points, 
+        distfun,
+        ncenters = ncenters)
+      newCenters = kmeans.iter(points, distfun, centers = newCenters)}
+    newCenters}
 ```
 
 
@@ -135,7 +174,18 @@ Now let's look at the main loop. It gets executed a user-set number of times, fo
 
 
 ```r
-kmeans.iter =  function(points, distfun, ncenters = dim(centers)[1], centers = NULL) {    from.dfs(mapreduce(input = points,                         map =                            if (is.null(centers)) {                             function(k,v) keyval(sample(1:ncenters,1),v)}                           else {                             function(k,v) {                               distances = apply(centers, 1, function(c) distfun(c,v))                               keyval(centers[which.min(distances),], v)}},                         reduce = function(k,vv) keyval(NULL, apply(do.call(rbind, vv), 2, mean))),             structured = T)}
+kmeans.iter =
+  function(points, distfun, ncenters = dim(centers)[1], centers = NULL) {
+    from.dfs(mapreduce(input = points,
+                         map = 
+                           if (is.null(centers)) {
+                             function(k,v) keyval(sample(1:ncenters,1),v)}
+                           else {
+                             function(k,v) {
+                               distances = apply(centers, 1, function(c) distfun(c,v))
+                               keyval(centers[which.min(distances),], v)}},
+                         reduce = function(k,vv) keyval(NULL, apply(do.call(rbind, vv), 2, mean))),
+             structured = T)}
 ```
 
 
@@ -147,7 +197,8 @@ To perform a sample run, we need some data. We can create it very easily from th
   
 
 ```r
-  input = to.dfs(lapply(1:1000, function(i) keyval(NULL, c(rnorm(1, mean = i%%3, sd = 0.1),                                                          rnorm(1, mean = i%%4, sd = 0.1)))))
+  input = to.dfs(lapply(1:1000, function(i) keyval(NULL, c(rnorm(1, mean = i%%3, sd = 0.1), 
+                                                         rnorm(1, mean = i%%4, sd = 0.1)))))
 ```
 
 
@@ -215,7 +266,9 @@ Then we have the map reduce transpose job which is abstracted into a function tr
 
 
 ```r
-transpose = function(input, output = NULL){  mapreduce(input = input, output = output, map = transpose.map)}
+transpose = function(input, output = NULL){
+  mapreduce(input = input, output = output, map = transpose.map)
+}
 ```
 
 
@@ -273,7 +326,17 @@ And finally to the actual matrix multiplication. It is implemented as the compos
    
 
 ```r
-mat.mult = function(left, right, result = NULL) {  mapreduce(                input =                equijoin(left.input = left, right.input = right,                                 map.left = mat.mult.map(2),                                 map.right = mat.mult.map(1),                                  reduce = function(k, vvl, vvr)                                    do.call(c, lapply(vvl, function(vl)                                     lapply(vvr, function(vr) keyval(c(vl$pos[[1]], vr$pos[[2]]), vl$elem*vr$elem))))),                output = result,                reduce = to.reduce(identity, function(x) sum(unlist(x))))}
+mat.mult = function(left, right, result = NULL) {
+  mapreduce(
+                input =
+                equijoin(left.input = left, right.input = right,
+                                 map.left = mat.mult.map(2),
+                                 map.right = mat.mult.map(1), 
+                                 reduce = function(k, vvl, vvr) 
+                                   do.call(c, lapply(vvl, function(vl)
+                                     lapply(vvr, function(vr) keyval(c(vl$pos[[1]], vr$pos[[2]]), vl$elem*vr$elem))))),
+                output = result,
+                reduce = to.reduce(identity, function(x) sum(unlist(x))))}
 ```
 
      
@@ -295,7 +358,11 @@ to.matrix = function(df) as.matrix(sparseMatrix(i=df$key[,1], j=df$key[,2], x=df
    
 
 ```r
-linear.least.squares = function(X,y) {  Xt = transpose(X)  XtX = from.dfs(mat.mult(Xt, X), to.data.frame = TRUE)  Xty = from.dfs(mat.mult(Xt, y), to.data.frame = TRUE)  solve(to.matrix(XtX),to.matrix(Xty))}
+linear.least.squares = function(X,y) {
+  Xt = transpose(X)
+  XtX = from.dfs(mat.mult(Xt, X), to.data.frame = TRUE)
+  Xty = from.dfs(mat.mult(Xt, y), to.data.frame = TRUE)
+  solve(to.matrix(XtX),to.matrix(Xty))}
 ```
 
    
