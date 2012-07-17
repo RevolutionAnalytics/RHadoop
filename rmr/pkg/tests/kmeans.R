@@ -34,14 +34,16 @@ kmeans.iter =
 #don't take averages right away, do sums and counts first which are associative and commutative
 #then take the ratio. This allows using a combiner and other early data reduction step
 
-
+## @knitr kmeans.iter.fast.signature
 kmeans.iter.fast = 
   function(points, distfun, ncenters = dim(centers)[1], centers = NULL) {
-  ## this is a little workaround for RJSONIO not handling matrices properly
+## @knitr kmeans.iter.fast.list.to.matrix
     list.to.matrix = function(l) do.call(rbind,l) 
+## @knitr kmeans.iter.fast.mapreduce 
     newCenters = from.dfs(
       mapreduce(
         input = points,
+## @knitr kmeans.iter.fast.map.first
         map = 
           if (is.null(centers)) {
             function(k, v) {
@@ -50,6 +52,7 @@ kmeans.iter.fast =
               centers = sample(1:ncenters, dim(v)[[1]], replace = TRUE) 
               clusters = unclass(by(v,centers,function(x) apply(x,2,sum)))
               lapply(names(clusters), function(cl) keyval(as.integer(cl), clusters[[cl]]))}}
+## @knitr kmeans.iter.fast.rest
           else {
             function(k, v) {
               dist.mat = apply(centers, 1, function(x) distfun(v, x))
@@ -65,20 +68,27 @@ kmeans.iter.fast =
               #group by closest center and sum up, kind of an early combiner
               clusters = unclass(by(v,closest.centers$col,function(x) apply(x,2,sum))) 
               lapply(names(clusters), function(cl) keyval(as.integer(cl), clusters[[cl]]))}},
-       reduce = function(k, vv) {
+## @knitr kmeans.iter.fast.reduce
+        reduce = function(k, vv) {
                keyval(k, apply(list.to.matrix(vv), 2, sum))},
+## @knitr kmeans.iter.fast.options
      combine = T),
 structured = T)
+## @knitr end    
     ## convention is iteration returns sum of points not average and first element of each sum is the count
+## @knitr kmeans.iter.fast.newcenters    
     newCenters = cbind(newCenters$key, newCenters$val)
     newCenters = newCenters[newCenters[,2] > 0, -1]
     (newCenters/newCenters[,1])[,-1]}
+## @knitr end
 
+## @knitr kmeans.fast.dist
 fast.dist = function(yy, x) { #compute all the distances between x and rows of yy
       squared.diffs = (t(t(yy) - x))^2
       ##sum the columns, take the root, loop on dimension
       sqrt(Reduce(`+`, lapply(1:dim(yy)[2], function(d) squared.diffs[,d])))}
- 
+## @knitr end
+
 ## @knitr kmeans.control
 kmeans =
   function(points, ncenters, iterations = 10, distfun = NULL, 
@@ -115,11 +125,16 @@ for(be in c("local", "hadoop")) {
     kmeans(input, 12, iterations = 5)
 ## @knitr end
   set.seed(0)
+## @knitr kmeans.data.fast
   recsize = 1000
   input = to.dfs(lapply(1:100, 
                         function(i) keyval(NULL, cbind(sample(0:2, recsize, replace = T) + rnorm(recsize, sd = .1),     
                                                        sample(0:3, recsize, replace = T) + rnorm(recsize, sd = .1)))))
-  out.fast[[be]] = kmeans(input, 12, iterations = 5, fast = T)}
+## @knitr end
+  out.fast[[be]] = 
+## @knitr kmeans.run.fast
+    kmeans(input, 12, iterations = 5, fast = T)}
+## @knitr kmeans.end
 
 # would love to take this step but kmeans in randomized in a way that makes it hard to be completely reprodubile
 #stopifnot(rmr:::cmp(out[['hadoop']], out[['local']]))
