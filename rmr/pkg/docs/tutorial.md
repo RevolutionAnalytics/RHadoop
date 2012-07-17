@@ -210,9 +210,7 @@ And this is a simple test of what we've just implemented,
     kmeans(input, 12, iterations = 5)
 ```
 
-  With a little extra work you can even get pretty visualizations like this one:
-
-![Kmeans animation](../../../../../raw/dev/rmr/pkg/docs/kmeans.gif)
+  With a little extra work you can even get pretty visualizations like [this one](kmeans.gif).
 
 <a name="linearleastsquares"></a>
 ## Linear Least Squares
