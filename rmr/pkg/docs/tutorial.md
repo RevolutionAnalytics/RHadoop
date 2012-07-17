@@ -418,14 +418,14 @@ linear.least.squares = function(X,y) {
    
 ### Related Links
    
-   * [[Comparison of high level languages for mapreduce: k means]]
-   * [[Fast k means]]
-   * [[Changelog]]
-   * [[Philosophy]]
-   * [[Efficient rmr techniques]]
-   * [[Writing composable mapreduce jobs]]
-   * [[Use cases]]
-   * [[Getting data in and out]]
-   * [[FAQ]]
+   * [Comparison of high level languages for mapreduce: k means](https://github.com/RevolutionAnalytics/RHadoop/wiki/Comparison-of-high-level-languages-for-mapreduce%3A-k-means)
+   * [Fast k means](https://github.com/RevolutionAnalytics/RHadoop/wiki/Fast-k-means)
+   * [Changelog](https://github.com/RevolutionAnalytics/RHadoop/wiki/Changelog)
+   * [Design philosophy](https://github.com/RevolutionAnalytics/RHadoop/wiki/Design-philosophy)
+   * [Efficient rmr techniques](https://github.com/RevolutionAnalytics/RHadoop/wiki/Efficient-rmr-techniques)
+   * [Writing composable mapreduce jobs](https://github.com/RevolutionAnalytics/RHadoop/wiki/Writing-composable-mapreduce-jobs)
+   * [Use cases](https://github.com/RevolutionAnalytics/RHadoop/wiki/Use-cases)
+   * [Getting data in and out](https://github.com/RevolutionAnalytics/RHadoop/wiki/Getting-data-in-and-out)
+   * [FAQ](https://github.com/RevolutionAnalytics/RHadoop/wiki/FAQ)
    
    
