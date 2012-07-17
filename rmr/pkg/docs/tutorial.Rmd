@@ -31,7 +31,7 @@ a an object that you can use as a "big data" object. You can assign it to variab
 of `to.dfs`, that is our small number data set in its HDFS version, but there are other choices as we will see. The function to apply, which is called a map function in contrast with the reduce
 function, which we are not using here, is a regular R function with a few constraints:
   
-  1. It's a function of two arguments, a key and a value
+1. It's a function of two arguments, a key and a value
 1. It returns a key value pair as returned by the helper function `keyval`, which takes any two R objects as arguments; you can also return a list of such objects, or `NULL`.
 
 In this example, we are not using the key at all, only the value, but we still need both to support the general mapreduce case. 
@@ -220,10 +220,12 @@ The reduce can be specified as usual, but an alternate interface is offered with
 
 Back to our matrix multiplication task, which we will implement as an application of the equijoin just shown.
 
-$$
+a<sub>ij</sub> = &Sigma;<sub>k</sub> b<sub>ik</sub> c<sub>kj</sub>
+
+<!--$$
 A = BC\\
 a_{ij}=\sum_k b_{ik} c_{kj}
-$$
+$$-->
 
 We first define the map function. It comes in two flavors, wether you want to join on the column index or on the row index, and in a matrix multiplication we need both. So here is a higher order function that generates both maps. It just produces a key-value pair with as key the desired index and as value a list with all the information, row, column and element, which we will need later on.
 

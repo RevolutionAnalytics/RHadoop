@@ -212,11 +212,8 @@ of <code>to.dfs</code>, that is our small number data set in its HDFS version, b
 function, which we are not using here, is a regular R function with a few constraints:</p>
 
 <ol>
-<li>It&#39;s a function of two arguments, a key and a value
-
-<ol>
+<li>It&#39;s a function of two arguments, a key and a value</li>
 <li>It returns a key value pair as returned by the helper function <code>keyval</code>, which takes any two R objects as arguments; you can also return a list of such objects, or <code>NULL</code>.</li>
-</ol></li>
 </ol>
 
 <p>In this example, we are not using the key at all, only the value, but we still need both to support the general mapreduce case. <br/>
@@ -459,10 +456,12 @@ equijoin(
 
 <p>Back to our matrix multiplication task, which we will implement as an application of the equijoin just shown.</p>
 
-<p>\[ 
+<p>a<sub>ij</sub> = &Sigma;<sub>k</sub> b<sub>ik</sub> c<sub>kj</sub></p>
+
+<!--\[ 
 A = BC\\
 a_{ij}=\sum_k b_{ik} c_{kj}
- \]</p>
+ \]-->
 
 <p>We first define the map function. It comes in two flavors, wether you want to join on the column index or on the row index, and in a matrix multiplication we need both. So here is a higher order function that generates both maps. It just produces a key-value pair with as key the desired index and as value a list with all the information, row, column and element, which we will need later on.</p>
 
