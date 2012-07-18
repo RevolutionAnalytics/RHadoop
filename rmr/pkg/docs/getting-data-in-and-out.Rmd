@@ -23,7 +23,7 @@ The complete list is:
 language has decent JSON libraries. It was the default in `rmr` 1.0, but we'll keep because it is almost standard. Parsed in C for efficiency, should handle large objects.
 1. `csv`: A family of concrete formats modeled after R's own `read.table`. See examples below.
 1. `native`: based on R's own serialization, it is the default and supports everything that R's `serialize` supports. If you want to know the gory details, it is implemented as an application specific type for the typedbytes format, which is further encapsulated in the sequence file format when writing to HDFS, which ... Dont't worry about it, it just works. Unfortunately, it is written and read by only one package, `rmr` itself.
-1. `native.text`: a text version of native, it is now deprecated. Convert your `rmr` 1.1 data quick and move on.
+1. `native.text`: a text version of native, default in 1.1, it is now deprecated. Convert your `rmr` 1.1 data quick and move on.
 1. `sequence.typedbytes`: based on specs in HADOOP-1722 it has emerged as the standard for non Java hadoop application talking to the rest of Hadoop.
 
 
@@ -38,7 +38,7 @@ The `mode` element can be `text` or `binary`. The `format` element is a function
 ```{r getting-data.make.output.format.csv, echo = TRUE, eval=TRUE, comment="", cache=FALSE}
 ```
 
-R data types natively work without additional effort (for matrices, functions, models, promises it is true from v1.2, hopefully all bases covered now)
+R data types natively work without additional effort.
 
 ```{r getting.data.generic.list}
 ```
@@ -82,12 +82,12 @@ You can then use the list names to directly access your column of interest for m
 ```
 
 To get your data out - say you input file, apply column transformations, add columns, and want to output a new csv file
-Just like textinputformat -must define a textoutputformat
+Just like input.format, one must define a textoutputformat
 
 ```{r getting-data.csv.output}
 ```
 
-In v1.1 this should be as simple as
+And then use that as an argument to `make.output.format`, but why sweat it since the devs have already done the work?
 
 ```{r getting-data.csv.output.simpler}
 ```
@@ -97,9 +97,3 @@ This time providing output argument so one can extract from hdfs (cannot hdfs.ge
 ```{r getting-data.explicit.output.arg}
 ```
 
-Save output to the local filesystem
-
-```{r getting-data.save.output}
-```
-
-Within /home/rhadoop/filesystemoutput/ will now be your CSV data (likely split into multiple part- files according to the Hadoop way).

@@ -26,7 +26,7 @@ The complete list is:
 language has decent JSON libraries. It was the default in `rmr` 1.0, but we'll keep because it is almost standard. Parsed in C for efficiency, should handle large objects.
 1. `csv`: A family of concrete formats modeled after R's own `read.table`. See examples below.
 1. `native`: based on R's own serialization, it is the default and supports everything that R's `serialize` supports. If you want to know the gory details, it is implemented as an application specific type for the typedbytes format, which is further encapsulated in the sequence file format when writing to HDFS, which ... Dont't worry about it, it just works. Unfortunately, it is written and read by only one package, `rmr` itself.
-1. `native.text`: a text version of native, it is now deprecated. Convert your `rmr` 1.1 data quick and move on.
+1. `native.text`: a text version of native, default in 1.1, it is now deprecated. Convert your `rmr` 1.1 data quick and move on.
 1. `sequence.typedbytes`: based on specs in HADOOP-1722 it has emerged as the standard for non Java hadoop application talking to the rest of Hadoop.
 
 
@@ -51,7 +51,7 @@ function (con, nrecs)
         NULL
     else keyval(NULL, df, vectorized = nrecs > 1)
 }
-<environment: 0x104865a60>
+<environment: 0x104dd0000>
 
 $streaming.format
 NULL
@@ -74,7 +74,7 @@ $format
 function (k, v, con, vectorized) 
 write.table(file = con, x = if (is.null(k)) v else cbind(k, v), 
     ..., row.names = FALSE, col.names = FALSE)
-<environment: 0x102e5ba70>
+<environment: 0x10483a028>
 
 $streaming.format
 NULL
@@ -82,7 +82,7 @@ NULL
 ```
 
 
-R data types natively work without additional effort (for matrices, functions, models, promises it is true from v1.2, hopefully all bases covered now)
+R data types natively work without additional effort.
 
 
 
@@ -97,7 +97,8 @@ record, as `key = NULL, value = item`.
 
 
 ```r
-result <- mapreduce(input = hdfs.data,
+result = mapreduce(
+  input = hdfs.data,
   map = function(k,v) keyval(length(v), 1),
   reduce = function(k,vv) keyval(k, sum(unlist(vv))))
 
@@ -132,9 +133,13 @@ To define your own `input.format` (e.g. to handle tsv):
 
 
 ```r
-myTSVReader <- function(line){
-  delim <- strsplit(line, split = "\t")[[1]]
-  keyval(delim[[1]], delim[-1])} # first column is the key, note that column indexes moved by 1
+tsv.reader = function(con, nrecs){
+  lines = readLines(con, 1)
+  if(length(lines) == 0)
+    NULL
+  else {
+    delim = strsplit(lines, split = "\t")[[1]]
+    keyval(delim[1], delim[-1])}} # first column is the key, note that column indexes moved by 1
 ```
 
 
@@ -142,10 +147,12 @@ Frequency count on input column two of the tsv data, data comes into map already
 
 
 ```r
-mrResult <- mapreduce(input = hdfsData,
-                      textinputformat = myTSVReader,
-                      map = function(k,v) keyval(v[[1]], 1),
-                      reduce = function(k,vv) sapply(vv, sum(unlist(vv)))
+freq.counts = 
+  mapreduce(
+    input = tsv.data,
+    input.format = tsv.format,
+    map = function(k,v) keyval(v[[1]], 1),
+    reduce = function(k,vv) keyval(k, sum(unlist(vv))))
 ```
 
 
@@ -153,41 +160,47 @@ Or if you want named columns, this would be specific to your data file
 
 
 ```r
-mySpecificTSVReader <- function(line){
-  delim <- strsplit(line, split = "\t")[[1]]
-  keyval(delim[[1]], list(location = delim[[2]], name = delim[[3]], value = delim[[4]]))}
+tsv.reader = 
+  function(con, nrecs){
+    lines = readLines(con, 1)
+    if(length(lines) == 0)
+      NULL
+    else {
+      delim = strsplit(lines, split = "\t")[[1]]
+      keyval(delim[[1]], list(location = delim[[2]], name = delim[[3]], value = delim[[4]]))}}
 ```
 
 
 You can then use the list names to directly access your column of interest for manipulations
 
 ```r
-                      mrResult <- mapreduce(input = hdfsData,
-                                            textinputformat = mySpecificTSVReader,
-                                            map = function(k, v) { 
-                                              if (v$name == "blarg"){
-                                                keyval(k, log(v$value))
-                                              }
-                                            },
-                                            reduce = function(k, vv) keyval(k, mean(unlist(vv))))                      
+freq.counts =
+  mapreduce(
+    input = tsv.data,
+    input.format = tsv.format,
+    map = 
+      function(k, v) { 
+        if (v$name == "blarg"){
+          keyval(k, log(v$value))}},
+    reduce = function(k, vv) keyval(k, mean(unlist(vv))))                      
 ```
 
 
 To get your data out - say you input file, apply column transformations, add columns, and want to output a new csv file
-Just like textinputformat -must define a textoutputformat
+Just like input.format, one must define a textoutputformat
 
 
 ```r
-myCSVOutput <- function(k, v){
-  keyval(paste(k, paste(v, collapse = ","), sep = ","))}
+csv.writer = function(k, v){
+  paste(k, paste(v, collapse = ","), sep = ",")}
 ```
 
 
-In v1.1 this should be as simple as
+And then use that as an argument to `make.output.format`, but why sweat it since the devs have already done the work?
 
 
 ```r
-myCSVOutput = csvtextoutputformat(sep = ",")
+csv.format = make.output.format("csv", sep = ",")
 ```
 
 
@@ -195,24 +208,16 @@ This time providing output argument so one can extract from hdfs (cannot hdfs.ge
 
 
 ```r
-mapreduce(input = hdfsData,
-          output = "/rhadoop/output/",
-          textoutputformat = myCSVOutput,
-          map = function(k,v){
-            # complicated function here
-          },
-          reduce = function(k,v) {
-            #complicated function here
-          })
+mapreduce(
+  input = hdfs.data,
+  output = "/tmp/rhadoop/output/",
+  output.format = csv.format,
+  map = function(k,v){
+    # complicated function here
+    keyval(k,v)},
+  reduce = function(k, vv) {
+    #complicated function here
+    keyval(k, vv[[1]])})
 ```
 
 
-Save output to the local filesystem
-
-
-```r
-hdfs.get("/rhadoop/output/", "/home/rhadoop/filesystemoutput/")
-```
-
-
-Within /home/rhadoop/filesystemoutput/ will now be your CSV data (likely split into multiple part- files according to the Hadoop way).

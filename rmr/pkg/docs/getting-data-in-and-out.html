@@ -203,7 +203,7 @@ system, when you need to get non-rmr data in and out of it? Of course <code>rmr<
 language has decent JSON libraries. It was the default in <code>rmr</code> 1.0, but we&#39;ll keep because it is almost standard. Parsed in C for efficiency, should handle large objects.</li>
 <li><code>csv</code>: A family of concrete formats modeled after R&#39;s own <code>read.table</code>. See examples below.</li>
 <li><code>native</code>: based on R&#39;s own serialization, it is the default and supports everything that R&#39;s <code>serialize</code> supports. If you want to know the gory details, it is implemented as an application specific type for the typedbytes format, which is further encapsulated in the sequence file format when writing to HDFS, which &hellip; Dont&#39;t worry about it, it just works. Unfortunately, it is written and read by only one package, <code>rmr</code> itself.</li>
-<li><code>native.text</code>: a text version of native, it is now deprecated. Convert your <code>rmr</code> 1.1 data quick and move on.</li>
+<li><code>native.text</code>: a text version of native, default in 1.1, it is now deprecated. Convert your <code>rmr</code> 1.1 data quick and move on.</li>
 <li><code>sequence.typedbytes</code>: based on specs in HADOOP-1722 it has emerged as the standard for non Java hadoop application talking to the rest of Hadoop.</li>
 </ol>
 
@@ -226,7 +226,7 @@ function (con, nrecs)
         NULL
     else keyval(NULL, df, vectorized = nrecs &gt; 1)
 }
-&lt;environment: 0x104865a60&gt;
+&lt;environment: 0x104dd0000&gt;
 
 $streaming.format
 NULL
@@ -245,14 +245,14 @@ $format
 function (k, v, con, vectorized) 
 write.table(file = con, x = if (is.null(k)) v else cbind(k, v), 
     ..., row.names = FALSE, col.names = FALSE)
-&lt;environment: 0x102e5ba70&gt;
+&lt;environment: 0x10483a028&gt;
 
 $streaming.format
 NULL
 
 </code></pre>
 
-<p>R data types natively work without additional effort (for matrices, functions, models, promises it is true from v1.2, hopefully all bases covered now)</p>
+<p>R data types natively work without additional effort.</p>
 
 <p>Put into HDFS:</p>
 
@@ -261,7 +261,8 @@ NULL
 <p>Compute a frequency of object lengths.  Only require input, mapper, and reducer. Note that <code>my.data</code> is passed into the mapper, record by<br/>
 record, as <code>key = NULL, value = item</code>. </p>
 
-<pre><code class="r">result &lt;- mapreduce(input = hdfs.data,
+<pre><code class="r">result = mapreduce(
+  input = hdfs.data,
   map = function(k,v) keyval(length(v), 1),
   reduce = function(k,vv) keyval(k, sum(unlist(vv))))
 
@@ -289,69 +290,75 @@ from.dfs(result)
 
 <p>To define your own <code>input.format</code> (e.g. to handle tsv):</p>
 
-<pre><code class="r">myTSVReader &lt;- function(line){
-  delim &lt;- strsplit(line, split = &quot;\t&quot;)[[1]]
-  keyval(delim[[1]], delim[-1])} # first column is the key, note that column indexes moved by 1
+<pre><code class="r">tsv.reader = function(con, nrecs){
+  lines = readLines(con, 1)
+  if(length(lines) == 0)
+    NULL
+  else {
+    delim = strsplit(lines, split = &quot;\t&quot;)[[1]]
+    keyval(delim[1], delim[-1])}} # first column is the key, note that column indexes moved by 1
 </code></pre>
 
 <p>Frequency count on input column two of the tsv data, data comes into map already delimited</p>
 
-<pre><code class="r">mrResult &lt;- mapreduce(input = hdfsData,
-                      textinputformat = myTSVReader,
-                      map = function(k,v) keyval(v[[1]], 1),
-                      reduce = function(k,vv) sapply(vv, sum(unlist(vv)))
+<pre><code class="r">freq.counts = 
+  mapreduce(
+    input = tsv.data,
+    input.format = tsv.format,
+    map = function(k,v) keyval(v[[1]], 1),
+    reduce = function(k,vv) keyval(k, sum(unlist(vv))))
 </code></pre>
 
 <p>Or if you want named columns, this would be specific to your data file</p>
 
-<pre><code class="r">mySpecificTSVReader &lt;- function(line){
-  delim &lt;- strsplit(line, split = &quot;\t&quot;)[[1]]
-  keyval(delim[[1]], list(location = delim[[2]], name = delim[[3]], value = delim[[4]]))}
+<pre><code class="r">tsv.reader = 
+  function(con, nrecs){
+    lines = readLines(con, 1)
+    if(length(lines) == 0)
+      NULL
+    else {
+      delim = strsplit(lines, split = &quot;\t&quot;)[[1]]
+      keyval(delim[[1]], list(location = delim[[2]], name = delim[[3]], value = delim[[4]]))}}
 </code></pre>
 
 <p>You can then use the list names to directly access your column of interest for manipulations</p>
 
-<pre><code class="r">                      mrResult &lt;- mapreduce(input = hdfsData,
-                                            textinputformat = mySpecificTSVReader,
-                                            map = function(k, v) { 
-                                              if (v$name == &quot;blarg&quot;){
-                                                keyval(k, log(v$value))
-                                              }
-                                            },
-                                            reduce = function(k, vv) keyval(k, mean(unlist(vv))))                      
+<pre><code class="r">freq.counts =
+  mapreduce(
+    input = tsv.data,
+    input.format = tsv.format,
+    map = 
+      function(k, v) { 
+        if (v$name == &quot;blarg&quot;){
+          keyval(k, log(v$value))}},
+    reduce = function(k, vv) keyval(k, mean(unlist(vv))))                      
 </code></pre>
 
 <p>To get your data out - say you input file, apply column transformations, add columns, and want to output a new csv file<br/>
-Just like textinputformat -must define a textoutputformat</p>
+Just like input.format, one must define a textoutputformat</p>
 
-<pre><code class="r">myCSVOutput &lt;- function(k, v){
-  keyval(paste(k, paste(v, collapse = &quot;,&quot;), sep = &quot;,&quot;))}
+<pre><code class="r">csv.writer = function(k, v){
+  paste(k, paste(v, collapse = &quot;,&quot;), sep = &quot;,&quot;)}
 </code></pre>
 
-<p>In v1.1 this should be as simple as</p>
+<p>And then use that as an argument to <code>make.output.format</code>, but why sweat it since the devs have already done the work?</p>
 
-<pre><code class="r">myCSVOutput = csvtextoutputformat(sep = &quot;,&quot;)
+<pre><code class="r">csv.format = make.output.format(&quot;csv&quot;, sep = &quot;,&quot;)
 </code></pre>
 
 <p>This time providing output argument so one can extract from hdfs (cannot hdfs.get from a Rhadoop big data object)</p>
 
-<pre><code class="r">mapreduce(input = hdfsData,
-          output = &quot;/rhadoop/output/&quot;,
-          textoutputformat = myCSVOutput,
-          map = function(k,v){
-            # complicated function here
-          },
-          reduce = function(k,v) {
-            #complicated function here
-          })
+<pre><code class="r">mapreduce(
+  input = hdfs.data,
+  output = &quot;/tmp/rhadoop/output/&quot;,
+  output.format = csv.format,
+  map = function(k,v){
+    # complicated function here
+    keyval(k,v)},
+  reduce = function(k, vv) {
+    #complicated function here
+    keyval(k, vv[[1]])})
 </code></pre>
-
-<p>Save output to the local filesystem</p>
-
-<pre><code class="r">hdfs.get(&quot;/rhadoop/output/&quot;, &quot;/home/rhadoop/filesystemoutput/&quot;)
-</code></pre>
-
-<p>Within /home/rhadoop/filesystemoutput/ will now be your CSV data (likely split into multiple part- files according to the Hadoop way).</p>
 
 </body>
 
