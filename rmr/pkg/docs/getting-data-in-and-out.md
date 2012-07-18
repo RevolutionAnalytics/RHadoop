@@ -3,6 +3,7 @@
 
 
 
+
 * This document responds to several inquiries on data formats and how to get data in and out of the rmr system
 * Still more a collection of snippets than anything organized
 * Thanks Damien for the examples and Koert for conversations on the subject
@@ -50,7 +51,7 @@ function (con, nrecs)
         NULL
     else keyval(NULL, df, vectorized = nrecs > 1)
 }
-<environment: 0x104a22bf8>
+<environment: 0x104865a60>
 
 $streaming.format
 NULL
@@ -60,8 +61,12 @@ NULL
 
 The `mode` element can be `text` or `binary`. The `format` element is a function that takes a connection, reads `nrows` records and creates a key-value pair. The `streaming.format` element is a fully qualified Java class (as a string) that writes to the connection the format function reads from. The default is `TextInputFormat` and also useful is `org.apache.hadoop.streaming.AutoInputFormat`. Once you have these three elements you can pass them to `make.input.format` and get something out that can be used as the `input.format` option to `mapreduce` and the `format`  option to `from.dfs`. On the output side the situation is reversed with the R function acting first and then the Java class doing its thing.
 
+
 ```r
-> make.output.format("csv")
+make.output.format("csv")
+```
+
+```
 $mode
 [1] "text"
 
@@ -69,121 +74,145 @@ $format
 function (k, v, con, vectorized) 
 write.table(file = con, x = if (is.null(k)) v else cbind(k, v), 
     ..., row.names = FALSE, col.names = FALSE)
-<environment: 0x7fed0fd672d0>
+<environment: 0x102e5ba70>
 
 $streaming.format
 NULL
+
 ```
+
 
 R data types natively work without additional effort (for matrices, functions, models, promises it is true from v1.2, hopefully all bases covered now)
 
-```r
-my.data <- list(TRUE, list("nested list", 7.2), seq(1:3), letters[1:4], matrix(1:25, nrow = 5,ncol = 5))
-```
+
+
 
 Put into HDFS:
-```r
-hdfs.data <- to.dfs(my.data)
-```
+
+
 `my.data` is coerced to a list and each element of a list becomes a record.
 
 Compute a frequency of object lengths.  Only require input, mapper, and reducer. Note that `my.data` is passed into the mapper, record by
 record, as `key = NULL, value = item`. 
 
+
 ```r
 result <- mapreduce(input = hdfs.data,
-    map = function(k,v) keyval(length(v), 1),
-    reduce = function(k,vv) keyval(k, sum(unlist(vv)))
-    )
+  map = function(k,v) keyval(length(v), 1),
+  reduce = function(k,vv) keyval(k, sum(unlist(vv))))
 
 from.dfs(result)
 ```
+
 
 However, if using data which was not generated with `rmr` (txt, csv, tsv, JSON, log files, etc) it is necessary to specify an input format. 
 
 There is a third option in between the simplicity of a string like "csv" and the full power of `make.input.format`, which is passing the format string to `make.input.format` with additional arguments that further specify the specific dialect of `csv`, as in `make.input.format("csv", sep = ';')`. `csv` is the only format offering this possibility as the others are fully specified and it takes the same options as `read.table`. The same on the output side with `write.table` being the model.
 
-[Wordcount](https://github.com/RevolutionAnalytics/RHadoop/blob/master/rmr/pkg/tests/wordcount.R): please note the use of `input.format = "text"`.
+
+```r
+wordcount = function (input, output = NULL, pattern = " ") {
+  mapreduce(input = input ,
+            output = output,
+            input.format = "text",
+            map = function(k,v) {
+                      lapply(
+                         strsplit(
+                                  x = v,
+                                  split = pattern)[[1]],
+                         function(w) keyval(w,1))},
+                reduce = function(k,vv) {
+                    keyval(k, sum(unlist(vv)))},
+                combine = T)}
+```
+
 
 To define your own `input.format` (e.g. to handle tsv):
 
 
-<hr>
-### under revision from here to end
 
 ```r
 myTSVReader <- function(line){
-    delim <- strsplit(line, split = "\t")[[1]]
-    keyval(delim[[1]], delim[-1]) # first column is the key, note that column indexes moved by 1
-}
+  delim <- strsplit(line, split = "\t")[[1]]
+  keyval(delim[[1]], delim[-1])} # first column is the key, note that column indexes moved by 1
 ```
+
 
 Frequency count on input column two of the tsv data, data comes into map already delimited
 
+
 ```r
 mrResult <- mapreduce(input = hdfsData,
-    textinputformat = myTSVReader,
-    map = function(k,v) keyval(v[[1]], 1),
-    reduce = function(k,vv) sapply(vv, sum(unlist(vv))
-    )
+                      textinputformat = myTSVReader,
+                      map = function(k,v) keyval(v[[1]], 1),
+                      reduce = function(k,vv) sapply(vv, sum(unlist(vv)))
 ```
+
 
 Or if you want named columns, this would be specific to your data file
 
+
 ```r
 mySpecificTSVReader <- function(line){
-    delim <- strsplit(line, split = "\t")[[1]]
-    keyval(delim[[1]], list(location = delim[[2]], name = delim[[3]], value = delim[[4]]))
-}
+  delim <- strsplit(line, split = "\t")[[1]]
+  keyval(delim[[1]], list(location = delim[[2]], name = delim[[3]], value = delim[[4]]))}
 ```
 
+
 You can then use the list names to directly access your column of interest for manipulations
+
 ```r
-mrResult <- mapreduce(input = hdfsData,
-    textinputformat = mySpecificTSVReader,
-    map = function(k, v) { 
-        if (v$name == "blarg"){
-            keyval(k, log(v$value))
-        }
-    },
-    reduce = function(k, vv) keyval(k, mean(unlist(vv)))
-    )
+                      mrResult <- mapreduce(input = hdfsData,
+                                            textinputformat = mySpecificTSVReader,
+                                            map = function(k, v) { 
+                                              if (v$name == "blarg"){
+                                                keyval(k, log(v$value))
+                                              }
+                                            },
+                                            reduce = function(k, vv) keyval(k, mean(unlist(vv))))                      
 ```
+
 
 To get your data out - say you input file, apply column transformations, add columns, and want to output a new csv file
 Just like textinputformat -must define a textoutputformat
 
+
 ```r
 myCSVOutput <- function(k, v){
-    keyval(paste(k, paste(v, collapse = ","), sep = ","))
-}
+  keyval(paste(k, paste(v, collapse = ","), sep = ","))}
 ```
 
+
 In v1.1 this should be as simple as
+
 
 ```r
 myCSVOutput = csvtextoutputformat(sep = ",")
 ```
 
+
 This time providing output argument so one can extract from hdfs (cannot hdfs.get from a Rhadoop big data object)
+
 
 ```r
 mapreduce(input = hdfsData,
-    output = "/rhadoop/output/",
-    textoutputformat = myCSVOutput,
-    map = function(k,v){
-        # complicated function here
-    },
-    reduce = function(k,v) {
-        #complicated function here
-    }
-    )
+          output = "/rhadoop/output/",
+          textoutputformat = myCSVOutput,
+          map = function(k,v){
+            # complicated function here
+          },
+          reduce = function(k,v) {
+            #complicated function here
+          })
 ```
 
+
 Save output to the local filesystem
+
 
 ```r
 hdfs.get("/rhadoop/output/", "/home/rhadoop/filesystemoutput/")
 ```
+
 
 Within /home/rhadoop/filesystemoutput/ will now be your CSV data (likely split into multiple part- files according to the Hadoop way).
