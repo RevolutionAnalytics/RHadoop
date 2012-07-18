@@ -1,6 +1,6 @@
-#Compatibility testing for rmr 1.3 (Current stable)
+# Compatibility testing for rmr 1.3 (Current stable)
 Please contribute with additional reports. To claim compatibility you need to run `R CMD  check path-to-rmr` successfully.
-As with any new release, testing on additional platforms is under way.
+As with any new release, testing on additional platforms is under way. If you build your own Hadoop, see [Which Hadoop for rmr](https://github.com/RevolutionAnalytics/RHadoop/wiki/Which-Hadoop-for-rmr).
 
 <table>
 <thead>
