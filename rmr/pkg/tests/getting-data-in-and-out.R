@@ -85,7 +85,7 @@ csv.format = make.output.format("csv", sep = ",")
 ## @knitr getting-data.explicit.output.arg
 mapreduce(
   input = hdfs.data,
-  output = "/tmp/rhadoop/output/",
+  output = tempfile(),
   output.format = csv.format,
   map = function(k,v){
     # complicated function here
