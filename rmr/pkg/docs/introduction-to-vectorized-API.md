@@ -22,7 +22,9 @@ First let's create some input. Input size is arbitrary but it is the one used in
 
 
 ```r
-  input.size = if(rmr.options.get('backend') == "local") 10^4 else 10^6  data = keyval(rep(list(1), input.size),as.list(1:input.size), vectorized = TRUE)  input = to.dfs(data)
+  input.size = if(rmr.options.get('backend') == "local") 10^4 else 10^6
+  data = keyval(rep(list(1), input.size),as.list(1:input.size), vectorized = TRUE)
+  input = to.dfs(data)
 ```
 
 
@@ -53,7 +55,9 @@ Next we turn on vectorization. Vectorization can be turned on independently on t
 
 
 ```r
-    mapreduce(input,              map = function(k,v) keyval(k,v, vectorized = TRUE),               vectorized = list(map = TRUE))
+    mapreduce(input,
+              map = function(k,v) keyval(k,v, vectorized = TRUE), 
+              vectorized = list(map = TRUE))
 ```
 
 
@@ -67,19 +71,27 @@ Let's now look at a very simple but potentially useful example, filtering. We ha
 with the goal of dropping all records for which `predicate` returns `FALSE`. This particular one is handy for this document because it works equally well for the vectorized and unvectorized cases. The plain-vanilla implementation is the following:
 
 ```r
-    mapreduce(input,              map = function(k,v) if(predicate(k,v)) keyval(k,v))
+    mapreduce(input,
+              map = function(k,v) if(predicate(k,v)) keyval(k,v))
 ```
 
 For the vectorized version, we want to switch on vectorization for the map function and in `keyval` at the same time. Remember, this is not always the case, it makes sense when we have small records in and small records out. The speedup here is about 3X.
 
 ```r
-    mapreduce(input,               map = function(k,v) {filter = predicate(k,v);                                    keyval(k[filter], v[filter], vectorized = TRUE)},              vectorized = list(map = TRUE))
+    mapreduce(input, 
+              map = function(k,v) {filter = predicate(k,v); 
+                                   keyval(k[filter], v[filter], vectorized = TRUE)},
+              vectorized = list(map = TRUE))
 ```
 
 This is the first case where we can show what changes by turning on the `structured` option. On the map side it makes sense only in conjunction with `vectorized` or otherwise with only one row of data there isn't much to turn into a data frame. On the reduce side the `structured` option is equivalent to the now deprecated `reduce.on.data.frame`, which turns the second argument of the reduce function into a data frame, before it is evaluated. In this case we have a single column data frame, so it is not particularly interesting, but it is possible.
 
 ```r
-    mapreduce(input,               map = function(k,v) {filter = predicate(k,v);                                    keyval(k[filter,1], v[filter,1], vectorized = TRUE)},              vectorized = list(map = TRUE),              structured = list(map = TRUE))
+    mapreduce(input, 
+              map = function(k,v) {filter = predicate(k,v); 
+                                   keyval(k[filter,1], v[filter,1], vectorized = TRUE)},
+              vectorized = list(map = TRUE),
+              structured = list(map = TRUE))
 ```
 
 
@@ -87,7 +99,9 @@ This is the first case where we can show what changes by turning on the `structu
 In this example we want to select specific elements of each record or columns, if we are dealing with structured data. We need to generate slightly more complex  input data so that this operation makes sense.
 
 ```r
-  input.select = to.dfs(keyval(1:input.size,                                     replicate(input.size, list(a=1,b=2,c=3),                                               simplify=FALSE), vectorized=TRUE))
+  input.select = to.dfs(keyval(1:input.size, 
+                                    replicate(input.size, list(a=1,b=2,c=3), 
+                                              simplify=FALSE), vectorized=TRUE))
 ```
 
 The selection function takes slightly different forms for the unvectorized and vectorized cases. Here we are picking the second column just for illustration purposes.
@@ -111,19 +125,25 @@ In the structured case we don't even need a function to perform a column selecti
 As usual, we start showing the plain-vanilla implementation. Nothing major to report here.
 
 ```r
-    mapreduce(input.select,              map = function(k,v) keyval(k, select(v)))
+    mapreduce(input.select,
+              map = function(k,v) keyval(k, select(v)))
 ```
 
 In the vectorized version, we turn on vectorization both in input and output and we switch to a vectorized selection function. The speed up is 5X. 
 
 ```r
-    mapreduce(input.select,              map = function(k,v) keyval(k, select.vec(v), vectorized = TRUE),              vectorized = list(map = TRUE))
+    mapreduce(input.select,
+              map = function(k,v) keyval(k, select.vec(v), vectorized = TRUE),
+              vectorized = list(map = TRUE))
 ```
 
 As selecting a column is a typical operation that is well defined and natural on structured data, in the structured version we don't even need a selection function, just a column number. Unfortunately column names are lost in the current implementation, something we would like to address in the future.
 
 ```r
-    mapreduce(input = input.select,              map = function(k,v) keyval(k[,1], v[,field], vectorized = TRUE),              vectorized = list(map = TRUE),              structured = list(map = TRUE))
+    mapreduce(input = input.select,
+              map = function(k,v) keyval(k[,1], v[,field], vectorized = TRUE),
+              vectorized = list(map = TRUE),
+              structured = list(map = TRUE))
 ```
 
 
@@ -137,19 +157,31 @@ We now move on to the first example including a reduce. It's an extreme case of 
 This the plain-vanilla implementation. Turning on the combiner when possible is always recommended, but in this case it is mandatory: without it the reduce process would likely run out of memory.
 
 ```r
-    mapreduce(input.bigsum,               map  = function(k,v) keyval(1,v),               reduce = function(k, vv) keyval(k, sum(unlist(vv))),              combine = TRUE)
+    mapreduce(input.bigsum, 
+              map  = function(k,v) keyval(1,v), 
+              reduce = function(k, vv) keyval(k, sum(unlist(vv))),
+              combine = TRUE)
 ```
 
 In its vectorized form, this program applies an additional trick, which is to start summing in the map function, which becomes an early reduce of sorts. In fact, it would be possible to use the same function for both map and reduce. Like a combine, this early reduction happens locally near the data but, in addition, it doesn't require the data to be serialized and unserialized in between. It's an extreme application of the _mantram_ "reduce early, reduce often", for a speed gain in excess of 6X.
 
 ```r
-    mapreduce(input.bigsum,              map  = function(k,v) keyval(1,sum(unlist(v)), vectorized = TRUE),              reduce = function(k, vv) keyval(k, sum(unlist(vv))),              combine = TRUE,              vectorized = list(map = TRUE))
+    mapreduce(input.bigsum,
+              map  = function(k,v) keyval(1,sum(unlist(v)), vectorized = TRUE),
+              reduce = function(k, vv) keyval(k, sum(unlist(vv))),
+              combine = TRUE,
+              vectorized = list(map = TRUE))
 ```
 
 In the structured version we rely on the implicit conversion to data frame to save a couple of `unlist` calls, for a cleaner look.
 
 ```r
-    mapreduce(input.bigsum,               map  = function(k,v) keyval(1, sum(v), vectorized = TRUE),               reduce = function(k, vv) keyval(k, sum(vv)) ,               combine = TRUE,              vectorized = list(map = TRUE),              structured = TRUE)
+    mapreduce(input.bigsum, 
+              map  = function(k,v) keyval(1, sum(v), vectorized = TRUE), 
+              reduce = function(k, vv) keyval(k, sum(vv)) , 
+              combine = TRUE,
+              vectorized = list(map = TRUE),
+              structured = TRUE)
 ```
 
 
@@ -163,24 +195,36 @@ This is an example of a more realistic aggregation on a user-defined number of g
 Then pick specific group and aggregate functions to make the example fully specified and runnable. For simplicity's sake, these are written to work in all cases, plain, vectorized and structured. Some further optimizations are possible.
 
 ```r
-  group = function(k,v) unlist(k)%%100  aggregate = function(x) sum(unlist(x))
+  group = function(k,v) unlist(k)%%100
+  aggregate = function(x) sum(unlist(x))
 ```
 
 What this means is that we are again calculating sums of numbers, but this time we are going to have a separate sum for each of 100 different groups. Let's start with the plain vanilla one.
 
 ```r
-    mapreduce(input.ga,               map = function(k,v) keyval(group(k,v), v),              reduce = function(k, vv) keyval(k, aggregate(vv)),              combine = TRUE)
+    mapreduce(input.ga, 
+              map = function(k,v) keyval(group(k,v), v),
+              reduce = function(k, vv) keyval(k, aggregate(vv)),
+              combine = TRUE)
 ```
 
 In the vectorized version we could again apply the trick of in-map aggregation, but it wouldn't buy us as much as in the previous example. The speedup here is 2.5X
 
 ```r
-    mapreduce(input.ga,               map = function(k,v) keyval(group(k,v), v, vectorized = TRUE),              reduce = function(k, vv) keyval(k, aggregate(vv)),              combine = TRUE,              vectorized = list(map = TRUE))
+    mapreduce(input.ga, 
+              map = function(k,v) keyval(group(k,v), v, vectorized = TRUE),
+              reduce = function(k, vv) keyval(k, aggregate(vv)),
+              combine = TRUE,
+              vectorized = list(map = TRUE))
 ```
 
 Finally, the structured version to complete these test cases.
 
 ```r
-    mapreduce(input.ga,               map = function(k,v) keyval(group(k,v), v[,1], vectorized = TRUE),              reduce = function(k, vv) keyval(k, aggregate(vv)),              vectorized = list(map = TRUE),              structured = TRUE)
+    mapreduce(input.ga, 
+              map = function(k,v) keyval(group(k,v), v[,1], vectorized = TRUE),
+              reduce = function(k, vv) keyval(k, aggregate(vv)),
+              vectorized = list(map = TRUE),
+              structured = TRUE)
 ```
 
