@@ -38,8 +38,8 @@ tsv.format =
     mode = "text")
 ## @knitr end
 ## @knitr getting-data.generate.tsv.data
-library(car)
-tsv.data = to.dfs(Moore, format = make.output.format("csv", sep = "\t"))
+
+tsv.data = to.dfs(data.frame(x = 1:100, y = rnorm(100), z = runif(100), w = 1:100), format = make.output.format("csv", sep = "\t"))
 ## @knitr getting-data.frequency.count
 freq.counts = 
   mapreduce(
