@@ -151,12 +151,9 @@ kmeans =
         if (!fast) function(a,b) norm(as.matrix(a-b), type = 'F')
         else fast.dist  
     if (fast) kmeans.iter = kmeans.iter.fast
-    newCenters = 
-      kmeans.iter(
-        points, 
-        distfun,
-        ncenters = ncenters)
-      newCenters = kmeans.iter(points, distfun, centers = newCenters)}
+    newCenters = kmeans.iter(points, distfun, ncenters = ncenters)
+    for(i in 1:iterations)
+      newCenters = kmeans.iter(points, distfun, centers = newCenters)
     newCenters}
 ```
 
