@@ -3,7 +3,6 @@
 
 
 
-
 * This document responds to several inquiries on data formats and how to get data in and out of the rmr system
 * Still more a collection of snippets than anything organized
 * Thanks Damien for the examples and Koert for conversations on the subject
@@ -183,6 +182,103 @@ freq.counts =
         if (v$name == "blarg"){
           keyval(k, log(v$value))}},
     reduce = function(k, vv) keyval(k, mean(unlist(vv))))                      
+```
+
+Another common `input.format` is fixed width formatted data:
+
+```r
+fwf.reader <- function(con, nrecs) {
+  lines <- readLines(con, nrecs)
+  if (length(lines) == 0) {
+    NULL
+  }
+  else {
+    df <- as.data.frame(lapply(fields, function(x) substr(lines, x[1], x[2])), stringsAsFactors = FALSE)
+    keyval(NULL, df)
+  }
+} 
+```
+
+The key thing to note about `fwf.reader` is the global variable `fields`. In `fields`, we define the start and
+end byte locations for each field in the data. For example, lets write the `mtcars` dataset to a fixed width file
+with column widths of 6 bytes.
+
+```r
+apply(mtcars, 1, function(x) cat(formatC(as.character(x), width = 6), "\n", sep = "", file = "mtcars.fwf", append = TRUE))
+readLines("mtcars.fwf", 5)
+ [1] "    21     6   160   110   3.9  2.62 16.46     0     1     4     4"
+ [2] "    21     6   160   110   3.9 2.875 17.02     0     1     4     4"
+ [3] "  22.8     4   108    93  3.85  2.32 18.61     1     1     4     1"
+ [4] "  21.4     6   258   110  3.08 3.215 19.44     1     0     3     1"
+ [5] "  18.7     8   360   175  3.15  3.44 17.02     0     0     3     2"
+```
+
+Now lets put this file into the hdfs and define `fields` as a list containing the field names, start byte location, and 
+end byte location.
+```r
+library(rhdfs)
+hdfs.put("mtcars.fwf", "/user/rhadoop")
+fields <- list(mpg = c(1,6),
+               cyl = c(7,12),
+               disp = c(13,18),
+               hp = c(19,24),
+               drat = c(25,30),
+               wt = c(31,36),
+               qsec = c(37,42),
+               vs = c(43,48),
+               am = c(49,54),
+               gear = c(55,60),
+               carb = c(61,66)) 
+```
+
+Sending 1 line at a time to the map function:
+
+```r
+out <- from.dfs(mapreduce(input = "/user/rhadoop/mtcars.fwf",
+                          input.format = make.input.format(mode = "text", format = fwf.reader)))
+out[[1]]
+$key
+NULL
+
+$val
+     mpg    cyl   disp     hp   drat     wt   qsec     vs     am   gear   carb
+1   14.7      8    440    230   3.23  5.345  17.42      0      0      3      4
+
+attr(,"rmr.keyval")
+[1] TRUE
+```
+
+Sending more than 1 line at a time to the map function via the vectorized API:
+
+```r
+out <- from.dfs(mapreduce(input = "/user/rhadoop/mtcars.fwf",
+                          input.format = make.input.format(mode = "text", format = fwf.reader),
+                          vectorized = list(map = TRUE)))
+ out[[1]]
+$key
+NULL
+
+$val
+      mpg    cyl   disp     hp   drat     wt   qsec     vs     am   gear   carb
+1    14.7      8    440    230   3.23  5.345  17.42      0      0      3      4
+2    32.4      4   78.7     66   4.08    2.2  19.47      1      1      4      1
+3    30.4      4   75.7     52   4.93  1.615  18.52      1      1      4      2
+4    33.9      4   71.1     65   4.22  1.835   19.9      1      1      4      1
+5    21.5      4  120.1     97    3.7  2.465  20.01      1      0      3      1
+6    15.5      8    318    150   2.76   3.52  16.87      0      0      3      2
+7    15.2      8    304    150   3.15  3.435   17.3      0      0      3      2
+8    13.3      8    350    245   3.73   3.84  15.41      0      0      3      4
+9    19.2      8    400    175   3.08  3.845  17.05      0      0      3      2
+10   27.3      4     79     66   4.08  1.935   18.9      1      1      4      1
+11     26      4  120.3     91   4.43   2.14   16.7      0      1      5      2
+12   30.4      4   95.1    113   3.77  1.513   16.9      1      1      5      2
+13   15.8      8    351    264   4.22   3.17   14.5      0      1      5      4
+14   19.7      6    145    175   3.62   2.77   15.5      0      1      5      6
+15     15      8    301    335   3.54   3.57   14.6      0      1      5      8
+16   21.4      4    121    109   4.11   2.78   18.6      1      1      4      2
+
+attr(,"rmr.keyval")
+[1] TRUE
 ```
 
 
