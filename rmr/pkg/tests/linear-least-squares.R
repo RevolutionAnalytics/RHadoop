@@ -20,16 +20,24 @@
 library(Matrix)
 library(rmr)
 
+## @knitr linear.least.squares.swap
 swap = function(x) list(x[[2]], x[[1]])
+## @knitr end
 
+## @knitr linear.least.squares.transpose.map
 transpose.map = to.map(swap, identity)
+## @knitr end
 
+## @knitr linear.least.squares.transpose
 transpose = function(input, output = NULL){
   mapreduce(input = input, output = output, map = transpose.map)
 }
+## @knitr end
 
+## @knitr linear.least.squares.mat.mult.map
 mat.mult.map = function(i) function(k,v) keyval(k[[i]], list(pos = k, elem = v))
-
+## @knitr end
+## @knitr linear.least.squares.mat.mult
 mat.mult = function(left, right, result = NULL) {
   mapreduce(
                 input =
@@ -41,14 +49,17 @@ mat.mult = function(left, right, result = NULL) {
                                      lapply(vvr, function(vr) keyval(c(vl$pos[[1]], vr$pos[[2]]), vl$elem*vr$elem))))),
                 output = result,
                 reduce = to.reduce(identity, function(x) sum(unlist(x))))}
-
+## @knitr end
+## @knitr linear.least.squares.to.matrix
 to.matrix = function(df) as.matrix(sparseMatrix(i=df$key[,1], j=df$key[,2], x=df$val[,1]))
-
+## @knitr end
+## @knitr linear.least.squares
 linear.least.squares = function(X,y) {
   Xt = transpose(X)
   XtX = from.dfs(mat.mult(Xt, X), to.data.frame = TRUE)
   Xty = from.dfs(mat.mult(Xt, y), to.data.frame = TRUE)
   solve(to.matrix(XtX),to.matrix(Xty))}
+## @knitr end
 
 # test data
 
