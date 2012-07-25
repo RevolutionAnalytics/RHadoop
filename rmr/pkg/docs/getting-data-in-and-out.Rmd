@@ -81,6 +81,40 @@ You can then use the list names to directly access your column of interest for m
 ```{r getting-data.named.column.access}
 ```
 
+Another common `input.format` is fixed width formatted data:
+```{r getting-data.fwf.reader}
+```
+
+The key thing to note about `fwf.reader` is the global variable `fields`. In `fields`, we define the start and
+end byte locations for each field in the data. For example, lets write the `mtcars` dataset to a fixed width file
+with column widths of 6 bytes:
+```{r getting-data.generate.fwf.data}
+```
+
+Now lets put this file into the hdfs:
+```{r getting-data.hdfs.put.fwf.data}
+```
+
+Define `fields` as a list containing the field names, start byte location, and end byte location:
+```{r getting-data.create.fields.list}
+```
+
+Sending 1 line at a time to the map function:
+```{r getting-data.from.dfs.one.line}
+```
+
+Sending more than 1 line at a time to the map function via the vectorized API:
+```{r getting-data.from.dfs.multiple.lines}
+```
+
+Frequency count on `cyl`:
+```{r getting-data.cyl.frequency.count}
+```
+
+Frequency count on `cyl` with vectorized API:
+```{r getting-data.cyl.vectorized.frequency.count}
+```
+
 To get your data out - say you input file, apply column transformations, add columns, and want to output a new csv file
 Just like input.format, one must define a textoutputformat
 
