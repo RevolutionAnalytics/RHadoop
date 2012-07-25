@@ -840,7 +840,7 @@ invisible(lapply(libs, function(l) library(l, character.only = T)))
       hadoop.command, 
       stream.mapred.io,  
       paste.options(backend.parameters), 
-      paste.options(list(cacheArchive = paste("hdfs:///user/antonio/", basename(R.prefix), ".jar#R", sep = ""), 
+      paste.options(list(cacheArchive = paste(file.path("hdfs:///user", Sys.getenv("USER"), basename(R.prefix)), ".jar#R", sep = ""), 
                          cmdenv=paste("LD_LIBRARY_PATH=", R.prefix, "/lib64/R/lib", sep = ""))),
       input, 
       output, 
