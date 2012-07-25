@@ -138,7 +138,6 @@ out <- from.dfs(mapreduce(input = "/user/rhadoop/mtcars.fwf",
                           vectorized = list(map = TRUE)))
 out[[1]]
 ## @knitr end
-## @knitr end
 ## @knitr getting-data.cyl.frequency.count
 out <- from.dfs(mapreduce(input = "/user/rhadoop/mtcars.fwf",
                           input.format = make.input.format(mode = "text", format = fwf.reader),
