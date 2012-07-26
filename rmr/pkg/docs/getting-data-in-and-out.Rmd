@@ -85,17 +85,16 @@ Another common `input.format` is fixed width formatted data:
 ```{r getting-data.fwf.reader}
 ```
 
-The key thing to note about `fwf.reader` is the global variable `fields`. In `fields`, we define the start and
-end byte locations for each field in the data. For example, lets write the `mtcars` dataset to a fixed width file
-with column widths of 6 bytes:
+Using the text `output.format` as a template, we modify it slightly to write fixed width data without tab seperation:
+```{r getting-data.fwf.writer}
+```
+
+Writing the `mtcars` dataset to a fixed width file with column widths of 6 bytes and putting into hdfs:
 ```{r getting-data.generate.fwf.data}
 ```
 
-Now lets put this file into the hdfs:
-```{r getting-data.hdfs.put.fwf.data}
-```
-
-Define `fields` as a list containing the field names, start byte location, and end byte location:
+The key thing to note about `fwf.reader` is the global variable `fields`. In `fields`, we define the start and
+end byte locations for each field in the data:
 ```{r getting-data.create.fields.list}
 ```
 
