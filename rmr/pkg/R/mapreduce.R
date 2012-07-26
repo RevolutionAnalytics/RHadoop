@@ -28,6 +28,8 @@ make.fast.list = function(l = list()) {
       l2[i:(i + length(els) - 1)] <<- els
       i <<- i + length(els)}}}
 
+named.slice = function(x, n) x[which(names(x) == n)]
+
 #list manip
 
 catply = function(x, fun) do.call(c, lapply(x, fun))
@@ -762,8 +764,12 @@ invisible(lapply(libs, function(l) require(l, character.only = T)))
   else {
     combiner = " "
     c.fl = " "}
-  
-  #debug.opts = "-mapdebug kdfkdfld -reducexdebug jfkdlfkja"
+  if(is.null(reduce) && 
+    !is.element("mapred.reduce.tasks",
+                sapply(strsplit(as.character(named.slice(backend.parameters, 'd')), '='), 
+                       function(x)x[[1]])))
+    backend.parameters = append(backend.parameters, list(D='mapred.reduce.tasks=0'))
+    #debug.opts = "-mapdebug kdfkdfld -reducexdebug jfkdlfkja"
   
   final.command =
     paste(
