@@ -481,7 +481,6 @@ mapreduce = function(
   map = to.map(identity), 
   reduce = NULL, 
   combine = NULL, 
-  reduce.on.data.frame = FALSE, 
   input.format = "native", 
   output.format = "native", 
   vectorized = list(map = FALSE, reduce = FALSE),
@@ -502,9 +501,6 @@ mapreduce = function(
     vectorized$map = if (vectorized$map) rmr.options$vectorized.nrows else 1}
   if(is.logical(structured)) structured = list(map = structured, reduce = structured)
   structured$map = !is.null(structured$map) && structured$map && (vectorized$map != 1)
-  if(!missing(reduce.on.data.frame)) {
-    warning("reduce.on.data.frame deprecated, use structured instead")
-    structured$reduce = reduce.on.data.frame}
   if(is.null(structured$reduce)) structured$reduce = FALSE
   
   backend  =  rmr.options.get('backend')
