@@ -1,5 +1,4 @@
 library(rmr)
-library(rhdfs)
 ## @knitr getting-data.IO.formats
 rmr:::IO.formats
 ## @knitr end
@@ -107,12 +106,21 @@ fwf.reader <- function(con, nrecs) {
   }	
 } 
 ## @knitr end
-## @knitr getting-data.generate.fwf.data
-apply(mtcars, 1, function(x) cat(formatC(as.character(x), width = 6), "\n", sep = "", file = "mtcars.fwf", append = TRUE))
-readLines("mtcars.fwf", 5)
+## @knitr getting-data.fwf.writer
+fwf.writer <- function(k, v, con, vectorized) {
+  ser <- function(k, v) paste(k, v, collapse = "", sep = "")
+  out <- if(vectorized) {
+    mapply(ser, k, v)
+  }
+  else {
+    ser(k, v)
+  }
+  writeLines(out, sep = "\n", con = con)
+}
 ## @knitr end
-## @knitr getting-data.hdfs.put.fwf.data
-hdfs.put("mtcars.fwf", "/user/rhadoop")
+## @knitr getting-data.generate.fwf.data
+cars <- apply(mtcars, 2, function(x) format(x, width = 6))
+fwf.data <- to.dfs(cars, format = make.output.format(mode = "text", format = fwf.writer))
 ## @knitr end
 ## @knitr getting-data.create.fields.list
 fields <- list(mpg = c(1,6),
@@ -128,33 +136,34 @@ fields <- list(mpg = c(1,6),
                carb = c(61,66)) 
 ## @knitr end
 ## @knitr getting-data.from.dfs.one.line
-out <- from.dfs(mapreduce(input = "/user/rhadoop/mtcars.fwf",
+out <- from.dfs(mapreduce(input = fwf.data,
                           input.format = make.input.format(mode = "text", format = fwf.reader)))
 out[[1]]
 ## @knitr end
 ## @knitr getting-data.from.dfs.multiple.lines
-out <- from.dfs(mapreduce(input = "/user/rhadoop/mtcars.fwf",
+out <- from.dfs(mapreduce(input = fwf.data,
                           input.format = make.input.format(mode = "text", format = fwf.reader),
                           vectorized = list(map = TRUE)))
 out[[1]]
 ## @knitr end
 ## @knitr getting-data.cyl.frequency.count
-out <- from.dfs(mapreduce(input = "/user/rhadoop/mtcars.fwf",
+out <- from.dfs(mapreduce(input = fwf.data,
                           input.format = make.input.format(mode = "text", format = fwf.reader),
                           map = function(key, value) keyval(value[,"cyl"], 1),
                           reduce = function(key, value) keyval(key, sum(unlist(value))),
-                          combine = TRUE), structured = TRUE))
+                          combine = TRUE), structured = TRUE)
 df <- data.frame(out$key, out$val)
 names(df) <- c("cyl","count")
 df
 ## @knitr end
 ## @knitr getting-data.cyl.vectorized.frequency.count
-out <- from.dfs(mapreduce(input = "/user/rhadoop/mtcars.fwf",
-                          map = function(key, value) keyval(value[,"mcc"], 1, vectorized = TRUE),
+out <- from.dfs(mapreduce(input = fwf.data,
+                          input.format = make.input.format(mode = "text", format = fwf.reader),
+                          map = function(key, value) keyval(value[,"cyl"], 1, vectorized = TRUE),
                           reduce = function(key, value) keyval(key, sum(unlist(value))),
                           combine = TRUE,
                           vectorized = list(map = TRUE),
-                          structured = list(map = TRUE)), structured = TRUE))
+                          structured = list(map = TRUE)), structured = TRUE)
 df <- data.frame(out$key, out$val)
 names(df) <- c("cyl","count")
 df
