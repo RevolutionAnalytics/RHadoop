@@ -1,7 +1,7 @@
 useDynLib(rmr)
 export(mapreduce)
 export(from.dfs, to.dfs)
-export(equijoin, scatter)
+export(equijoin, scatter, gather)
 export(dfs.empty)
 export(rmr.options.set, rmr.options.get)
 export(keyval, keys, values)
