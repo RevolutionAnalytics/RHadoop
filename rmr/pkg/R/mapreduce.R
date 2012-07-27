@@ -766,7 +766,7 @@ invisible(lapply(libs, function(l) require(l, character.only = T)))
     c.fl = " "}
   if(is.null(reduce) && 
     !is.element("mapred.reduce.tasks",
-                sapply(strsplit(as.character(named.slice(backend.parameters, 'd')), '='), 
+                sapply(strsplit(as.character(named.slice(backend.parameters, 'D')), '='), 
                        function(x)x[[1]])))
     backend.parameters = append(backend.parameters, list(D='mapred.reduce.tasks=0'))
     #debug.opts = "-mapdebug kdfkdfld -reducexdebug jfkdlfkja"
