@@ -11,7 +11,6 @@
   map = to.map(identity),
   reduce = NULL,
   combine = NULL,
-  reduce.on.data.frame = FALSE,
   input.format = "native",
   output.format = "native",
   vectorized = list(map = FALSE, reduce = FALSE),
