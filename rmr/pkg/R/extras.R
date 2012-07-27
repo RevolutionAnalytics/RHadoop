@@ -1,13 +1,21 @@
 ## push a file through this to get as many partitions as possible (depending on system settings)
 ## data is unchanged
 
-scatter = function(input, output = NULL)
+scatter = function(input, output = NULL, vectorized = FALSE, ...)
   mapreduce(input, 
             output, 
-            map = function(k, v) keyval(sample(1:1000, 1), keyval(k, v)), 
+            map = function(k, v) keyval(sample(1:1000, 1), keyval(k, v, vectorized)), 
             reduce = function(k, vv) vv)
 
-##optimizer
+gather = function(input, output = NULL, ...) {
+  backend.parameters = list(...)['backend.prameters']
+  backend.parameters$hadoop = append(backend.parameters$hadoop, list(D='mapred.reduce.tasks=1'))
+  mapreduce(input,
+            output, 
+            backend.parameters = backend.parameters,
+            ...)}
+            
+            ##optimizer
 
 is.mapreduce = function(x) {
   is.call(x) && x[[1]] == "mapreduce"}
