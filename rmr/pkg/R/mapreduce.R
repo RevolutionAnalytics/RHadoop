@@ -458,9 +458,9 @@ from.dfs = function(input, format = "native", to.data.frame = FALSE, vectorized 
   if(to.data.frame || structured) 
     keyval.list.to.data.frame(retval)
   else {
-    if(is.logical(vectorized))
+    if(is.logical(vectorized) && vectorized)
       keyval(do.call(c, lapply(retval,keys)), do.call(c, lapply(retval, values)), vectorized = TRUE)
-    else(retval)}}
+    else retval}}
 
 # mapreduce
 
@@ -560,7 +560,7 @@ mr.local = function(map,
   get.data =
     function(fname) {
       in.data = from.dfs(fname, format = input.format, vectorized = vectorized$map)
-      if(vectorized$map == 1) {
+      if(!isTRUE(vectorized$map)) {
         lapply(in.data, function(rec) {attr(rec$val, 'rmr.input') = fname; rec})}
       else {
         attr(in.data$val, 'rmr.input') = fname
