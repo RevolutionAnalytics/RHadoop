@@ -37,6 +37,19 @@ optimize = function(mrex) {
                 reduce = .(mapreduce.arg(mrex, 'reduce'))))}
   else mrex }
 
+sample = function(input, output = NULL, method = c("any", "Bernoulli"), ...) {
+  if (method == "any") {
+    map.n = list(...)[['n']]
+    reduce.n = map.n
+    mapreduce(input, 
+              output,
+              map = function(k,v) {
+                if (map.n > 0){
+                  map.n <<- map.n - 1
+                  keyval(NULL, keyval(k,v))}},
+              reduce = function(k, vv) {
+                vv[1:min(reduce.n, length(vv))]},
+              combine = T)}}
 
 ##other
 
