@@ -226,7 +226,7 @@ function (con, nrecs)
         NULL
     else keyval(NULL, df, vectorized = nrecs &gt; 1)
 }
-&lt;environment: 0x104dd0000&gt;
+&lt;environment: 0x10358f708&gt;
 
 $streaming.format
 NULL
@@ -245,7 +245,7 @@ $format
 function (k, v, con, vectorized) 
 write.table(file = con, x = if (is.null(k)) v else cbind(k, v), 
     ..., row.names = FALSE, col.names = FALSE)
-&lt;environment: 0x10483a028&gt;
+&lt;environment: 0x101b3e748&gt;
 
 $streaming.format
 NULL
@@ -350,7 +350,7 @@ Just like input.format, one must define a textoutputformat</p>
 
 <pre><code class="r">mapreduce(
   input = hdfs.data,
-  output = &quot;/tmp/rhadoop/output/&quot;,
+  output = tempfile(),
   output.format = csv.format,
   map = function(k,v){
     # complicated function here

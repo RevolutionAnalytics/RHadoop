@@ -51,7 +51,7 @@ function (con, nrecs)
         NULL
     else keyval(NULL, df, vectorized = nrecs > 1)
 }
-<environment: 0x104dd0000>
+<environment: 0x10358f708>
 
 $streaming.format
 NULL
@@ -74,7 +74,7 @@ $format
 function (k, v, con, vectorized) 
 write.table(file = con, x = if (is.null(k)) v else cbind(k, v), 
     ..., row.names = FALSE, col.names = FALSE)
-<environment: 0x10483a028>
+<environment: 0x101b3e748>
 
 $streaming.format
 NULL
@@ -210,7 +210,7 @@ This time providing output argument so one can extract from hdfs (cannot hdfs.ge
 ```r
 mapreduce(
   input = hdfs.data,
-  output = "/tmp/rhadoop/output/",
+  output = tempfile(),
   output.format = csv.format,
   map = function(k,v){
     # complicated function here
