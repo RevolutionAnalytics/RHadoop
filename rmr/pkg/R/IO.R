@@ -44,7 +44,7 @@ json.input.format = function(con, nrecs) {
     if(length(splits[[1]]) == 1)  keyval(NULL, lapply.nrecs(splits, function(x) fromJSON(x[1], asText = TRUE), nrecs = nrecs))
     else keyval(lapply.nrecs(splits, function(x) fromJSON(x[1], asText = TRUE), nrecs = nrecs), 
                 lapply.nrecs(splits, function(x) fromJSON(x[2], asText = TRUE), nrecs = nrecs),
-                vectorized = nrecs == 1)}}
+                vectorized = nrecs > 1)}}
 
 json.output.format = function(k, v, con, vectorized) {
   ser = function(k, v) paste(gsub("\n", "", toJSON(k, .escapeEscapes=TRUE, collapse = "")),
@@ -60,7 +60,7 @@ json.output.format = function(k, v, con, vectorized) {
 text.input.format = function(con, nrecs) {
   lines = readLines(con, nrecs)
   if (length(lines) == 0) NULL
-  else keyval(NULL, lines, vectorized = nrecs == 1)}
+  else keyval(NULL, lines, vectorized = nrecs > 1)}
 
 text.output.format = function(k, v, con, vectorized) {
   ser = function(k,v) paste(k, v, collapse = "", sep = "\t")

@@ -1,12 +1,14 @@
-#Compatibility testing for rmr 1.3
+# Compatibility testing for rmr 1.3.x (Current stable)
 Please contribute with additional reports. To claim compatibility you need to run `R CMD  check path-to-rmr` successfully.
+As with any new release, testing on additional platforms is under way. If you build your own Hadoop, see [Which Hadoop for rmr](https://github.com/RevolutionAnalytics/RHadoop/wiki/Which-Hadoop-for-rmr).
 
 <table>
 <thead>
-<tr><th>Hadoop</th><th>R</th><th>OS</th><th>Compatibility</th><th>Reporter</th></tr>
+<tr><th>rmr</th><th>Hadoop</th><th>R</th><th>OS</th><th>Compatibility</th><th>Reporter</th></tr>
 </thead>
 <tbody>
-<tr><td>mr1-cdh4.0.0</td><td>2.15.0</td><td>OS X 10.7.4</td><td>only x86_64</td><td>Revolution Analytics</td></tr>
-<tr><td>CDH3u4</td><td>2.14.1</td><td>Ubuntu 12.04</td><td>only x86_64</td><td>Revolution Analytics</td></tr>
+<tr><td>1.3.1</td><td>mr1-cdh4.0.0</td><td>Revolution R Enterprise 6.0</td><td>64-bit CentOS 5.6</td><td>only x86_64 and mr1</td><td>Revolution Analytics</td></tr>
+<tr><td>1.3.1</td><td>CDH3u4</td><td>Revolution R Enterprise 6.0</td><td>64-bit CentOS 5.6</td><td>only x86_64</td><td>Revolution Analytics</td></tr>
+<tr><td>1.3.1</td><td>Apache Hadoop 1.0.2</td><td>Revolution R Enterprise 6.0</td><td>64-bit CentOS 5.6</td><td>only x86_64</td><td>Revolution Analytics</td></tr>
 </tbody>
 </table>

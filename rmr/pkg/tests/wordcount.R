@@ -19,6 +19,7 @@
 
 library(rmr)
 
+## @knitr wordcount
 wordcount = function (input, output = NULL, pattern = " ") {
   mapreduce(input = input ,
             output = output,
@@ -32,7 +33,7 @@ wordcount = function (input, output = NULL, pattern = " ") {
                 reduce = function(k,vv) {
                     keyval(k, sum(unlist(vv)))},
                 combine = T)}
-
+## @knitr end
 
 rmr:::hdfs.put("/etc/passwd", "/tmp/wordcount-test")
 file.remove("/tmp/wordcount-test")
