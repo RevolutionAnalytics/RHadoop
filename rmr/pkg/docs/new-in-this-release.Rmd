@@ -1,4 +1,4 @@
 # What's new
 
-* tested on CDH3, CDH4 and Apache Hadoop 1.0.2
-* complete the transition of part of the documentation to the Rmd format for better versioning and testing. 
+* tested on CDH3, CDH4 and Apache Hadoop 1.0.2. See [Compatibility testing for rmr 1.3.x](compatibility.md)
+* complete the transition of part of the documentation to the Rmd format for better versioning and testing. See [Documentation guidelines for rmr](https://github.com/RevolutionAnalytics/RHadoop/wiki/Documentation-guidelines-for-rmr)
