@@ -38,6 +38,7 @@ optimize = function(mrex) {
   else mrex }
 
 sample = function(input, output = NULL, method = c("any", "Bernoulli"), ...) {
+  method = match.arg(method)
   if (method == "any") {
     map.n = list(...)[['n']]
     reduce.n = map.n
@@ -46,10 +47,18 @@ sample = function(input, output = NULL, method = c("any", "Bernoulli"), ...) {
               map = function(k,v) {
                 if (map.n > 0){
                   map.n <<- map.n - 1
-                  keyval(NULL, keyval(k,v))}},
-              reduce = function(k, vv) {
-                vv[1:min(reduce.n, length(vv))]},
-              combine = T)}}
+                  keyval(1, keyval(k,v))}},
+              combine = function(k, vv) {
+                lapply(vv[1:min(reduce.n, length(vv))], function(v) keyval(NULL,v))},
+              reduce = function(k, vv) 
+                vv[1:min(reduce.n, length(vv))])}
+  if(method == "Bernoulli"){
+    p = list(...)[['p']]
+    mapreduce(input,
+              output,
+              map = function(k,v)
+                if(rbinom(1,1,p) == 1)
+                  keyval(k,v))}}
 
 ##other
 
