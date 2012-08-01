@@ -417,8 +417,10 @@ to.dfs = function(object, output = dfs.tempfile(), format = "native") {
   file.remove(tmp)
   output}
 
-from.dfs = function(input, format = "native", structured = FALSE) {
-  nrecs =  rmr.options$vectorized.nrows
+from.dfs = function(input, format = "native", to.data.frame = FALSE, vectorized = FALSE, structured = FALSE) {
+  if(is.logical(vectorized)) nrecs = if(vectorized) rmr.options$vectorized.nrows else 1
+  else nrecs = vectorized 
+  
   read.file = function(f) {
     con = file(f, if(format$mode == "text") "r" else "rb")
     record.reader = make.record.reader(format$mode, format$format, con, nrecs)
