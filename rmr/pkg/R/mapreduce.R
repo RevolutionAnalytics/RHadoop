@@ -128,14 +128,15 @@ to.structured =
   function(x) {
     do.call(
       if(all(sapply(x, is.atomic)))
-        rbind
+        c
       else
-        c, 
+        rbind, 
       x)}
 
 from.structured = 
   function(x) {
-    split(x, ceiling((1:nrow(x))/rmr.options.get("vectorized.nrow")))}
+    n = if(is.atomic(x)) length(x) else nrow(x)
+    split(x, ceiling((1:n)/rmr.options.get("vectorized.nrows")))}
 
 keyval.list.to.structured=
   function(x) {
@@ -386,7 +387,7 @@ to.dfs.path = function(input) {
 
 to.dfs = function(object, output = dfs.tempfile(), format = "native") {
   obj.class = class(object)
-  if(is.data.frame(object) || is.matrix(object) || is.atomic())
+  if(is.data.frame(object) || is.matrix(object) || is.atomic(object))
     object = from.structured(object)
   if (!is.list(object)) stop(obj.class, " is not supported by to.dfs")
   tmp = tempfile()
@@ -455,7 +456,7 @@ from.dfs = function(input, format = "native", to.data.frame = FALSE, vectorized 
   retval = read.file(tmp)
   if(rmr.options.get("backend") == "hadoop") unlink(tmp)
   if(structured) 
-    keyval.list.to.R(retval)
+    keyval.list.to.structured(retval)
   else {
     if(is.logical(vectorized) && vectorized)
       keyval(do.call(c, lapply(retval,keys)), do.call(c, lapply(retval, values)), vectorized = TRUE)
@@ -549,7 +550,7 @@ mr.local = function(map,
       retval = 
         if(structured$map && vectorized$map) 
           map(to.structured(kv$key), to.structured(kv$val))
-        else map(kv$key,kv$val)}
+        else map(kv$key,kv$val)
 
       if(is.keyval(retval) && !is.vectorized.keyval(retval)) list(retval)
       else {
