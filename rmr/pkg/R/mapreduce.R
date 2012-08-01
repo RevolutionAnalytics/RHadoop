@@ -124,20 +124,14 @@ to.list = function(x) {
       else
         as.list(x)}}
 
-to.data.frame = function(x, col.names = names(x[[1]])) {
-  if(is.data.frame(x)) x
-  else {
-    df = as.data.frame(do.call(rbind, as.list(x)))
-    if(ncol(df) > 0) 
-      for(col in 1:ncol(df)){
-        df[,col] = unlist(df[,col ])}
-    if(!is.null(col.names)) names(df) = col.names
-    df}}
-  
-keyval.list.to.data.frame =
+to.structured = 
   function(x) {
-    kk = to.data.frame(keys(x))
-    vv = to.data.frame(values(x))
+    do.call(rbind, x)}
+
+keyval.list.to.structured=
+  function(x) {
+    kk = to.structured(keys(x))
+    vv = to.structured(values(x))
     if(!is.null(nrow(kk)) && nrow(kk) == nrow(vv))
       keyval(kk, vv, vectorized = TRUE)
     else {
@@ -411,9 +405,8 @@ to.dfs = function(object, output = dfs.tempfile(), format = "native") {
   file.remove(tmp)
   output}
 
-from.dfs = function(input, format = "native", to.data.frame = FALSE, vectorized = FALSE, structured = FALSE) {
-  if(is.logical(vectorized)) nrecs = if(vectorized) rmr.options$vectorized.nrows else 1
-  else nrecs = vectorized 
+from.dfs = function(input, format = "native", structured = FALSE) {
+  nrecs =  rmr.options$vectorized.nrows
   read.file = function(f) {
     con = file(f, if(format$mode == "text") "r" else "rb")
     record.reader = make.record.reader(format$mode, format$format, con, nrecs)
@@ -447,9 +440,8 @@ from.dfs = function(input, format = "native", to.data.frame = FALSE, vectorized 
     tmp = fname
   retval = read.file(tmp)
   if(rmr.options.get("backend") == "hadoop") unlink(tmp)
-  if(to.data.frame) warning("to.data.frame deprecated, use structured instead")
-  if(to.data.frame || structured) 
-    keyval.list.to.data.frame(retval)
+  if(structured) 
+    keyval.list.to.R(retval)
   else {
     if(is.logical(vectorized) && vectorized)
       keyval(do.call(c, lapply(retval,keys)), do.call(c, lapply(retval, values)), vectorized = TRUE)
@@ -540,8 +532,10 @@ mr.local = function(map,
   
   apply.map =   
     function(kv) {
-      retval = map(if(structured$map) to.data.frame(kv$key) else kv$key, 
-                   if(structured$map) to.data.frame(kv$val) else kv$val)
+      retval = 
+        if(structured$map && vectorized$map) 
+          map(to.structured(kv$key), to.structured(kv$val))
+        else map(kv$key,kv$val)}
 
       if(is.keyval(retval) && !is.vectorized.keyval(retval)) list(retval)
       else {
@@ -568,7 +562,7 @@ mr.local = function(map,
   reduce.out = as.list(tapply(X = map.out, 
                       INDEX = sapply(keys(map.out), digest), 
                       FUN = function(x) reduce(x[[1]]$key, 
-                                             if(structured$reduce) to.data.frame(values(x)) else values(x)), 
+                                             if(structured$reduce) to.structured(values(x)) else values(x)), 
                       simplify = FALSE))
   if(!is.keyval(reduce.out[[1]]))
     reduce.out = do.call(c, reduce.out)
@@ -590,8 +584,8 @@ map.loop = function(map, record.reader, record.writer, structured, profile) {
   if(profile) activate.profiling()
   kv = record.reader()
   while(!is.null(kv)) { 
-    out = map(if(structured) to.data.frame(kv$key) else kv$key, 
-              if(structured) to.data.frame(kv$val) else kv$val)
+    out = map(if(structured) to.structured(kv$key) else kv$key, 
+              if(structured) to.structured(kv$val) else kv$val)
     if(!is.null(out)) {
       if (is.keyval(out)) {record.writer(out$key, out$val, is.vectorized.keyval(out))}
       else {lapply(out, function(o) record.writer(o$key, o$val, is.vectorized.keyval(o)))}}
@@ -606,7 +600,7 @@ reduce.loop = function(reduce, record.reader, record.writer, structured, profile
   reduce.flush = function(current.key, vv) {
     out = reduce(current.key, 
                  if(structured) {
-                   to.data.frame(vv)}
+                   to.structured(vv)}
                  else {vv})
     if(!is.null(out)) {
       if(is.keyval(out)) {record.writer(out$key, out$val, is.vectorized.keyval(out))}
@@ -677,7 +671,7 @@ invisible(lapply(libs, function(l) require(l, character.only = T)))
                                                    output.format$format)}
                               else {
                                 rmr:::make.record.writer()}, 
-              structured$map,
+              structured$map && (vectorized$map > 1),
               profile = profile.nodes)'
   reduce.line  =  '  rmr:::reduce.loop(reduce = reduce, 
                  record.reader = rmr:::make.record.reader(), 
