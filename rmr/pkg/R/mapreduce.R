@@ -217,7 +217,7 @@ make.record.writer = function(mode = NULL, format = NULL, con = NULL) {
     if(is.null(con)) con = pipe("cat", "wb")}
   function(k, v, vectorized) format(k, v, con, vectorized)}
 
-IO.formats = c("text", "json", "csv", "native", "native.text",
+IO.formats = c("text", "json", "csv", "native",
                "sequence.typedbytes")
 
 make.input.format = function(format = native.input.format(), 
@@ -233,9 +233,6 @@ make.input.format = function(format = native.input.format(),
                    mode = "text"}, 
            csv = {format = csv.input.format(...) 
                   mode = "text"}, 
-           native.text = {format = native.text.input.format() 
-                          mode = "text"
-                          warning("The native.text format is deprecated in favor of native. Please switch and convert your data.")}, 
            native = {format = native.input.format() 
                             mode = "binary"}, 
            sequence.typedbytes = {format = typed.bytes.input.format() 
@@ -261,10 +258,6 @@ make.output.format = function(format = native.output.format,
            csv = {format = csv.output.format(...)
                   mode = "text"
                   streaming.format = NULL}, 
-           native.text = {format = native.text.output.format
-                          mode = "text"
-                          streaming.format = NULL
-                          warning("The native.text format is deprecated in favor of native. Please switch and convert your data.")}, 
            native = {format = native.output.format 
                      mode = "binary"
                      streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"}, 
