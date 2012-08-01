@@ -128,6 +128,10 @@ to.structured =
   function(x) {
     do.call(rbind, x)}
 
+from.structured = 
+  function(x) {
+    split(x, ceiling((1:nrow(x))/rmr.options.get("vectorized.nrow")))}
+
 keyval.list.to.structured=
   function(x) {
     kk = to.structured(keys(x))
@@ -376,7 +380,8 @@ to.dfs.path = function(input) {
       input()}}}
 
 to.dfs = function(object, output = dfs.tempfile(), format = "native") {
-  object = to.list(object)
+  if(is.data.frame(object) || is.matrix(object))
+    object = from.structured(object)
   tmp = tempfile()
   dfsOutput = to.dfs.path(output)
   if(is.character(format)) format = make.output.format(format)
