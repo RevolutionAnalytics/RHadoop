@@ -12,29 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 lapply.nrecs = function(..., nrecs) {
   out = lapply(...)
   if(nrecs == 1) out[[1]] else out}
-
-native.text.input.format = function(con, nrecs) {
-  lines  = readLines(con, nrecs)
-  if (length(lines) == 0) NULL
-  else {
-    splits = strsplit(lines, "\t")
-    deser.one = function(x) unserialize(charToRaw(gsub("\\\\n", "\n", x)))
-    keyval(lapply.nrecs(splits, function(x) de(x[1]), nrecs = nrecs),
-           lapply.nrecs(splits, function(x) de(x[2]), nrecs = nrecs),
-           vectorized = nrecs > 1)}}
-
-native.text.output.format = function(k, v, con, vectorized) {
-  ser = function(x) gsub("\n", "\\\\n", rawToChar(serialize(x, ascii=T, connection = NULL)))
-  ser.pair = function(k,v) paste(ser(k), ser(v), sep = "\t")
-  out = 
-    if(vectorized)
-      mapply(ser.pair, k, v)
-  else ser.pair(k,v)
-  writeLines(out, con = con, sep = "\n")}
 
 json.input.format = function(con, nrecs) {
   lines = readLines(con, nrecs)
