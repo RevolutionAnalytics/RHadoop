@@ -126,7 +126,12 @@ to.list = function(x) {
 
 to.structured = 
   function(x) {
-    do.call(rbind, x)}
+    do.call(
+      if(all(sapply(x, is.atomic)))
+        rbind
+      else
+        c, 
+      x)}
 
 from.structured = 
   function(x) {
@@ -380,8 +385,10 @@ to.dfs.path = function(input) {
       input()}}}
 
 to.dfs = function(object, output = dfs.tempfile(), format = "native") {
-  if(is.data.frame(object) || is.matrix(object))
+  obj.class = class(object)
+  if(is.data.frame(object) || is.matrix(object) || is.atomic())
     object = from.structured(object)
+  if (!is.list(object)) stop(obj.class, " is not supported by to.dfs")
   tmp = tempfile()
   dfsOutput = to.dfs.path(output)
   if(is.character(format)) format = make.output.format(format)
