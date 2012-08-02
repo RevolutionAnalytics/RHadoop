@@ -128,13 +128,11 @@ to.structured =
   function(x) {
     if(is.data.frame(x) || is.matrix(x) || is.atomic(x))
       x
-    else
-      do.call(
-        if(all(sapply(x, is.atomic)))
-          c
-        else
-          rbind, 
-        x)}
+    else {
+      if(all(sapply(x, is.atomic)))
+        unlist(x)
+      else
+        do.call(rbind, x)}}
 
 from.structured = 
   function(x) {
