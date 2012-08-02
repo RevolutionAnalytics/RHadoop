@@ -94,64 +94,57 @@ mapreduce(
     #complicated function here
     keyval(k, vv[[1]])})
 ## @knitr end
+## @knitr getting-data.create.fields.list
+qw = function(...) as.character(match.call())[-1]
+fields <- qw(mpg, cyl, disp, hp, drat, wt, qsec, vs, am, gear, carb) 
+field.size = 8
+## @knitr end
 ## @knitr getting-data.fwf.reader
 fwf.reader <- function(con, nrecs) {  
   lines <- readLines(con, nrecs)  
   if (length(lines) == 0) {
-    NULL
-  }
+    NULL}
   else {
-    df <- as.data.frame(lapply(fields, function(x) substr(lines, x[1], x[2])), stringsAsFactors = FALSE)	
-    keyval(NULL, df)
-  }	
-} 
+    df =
+      as.data.frame(
+        matrix(
+          sapply(
+            split(unlist(strsplit(lines, "")), 
+                  ceiling(1:2816/8)), 
+            paste, collapse = ""), 
+          ncol=length(fields), byrow=T))
+    names(df) = fields
+    keyval(NULL, df)}} 
 ## @knitr end
 ## @knitr getting-data.fwf.writer
 fwf.writer <- function(k, v, con, vectorized) {
-  ser <- function(k, v) paste(k, v, collapse = "", sep = "")
+  ser <- function(df) paste(apply(df, 1, function(x) paste(format(x, width = field.size), collapse = "")), collapse = "\n")
   out <- if(vectorized) {
-    mapply(ser, k, v)
-  }
+    ser(do.call(rbind,v))}
   else {
-    ser(k, v)
-  }
-  writeLines(out, sep = "\n", con = con)
-}
+    ser(v)}
+  writeLines(out, con = con)}
 ## @knitr end
 ## @knitr getting-data.generate.fwf.data
-cars <- apply(mtcars, 2, function(x) format(x, width = 6))
-fwf.data <- to.dfs(cars, format = make.output.format(mode = "text", format = fwf.writer))
-## @knitr end
-## @knitr getting-data.create.fields.list
-fields <- list(mpg = c(1,6),
-               cyl = c(7,12),
-               disp = c(13,18),
-               hp = c(19,24),
-               drat = c(25,30),
-               wt = c(31,36), 
-               qsec = c(37,42),
-               vs = c(43,48),
-               am = c(49,54),
-               gear = c(55,60),
-               carb = c(61,66)) 
+fwf.data <- to.dfs(mtcars, format = make.output.format(mode = "text", format = fwf.writer))
 ## @knitr end
 ## @knitr getting-data.from.dfs.one.line
 out <- from.dfs(mapreduce(input = fwf.data,
-                          input.format = make.input.format(mode = "text", format = fwf.reader)))
-out[[1]]
+                          input.format = make.input.format(mode = "text", format = fwf.reader)), structured = T)
+out$val
 ## @knitr end
 ## @knitr getting-data.from.dfs.multiple.lines
 out <- from.dfs(mapreduce(input = fwf.data,
                           input.format = make.input.format(mode = "text", format = fwf.reader),
                           vectorized = list(map = TRUE)))
-out[[1]]
 ## @knitr end
 ## @knitr getting-data.cyl.frequency.count
 out <- from.dfs(mapreduce(input = fwf.data,
                           input.format = make.input.format(mode = "text", format = fwf.reader),
                           map = function(key, value) keyval(value[,"cyl"], 1),
                           reduce = function(key, value) keyval(key, sum(unlist(value))),
-                          combine = TRUE), structured = TRUE)
+                          combine = TRUE), 
+                structured = TRUE)
 df <- data.frame(out$key, out$val)
 names(df) <- c("cyl","count")
 df
