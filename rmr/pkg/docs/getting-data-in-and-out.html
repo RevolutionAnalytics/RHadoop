@@ -194,7 +194,7 @@ system, when you need to get non-rmr data in and out of it? Of course <code>rmr<
 <p>The complete list is:</p>
 
 <pre><code>[1] &quot;text&quot;                &quot;json&quot;                &quot;csv&quot;                
-[4] &quot;native&quot;              &quot;native.text&quot;         &quot;sequence.typedbytes&quot;
+[4] &quot;native&quot;              &quot;sequence.typedbytes&quot;
 </code></pre>
 
 <ol>
@@ -203,7 +203,6 @@ system, when you need to get non-rmr data in and out of it? Of course <code>rmr<
 language has decent JSON libraries. It was the default in <code>rmr</code> 1.0, but we&#39;ll keep because it is almost standard. Parsed in C for efficiency, should handle large objects.</li>
 <li><code>csv</code>: A family of concrete formats modeled after R&#39;s own <code>read.table</code>. See examples below.</li>
 <li><code>native</code>: based on R&#39;s own serialization, it is the default and supports everything that R&#39;s <code>serialize</code> supports. If you want to know the gory details, it is implemented as an application specific type for the typedbytes format, which is further encapsulated in the sequence file format when writing to HDFS, which &hellip; Dont&#39;t worry about it, it just works. Unfortunately, it is written and read by only one package, <code>rmr</code> itself.</li>
-<li><code>native.text</code>: a text version of native, default in 1.1, it is now deprecated. Convert your <code>rmr</code> 1.1 data quick and move on.</li>
 <li><code>sequence.typedbytes</code>: based on specs in HADOOP-1722 it has emerged as the standard for non Java hadoop application talking to the rest of Hadoop.</li>
 </ol>
 
@@ -226,7 +225,7 @@ function (con, nrecs)
         NULL
     else keyval(NULL, df, vectorized = nrecs &gt; 1)
 }
-&lt;environment: 0x10358f708&gt;
+&lt;environment: 0x104f15ce8&gt;
 
 $streaming.format
 NULL
@@ -245,7 +244,7 @@ $format
 function (k, v, con, vectorized) 
 write.table(file = con, x = if (is.null(k)) v else cbind(k, v), 
     ..., row.names = FALSE, col.names = FALSE)
-&lt;environment: 0x101b3e748&gt;
+&lt;environment: 0x104da6140&gt;
 
 $streaming.format
 NULL
@@ -334,8 +333,99 @@ from.dfs(result)
     reduce = function(k, vv) keyval(k, mean(unlist(vv))))                      
 </code></pre>
 
+<p>Another common <code>input.format</code> is fixed width formatted data:</p>
+
+<pre><code class="r">fwf.reader &lt;- function(con, nrecs) {  
+  lines &lt;- readLines(con, nrecs)  
+  if (length(lines) == 0) {
+    NULL
+  }
+  else {
+    df &lt;- as.data.frame(lapply(fields, function(x) substr(lines, x[1], x[2])), stringsAsFactors = FALSE)    
+    keyval(NULL, df)
+  } 
+} 
+</code></pre>
+
+<p>Using the text <code>output.format</code> as a template, we modify it slightly to write fixed width data without tab seperation:</p>
+
+<pre><code class="r">fwf.writer &lt;- function(k, v, con, vectorized) {
+  ser &lt;- function(k, v) paste(k, v, collapse = &quot;&quot;, sep = &quot;&quot;)
+  out &lt;- if(vectorized) {
+    mapply(ser, k, v)
+  }
+  else {
+    ser(k, v)
+  }
+  writeLines(out, sep = &quot;\n&quot;, con = con)
+}
+</code></pre>
+
+<p>Writing the <code>mtcars</code> dataset to a fixed width file with column widths of 6 bytes and putting into hdfs:</p>
+
+<pre><code class="r">cars &lt;- apply(mtcars, 2, function(x) format(x, width = 6))
+fwf.data &lt;- to.dfs(cars, format = make.output.format(mode = &quot;text&quot;, format = fwf.writer))
+</code></pre>
+
+<p>The key thing to note about <code>fwf.reader</code> is the global variable <code>fields</code>. In <code>fields</code>, we define the start and<br/>
+end byte locations for each field in the data:</p>
+
+<pre><code class="r">fields &lt;- list(mpg = c(1,6),
+               cyl = c(7,12),
+               disp = c(13,18),
+               hp = c(19,24),
+               drat = c(25,30),
+               wt = c(31,36), 
+               qsec = c(37,42),
+               vs = c(43,48),
+               am = c(49,54),
+               gear = c(55,60),
+               carb = c(61,66)) 
+</code></pre>
+
+<p>Sending 1 line at a time to the map function:</p>
+
+<pre><code class="r">out &lt;- from.dfs(mapreduce(input = fwf.data,
+                          input.format = make.input.format(mode = &quot;text&quot;, format = fwf.reader)))
+out[[1]]
+</code></pre>
+
+<p>Sending more than 1 line at a time to the map function via the vectorized API:</p>
+
+<pre><code class="r">out &lt;- from.dfs(mapreduce(input = fwf.data,
+                          input.format = make.input.format(mode = &quot;text&quot;, format = fwf.reader),
+                          vectorized = list(map = TRUE)))
+out[[1]]
+</code></pre>
+
+<p>Frequency count on <code>cyl</code>:</p>
+
+<pre><code class="r">out &lt;- from.dfs(mapreduce(input = fwf.data,
+                          input.format = make.input.format(mode = &quot;text&quot;, format = fwf.reader),
+                          map = function(key, value) keyval(value[,&quot;cyl&quot;], 1),
+                          reduce = function(key, value) keyval(key, sum(unlist(value))),
+                          combine = TRUE), structured = TRUE)
+df &lt;- data.frame(out$key, out$val)
+names(df) &lt;- c(&quot;cyl&quot;,&quot;count&quot;)
+df
+</code></pre>
+
+<p>Frequency count on <code>cyl</code> with vectorized API:</p>
+
+<pre><code class="r">out &lt;- from.dfs(mapreduce(input = fwf.data,
+                          input.format = make.input.format(mode = &quot;text&quot;, format = fwf.reader),
+                          map = function(key, value) keyval(value[,&quot;cyl&quot;], 1, vectorized = TRUE),
+                          reduce = function(key, value) keyval(key, sum(unlist(value))),
+                          combine = TRUE,
+                          vectorized = list(map = TRUE),
+                          structured = list(map = TRUE)), structured = TRUE)
+df &lt;- data.frame(out$key, out$val)
+names(df) &lt;- c(&quot;cyl&quot;,&quot;count&quot;)
+df
+</code></pre>
+
 <p>To get your data out - say you input file, apply column transformations, add columns, and want to output a new csv file<br/>
-Just like input.format, one must define a textoutputformat</p>
+Just like input.format, one must define an output format function:</p>
 
 <pre><code class="r">csv.writer = function(k, v){
   paste(k, paste(v, collapse = &quot;,&quot;), sep = &quot;,&quot;)}

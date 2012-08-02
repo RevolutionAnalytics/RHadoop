@@ -17,7 +17,7 @@ The complete list is:
 
 ```
 [1] "text"                "json"                "csv"                
-[4] "native"              "native.text"         "sequence.typedbytes"
+[4] "native"              "sequence.typedbytes"
 ```
 
 
@@ -26,7 +26,6 @@ The complete list is:
 language has decent JSON libraries. It was the default in `rmr` 1.0, but we'll keep because it is almost standard. Parsed in C for efficiency, should handle large objects.
 1. `csv`: A family of concrete formats modeled after R's own `read.table`. See examples below.
 1. `native`: based on R's own serialization, it is the default and supports everything that R's `serialize` supports. If you want to know the gory details, it is implemented as an application specific type for the typedbytes format, which is further encapsulated in the sequence file format when writing to HDFS, which ... Dont't worry about it, it just works. Unfortunately, it is written and read by only one package, `rmr` itself.
-1. `native.text`: a text version of native, default in 1.1, it is now deprecated. Convert your `rmr` 1.1 data quick and move on.
 1. `sequence.typedbytes`: based on specs in HADOOP-1722 it has emerged as the standard for non Java hadoop application talking to the rest of Hadoop.
 
 
@@ -51,7 +50,7 @@ function (con, nrecs)
         NULL
     else keyval(NULL, df, vectorized = nrecs > 1)
 }
-<environment: 0x10358f708>
+<environment: 0x104f15ce8>
 
 $streaming.format
 NULL
@@ -74,7 +73,7 @@ $format
 function (k, v, con, vectorized) 
 write.table(file = con, x = if (is.null(k)) v else cbind(k, v), 
     ..., row.names = FALSE, col.names = FALSE)
-<environment: 0x101b3e748>
+<environment: 0x104da6140>
 
 $streaming.format
 NULL
@@ -186,8 +185,115 @@ freq.counts =
 ```
 
 
+Another common `input.format` is fixed width formatted data:
+
+```r
+fwf.reader <- function(con, nrecs) {  
+  lines <- readLines(con, nrecs)  
+  if (length(lines) == 0) {
+    NULL
+  }
+  else {
+    df <- as.data.frame(lapply(fields, function(x) substr(lines, x[1], x[2])), stringsAsFactors = FALSE)	
+    keyval(NULL, df)
+  }	
+} 
+```
+
+
+Using the text `output.format` as a template, we modify it slightly to write fixed width data without tab seperation:
+
+```r
+fwf.writer <- function(k, v, con, vectorized) {
+  ser <- function(k, v) paste(k, v, collapse = "", sep = "")
+  out <- if(vectorized) {
+    mapply(ser, k, v)
+  }
+  else {
+    ser(k, v)
+  }
+  writeLines(out, sep = "\n", con = con)
+}
+```
+
+
+Writing the `mtcars` dataset to a fixed width file with column widths of 6 bytes and putting into hdfs:
+
+```r
+cars <- apply(mtcars, 2, function(x) format(x, width = 6))
+fwf.data <- to.dfs(cars, format = make.output.format(mode = "text", format = fwf.writer))
+```
+
+
+The key thing to note about `fwf.reader` is the global variable `fields`. In `fields`, we define the start and
+end byte locations for each field in the data:
+
+```r
+fields <- list(mpg = c(1,6),
+               cyl = c(7,12),
+               disp = c(13,18),
+               hp = c(19,24),
+               drat = c(25,30),
+               wt = c(31,36), 
+               qsec = c(37,42),
+               vs = c(43,48),
+               am = c(49,54),
+               gear = c(55,60),
+               carb = c(61,66)) 
+```
+
+
+Sending 1 line at a time to the map function:
+
+```r
+out <- from.dfs(mapreduce(input = fwf.data,
+                          input.format = make.input.format(mode = "text", format = fwf.reader)))
+out[[1]]
+```
+
+
+Sending more than 1 line at a time to the map function via the vectorized API:
+
+```r
+out <- from.dfs(mapreduce(input = fwf.data,
+                          input.format = make.input.format(mode = "text", format = fwf.reader),
+                          vectorized = list(map = TRUE)))
+out[[1]]
+```
+
+
+Frequency count on `cyl`:
+
+```r
+out <- from.dfs(mapreduce(input = fwf.data,
+                          input.format = make.input.format(mode = "text", format = fwf.reader),
+                          map = function(key, value) keyval(value[,"cyl"], 1),
+                          reduce = function(key, value) keyval(key, sum(unlist(value))),
+                          combine = TRUE), structured = TRUE)
+df <- data.frame(out$key, out$val)
+names(df) <- c("cyl","count")
+df
+```
+
+
+Frequency count on `cyl` with vectorized API:
+
+```r
+out <- from.dfs(mapreduce(input = fwf.data,
+                          input.format = make.input.format(mode = "text", format = fwf.reader),
+                          map = function(key, value) keyval(value[,"cyl"], 1, vectorized = TRUE),
+                          reduce = function(key, value) keyval(key, sum(unlist(value))),
+                          combine = TRUE,
+                          vectorized = list(map = TRUE),
+                          structured = list(map = TRUE)), structured = TRUE)
+df <- data.frame(out$key, out$val)
+names(df) <- c("cyl","count")
+df
+```
+
+
 To get your data out - say you input file, apply column transformations, add columns, and want to output a new csv file
-Just like input.format, one must define a textoutputformat
+Just like input.format, one must define an output format function:
 
 
 ```r
