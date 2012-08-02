@@ -136,7 +136,8 @@ to.structured =
 
 from.structured = 
   function(x) {
-    n = if(is.atomic(x)) length(x) else nrow(x)
+    n = if(is.null(nrow(x))) length(x) else nrow(x)
+    if(is.matrix(x)) split = split.data.frame
     split(x, ceiling((1:n)/rmr.options.get("vectorized.nrows")))}
 
 keyval.list.to.structured=
