@@ -10,5 +10,6 @@ As with any new release, testing on additional platforms is under way. If you bu
 <tr><td>1.3.1</td><td>mr1-cdh4.0.0</td><td>Revolution R Enterprise 6.0</td><td>64-bit CentOS 5.6</td><td>only x86_64 and mr1</td><td>Revolution Analytics</td></tr>
 <tr><td>1.3.1</td><td>CDH3u4</td><td>Revolution R Enterprise 6.0</td><td>64-bit CentOS 5.6</td><td>only x86_64</td><td>Revolution Analytics</td></tr>
 <tr><td>1.3.1</td><td>Apache Hadoop 1.0.2</td><td>Revolution R Enterprise 6.0</td><td>64-bit CentOS 5.6</td><td>only x86_64</td><td>Revolution Analytics</td></tr>
+<tr><td>1.3.1</td><td>CDH3u4</td><td>Open Source R 2.14.1</td><td>64-bit Ubuntu 10.10</td><td>only x86_64</td><td>-</td></tr>
 </tbody>
 </table>
