@@ -8,7 +8,7 @@ make.input.format("csv")
 ## @knitr getting-data.make.output.format.csv
 make.output.format("csv")
 ## @knitr end
-## @knitr getting-data.getting.data.generic.list
+## @knitr getting-data.generic.list
 my.data = list(TRUE, list("nested list", 7.2), seq(1:3), letters[1:4], matrix(1:25, nrow = 5,ncol = 5))
 ## @knitr end
 ## @knitr getting-data.to.dfs
@@ -105,6 +105,7 @@ fwf.reader <- function(con, nrecs) {
   if (length(lines) == 0) {
     NULL}
   else {
+    split.lines = unlist(strsplit(lines, ""))
     df =
       as.data.frame(
         matrix(
@@ -116,6 +117,7 @@ fwf.reader <- function(con, nrecs) {
           ncol=length(fields), byrow=T))
     names(df) = fields
     keyval(NULL, df)}} 
+fwf.input.format = make.input.format(mode = "text", format = fwf.reader)
 ## @knitr end
 ## @knitr getting-data.fwf.writer
 fwf.writer <- function(k, v, con, vectorized) {
@@ -125,23 +127,24 @@ fwf.writer <- function(k, v, con, vectorized) {
   else {
     ser(v)}
   writeLines(out, con = con)}
+fwf.output.format = make.output.format(mode = "text", format = fwf.writer)
 ## @knitr end
 ## @knitr getting-data.generate.fwf.data
-fwf.data <- to.dfs(mtcars, format = make.output.format(mode = "text", format = fwf.writer))
+fwf.data <- to.dfs(mtcars, format = fwf.output.format)
 ## @knitr end
 ## @knitr getting-data.from.dfs.one.line
 out <- from.dfs(mapreduce(input = fwf.data,
-                          input.format = make.input.format(mode = "text", format = fwf.reader)), structured = T)
+                          input.format = fwf.input.format), structured = T)
 out$val
 ## @knitr end
 ## @knitr getting-data.from.dfs.multiple.lines
 out <- from.dfs(mapreduce(input = fwf.data,
-                          input.format = make.input.format(mode = "text", format = fwf.reader),
+                          input.format = fwf.input.format,
                           vectorized = list(map = TRUE)))
 ## @knitr end
 ## @knitr getting-data.cyl.frequency.count
 out <- from.dfs(mapreduce(input = fwf.data,
-                          input.format = make.input.format(mode = "text", format = fwf.reader),
+                          input.format = fwf.input.format,
                           map = function(key, value) keyval(value[,"cyl"], 1),
                           reduce = function(key, value) keyval(key, sum(unlist(value))),
                           combine = TRUE), 
@@ -152,7 +155,7 @@ df
 ## @knitr end
 ## @knitr getting-data.cyl.vectorized.frequency.count
 out <- from.dfs(mapreduce(input = fwf.data,
-                          input.format = make.input.format(mode = "text", format = fwf.reader),
+                          input.format = fwf.input.format,
                           map = function(key, value) keyval(value[,"cyl"], 1, vectorized = TRUE),
                           reduce = function(key, value) keyval(key, sum(unlist(value))),
                           combine = TRUE,
