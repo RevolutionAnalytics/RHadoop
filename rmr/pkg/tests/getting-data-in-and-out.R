@@ -109,8 +109,9 @@ fwf.reader <- function(con, nrecs) {
       as.data.frame(
         matrix(
           sapply(
-            split(unlist(strsplit(lines, "")), 
-                  ceiling(1:2816/8)), 
+            split(
+              split.lines, 
+              ceiling(1:length(split.lines)/field.size)), 
             paste, collapse = ""), 
           ncol=length(fields), byrow=T))
     names(df) = fields
