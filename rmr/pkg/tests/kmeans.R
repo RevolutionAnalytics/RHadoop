@@ -25,8 +25,8 @@ kmeans.iter =
                              function(k,v) {
                                distances = apply(centers, 1, function(c) distfun(c,v))
                                keyval(centers[which.min(distances),], v)}},
-                         reduce = function(k,vv) keyval(NULL, apply(do.call(rbind, vv), 2, mean))),
-             structured = T)}
+                         reduce = function(k,vv) keyval(NULL, matrix(apply(do.call(rbind, vv), 2, mean), nrow=1))),
+             structured = T)$val}
 ## @knitr end
 
 #points grouped many-per-record something like 1000 should give most perf improvement, 
@@ -70,10 +70,10 @@ kmeans.iter.fast =
               lapply(names(clusters), function(cl) keyval(as.integer(cl), clusters[[cl]]))}},
 ## @knitr kmeans.iter.fast.reduce
         reduce = function(k, vv) {
-               keyval(k, apply(list.to.matrix(vv), 2, sum))},
+               keyval(k, matrix(apply(list.to.matrix(vv), 2, sum), nrow = 1))},
 ## @knitr kmeans.iter.fast.options
-     combine = T),
-structured = T)
+        combine = T),
+      structured = T)
 ## @knitr end    
     ## convention is iteration returns sum of points not average and first element of each sum is the count
 ## @knitr kmeans.iter.fast.newcenters    
