@@ -6,7 +6,7 @@
 
 * This document responds to several inquiries on data formats and how to get data in and out of the rmr system
 * Still more a collection of snippets than anything organized
-* Thanks Damien for the examples and Koert for conversations on the subject
+* Thanks Damien  and @ryangarner for the examples and Koert for conversations on the subject
 
 Internally `rmr` uses R's own serialization in most cases and typedbytes serialization when in vectorized mode. The goal is to make you forget about representation issues most of the time. But what happens at the boundary of the
 system, when you need to get non-rmr data in and out of it? Of course `rmr` has to be able to read and write a variety of formats to be of any use. This is what is available and how to extend it.
@@ -50,7 +50,7 @@ function (con, nrecs)
         NULL
     else keyval(NULL, df, vectorized = nrecs > 1)
 }
-<environment: 0x104f186e8>
+<environment: 0x105634a78>
 
 $streaming.format
 NULL
@@ -73,7 +73,7 @@ $format
 function (k, v, con, vectorized) 
 write.table(file = con, x = if (is.null(k)) v else cbind(k, v), 
     ..., row.names = FALSE, col.names = FALSE)
-<environment: 0x104b27400>
+<environment: 0x10514bd88>
 
 $streaming.format
 NULL
