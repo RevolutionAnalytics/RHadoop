@@ -129,7 +129,7 @@ to.structured =
     if(is.data.frame(x) || is.matrix(x) || is.atomic(x))
       x
     else {
-      if(all(sapply(x, is.atomic)))
+      if(all(sapply(x, function(x) is.null(nrow(x)))))
         unlist(x)
       else
         do.call(rbind, x)}}
