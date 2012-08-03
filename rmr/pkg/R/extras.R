@@ -37,7 +37,7 @@ optimize = function(mrex) {
                 reduce = .(mapreduce.arg(mrex, 'reduce'))))}
   else mrex }
 
-sample = function(input, output = NULL, method = c("any", "Bernoulli"), ...) {
+rmr.sample = function(input, output = NULL, method = c("any", "Bernoulli"), ...) {
   method = match.arg(method)
   if (method == "any") {
     map.n = list(...)[['n']]
