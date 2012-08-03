@@ -50,7 +50,7 @@ function (con, nrecs)
         NULL
     else keyval(NULL, df, vectorized = nrecs > 1)
 }
-<environment: 0x104f15ce8>
+<environment: 0x104f186e8>
 
 $streaming.format
 NULL
@@ -73,7 +73,7 @@ $format
 function (k, v, con, vectorized) 
 write.table(file = con, x = if (is.null(k)) v else cbind(k, v), 
     ..., row.names = FALSE, col.names = FALSE)
-<environment: 0x104da6140>
+<environment: 0x104b27400>
 
 $streaming.format
 NULL
@@ -84,10 +84,16 @@ NULL
 R data types natively work without additional effort.
 
 
+```r
+my.data = list(TRUE, list("nested list", 7.2), seq(1:3), letters[1:4], matrix(1:25, nrow = 5,ncol = 5))
+```
 
 
 Put into HDFS:
 
+```r
+hdfs.data = to.dfs(my.data)
+```
 
 `my.data` is coerced to a list and each element of a list becomes a record.
 
@@ -191,13 +197,21 @@ Another common `input.format` is fixed width formatted data:
 fwf.reader <- function(con, nrecs) {  
   lines <- readLines(con, nrecs)  
   if (length(lines) == 0) {
-    NULL
-  }
+    NULL}
   else {
-    df <- as.data.frame(lapply(fields, function(x) substr(lines, x[1], x[2])), stringsAsFactors = FALSE)	
-    keyval(NULL, df)
-  }	
-} 
+    split.lines = unlist(strsplit(lines, ""))
+    df =
+      as.data.frame(
+        matrix(
+          sapply(
+            split(
+              split.lines, 
+              ceiling(1:length(split.lines)/field.size)), 
+            paste, collapse = ""), 
+          ncol=length(fields), byrow=T))
+    names(df) = fields
+    keyval(NULL, df)}} 
+fwf.input.format = make.input.format(mode = "text", format = fwf.reader)
 ```
 
 
@@ -205,23 +219,20 @@ Using the text `output.format` as a template, we modify it slightly to write fix
 
 ```r
 fwf.writer <- function(k, v, con, vectorized) {
-  ser <- function(k, v) paste(k, v, collapse = "", sep = "")
+  ser <- function(df) paste(apply(df, 1, function(x) paste(format(x, width = field.size), collapse = "")), collapse = "\n")
   out <- if(vectorized) {
-    mapply(ser, k, v)
-  }
+    ser(do.call(rbind,v))}
   else {
-    ser(k, v)
-  }
-  writeLines(out, sep = "\n", con = con)
-}
+    ser(v)}
+  writeLines(out, con = con)}
+fwf.output.format = make.output.format(mode = "text", format = fwf.writer)
 ```
 
 
 Writing the `mtcars` dataset to a fixed width file with column widths of 6 bytes and putting into hdfs:
 
 ```r
-cars <- apply(mtcars, 2, function(x) format(x, width = 6))
-fwf.data <- to.dfs(cars, format = make.output.format(mode = "text", format = fwf.writer))
+fwf.data <- to.dfs(mtcars, format = fwf.output.format)
 ```
 
 
@@ -229,17 +240,9 @@ The key thing to note about `fwf.reader` is the global variable `fields`. In `fi
 end byte locations for each field in the data:
 
 ```r
-fields <- list(mpg = c(1,6),
-               cyl = c(7,12),
-               disp = c(13,18),
-               hp = c(19,24),
-               drat = c(25,30),
-               wt = c(31,36), 
-               qsec = c(37,42),
-               vs = c(43,48),
-               am = c(49,54),
-               gear = c(55,60),
-               carb = c(61,66)) 
+qw = function(...) as.character(match.call())[-1]
+fields <- qw(mpg, cyl, disp, hp, drat, wt, qsec, vs, am, gear, carb) 
+field.size = 8
 ```
 
 
@@ -247,8 +250,8 @@ Sending 1 line at a time to the map function:
 
 ```r
 out <- from.dfs(mapreduce(input = fwf.data,
-                          input.format = make.input.format(mode = "text", format = fwf.reader)))
-out[[1]]
+                          input.format = fwf.input.format), structured = T)
+out$val
 ```
 
 
@@ -256,9 +259,8 @@ Sending more than 1 line at a time to the map function via the vectorized API:
 
 ```r
 out <- from.dfs(mapreduce(input = fwf.data,
-                          input.format = make.input.format(mode = "text", format = fwf.reader),
+                          input.format = fwf.input.format,
                           vectorized = list(map = TRUE)))
-out[[1]]
 ```
 
 
@@ -266,10 +268,11 @@ Frequency count on `cyl`:
 
 ```r
 out <- from.dfs(mapreduce(input = fwf.data,
-                          input.format = make.input.format(mode = "text", format = fwf.reader),
+                          input.format = fwf.input.format,
                           map = function(key, value) keyval(value[,"cyl"], 1),
                           reduce = function(key, value) keyval(key, sum(unlist(value))),
-                          combine = TRUE), structured = TRUE)
+                          combine = TRUE), 
+                structured = TRUE)
 df <- data.frame(out$key, out$val)
 names(df) <- c("cyl","count")
 df
@@ -280,7 +283,7 @@ Frequency count on `cyl` with vectorized API:
 
 ```r
 out <- from.dfs(mapreduce(input = fwf.data,
-                          input.format = make.input.format(mode = "text", format = fwf.reader),
+                          input.format = fwf.input.format,
                           map = function(key, value) keyval(value[,"cyl"], 1, vectorized = TRUE),
                           reduce = function(key, value) keyval(key, sum(unlist(value))),
                           combine = TRUE,

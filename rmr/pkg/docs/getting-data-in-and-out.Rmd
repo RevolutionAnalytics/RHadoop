@@ -39,11 +39,11 @@ The `mode` element can be `text` or `binary`. The `format` element is a function
 
 R data types natively work without additional effort.
 
-```{r getting.data.generic.list}
+```{r getting-data.generic.list}
 ```
 
 Put into HDFS:
-```{r getting-data.put.into.dfs}
+```{r getting-data.to.dfs}
 ```
 `my.data` is coerced to a list and each element of a list becomes a record.
 
