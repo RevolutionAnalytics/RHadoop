@@ -23,8 +23,7 @@ json.input.format = function(con, nrecs) {
     splits =  strsplit(lines, "\t")
     if(length(splits[[1]]) == 1)  keyval(NULL, lapply.nrecs(splits, function(x) fromJSON(x[1], asText = TRUE), nrecs = nrecs))
     else keyval(lapply.nrecs(splits, function(x) fromJSON(x[1], asText = TRUE), nrecs = nrecs), 
-                lapply.nrecs(splits, function(x) fromJSON(x[2], asText = TRUE), nrecs = nrecs),
-                vectorized = nrecs > 1)}}
+                lapply.nrecs(splits, function(x) fromJSON(x[2], asText = TRUE), nrecs = nrecs))}}
 
 json.output.format = function(k, v, con, vectorized) {
   ser = function(k, v) paste(gsub("\n", "", toJSON(k, .escapeEscapes=TRUE, collapse = "")),
@@ -40,7 +39,7 @@ json.output.format = function(k, v, con, vectorized) {
 text.input.format = function(con, nrecs) {
   lines = readLines(con, nrecs)
   if (length(lines) == 0) NULL
-  else keyval(NULL, lines, vectorized = nrecs > 1)}
+  else keyval(NULL, lines)}
 
 text.output.format = function(k, v, con, vectorized) {
   ser = function(k,v) paste(k, v, collapse = "", sep = "\t")
@@ -56,7 +55,7 @@ csv.input.format = function(...) function(con, nrecs) {
       read.table(file = con, nrows = nrecs, header = FALSE, ...),
       error = function(e) NULL)
   if(is.null(df) || dim(df)[[1]] == 0) NULL
-  else keyval(NULL, df, vectorized = nrecs > 1)}
+  else keyval(NULL, df)}
 
 csv.output.format = function(...) function(k, v, con, vectorized) 
   # this is vectorized only, need to think what that means
@@ -93,10 +92,9 @@ typed.bytes.input.format = function() {
     retval = if(length(obj.buffer) == 0) NULL 
       else { 
         if(nrecs == 1)
-          keyval(obj.buffer[[1]], obj.buffer[[2]], vectorized = FALSE)
+          keyval(obj.buffer[[1]], obj.buffer[[2]])
         else keyval(obj.buffer[2*(1:actual.recs) - 1],
-                  obj.buffer[2*(1:actual.recs)], 
-                  vectorized = TRUE)}
+                  obj.buffer[2*(1:actual.recs)])}
     if(actual.recs > 0) obj.buffer <<- obj.buffer[-(1:(2*actual.recs))]
     retval}}
   
