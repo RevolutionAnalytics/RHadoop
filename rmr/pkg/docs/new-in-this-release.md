@@ -1,4 +1,19 @@
-# What's new
+# What's new in 1.4
 
-* tested on CDH3, CDH4 and Apache Hadoop 1.0.2
-* complete the transition of part of the documentation to the Rmd format for better versioning and testing. 
+## More consistency and control when dealing with structured data
+We 1.3 we started adding more support for dealing with structured data, albeit not the main focus of that release. But we heard from many users that they deal with structured data 99.9% of the time and they would much rather code with matrices and data frames than nested lists. So with 1.4 we made an effort to review all the step of the "structured" data path.
+ 
+ 1. *Process medium size data chunks by default*. `to dfs` will store matrices and data frames after splitting them into smaller  matrices and data frames, not individial rows. They are easier to put back together, keep more of their metadata and promote   more efficient R programming. This is my favorite example.
+ 
+```
+from.dfs(mapreduce(to.dfs(M), 
+  map = function (k,Mi) keyval(NULL, t(Mi)%*%Mi), 
+  reduce = function(k,XX) keyval(NULL, Reduce('+', XX)), combine = T))[[1]]$val
+```
+
+Short and to the point, and even efficient! If you pass a key-value list to to.dfs, then it will just store one element of the list per record. You are in charge. For any other list, the result is the same but with the key set to NULL.
+ 1. *No heuristic guesses*: this is a foundational package to enable R development on Hadoop. In the tension between supporting interactive use or programming we need to err in favor of programming. So for instance `rmr` used to drop keys when returning results in structured format when all keys were `NULL`. Now it always returns a key value pair, either or both of which can be NULL at times. When programming, you need to minimize corner cases and anticipate them and dropping the key portion of the return value vased on the data was asking for trouble. I am not saying that interactive use is bad, but not the main concern in rmr. 
+ 1. *Don't coerce the data*: when you choose the structured option we try to put the data back together as it was, not to force it to a data frame as before (and the old `to.data.frame` and `reduce.on.data.frame` options are gone for that reason). Given a key value list, the conversion acts seprately on the keys and the values. When dealing with matrices and data frames, it will try to `rbind` them together, otherwise just `unlist` or concatenate them depending wether they are atomic or not. This represents a change of behavior in several ways: 
+    1. if all values are atomic vectors, they are concatenated, not rbinded to form a matrix and then coerced to data frame. If you want the old behavior, coerce the individual vectors to a matrix with a single row;
+    1. matrices are rbinded to a larger matrix, no data frame conversion
+    1. factors are concatenated as factors
