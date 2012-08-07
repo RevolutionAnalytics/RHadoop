@@ -137,11 +137,11 @@ to.structured =
     else
       do.call(rbind, x)}
 
-from.structured = 
-  function(x) {
+rmr.split = 
+  function(x, nrow = rmr.options.get("vectorized.nrows")) {
     n = if(is.null(nrow(x))) length(x) else nrow(x)
     if(is.matrix(x)) split = split.data.frame
-    split(x, ceiling((1:n)/rmr.options.get("vectorized.nrows")))}
+    split(x, ceiling((1:n)/nrow))}
 
 keyval.list.to.structured=
   function(x) {
