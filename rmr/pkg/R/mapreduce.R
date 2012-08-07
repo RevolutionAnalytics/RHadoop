@@ -389,7 +389,7 @@ to.dfs.path = function(input) {
 to.dfs = function(object, output = dfs.tempfile(), format = "native") {
   obj.class = class(object)
   if(is.data.frame(object) || is.matrix(object) || is.atomic(object))
-    object = from.structured(object)
+    object = rmr.split(object)
   if (!is.list(object)) stop(obj.class, " is not supported by to.dfs")
   tmp = tempfile()
   dfsOutput = to.dfs.path(output)
