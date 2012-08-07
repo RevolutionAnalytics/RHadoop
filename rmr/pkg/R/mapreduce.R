@@ -147,7 +147,7 @@ keyval.list.to.structured=
   function(x) {
     kk = to.structured(keys(x))
     vv = to.structured(values(x))
-    keyval(kk, vv, vectorized = TRUE)}
+    keyval(kk, vv)}
 
 ## map and reduce function generation
 
