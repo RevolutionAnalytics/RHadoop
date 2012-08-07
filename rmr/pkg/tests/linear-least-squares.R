@@ -51,7 +51,8 @@ mat.mult = function(left, right, result = NULL) {
                                  map.right = mat.mult.map(1), 
                                  reduce = function(k, vvl, vvr) 
                                    do.call(c, lapply(vvl, function(vl)
-                                     lapply(vvr, function(vr) keyval(c(vl$pos[[1]], vr$pos[[2]]), vl$elem*vr$elem))))),
+                                     lapply(vvr, function(vr) keyval(matrix(c(vl$pos[[1]], vr$pos[[2]]),nrow = 1), 
+                                                                     vl$elem*vr$elem))))),
                 output = result,
                 reduce = to.reduce(identity, function(x) sum(unlist(x))))}
 ## @knitr end
