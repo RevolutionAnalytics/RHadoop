@@ -503,6 +503,7 @@ mapreduce = function(
   if(is.logical(structured)) structured = list(map = structured, reduce = structured)
   structured$map = !is.null(structured$map) && structured$map && (vectorized$map != 1)
   if(is.null(structured$reduce)) structured$reduce = FALSE
+  if(!missing(backend.parameters)) warning("backend.parameters is deprecated.")
   
   backend  =  rmr.options.get('backend')
   
