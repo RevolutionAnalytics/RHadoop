@@ -127,14 +127,15 @@ to.list = function(x) {
         as.list(x)}}
 
 to.structured = 
-  function(x) {
-    if(is.data.frame(x) || is.matrix(x) || is.atomic(x))
-      x
-    else {
-      if(all(sapply(x, function(x) is.null(nrow(x)))))
+  function(x, class = qw("", vector, matrix, data.frame)) {
+    if((class == "" && all(sapply(x, function(y) is.null(nrow(y))))) ||
+      output.class == "vector") {
+      if(all(sapply(x, function(y) is.atomic(y)))) 
         unlist(x)
       else
-        do.call(rbind, x)}}
+        do.call(c, x)}
+    else
+      do.call(rbind, x)}
 
 from.structured = 
   function(x) {
