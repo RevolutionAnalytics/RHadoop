@@ -117,8 +117,6 @@ keyval.project = function(i) {
 keys = keyval.project(1)
 values = keyval.project(2)
 
-keyval.to.list = function(kvl) {l = values(kvl); names(l) = keys(kvl); l}
-
 to.list = function(x) {
   if(is.data.frame(x)) {
     .Call('dataframe_to_list', x, nrow(x), ncol(x), replicate(nrow(x), as.list(1:ncol(x)), simplify=F))}
