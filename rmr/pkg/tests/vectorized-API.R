@@ -90,7 +90,7 @@ for (be in c("local", "hadoop")) {
   # user  system elapsed 
   # 44.716   1.707  40.361 
   test(out, out.vec)  
-  #structured says to convert list to data frame. Fails if not possible. If TRUE,
+  #structured says to convert list with rbind or unlist. Fails if not possible. If TRUE,
   #it means both map and reduce, or it is a named vector or list(map = TRUE, reduce = FALSE)
   #default both FALSE
   system.time({out.struct = 
