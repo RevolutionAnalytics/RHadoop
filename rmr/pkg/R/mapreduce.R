@@ -550,14 +550,8 @@ mr.local = function(map,
         if(structured$map && vectorized$map) 
           map(to.structured(kv$key), to.structured(kv$val))
         else map(kv$key,kv$val)
-
-      if(is.keyval(retval) && !is.vectorized.keyval(retval)) list(retval)
-      else {
-        if(is.vectorized.keyval(retval)){
-          kr = keys(retval)
-          vr = values(retval)
-          lapply(seq_along(kr), function(i) keyval(kr[[i]], vr[[i]]))}
-        else retval}}
+      if(is.keyval(retval)) list(retval)
+      else retval}
   get.data =
     function(fname) {
       in.data = from.dfs(fname, format = input.format, vectorized = vectorized$map)
