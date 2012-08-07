@@ -57,7 +57,7 @@ mat.mult = function(left, right, result = NULL) {
                 reduce = to.reduce(identity, function(x) sum(unlist(x))))}
 ## @knitr end
 ## @knitr linear.least.squares.to.matrix
-to.matrix = function(df) as.matrix(sparseMatrix(i=df$key[,1], j=df$key[,2], x=df$val[,1]))
+to.matrix = function(df) as.matrix(sparseMatrix(i=df$key[,1], j=df$key[,2], x=df$val))
 ## @knitr end
 ## @knitr linear.least.squares
 linear.least.squares = function(X,y) {
