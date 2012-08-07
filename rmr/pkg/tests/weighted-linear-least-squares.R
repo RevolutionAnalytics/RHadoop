@@ -48,8 +48,8 @@ to.matrix = function(df) as.matrix(sparseMatrix(i=df$key[,1], j=df$key[,2], x=df
 
 weighted.linear.least.squares = function(X, y, W) {
   Xt = transpose(X)
-  XtWX = from.dfs(Xt %x% W %x% X, to.data.frame = TRUE)
-  XtWy = from.dfs(Xt %x% W %x% y, to.data.frame = TRUE)
+  XtWX = from.dfs(Xt %x% W %x% X, structured = TRUE)
+  XtWy = from.dfs(Xt %x% W %x% y, structured = TRUE)
   solve(to.matrix(XtWX),to.matrix(XtWy))}
 
 # test data
