@@ -34,6 +34,11 @@ transpose = function(input, output = NULL){
 }
 ## @knitr end
 
+#there is no need to go through the transpose and multiplication
+#from.dfs(mapreduce(to.dfs(M), 
+  #map = function (k,Mi) keyval(NULL, t(Mi)%*%Mi), 
+  #reduce = function(k,XX) keyval(NULL, Reduce('+', XX)), combine = T))[[1]]$val
+
 ## @knitr linear.least.squares.mat.mult.map
 mat.mult.map = function(i) function(k,v) keyval(k[[i]], list(pos = k, elem = v))
 ## @knitr end
