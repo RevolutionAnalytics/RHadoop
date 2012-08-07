@@ -83,7 +83,7 @@ for (be in c("local", "hadoop")) {
   
   for(fmt in c("json", "sequence.typedbytes")) {
     unit.test(function(df,fmt) {
-      isTRUE(all.equal(df, from.dfs(to.dfs(df, format = fmt), format = fmt, to.data.frame = TRUE), tolerance = 1e-4, check.attributes = FALSE))},
+      isTRUE(all.equal(df, from.dfs(to.dfs(df, format = fmt), format = fmt, structured = TRUE), tolerance = 1e-4, check.attributes = FALSE))},
               generators = list(tdgg.data.frame(), tdgg.constant(fmt)),
               sample.size = 10)}
   
@@ -121,7 +121,7 @@ for (be in c("local", "hadoop")) {
                                               input.format = fmt,
                                               output.format = fmt),
                                     format = fmt, 
-                                    to.data.frame = TRUE), 
+                                    structured = TRUE), 
                        tolerance = 1e-4, check.attributes = FALSE))},
               generators = list(tdgg.data.frame(), tdgg.constant(fmt)),
               sample.size = 10)}
@@ -140,7 +140,7 @@ for (be in c("local", "hadoop")) {
           input.format = inpf,
           output.format = "csv"),
         format = inpf, 
-        to.data.frame = TRUE)
+        structured = TRUE)
     isTRUE(
       all.equal(
         df[data.frame.order(df),], 
