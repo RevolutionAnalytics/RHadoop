@@ -62,8 +62,8 @@ to.matrix = function(df) as.matrix(sparseMatrix(i=df$key[,1], j=df$key[,2], x=df
 ## @knitr linear.least.squares
 linear.least.squares = function(X,y) {
   Xt = transpose(X)
-  XtX = from.dfs(mat.mult(Xt, X), to.data.frame = TRUE)
-  Xty = from.dfs(mat.mult(Xt, y), to.data.frame = TRUE)
+  XtX = from.dfs(mat.mult(Xt, X), structured = TRUE)
+  Xty = from.dfs(mat.mult(Xt, y), structured = TRUE)
   solve(to.matrix(XtX),to.matrix(Xty))}
 ## @knitr end
 
