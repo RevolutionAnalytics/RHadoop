@@ -458,10 +458,7 @@ from.dfs = function(input, format = "native", vectorized = FALSE, structured = F
   if(rmr.options.get("backend") == "hadoop") unlink(tmp)
   if(structured) 
     keyval.list.to.structured(retval)
-  else {
-    if(is.logical(vectorized) && vectorized)
-      keyval(do.call(c, lapply(retval,keys)), do.call(c, lapply(retval, values)), vectorized = TRUE)
-    else retval}}
+  else retval}
 
 # mapreduce
 
