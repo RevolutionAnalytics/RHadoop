@@ -131,7 +131,7 @@ to.structured =
     if((class == "" && all(sapply(x, function(y) is.null(nrow(y))))) ||
       class == "vector") {
       if(all(sapply(x, function(y) is.atomic(y)))) 
-        unlist(x)
+        unlist(x) #this case is here only for factors
       else
         do.call(c, x)}
     else
