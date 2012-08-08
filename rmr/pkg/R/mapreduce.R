@@ -122,7 +122,7 @@ to.list = function(x) {
     .Call('dataframe_to_list', x, nrow(x), ncol(x), replicate(nrow(x), as.list(1:ncol(x)), simplify=F))}
     else {
       if(is.matrix(x))
-        lapply(1:nrow(x), function(i) as.list(x[i,]))
+        apply(x,1,as.list)
       else
         as.list(x)}}
 
