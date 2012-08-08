@@ -129,7 +129,7 @@ to.list = function(x) {
 to.structured = 
   function(x, class = qw("", vector, matrix, data.frame)) {
     if((class == "" && all(sapply(x, function(y) is.null(nrow(y))))) ||
-      output.class == "vector") {
+      class == "vector") {
       if(all(sapply(x, function(y) is.atomic(y)))) 
         unlist(x)
       else
