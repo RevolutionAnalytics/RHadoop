@@ -13,27 +13,6 @@
 # limitations under the License.
 
 
-#data structures
-
-make.fast.list = function(l = list()) {
-  l1 = l
-  l2 = list(NULL)
-  i = 1
-  function(els = NULL){
-    if(missing(els)) c(l1, l2[!sapply(l2, is.null)]) 
-    else{
-      if(i + length(els) - 1 > length(l2)) {
-        l1 <<- c(l1, l2[!sapply(l2, is.null)])
-        i <<- 1
-        l2 <<- rep(list(NULL), length(l1) + length(els))}
-      l2[i:(i + length(els) - 1)] <<- els
-      i <<- i + length(els)}}}
-
-named.slice = function(x, n) x[which(names(x) == n)]
-
-#list manip
-
-catply = function(x, fun) do.call(c, lapply(x, fun))
 
 #options
 
