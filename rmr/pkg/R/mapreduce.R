@@ -18,7 +18,7 @@
 
 rmr.options = new.env(parent=emptyenv())
 rmr.options$backend = "hadoop"
-rmr.options$vectorized.nrows = 1000
+rmr.options$vectorized.keyval.length = 1000
 rmr.options$profile.nodes = FALSE
 rmr.options$depend.check = FALSE
 #rmr.options$managed.dir = "/var/rmr/managed"
@@ -36,7 +36,7 @@ rmr.options.get = function(...) {
 
 rmr.options.set = function(backend = c("hadoop", "local"), 
                            profile.nodes = NULL,
-                           vectorized.nrows = NULL#, 
+                           vectorized.keyval.length = NULL#, 
                            #depend.check = NULL, 
                            #managed.dir = NULL
                            ) {
@@ -72,26 +72,8 @@ keyval = function(k, v, vectorized = FALSE) {
   }
   kv}
 
-is.keyval = function(kv) !is.null(attr(kv, 'rmr.keyval', exact = TRUE))
-is.vectorized.keyval = function(kv) !is.null(attr(kv, 'rmr.vectorized', exact = TRUE))
 
-keyval.project = function(i) {
-  list.singleton = 
-    function(kv){
-      if(is.keyval(kv))
-        list(kv)
-      else
-        kv}
-  function(kvl) {
-    catply(list.singleton(kvl),
-           function(kv) {
-               if(is.vectorized.keyval(kv))
-                 kv[[i]]
-               else
-                 list(kv[[i]])})}}
-  
-keys = keyval.project(1)
-values = keyval.project(2)
+
 
 to.list = function(x) {
   if(is.data.frame(x)) {
@@ -102,66 +84,37 @@ to.list = function(x) {
       else
         as.list(x)}}
 
-to.structured = 
-  function(x, class = qw("", vector, matrix, data.frame)) {
-    if((class == "" && all(sapply(x, function(y) is.null(nrow(y))))) ||
-      class == "vector") {
-      if(all(sapply(x, function(y) is.atomic(y)))) 
-        unlist(x) #this case is here only for factors
-      else
-        do.call(c, x)}
-    else
-      do.call(rbind, x)}
-
-rmr.split = 
-  function(x, nrow = rmr.options.get("vectorized.nrows")) {
-    n = if(is.null(nrow(x))) length(x) else nrow(x)
-    if(is.matrix(x)) split = split.data.frame
-    split(x, ceiling((1:n)/nrow))}
-
-keyval.list.to.structured=
-  function(x) {
-    kk = to.structured(keys(x))
-    vv = to.structured(values(x))
-    keyval(kk, vv)}
 
 ## map and reduce function generation
 
-to.map = function(fun1, fun2 = identity) {
-  if (missing(fun2)) {
-    function(k, v) fun1(keyval(k, v))}
-  else {
-    function(k, v) keyval(fun1(k), fun2(v))}}
+to.map = 
+  function(fun1, fun2 = identity) {
+    if (missing(fun2)) {
+      function(k, v) fun1(keyval(k, v))}
+    else {
+      function(k, v) keyval(fun1(k), fun2(v))}}
 
 to.reduce = to.map
 
-to.reduce.all = function(fun1, fun2 = identity) {
-  if (missing(fun2)) {
-    function(k, vv) lapply(vv, function(v) fun1(keyval(k, v)))}
-  else {
-    function(k, vv) lapply(vv, function(v) keyval(fun1(k), fun2(v)))}}
+to.reduce.all = 
+  function(fun1, fun2 = identity) {
+    if (missing(fun2)) {
+      function(k, vv) lapply(vv, function(v) fun1(keyval(k, v)))}
+    else {
+      function(k, vv) lapply(vv, function(v) keyval(fun1(k), fun2(v)))}}
 
 ## mapred combinators
-wrap.keyval = function(kv) {
-  if(is.null(kv)) list()
-  else if (is.keyval(kv)) list(kv) 
-  else kv}
 
-compose.mapred = function(mapred, map) function(k, v) {
-  out = mapred(k, v)
-  if (is.null(out)) NULL
-  else if (is.keyval(out)) map(out$key, out$val)
-  else  do.call(c, 
-                lapply(out, 
-                       function(x) 
-                         wrap.keyval(map(x$key, x$val))))}
-
-union.mapred = function(mr1, mr2) function(k, v) {
-  out = c(wrap.keyval(mr1(k, v)), wrap.keyval(mr2(k, v)))
-  if (length(out) == 0) NULL else out}
-
-
-
+compose.mapred = 
+  function(mapred, map) function(k, v) {
+    out = mapred(k, v)
+    if (is.null(out)) NULL
+    else map(keys(out), values(out))
+    
+union.mapred = 
+  function(mr1, mr2) function(k, v) {
+    c.keyval(mr1(k, v), mr2(k, v))}
+  
 #some option formatting utils
 
 paste.options = function(optlist) {
@@ -289,31 +242,23 @@ to.dfs.path = function(input) {
     if(is.function(input)) {
       input()}}}
 
-to.dfs = function(object, output = dfs.tempfile(), format = "native") {
-  obj.class = class(object)
-  if(is.data.frame(object) || is.matrix(object) || is.atomic(object))
-    object = rmr.split(object)
-  if (!is.list(object)) stop(obj.class, " is not supported by to.dfs")
+to.dfs = function(kv, output = dfs.tempfile(), format = "native") {
+  kvs = keyval.split(kv)
   tmp = tempfile()
   dfsOutput = to.dfs.path(output)
   if(is.character(format)) format = make.output.format(format)
   
   write.file = 
-    function(obj, f) {
+    function(kvs, f) {
       con = file(f, if(format$mode == "text") "w" else "wb")
-        record.writer = make.record.writer(format$mode, 
+        keyval.writer = make.keyval.writer(format$mode, 
                                            format$format, 
                                            con)
-      if(is.vectorized.keyval(obj))
-        record.writer(obj$key, obj$val, TRUE)
-      else
-        lapply(obj, 
-               function(x) {
-                 kv = if(is.keyval(x)) x else keyval(NULL, x)
-                 record.writer(kv$key, kv$val, FALSE)})
+      keyval.writer(obj$key, obj$val)
+      
       close(con)}
     
-  write.file(object, tmp)      
+  write.file(kvs, tmp)      
   if(rmr.options.get('backend') == 'hadoop') {
     if(format$mode == "binary")
       system(paste(hadoop.streaming(),  "loadtb", dfsOutput, "<", tmp))
@@ -322,20 +267,18 @@ to.dfs = function(object, output = dfs.tempfile(), format = "native") {
   file.remove(tmp)
   output}
 
-from.dfs = function(input, format = "native", vectorized = FALSE, structured = FALSE) {
-  if(is.logical(vectorized)) nrecs = if(vectorized) rmr.options$vectorized.nrows else 1
-  else nrecs = vectorized 
+from.dfs = function(input, format = "native", vectorized = rmr.options.get("vectorized.keyval.length")) {
   
   read.file = function(f) {
     con = file(f, if(format$mode == "text") "r" else "rb")
-    record.reader = make.record.reader(format$mode, format$format, con, nrecs)
+    keyval.reader = make.keyval.reader(format$mode, format$format, con, vectorized)
     retval = make.fast.list()
-    rec = record.reader()
-    while(!is.null(rec)) {
-      retval(if(is.keyval(rec)) list(rec) else rec)
-      rec = record.reader()}
+    kv = keyval.reader()
+    while(!is.null(kv)) {
+      retval(kv)
+      kv = keyval.reader()}
     close(con)
-    retval()}
+    c.keyval(retval())}
   
   dumptb = function(src, dest){
     lapply(src, function(x) system(paste(hadoop.streaming(), "dumptb", x, ">>", dest)))}
@@ -359,9 +302,7 @@ from.dfs = function(input, format = "native", vectorized = FALSE, structured = F
     tmp = fname
   retval = read.file(tmp)
   if(rmr.options.get("backend") == "hadoop") unlink(tmp)
-  if(structured) 
-    keyval.list.to.structured(retval)
-  else retval}
+  retval}
 
 # mapreduce
 
@@ -387,8 +328,7 @@ mapreduce = function(
   combine = NULL, 
   input.format = "native", 
   output.format = "native", 
-  vectorized = list(map = FALSE, reduce = FALSE),
-  structured = list(map = FALSE, reduce = FALSE),
+  vectorized = list(map = rmr.options.get("vectorized.keyval.length"), reduce = FALSE),
   backend.parameters = list(), 
   verbose = TRUE) {
 
@@ -400,19 +340,15 @@ mapreduce = function(
       dfs.tempfile()
   if(is.character(input.format)) input.format = make.input.format(input.format)
   if(is.character(output.format)) output.format = make.output.format(output.format)
-  if(is.logical(vectorized)) vectorized = list(map = vectorized, reduce = vectorized)
-  if(is.logical(vectorized$map)){
-    vectorized$map = if (vectorized$map) rmr.options$vectorized.nrows else 1}
-  if(is.logical(structured)) structured = list(map = structured, reduce = structured)
-  structured$map = !is.null(structured$map) && structured$map && (vectorized$map != 1)
-  if(is.null(structured$reduce)) structured$reduce = FALSE
   if(!missing(backend.parameters)) warning("backend.parameters is deprecated.")
   
   backend  =  rmr.options.get('backend')
-  
   profile.nodes = rmr.options.get('profile.nodes')
     
-  mr = switch(backend, hadoop = rhstream, local = mr.local, stop("Unsupported backend: ", backend))
+  mr = switch(backend, 
+              hadoop = rhstream, 
+              local = mr.local, 
+              stop("Unsupported backend: ", backend))
   
   mr(map = map, 
      reduce = reduce, 
@@ -423,7 +359,6 @@ mapreduce = function(
      input.format = input.format, 
      output.format = output.format, 
      vectorized = vectorized,
-     structured = structured,
      backend.parameters = backend.parameters[[backend]], 
      verbose = verbose)
   output

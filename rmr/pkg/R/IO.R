@@ -115,7 +115,7 @@ native.output.format = function(k, v, con){
 
 # I/O 
 
-make.record.reader = function(mode = make.input.format()$mode, 
+make.keyval.reader = function(mode = make.input.format()$mode, 
                               format = make.input.format()$format, 
                               con = NULL, 
                               size = 1000) {
@@ -126,7 +126,7 @@ make.record.reader = function(mode = make.input.format()$mode,
   function() 
     format(con, size)}
 
-make.record.writer = function(mode = make.output.format()$mode, 
+make.keyval.writer = function(mode = make.output.format()$mode, 
                               format = make.output.format()$format,
                               con = NULL) {
   if(mode == "text") {

@@ -22,28 +22,27 @@ activate.profiling = function() {
 close.profiling = function() Rprof(NULL)
 
 
-map.loop = function(map, record.reader, record.writer, profile) {
+map.loop = function(map, keyval.reader, keyval.writer, profile) {
   if(profile) activate.profiling()
-  kv = record.reader()
+  kv = keyval.reader()
   while(!is.null(kv)) { 
     out = map(keys(kv), values(kv))
     if(!is.null(out)) {
-      record.writer(keys(out), values(out))}
-    kv = record.reader()}
+      keyval.writer(keys(out), values(out))}
+    kv = keyval.reader()}
   if(profile) close.profiling()
   invisible()}
 
 list.cmp = function(ll, e) sapply(ll, function(l) isTRUE(all.equal(e, l, check.attributes = FALSE)))
 ## using isTRUE(all.equal(x)) because identical() was too strict, but on paper it should be it
 
-reduce.loop = function(reduce, record.reader, record.writer, profile) {
+reduce.loop = function(reduce, keyval.reader, keyval.writer, profile) {
   reduce.flush = function(current.key, vv) {
     out = reduce(current.key, vv)
     if(!is.null(out)) {
-      if(is.keyval(out)) {record.writer(keys(out), values(out))}
-      else {lapply(out, function(o) record.writer(keys(o), values(o)))}}}
+      keyval.writer(keys(out), values(out))}}
   if(profile) activate.profiling()
-  kv = record.reader()
+  kv = keyval.reader()
   current.key = keys(kv)
   vv = make.fast.list()
   while(!is.null(kv)) {
@@ -52,7 +51,7 @@ reduce.loop = function(reduce, record.reader, record.writer, profile) {
       reduce.flush(current.key, vv())
       current.key = keys(kv)
       vv = make.fast.list(values(kv))}
-    kv = record.reader()}
+    kv = keyval.reader()}
   if(length(vv()) > 0) reduce.flush(current.key, vv())
   if(profile) close.profiling()
   invisible()
@@ -98,22 +97,22 @@ rhstream = function(
   invisible(lapply(libs, function(l) require(l, character.only = T)))
   '  
   map.line = '  rmr:::map.loop(map = map, 
-              record.reader = rmr:::make.record.reader(input.format$mode, 
+              keyval.reader = rmr:::make.keyval.reader(input.format$mode, 
   input.format$format), 
-  record.writer = if(is.null(reduce)) {
-  rmr:::make.record.writer(output.format$mode, 
+  keyval.writer = if(is.null(reduce)) {
+  rmr:::make.keyval.writer(output.format$mode, 
   output.format$format)}
   else {
-  rmr:::make.record.writer()},
+  rmr:::make.keyval.writer()},
   profile = profile.nodes)'
   reduce.line  =  '  rmr:::reduce.loop(reduce = reduce, 
-                 record.reader = rmr:::make.record.reader(), 
-  record.writer = rmr:::make.record.writer(output.format$mode, 
+                 keyval.reader = rmr:::make.keyval.reader(), 
+  keyval.writer = rmr:::make.keyval.writer(output.format$mode, 
   output.format$format), 
   profile = profile.nodes)'
   combine.line = '  rmr:::reduce.loop(reduce = combine, 
-                 record.reader = rmr:::make.record.reader(), 
-  record.writer = rmr:::make.record.writer(), 
+                 keyval.reader = rmr:::make.keyval.reader(), 
+  keyval.writer = rmr:::make.keyval.writer(), 
   profile = profile.nodes)'
 
   map.file = tempfile(pattern = "rhstr.map")
