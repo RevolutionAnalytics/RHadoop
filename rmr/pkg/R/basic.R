@@ -45,6 +45,8 @@ Make.single.or.multi.arg = function(f, from = qw(single, multi)) {
 
 `%:%` = function(f,g) function(...) do.call(f, g(...))
 
+all.predicate = function(x, P) all(sapply(x), P))
+
 #data structures
 
 make.fast.list = function(l = list()) {

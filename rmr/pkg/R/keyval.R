@@ -14,14 +14,17 @@
  
 library(functional)
 
+has.rows = function(x) !is.null(nrow(x))
+all.have.rows = Curry(all.predicate, P = has.rows)
+
 length.keyval = 
   function(kv) {
-  if(is.null(nrow(keys(kv))))
-    length(keys(kv))
-  else
-    nrow(keys(kv))}
+  if(has.rows(keys(kv))
+     nrow(keys(kv))
+      else
+    length(keys(kv))}
 
-keyval = function(k, v) {
+keyval = function(k = NULL, v) {
   if (is.null(k) || (length.keyval(k) == length.keyval(v))
     list(key = k, val = v)
   else {
@@ -30,29 +33,46 @@ keyval = function(k, v) {
   else 
     stop("invalid key value combination", length.keyval(k), length.keyval(v))}}
 
-all.predicate = function(x, P) all(sapply(x), P))
-all.is.matrix = Curry(all.predicate, P = is.matrix )
-all.is.data.frame = Curry(all.predicate, P = is.data.frame)
 
-same.class = function(...) {
-  args = list(...)
-  if (length(args) == 1)
-    classes = sapply(args[[1]], class)
-  else
-    classes = sapply(args, class)
-  length(unique(classes)) == 1}
+keys(kv) = function(kv) kv$k
+values(kv) = function(kv) kv$v
+
+rmr.slice = 
+  function(x, r) {
+    if(has.rows(x))
+      x[r,]
+    else
+      x[r]}
+
+slice.keyval = function(kv, r)
+  keyval(rmr.slice(keys(kv), r)
+         rmr.slice(values(kv), r))
 
 c.or.rbind = 
-  Make.
+  Make.single.or.multi.arg(
     function(x) {
-      if(all.is.matrix(x) || all.is.data.frame(x))
+      if(all.have.rows(x))        
         do.call(rbind,x)
       else
-        do.call(c,x)}
+        do.call(c,x)})
 
+c.keyval = 
+  Make.single.or.multi.arg(
+  function(x) {
+    keyval(c.or.rbind(lapply(x, keys), c.or.rbind(lapply(values(x)))})
   
-  keys(kv) = function(kv) kv$k
-  values(kv) = function(kv) kv$v
+split.keyval = function(kv) {
+  if(has.rows(values(kv)))
+    split = split.data.frame
+  if(is.null(keys(kv))) {
+    lapply(
+      split(
+        values(kv),
+        ceiling(1:nrow(values(kv))/rmr.options.get("vectorized.nrow"))),
+      function(v) keyval(NULL, V))}
+  else
+    lapply(1:rmr.length(kv), function(i) slice.keyval(kv, i))}
+
   
   
   

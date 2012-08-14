@@ -5,7 +5,7 @@ Version: 1.3.1
 Date: 2012-07-30
 Author: Revolution Analytics
 Depends: R (>= 2.6.0), Rcpp, RJSONIO (>= 0.8-2), itertools, digest
-Collate: basic.R keyval.R IO.R mapreduce.R extras.R
+Collate: basic.R keyval.R IO.R local.R streaming.R mapreduce.R extras.R
 Maintainer: Revolution Analytics <rhadoop@revolutionanalytics.com>
 Description: Supports the map reduce programming model on top of hadoop streaming
 License: Apache License (== 2.0)

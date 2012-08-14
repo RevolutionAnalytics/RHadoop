@@ -25,15 +25,11 @@ json.input.format = function(con, nrecs) {
     else keyval(lapply.nrecs(splits, function(x) fromJSON(x[1], asText = TRUE), nrecs = nrecs), 
                 lapply.nrecs(splits, function(x) fromJSON(x[2], asText = TRUE), nrecs = nrecs))}}
 
-json.output.format = function(k, v, con, vectorized) {
+json.output.format = function(k, v, con) {
   ser = function(k, v) paste(gsub("\n", "", toJSON(k, .escapeEscapes=TRUE, collapse = "")),
                              gsub("\n", "", toJSON(v, .escapeEscapes=TRUE, collapse = "")),
                              sep = "\t")
-  out = 
-    if(vectorized)
-      mapply(k,v, ser)
-  else
-    ser(k,v)
+  out = mapply(k,v, ser)
   writeLines(out, con = con, sep = "\n")}
 
 text.input.format = function(con, nrecs) {
@@ -41,12 +37,9 @@ text.input.format = function(con, nrecs) {
   if (length(lines) == 0) NULL
   else keyval(NULL, lines)}
 
-text.output.format = function(k, v, con, vectorized) {
+text.output.format = function(k, v, con) {
   ser = function(k,v) paste(k, v, collapse = "", sep = "\t")
-  out = if(vectorized)
-    mapply(ser, k, v)
-  else
-    ser(k,v)
+  out = mapply(ser, k, v)
   writeLines(out, sep = "\n", con = con)}
 
 csv.input.format = function(...) function(con, nrecs) {
@@ -57,8 +50,7 @@ csv.input.format = function(...) function(con, nrecs) {
   if(is.null(df) || dim(df)[[1]] == 0) NULL
   else keyval(NULL, df)}
 
-csv.output.format = function(...) function(k, v, con, vectorized) 
-  # this is vectorized only, need to think what that means
+csv.output.format = function(...) function(k, v, con) 
   write.table(file = con, 
               x = if(is.null(k)) v else cbind(k,v), 
               ..., 
@@ -98,18 +90,15 @@ typed.bytes.input.format = function() {
     if(actual.recs > 0) obj.buffer <<- obj.buffer[-(1:(2*actual.recs))]
     retval}}
   
-typed.bytes.output.format = function(k, v, con, vectorized){
+typed.bytes.output.format = function(k, v, con){
   writeBin(
     typed.bytes.writer(
-      if(vectorized){
         k = to.list(k)
         v = to.list(v)
         tmp = list()
         tmp[2*(1:length(k)) - 1] = k
         tmp[2*(1:length(k))] = v
-        tmp}
-      else {
-        list(k,v)}),
+        tmp),
     con)}
 
 native.input.format = typed.bytes.input.format
@@ -124,9 +113,82 @@ native.writer = function(value, con) {
   w(bytes)
   TRUE}
 
-native.output.format = function(k, v, con, vectorized){
-  if(vectorized)
-    typed.bytes.output.format(k, v, con, vectorized)
+native.output.format = function(k, v, con){
+  # temporarily disabled    typed.bytes.output.format(k, v, con, vectorized)
+  lapply(1:rmr.length(k),
+         function(i) {
+           native.writer(rmr.slice(k, i), con)
+           native.writer(rmr.slice(v, i), con)}}
+
+# I/O 
+
+make.record.reader = function(mode = NULL, format = NULL, con = NULL, nrecs = 1) {
+  default = make.input.format()
+  if(is.null(mode)) mode = default$mode
+  if(is.null(format)) format = default$format
+  if(mode == "text") {
+    if(is.null(con)) con = file("stdin", "r")} #not stdin() which is parsed by the interpreter
   else {
-    native.writer(k, con)
-    native.writer(v, con)}}
+    if(is.null(con)) con = pipe("cat", "rb")}
+  function() format(con, nrecs)}
+
+make.record.writer = function(mode = NULL, format = NULL, con = NULL) {
+  default = make.output.format()
+  if(is.null(mode)) mode = default$mode
+  if(is.null(format)) format = default$format
+  if(mode == "text") {
+    if(is.null(con)) con = stdout()}
+  else {
+    if(is.null(con)) con = pipe("cat", "wb")}
+  function(k, v) format(k, v, con)}
+
+IO.formats = c("text", "json", "csv", "native",
+               "sequence.typedbytes")
+
+make.input.format = function(format = native.input.format(), 
+                             mode = c("binary", "text"),
+                             streaming.format = NULL, ...) {
+  mode = match.arg(mode)
+  if(is.character(format)) {
+    format = match.arg(format, IO.formats)
+    switch(format, 
+           text = {format = text.input.format 
+                   mode = "text"}, 
+           json = {format = json.input.format 
+                   mode = "text"}, 
+           csv = {format = csv.input.format(...) 
+                  mode = "text"}, 
+           native = {format = native.input.format() 
+                     mode = "binary"}, 
+           sequence.typedbytes = {format = typed.bytes.input.format() 
+                                  mode = "binary"})}
+  if(is.null(streaming.format) && mode == "binary") 
+    streaming.format = "org.apache.hadoop.streaming.AutoInputFormat"
+  list(mode = mode, format = format, streaming.format = streaming.format)}
+
+make.output.format = function(format = native.output.format, 
+                              mode = c("binary", "text"),
+                              streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat", 
+                              ...) {
+  mode = match.arg(mode)
+  if(is.character(format)) {
+    format = match.arg(format, IO.formats)
+    switch(format, 
+           text = {format = text.output.format
+                   mode = "text"
+                   streaming.format = NULL},
+           json = {format = json.output.format
+                   mode = "text"
+                   streaming.format = NULL}, 
+           csv = {format = csv.output.format(...)
+                  mode = "text"
+                  streaming.format = NULL}, 
+           native = {format = native.output.format 
+                     mode = "binary"
+                     streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"}, 
+           sequence.typedbytes = {format = typed.bytes.output.format 
+                                  mode = "binary"
+                                  streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"})}
+  mode = match.arg(mode)
+  list(mode = mode, format = format, streaming.format = streaming.format)}
+
