@@ -17,13 +17,11 @@ library(functional)
 has.rows = function(x) !is.null(nrow(x))
 all.have.rows = Curry(all.predicate, P = has.rows)
 
-length.keyval = 
-  function(kv) {
-  if(has.rows(keys(kv))
-     nrow(keys(kv))
-      else
-    length(keys(kv))}
+rmr.length = 
+  function(x) if(has.rows(x)) nrow(x) else length(x)
 
+length.keyval =   function(kv) rmr.length(keys(kv))
+  
 keyval = function(k = NULL, v) {
   if (is.null(k) || (length.keyval(k) == length.keyval(v))
     list(key = k, val = v)

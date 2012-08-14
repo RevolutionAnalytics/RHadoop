@@ -12,18 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-lapply.nrecs = function(..., nrecs) {
-  out = lapply(...)
-  if(nrecs == 1) out[[1]] else out}
-
-json.input.format = function(con, nrecs) {
-  lines = readLines(con, nrecs)
+json.input.format = function(con, keyval.length) {
+  lines = readLines(con, keyval.length)
   if (length(lines) == 0) NULL
   else {
     splits =  strsplit(lines, "\t")
-    if(length(splits[[1]]) == 1)  keyval(NULL, lapply.nrecs(splits, function(x) fromJSON(x[1], asText = TRUE), nrecs = nrecs))
-    else keyval(lapply.nrecs(splits, function(x) fromJSON(x[1], asText = TRUE), nrecs = nrecs), 
-                lapply.nrecs(splits, function(x) fromJSON(x[2], asText = TRUE), nrecs = nrecs))}}
+    keyval(lapply(splits, function(x) fromJSON(x[1], asText = TRUE)), 
+           lapply(splits, function(x) fromJSON(x[2], asText = TRUE)))}}
 
 json.output.format = function(k, v, con) {
   ser = function(k, v) paste(gsub("\n", "", toJSON(k, .escapeEscapes=TRUE, collapse = "")),
@@ -32,8 +27,8 @@ json.output.format = function(k, v, con) {
   out = mapply(k,v, ser)
   writeLines(out, con = con, sep = "\n")}
 
-text.input.format = function(con, nrecs) {
-  lines = readLines(con, nrecs)
+text.input.format = function(con, keyval.length) {
+  lines = readLines(con, keyval.length)
   if (length(lines) == 0) NULL
   else keyval(NULL, lines)}
 
@@ -42,10 +37,10 @@ text.output.format = function(k, v, con) {
   out = mapply(ser, k, v)
   writeLines(out, sep = "\n", con = con)}
 
-csv.input.format = function(...) function(con, nrecs) {
+csv.input.format = function(...) function(con, keyval.lenght) {
   df = 
     tryCatch(
-      read.table(file = con, nrows = nrecs, header = FALSE, ...),
+      read.table(file = con, nrows = keyval.lenght, header = FALSE, ...),
       error = function(e) NULL)
   if(is.null(df) || dim(df)[[1]] == 0) NULL
   else keyval(NULL, df)}
@@ -70,9 +65,8 @@ typed.bytes.input.format = function() {
   obj.buffer = list()
   raw.buffer = raw()
   read.size = 1000
-  function(con, nrecs) {
-    nobjs = 2*nrecs
-    while(length(obj.buffer) < nobjs) {
+  function(con, keyval.length) {
+    while(sum(sapply(obj.buffer, rmr.length)/2 < keyval.length) {
       raw.buffer <<- c(raw.buffer, readBin(con, raw(), read.size))
       if(length(raw.buffer) == 0) break;
       parsed = typed.bytes.reader(raw.buffer, as.integer(read.size/2))
@@ -80,13 +74,12 @@ typed.bytes.input.format = function() {
       if(parsed$length != 0) raw.buffer <<- raw.buffer[-(1:parsed$length)]
       read.size = as.integer(1.2 * read.size)}
     read.size = as.integer(read.size/1.2)
-    actual.recs = min(nrecs, length(obj.buffer)/2)
-    retval = if(length(obj.buffer) == 0) NULL 
+    actual.recs = min(keyval.length, sum(sapply(obj.buffer, rmr.length)/2)
+    retval = 
+      if(length(obj.buffer) == 0) NULL 
       else { 
-        if(nrecs == 1)
-          keyval(obj.buffer[[1]], obj.buffer[[2]])
-        else keyval(obj.buffer[2*(1:actual.recs) - 1],
-                  obj.buffer[2*(1:actual.recs)])}
+        keyval(obj.buffer[2*(1:actual.recs) - 1],
+               obj.buffer[2*(1:actual.recs)])}
     if(actual.recs > 0) obj.buffer <<- obj.buffer[-(1:(2*actual.recs))]
     retval}}
   
@@ -122,20 +115,20 @@ native.output.format = function(k, v, con){
 
 # I/O 
 
-make.record.reader = function(mode = NULL, format = NULL, con = NULL, nrecs = 1) {
-  default = make.input.format()
-  if(is.null(mode)) mode = default$mode
-  if(is.null(format)) format = default$format
+make.record.reader = function(mode = make.input.format()$mode, 
+                              format = make.input.format()$format, 
+                              con = NULL, 
+                              size = 1000) {
   if(mode == "text") {
     if(is.null(con)) con = file("stdin", "r")} #not stdin() which is parsed by the interpreter
   else {
     if(is.null(con)) con = pipe("cat", "rb")}
-  function() format(con, nrecs)}
+  function() 
+    format(con, size)}
 
-make.record.writer = function(mode = NULL, format = NULL, con = NULL) {
-  default = make.output.format()
-  if(is.null(mode)) mode = default$mode
-  if(is.null(format)) format = default$format
+make.record.writer = function(mode = make.output.format()$mode, 
+                              format = make.output.format()$format,
+                              con = NULL) {
   if(mode == "text") {
     if(is.null(con)) con = stdout()}
   else {
