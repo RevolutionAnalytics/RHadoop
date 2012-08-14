@@ -20,21 +20,22 @@ mr.local = function(map,
                     profile.nodes, 
                     input.format, 
                     output.format, 
+                    vectorized.map,
                     backend.parameters, 
                     verbose = verbose) {
   if(is.null(reduce)) reduce = function(k, vv) lapply(vv, function(v) keyval(k, v))
   
   get.data =
     function(fname) {
-      in.data = split.keyval(from.dfs(fname, format = input.format))
+      in.data = split.keyval(from.dfs(fname, format = input.format), vectorized.map)
       lapply(in.data, function(rec) {attr(rec$val, 'rmr.input') = fname; rec})}
   map.out = 
     lapply(
       catply(
         in.folder,
         get.data),
-      map)
-  map.out = split.keyval(from.dfs(to.dfs(c.keyval(map.out))))
+      function(kv) map(keys(kv), values(kv)))
+  map.out = from.dfs(to.dfs(c.keyval(map.out)))
   reduce.out = tapply(X = map.out, 
                       INDEX = sapply(map.out, function(x) digest(keys(x))), 
                       FUN = function(x) reduce(keys(x), 

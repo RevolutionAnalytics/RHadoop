@@ -59,15 +59,15 @@ c.keyval =
   function(x) {
     keyval(c.or.rbind(lapply(x, keys), c.or.rbind(lapply(values(x)))})
   
-split.keyval = function(kv) {
+split.keyval = function(kv, size = NULL) {
   if(has.rows(values(kv)))
     split = split.data.frame
-  if(is.null(keys(kv))) {
+  if(is.null(keys(kv)) || !is.null(size)) {
     lapply(
       split(
         values(kv),
-        ceiling(1:nrow(values(kv))/rmr.options.get("vectorized.nrow"))),
-      function(v) keyval(NULL, V))}
+        ceiling(1:nrow(values(kv))/size)),
+      function(v) keyval(NULL, v))}
   else
     lapply(1:rmr.length(kv), function(i) slice.keyval(kv, i))}
 
