@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#qw
+# the problem with the tests here is that they are more complex than the function they are meant to test
+# or just a duplication. That's not very useful.
 
+#qw
 rmr:::unit.test(
   function(ss) {
     ss = paste("v", ss, sep = "")
@@ -21,7 +23,6 @@ rmr:::unit.test(
   list(rmr:::tdgg.character()))
 
 # Make.single.arg
-
 rmr:::unit.test(
   function(l) {
     f = function(...) list(...)
@@ -39,18 +40,30 @@ rmr:::unit.test(
 
 # Make.single.or.multi.arg
 rmr:::unit.test(
-  function(l) {
-    f = function(x) x
-    g = rmr:::Make.single.or.multi.arg(f, from = "single")
+  function(l, arity) {
+    f = if(arity == "single") identity else c 
+    g = rmr:::Make.single.or.multi.arg(f, from = arity)
     identical(g(l), do.call(g, l))},
   list(rmr:::tdgg.list(),
-       rmr:::tdgg.list()))
+       rmr:::tdgg.select(rmr:::qw(single, multi))))
 
+#%:% TODO
+# all.predicate TODO
 
-rmr:::unit.test(
-  function(l) {
-    f = function(...) c(...)
-    g = rmr:::Make.single.or.multi.arg(f, from = "multi")
-    identical(f(l), do.call(f, l)),
-  list(rmr:::tdgg.list(),
-       rmr:::tdgg.list()))
+# make.fast.list TODO
+# actually the function has been working forever, the test doesn't
+
+# rmr:::unit.test(
+#   function(l){
+#     fl = rmr:::make.fast.list()
+#     lapply(l, fl)
+#     print(x=as.list(do.call(c, l)))
+#     print(x=fl())
+#     identical(as.list(do.call(c, l)), fl())},
+#   list(rmr:::tdgg.list(lambda=1, max.level=8)))
+#     
+
+#named.slice TODO
+#catply TODO
+#interleave TODO
+
