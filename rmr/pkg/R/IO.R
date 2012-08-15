@@ -13,6 +13,7 @@
 # limitations under the License.
 
 json.input.format = function(con, keyval.length) {
+  warning("format not updated to new API")
   lines = readLines(con, keyval.length)
   if (length(lines) == 0) NULL
   else {
@@ -21,6 +22,7 @@ json.input.format = function(con, keyval.length) {
            lapply(splits, function(x) fromJSON(x[2], asText = TRUE)))}}
 
 json.output.format = function(k, v, con) {
+  warning("format not updated to new API")
   ser = function(k, v) paste(gsub("\n", "", toJSON(k, .escapeEscapes=TRUE, collapse = "")),
                              gsub("\n", "", toJSON(v, .escapeEscapes=TRUE, collapse = "")),
                              sep = "\t")
@@ -37,7 +39,7 @@ text.output.format = function(k, v, con) {
   out = mapply(ser, k, v)
   writeLines(out, sep = "\n", con = con)}
 
-csv.input.format = function(...) function(con, keyval.lenght) {
+make.csv.input.format = function(...) function(con, keyval.lenght) {
   df = 
     tryCatch(
       read.table(file = con, nrows = keyval.lenght, header = FALSE, ...),
@@ -45,7 +47,7 @@ csv.input.format = function(...) function(con, keyval.lenght) {
   if(is.null(df) || dim(df)[[1]] == 0) NULL
   else keyval(NULL, df)}
 
-csv.output.format = function(...) function(k, v, con) 
+make.csv.output.format = function(...) function(k, v, con) 
   write.table(file = con, 
               x = if(is.null(k)) v else cbind(k,v), 
               ..., 
@@ -55,18 +57,17 @@ csv.output.format = function(...) function(k, v, con)
 typed.bytes.reader = function(data, nobjs) {
   if(is.null(data)) NULL
   else
-    .Call("typed_bytes_reader", data, nobjs, PACKAGE = "rmr") 
-}
-typed.bytes.writer = function(objects) {
-  .Call("typed_bytes_writer", objects, PACKAGE = "rmr")
-}
+    .Call("typed_bytes_reader", data, nobjs, PACKAGE = "rmr")}
 
-typed.bytes.input.format = function() {
+typed.bytes.writer = function(objects) {
+  .Call("typed_bytes_writer", objects, PACKAGE = "rmr")}
+
+make.typed.bytes.input.format = function() {
   obj.buffer = list()
   raw.buffer = raw()
   read.size = 1000
   function(con, keyval.length) {
-    while(sum(sapply(obj.buffer, rmr.length)/2 < keyval.length) {
+    while(sum(sapply(obj.buffer, rmr.length))/2 < keyval.length) {
       raw.buffer <<- c(raw.buffer, readBin(con, raw(), read.size))
       if(length(raw.buffer) == 0) break;
       parsed = typed.bytes.reader(raw.buffer, as.integer(read.size/2))
@@ -74,27 +75,25 @@ typed.bytes.input.format = function() {
       if(parsed$length != 0) raw.buffer <<- raw.buffer[-(1:parsed$length)]
       read.size = as.integer(1.2 * read.size)}
     read.size = as.integer(read.size/1.2)
-    actual.recs = min(keyval.length, sum(sapply(obj.buffer, rmr.length)/2)
+    actual.recs = min(keyval.length, sum(sapply(obj.buffer, rmr.length))/2)
     retval = 
       if(length(obj.buffer) == 0) NULL 
       else { 
-        keyval(obj.buffer[2*(1:actual.recs) - 1],
-               obj.buffer[2*(1:actual.recs)])}
+        keyval(c.or.rbind(obj.buffer[2*(1:actual.recs) - 1]),
+               c.or.rbind(obj.buffer[2*(1:actual.recs)]))}
     if(actual.recs > 0) obj.buffer <<- obj.buffer[-(1:(2*actual.recs))]
     retval}}
   
 typed.bytes.output.format = function(k, v, con){
+  warning("format not updated to new API")
   writeBin(
-    typed.bytes.writer(
-        k = to.list(k)
-        v = to.list(v)
-        tmp = list()
-        tmp[2*(1:length(k)) - 1] = k
-        tmp[2*(1:length(k))] = v
-        tmp),
+    typed.bytes.writer({
+      k = to.list(k)
+      v = to.list(v)
+      interleave(k, v)}),
     con)}
 
-native.input.format = typed.bytes.input.format
+make.native.input.format = make.typed.bytes.input.format
 
 native.writer = function(value, con) {
   w = function(x, size = NA_integer_) writeBin(x, con, size = size, endian = "big")
@@ -111,7 +110,7 @@ native.output.format = function(k, v, con){
   lapply(1:rmr.length(k),
          function(i) {
            native.writer(rmr.slice(k, i), con)
-           native.writer(rmr.slice(v, i), con)}}
+           native.writer(rmr.slice(v, i), con)})}
 
 # I/O 
 
@@ -149,11 +148,11 @@ make.input.format = function(format = native.input.format(),
                    mode = "text"}, 
            json = {format = json.input.format 
                    mode = "text"}, 
-           csv = {format = csv.input.format(...) 
+           csv = {format = make.csv.input.format(...) 
                   mode = "text"}, 
-           native = {format = native.input.format() 
+           native = {format = make.native.input.format() 
                      mode = "binary"}, 
-           sequence.typedbytes = {format = typed.bytes.input.format() 
+           sequence.typedbytes = {format = make.typed.bytes.input.format() 
                                   mode = "binary"})}
   if(is.null(streaming.format) && mode == "binary") 
     streaming.format = "org.apache.hadoop.streaming.AutoInputFormat"
@@ -173,7 +172,7 @@ make.output.format = function(format = native.output.format,
            json = {format = json.output.format
                    mode = "text"
                    streaming.format = NULL}, 
-           csv = {format = csv.output.format(...)
+           csv = {format = make.csv.output.format(...)
                   mode = "text"
                   streaming.format = NULL}, 
            native = {format = native.output.format 

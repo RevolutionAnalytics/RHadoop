@@ -46,7 +46,8 @@ reduce.loop = function(reduce, keyval.reader, keyval.writer, profile) {
   current.key = keys(kv)
   vv = make.fast.list()
   while(!is.null(kv)) {
-    if(identical(keys(kv), current.key)) vv(values(kv)))
+    if(identical(keys(kv), current.key)) 
+      vv(values(kv))
     else {
       reduce.flush(current.key, vv())
       current.key = keys(kv)

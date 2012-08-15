@@ -40,6 +40,6 @@ mr.local = function(map,
                       INDEX = sapply(map.out, function(x) digest(keys(x))), 
                       FUN = function(x) reduce(keys(x), 
                                                values(x)), 
-                      simplify = FALSE))
+                      simplify = FALSE)
   names(reduce.out) = replicate(n=length(names(reduce.out)), "")
   to.dfs(c.keyval(reduce.out), out.folder, format = output.format)}

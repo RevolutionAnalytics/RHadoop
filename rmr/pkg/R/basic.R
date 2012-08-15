@@ -27,7 +27,7 @@ Make.multi.arg =
   function(f)
     function(...) f(list(...))
 
-Make.single.or.multi.arg = function(f, from = qw(single, multi)) {
+Make.single.or.multi.arg = function(f, from = c("single", "multi")) {
   from = match.arg(from)
   if (from == "single") {
     f.single = f
@@ -45,7 +45,7 @@ Make.single.or.multi.arg = function(f, from = qw(single, multi)) {
 
 `%:%` = function(f,g) function(...) do.call(f, g(...))
 
-all.predicate = function(x, P) all(sapply(x), P))
+all.predicate = function(x, P) all(sapply(x), P)
 
 #data structures
 
@@ -68,3 +68,10 @@ named.slice = function(x, n) x[which(names(x) == n)]
 #list manip
 
 catply = function(x, fun) do.call(c, lapply(x, fun))
+
+interleave = 
+  function(l1, l2) {
+    l = list()
+    l[2*(1:length(l1)) - 1] = l1
+    l[2*(1:length(l1))] = l2
+    l}

@@ -23,7 +23,7 @@ rmr.length =
 length.keyval =   function(kv) rmr.length(keys(kv))
   
 keyval = function(k = NULL, v) {
-  if (is.null(k) || (length.keyval(k) == length.keyval(v))
+  if (is.null(k) || (length.keyval(k) == length.keyval(v)))
     list(key = k, val = v)
   else {
     if(length.keyval((k) == 1))
@@ -32,8 +32,8 @@ keyval = function(k = NULL, v) {
     stop("invalid key value combination", length.keyval(k), length.keyval(v))}}
 
 
-keys(kv) = function(kv) kv$k
-values(kv) = function(kv) kv$v
+keys = function(kv) kv$k
+values = function(kv) kv$v
 
 rmr.slice = 
   function(x, r) {
@@ -42,9 +42,10 @@ rmr.slice =
     else
       x[r]}
 
-slice.keyval = function(kv, r)
-  keyval(rmr.slice(keys(kv), r)
-         rmr.slice(values(kv), r))
+slice.keyval = 
+  function(kv, r)
+    keyval(rmr.slice(keys(kv), r),
+           rmr.slice(values(kv), r))
 
 c.or.rbind = 
   Make.single.or.multi.arg(
@@ -57,7 +58,7 @@ c.or.rbind =
 c.keyval = 
   Make.single.or.multi.arg(
   function(x) {
-    keyval(c.or.rbind(lapply(x, keys), c.or.rbind(lapply(values(x)))})
+    keyval(c.or.rbind(lapply(x, keys)), c.or.rbind(lapply(values(x))))})
   
 split.keyval = function(kv, size = NULL) {
   if(has.rows(values(kv)))

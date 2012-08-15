@@ -47,33 +47,8 @@ rmr.options.set = function(backend = c("hadoop", "local"),
            assign(x, eval(this.call[[x]]), envir = rmr.options))
   as.list(rmr.options)}
 
-# additional hadoop features, disabled for now
-counter = function(group="r-stream", family, value) {
-  cat(sprintf("report:counter:%s, $s, %s", 
-              as.character(group), 
-              as.character(family), 
-              as.integer(value)), 
-      stderr())
-}
-
-status = function(what) {
-  cat(sprintf("report:status:%s", 
-              as.character(what)), 
-      stderr())
-}
 
 ## could think of this as a utils section
-## keyval manip
-keyval = function(k, v, vectorized = FALSE) {
-  kv = list(key = k, val = v)
-  attr(kv, 'rmr.keyval') = TRUE
-  if(vectorized) {
-    attr(kv, 'rmr.vectorized') = TRUE
-  }
-  kv}
-
-
-
 
 to.list = function(x) {
   if(is.data.frame(x)) {
@@ -106,11 +81,12 @@ to.reduce.all =
 ## mapred combinators
 
 compose.mapred = 
-  function(mapred, map) function(k, v) {
-    out = mapred(k, v)
-    if (is.null(out)) NULL
-    else map(keys(out), values(out))
-    
+  function(mapred, map) 
+    function(k, v) {
+      out = mapred(k, v)
+      if (is.null(out)) NULL
+      else map(keys(out), values(out))}
+      
 union.mapred = 
   function(mr1, mr2) function(k, v) {
     c.keyval(mr1(k, v), mr2(k, v))}
@@ -387,8 +363,8 @@ equijoin = function(
             lapply(values.left, 
                    function(vl) lapply(values.right, 
                                        function(vr) reduce.all(k, vl, vr)))), 
-  reduce.all  = function(k, vl, vr) keyval(k, list(left = vl, right = vr)))
- {
+  reduce.all  = function(k, vl, vr) keyval(k, list(left = vl, right = vr))) {
+  
   stopifnot(xor(!is.null(left.input), !is.null(input) &&
                 (is.null(left.input)==is.null(right.input))))
   outer = match.arg(outer)
@@ -431,5 +407,3 @@ equijoin = function(
                      pad.side(rs$`FALSE`, left.outer, full.outer))}, 
             input = c(left.input, right.input), 
             output = output)}
-
-
