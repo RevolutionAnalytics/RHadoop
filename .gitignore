@@ -3,7 +3,7 @@
 #for R users
 .RData
 .Rhistory
-pkg.Rcheck
+*.Rcheck
 #for RStudio users
 .Rproj.user
 *.Rproj
