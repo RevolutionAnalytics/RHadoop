@@ -21,12 +21,12 @@ json.input.format = function(con, keyval.length) {
     keyval(lapply(splits, function(x) fromJSON(x[1], asText = TRUE)), 
            lapply(splits, function(x) fromJSON(x[2], asText = TRUE)))}}
 
-json.output.format = function(k, v, con) {
+json.output.format = function(kv, con) {
   warning("format not updated to new API")
   ser = function(k, v) paste(gsub("\n", "", toJSON(k, .escapeEscapes=TRUE, collapse = "")),
                              gsub("\n", "", toJSON(v, .escapeEscapes=TRUE, collapse = "")),
                              sep = "\t")
-  out = mapply(k,v, ser)
+  out = apply.keyval(ser, kv)
   writeLines(out, con = con, sep = "\n")}
 
 text.input.format = function(con, keyval.length) {
@@ -34,25 +34,27 @@ text.input.format = function(con, keyval.length) {
   if (length(lines) == 0) NULL
   else keyval(NULL, lines)}
 
-text.output.format = function(k, v, con) {
-  ser = function(k,v) paste(k, v, collapse = "", sep = "\t")
-  out = mapply(ser, k, v)
+text.output.format = function(kv, con) {
+  ser = function(k, v) paste(k, v, collapse = "", sep = "\t")
+  out = apply.keyval(ser, kv)
   writeLines(out, sep = "\n", con = con)}
 
-make.csv.input.format = function(...) function(con, keyval.lenght) {
+make.csv.input.format = function(...) function(con, keyval.length) {
   df = 
     tryCatch(
-      read.table(file = con, nrows = keyval.lenght, header = FALSE, ...),
+      read.table(file = con, nrows = keyval.length, header = FALSE, ...),
       error = function(e) NULL)
   if(is.null(df) || dim(df)[[1]] == 0) NULL
   else keyval(NULL, df)}
 
-make.csv.output.format = function(...) function(k, v, con) 
+make.csv.output.format = function(...) function(kv, con) {
+  k = expand.keys(kv)
+  v = values(kv)
   write.table(file = con, 
               x = if(is.null(k)) v else cbind(k,v), 
               ..., 
               row.names = FALSE, 
-              col.names = FALSE)
+              col.names = FALSE)}
 
 typed.bytes.reader = function(data, nobjs) {
   if(is.null(data)) NULL
@@ -67,7 +69,8 @@ make.typed.bytes.input.format = function() {
   raw.buffer = raw()
   read.size = 1000
   function(con, keyval.length) {
-    while(sum(sapply(obj.buffer, rmr.length))/2 < keyval.length) {
+    while(length(obj.buffer) == 0 || 
+      sum(sapply(obj.buffer, rmr.length) * c(0,1)) < keyval.length) {
       raw.buffer <<- c(raw.buffer, readBin(con, raw(), read.size))
       if(length(raw.buffer) == 0) break;
       parsed = typed.bytes.reader(raw.buffer, as.integer(read.size/2))
@@ -75,42 +78,41 @@ make.typed.bytes.input.format = function() {
       if(parsed$length != 0) raw.buffer <<- raw.buffer[-(1:parsed$length)]
       read.size = as.integer(1.2 * read.size)}
     read.size = as.integer(read.size/1.2)
-    actual.recs = min(keyval.length, sum(sapply(obj.buffer, rmr.length))/2)
     retval = 
       if(length(obj.buffer) == 0) NULL 
       else { 
-        keyval(c.or.rbind(obj.buffer[2*(1:actual.recs) - 1]),
-               c.or.rbind(obj.buffer[2*(1:actual.recs)]))}
-    if(actual.recs > 0) obj.buffer <<- obj.buffer[-(1:(2*actual.recs))]
+        keyval(c.or.rbind(obj.buffer[c(T,F)]),
+               c.or.rbind(obj.buffer[c(F,T)]))}
+    obj.buffer <<- list()
     retval}}
   
-typed.bytes.output.format = function(k, v, con){
+typed.bytes.output.format = function(kv, con){
   warning("format not updated to new API")
   writeBin(
     typed.bytes.writer({
       k = to.list(k)
       v = to.list(v)
-      interleave(k, v)}),
+      interleave(kv)}),
     con)}
 
 make.native.input.format = make.typed.bytes.input.format
 
-native.writer = function(value, con) {
+native.writer =  function(objs, con) {
   w = function(x, size = NA_integer_) writeBin(x, con, size = size, endian = "big")
   write.code = function(x) w(as.integer(x), size = 1)
   write.length = function(x) w(as.integer(x), size = 4)
-  bytes = serialize(value, NULL)
-  write.code(144) 
-  write.length(length(bytes))
-  w(bytes)
+  lapply(objs,
+         function(x) {
+           bytes = serialize(x, NULL)
+           write.code(144) 
+           write.length(length(bytes))
+           w(bytes)})
   TRUE}
 
-native.output.format = function(k, v, con){
-  # temporarily disabled    typed.bytes.output.format(k, v, con, vectorized)
-  lapply(1:rmr.length(k),
-         function(i) {
-           native.writer(rmr.slice(k, i), con)
-           native.writer(rmr.slice(v, i), con)})}
+native.output.format = function(kv, con){
+  # temporarily disabled    typed.bytes.output.format(kv, con, vectorized)
+  kvs = split.keyval(kv)
+  native.writer(interleave(keys(kvs), values(kvs)), con)}
 
 # I/O 
 
@@ -132,7 +134,7 @@ make.keyval.writer = function(mode = make.output.format()$mode,
     if(is.null(con)) con = stdout()}
   else {
     if(is.null(con)) con = pipe("cat", "wb")}
-  function(k, v) format(k, v, con)}
+  function(kv) format(kv, con)}
 
 IO.formats = c("text", "json", "csv", "native",
                "sequence.typedbytes")

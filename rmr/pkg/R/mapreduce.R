@@ -219,22 +219,22 @@ to.dfs.path = function(input) {
       input()}}}
 
 to.dfs = function(kv, output = dfs.tempfile(), format = "native") {
-  kvs = keyval.split(kv)
+  kv = as.keyval(kv)
   tmp = tempfile()
   dfsOutput = to.dfs.path(output)
   if(is.character(format)) format = make.output.format(format)
   
   write.file = 
-    function(kvs, f) {
+    function(kv, f) {
       con = file(f, if(format$mode == "text") "w" else "wb")
         keyval.writer = make.keyval.writer(format$mode, 
                                            format$format, 
                                            con)
-      keyval.writer(obj$key, obj$val)
+      keyval.writer(kv)
       
       close(con)}
     
-  write.file(kvs, tmp)      
+  write.file(kv, tmp)      
   if(rmr.options.get('backend') == 'hadoop') {
     if(format$mode == "binary")
       system(paste(hadoop.streaming(),  "loadtb", dfsOutput, "<", tmp))
@@ -251,7 +251,7 @@ from.dfs = function(input, format = "native", vectorized = rmr.options.get("vect
     retval = make.fast.list()
     kv = keyval.reader()
     while(!is.null(kv)) {
-      retval(kv)
+      retval(list(kv))
       kv = keyval.reader()}
     close(con)
     c.keyval(retval())}

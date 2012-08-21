@@ -15,6 +15,9 @@
 # the problem with the tests here is that they are more complex than the function they are meant to test
 # or just a duplication. That's not very useful.
 
+library(rmr)
+library(quickcheck)
+
 #qw
 rmr:::unit.test(
   function(ss) {

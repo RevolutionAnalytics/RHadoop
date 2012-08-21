@@ -13,16 +13,43 @@
 # limitations under the License.
 
 library(quickcheck)
+library(rmr)
+
 #has.rows
-rmr:::unit.test(
+unit.test(
   function(x) {
     is.null(nrow(x)) == !rmr:::has.rows(x)},
-  list(rmr:::tdgg.any()))
+  list(tdgg.any()))
 
 #all.have rows TODO
 #rmr.length TODO
 
 #keyval, keys.values
-rmr:::unit.test(
-  function(k,v){},
-  list(rmr:::tdgg.any, rmr:::tdgg.any))
+#vector case
+unit.test(
+  function(x){
+    k = x
+    v = lapply(x, function(x) tdgg.any()())
+    kv = keyval(k, v)
+    identical(keys(kv), k) &&
+      identical(values(kv), v)},
+  list(tdgg.any()))
+
+#NULL key case
+unit.test(
+  function(v){
+    k = NULL
+    kv = keyval(k, v)
+    identical(keys(kv), k) &&
+      identical(values(kv), v)},
+  list(tdgg.any()))
+
+# nonvector case
+unit.test(
+  function(k, v){
+    k = k[1]
+    kv = keyval(k, v)
+    identical(keys(kv), k) &&
+    identical(values(kv), list(v))},
+  list(tdgg.any(), tdgg.any()),
+  precondition = function(k, v) rmr:::rmr.length(k) != rmr:::rmr.length(v))

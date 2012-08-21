@@ -20,13 +20,13 @@ for (be in c("local", "hadoop")) {
   rmr.options.set(backend = be)
 ## @knitr lapply  
   small.ints = 1:1000
-  lapply(small.ints, function(x) x^2)
+  sapply(small.ints, function(x) x^2)
 ## @knitr end
 ## @knitr lapply-mapreduce
   small.ints = to.dfs(1:1000)
-  mapreduce(input = small.ints, map = function(k,v) keyval(v, v^2))
+  mapreduce(input = small.ints, map = function(k,v) keyval(cbind(v,v^2))
 ## @knitr end
-  from.dfs(mapreduce(input = small.ints, map = function(k,v) keyval(v, v^2)))
+  from.dfs(mapreduce(input = small.ints, map = function(k,v) keyval(cbind(v, v^2)))
   
   # tapply like job
 ## @knitr tapply

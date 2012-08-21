@@ -45,7 +45,7 @@ Make.single.or.multi.arg = function(f, from = c("single", "multi")) {
 
 `%:%` = function(f,g) function(...) do.call(f, g(...))
 
-all.predicate = function(x, P) all(sapply(x), P)
+all.predicate = function(x, P) all(sapply(x, P))
 
 #data structures
 

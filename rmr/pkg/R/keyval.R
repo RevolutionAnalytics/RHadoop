@@ -20,20 +20,23 @@ all.have.rows = Curry(all.predicate, P = has.rows)
 rmr.length = 
   function(x) if(has.rows(x)) nrow(x) else length(x)
 
-length.keyval =   function(kv) rmr.length(keys(kv))
+length.keyval = function(kv) rmr.length(values(kv))
   
-keyval = function(k = NULL, v) {
-  if (is.null(k) || (length.keyval(k) == length.keyval(v)))
-    list(key = k, val = v)
-  else {
-    if(length.keyval((k) == 1))
-      list(key = k, val = list(v))
-  else 
-    stop("invalid key value combination", length.keyval(k), length.keyval(v))}}
-
+keyval = 
+  function(key, val = NULL) {
+    if(missing(val)) list(key = NULL, val = key)
+    else list(key = key, val = val)}
 
 keys = function(kv) kv$k
 values = function(kv) kv$v
+
+is.keyval = 
+  function(x) is.list(x) && length(x) == 2 && names(x) == qw(key, value)
+
+as.keyval = 
+  function(x) {
+    if(is.keyval(x)) x
+    else keyval(x)}
 
 rmr.slice = 
   function(x, r) {
@@ -42,9 +45,21 @@ rmr.slice =
     else
       x[r]}
 
+expand.keys = 
+  function(kv)
+    keyval(
+      rmr.slice(
+        if(is.null(keys(kv))) replicate(rmr.length(values(kv)), NULL, simplify = FALSE)
+        else
+          c.or.rbind(replicate(ceiling(rmr.length(values(kv))/rmr.length(keys(kv))),
+                               keys(kv),
+                               simplify = FALSE)),
+        1:rmr.length(values(kv))),
+      values(kv))
+
 slice.keyval = 
   function(kv, r)
-    keyval(rmr.slice(keys(kv), r),
+    keyval(rmr.slice(expand.keys(keys(kv), values(kv)), r),
            rmr.slice(values(kv), r))
 
 c.or.rbind = 
@@ -57,21 +72,26 @@ c.or.rbind =
 
 c.keyval = 
   Make.single.or.multi.arg(
-  function(x) {
-    keyval(c.or.rbind(lapply(x, keys)), c.or.rbind(lapply(values(x))))})
+  function(kvs) {
+    kvs = lapply(kvs, expand.keys)
+    vv = lapply(kvs, values)
+    kk = lapply(kvs, keys)
+    keyval(c.or.rbind(kk), c.or.rbind(vv))})
   
-split.keyval = function(kv, size = NULL) {
-  if(has.rows(values(kv)))
+split.keyval = function(kv, size = 1000) {
+  k = keys(kv)
+  v = values(kv)
+  if(has.rows(v))
     split = split.data.frame
-  if(is.null(keys(kv)) || !is.null(size)) {
-    lapply(
-      split(
-        values(kv),
-        ceiling(1:nrow(values(kv))/size)),
-      function(v) keyval(NULL, v))}
-  else
-    lapply(1:rmr.length(kv), function(i) slice.keyval(kv, i))}
+  if(is.null(k)) {
+    k =  ceiling(1:rmr.length(v)/size)
+    keyval(NULL,
+           split(v, k))}
+  else {
+    keyval(split(k, k), 
+           split(v, k))}}  
 
-  
-  
-  
+apply.keyval = 
+  function(FUN, kv) {
+    kvs = split.keyval(kv)
+    mapply(FUN, keys(kvs), values(kvs))}

@@ -35,11 +35,11 @@ mr.local = function(map,
         in.folder,
         get.data),
       function(kv) map(keys(kv), values(kv)))
-  map.out = from.dfs(to.dfs(c.keyval(map.out)))
+  map.out = from.dfs(to.dfs(c.keyval(lapply(map.out, as.keyval))))
   reduce.out = tapply(X = map.out, 
                       INDEX = sapply(map.out, function(x) digest(keys(x))), 
                       FUN = function(x) reduce(keys(x), 
                                                values(x)), 
                       simplify = FALSE)
   names(reduce.out) = replicate(n=length(names(reduce.out)), "")
-  to.dfs(c.keyval(reduce.out), out.folder, format = output.format)}
+  to.dfs(c.keyval(lapply(as.keyval, reduce.out)), out.folder, format = output.format)}
