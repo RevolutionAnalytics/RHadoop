@@ -88,8 +88,13 @@ split.keyval = function(kv, size = 1000) {
     keyval(NULL,
            split(v, k))}
   else {
-    keyval(split(k, k), 
-           split(v, k))}}  
+    ind = 
+      if(is.list(k) && !is.data.frame(k))
+        sapply(k, digest)
+      else
+        k
+    keyval(unname(split(k, ind)), 
+           unname(split(v, ind)))}}  
 
 apply.keyval = 
   function(FUN, kv) {
