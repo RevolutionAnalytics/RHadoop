@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-##main function, should be factored out one day
-unit.test = function(predicate, generators = list(), sample.size = 10, precondition = function(...) T, stop = T) {
+##main function
+unit.test = function(predicate, generators = list(), sample.size = 10, precondition = function(...) TRUE, stop = TRUE) {
   set.seed(0)
   options(warning.length = 8125) #as big as allowed
   results = sapply(1:sample.size, function(i) {
@@ -27,7 +27,10 @@ unit.test = function(predicate, generators = list(), sample.size = 10, precondit
     print(paste ("Pass ", paste(deparse(predicate), "\n", collapse = " ")))
   else {if (stop) stop(results) else results}}
 
-## test data  generators generators, some generic and some specific to the task at hand
+## for short
+catch.out = function(...) capture.output(invisible(...))
+## test data  generators generators, 
+
 ## basic types
 tdgg.logical = function(p.true = .5, lambda = 8) function() rbinom(1 + rpois(1, lambda),1,p.true) == 1
 
@@ -45,14 +48,12 @@ tdgg.character =
     function() 
       sapply(runif(1 + rpois(1, len.lambda)), function(x) substr(digest(x), 1, rpois(1, str.lambda)))
 
-tdgg.raw = function(len = 8) {tdg = tdgg.character(len); function() charToRaw(tdg())}
+tdgg.raw = function(lambda = 8) {tdg = tdgg.character(1, lambda); function() unlist(sapply(tdg(), charToRaw))}
 
 tdgg.list = function(tdg = tdgg.any(list.tdg = tdg, lambda.list = lambda, max.level = max.level), 
                     lambda = 10, max.level = 20) 
   function() {
     if(sys.nframe() < max.level) replicate(rpois(1, lambda),tdg(), simplify = FALSE) else list()}
-
-tdgg.vector = function(tdg, lambda) {ltdg = tdgg.list(tdg, lambda); function() unlist(ltdg())}
 
 tdgg.data.frame = 
   function(row.lambda = 20, 
@@ -72,8 +73,13 @@ tdgg.data.frame =
 ## special distributions
 tdgg.numeric.list = function(lambda = 100) function() lapply(1:rpois(1,lambda), function(i) runif(1))
 tdgg.fixed.list = function(...) function() lapply(list(...), function(tdg) tdg())
-tdgg.prototype = function(prototype) function() rapply(prototype, function(tdg) tdg(), how = "list")
-tdgg.prototype.list = function(prototype, lambda) {tdg = tdgg.prototype(prototype); function() replicate(rpois(1, lambda), tdg(), simplify = FALSE)}
+tdgg.prototype = function(prototype, generator = tdgg.any()) function() rapply(prototype, function(x) generator(), how = "list")
+
+tdgg.prototype.list = 
+  function(prototype, lambda) {
+    tdg = tdgg.prototype(prototype)
+    function() replicate(rpois(1, lambda), tdg(), simplify = FALSE)}
+
 tdgg.constant = function(const) function() const
 tdgg.select = function(l) function() sample(l,1)[[1]]
 tdgg.distribution = function(distribution, ...) function() distribution(1, ...)
@@ -83,13 +89,12 @@ tdgg.mixture = function(...) function() sample(list(...),1)[[1]]()
 
 ## combine everything
 tdgg.any = 
-  function(p.true = .5, lambda.int = 100, min = -1, max = 1, len.char = 8, len.raw = 8, lambda.list = 10, 
-           list.tdg = tdgg.any(), lambda.vector = 10, max.level = 20, vector.tdg = tdgg.double()) 
-    tdgg.mixture(tdgg.logical(p.true), 
-                 tdgg.integer(lambda.int), 
-                 tdgg.double(min, max), 
-                 tdgg.character(len.char), 
-  #              tdgg.raw(len.raw),
-                 tdgg.vector(vector.tdg, lambda.vector),
-                 tdgg.list(list.tdg, lambda.list, max.level))
+  function(p.true = .5, int.lambda = 100, min = -1, max = 1,  
+           list.tdg = tdgg.any(), max.level = 20, len.lambda = 10) 
+    tdgg.mixture(tdgg.logical(p.true, len.lambda), 
+                 tdgg.integer(int.lambda, len.lambda), 
+                 tdgg.double(min, max, len.lambda), 
+                 tdgg.character(len.lambda), 
+                 tdgg.raw(len.lambda),
+                 tdgg.list(list.tdg, len.lambda, max.level))
 

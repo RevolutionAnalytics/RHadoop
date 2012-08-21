@@ -7,25 +7,25 @@ Generate unit tests}
 Evaluates a predicate with n arguments provided by evaluating the generators. Stops or returns test cases.
 }
 \usage{
-unit.test(predicate, generators, sample.size = 10, precondition = function(...) T)
+unit.test(predicate, generators = list(), sample.size = 10, precondition = function(...) TRUE, stop = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{predicate}{
-%%     ~~Describe \code{predicate} here~~
+
 }
   \item{generators}{
-%%     ~~Describe \code{generators} here~~
+
 }
   \item{sample.size}{
-%%     ~~Describe \code{sample.size} here~~
+
 }
   \item{precondition}{
-%%     ~~Describe \code{precondition} here~~
+
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+
 }
 \value{
 %%  ~Describe the value returned
@@ -38,16 +38,16 @@ unit.test(predicate, generators, sample.size = 10, precondition = function(...) 
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+
 }
 \note{
-%%  ~~further notes~~
+
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
+
 }
 \examples{
 ##---- Should be DIRECTLY executable !! ----

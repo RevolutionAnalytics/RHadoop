@@ -12,18 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+library(quickcheck)
 ## generator test thyself
 ##tdgg.logical 
 unit.test(function(p.true) {
+  sample = tdgg.logical(p.true,lambda=1000)()
   binom.test(
-    sum(replicate(1000,expr = tdgg.logical(p.true)())),1000, p.true,"two.sided")$p.value > 0.001},
+    sum(sample),
+    length(sample), 
+    p.true,"two.sided")$p.value > 0.001},
           generators = list(tdgg.distribution(runif, min = .1, max = .9)))
-##tdgg.integer same as tdgg.distribution
-##tdgg.double same as tdgg.distribution
-##tdgg.complex NAY
-##tdgg.character: test legnth, but is it uniform?
-unit.test(function(l) nchar(tdgg.character(l)()) == l,
+##tdgg.integer 
+unit.test(is.integer,
           generators = list(tdgg.integer()))
+##tdgg.double 
+unit.test(is.double,
+          generators = list(tdgg.double()))
+##tdgg.complex NAY
+##tdgg.character: 
+unit.test(is.character,
+          generators = list(tdgg.character()))
+
+##tdgg.raw
+unit.test(is.raw,
+          generators = list(tdgg.raw()))
 
 #tdgconstant
 unit.test(function(x) tdgg.constant(x)() == x, generators = list(tdgg.distribution(runif)))
@@ -37,7 +49,13 @@ unit.test(function(d) {
   tdgd = tdgg.distribution(d)
   ks.test(d(10000), sapply(1:10000, function(i) tdgd()))$p > 0.001},
           generators = list(tdgg.select(list(runif, rnorm))))
-
-## for short
-catch.out = function(...) capture.output(invisible(...))
-## actual tests
+# tdgg.list
+# tdgg.data.frame 
+# tdgg.numeric.list
+# tdgg.fixed.list
+# tdgg.prototype
+# tdgg.prototype.list
+# tdgg.constant
+# tdgg.select
+# tdgg.mixture 
+# tdgg.any 

@@ -16,7 +16,7 @@ Version: \tab 1.0\cr
 Date: \tab 2012-08-15\cr
 License: \tab What license is it under?\cr
 }
-~~ An overview of how to use the package, including the most important functions ~~
+
 }
 \author{
 Revolution Analytics <rhadoop@revolutionanalytics.com>
@@ -28,5 +28,5 @@ Revolution Analytics <rhadoop@revolutionanalytics.com>
 
 }
 \examples{
-~~ simple examples of the most important functions ~~
+
 }
