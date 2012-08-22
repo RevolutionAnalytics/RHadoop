@@ -78,12 +78,15 @@ make.typed.bytes.input.format = function() {
       if(parsed$length != 0) raw.buffer <<- raw.buffer[-(1:parsed$length)]
       read.size = as.integer(1.2 * read.size)}
     read.size = as.integer(read.size/1.2)
+    straddler = list()
     retval = 
       if(length(obj.buffer) == 0) NULL 
       else { 
-        keyval(c.or.rbind(obj.buffer[c(T,F)]),
-               c.or.rbind(obj.buffer[c(F,T)]))}
-    obj.buffer <<- list()
+        if(length(obj.buffer)%%2 ==1) {
+           straddler = obj.buffer[length(obj.buffer)]
+           obj.buffer <<- obj.buffer[-length(obj.buffer)]}
+        c.keyval(izip(key = obj.buffer[c(T,F)], val = obj.buffer[c(F,T)]))}
+    obj.buffer <<- straddler
     retval}}
   
 typed.bytes.output.format = function(kv, con){
