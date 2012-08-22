@@ -50,7 +50,7 @@ tdgg.character =
 
 tdgg.raw = function(lambda = 8) {tdg = tdgg.character(1, lambda); function() unlist(sapply(tdg(), charToRaw))}
 
-tdgg.list = function(tdg = tdgg.any(list.tdg = tdg, lambda.list = lambda, max.level = max.level), 
+tdgg.list = function(tdg = tdgg.any(list.tdg = tdg, len.lambda = lambda, max.level = max.level), 
                     lambda = 10, max.level = 20) 
   function() {
     if(sys.nframe() < max.level) replicate(rpois(1, lambda),tdg(), simplify = FALSE) else list()}
