@@ -1,13 +1,16 @@
+
+*This document is being used as a planning document to help in developing 1.4. These features and changes are not yet implemented even in the dev or any other branch*
+
 # What's new in 1.4
 
 With 1.3 we added support for vectorized processing and structured data, and the feedback from users was encouraging. At the same time. we didn't want to increase the complexity of the API. With this version we tried to define a synthesis between all the modes (element-at-a-time, vectorized and structured) present in 1.3, with the following goals:
 * bring the footprint of the API back to 1.2 levels. 
 * make sure that no matter what the corner of the API one is exercising, he or she can rely on simple properties and invariants; writing an identity mapreduce should be trivial.
-* encourage writing the most efficient and idiomatic R code from the start, not writing against a simple API first and then developing a vectorized version. 
+* encourage writing the most efficient and idiomatic R code from the start, not writing against a simple API first and then developing a vectorized version for speed. 
 
 This is how we tried to get there:
 
-* On diks data is no longer seen as a big list where the elements can be any pair (key and value) of R objects, but as an on disk representation of a variety of R data structures: lists, atomic vectors, matrices or data frames. Which data type will be determined by the type of the R variable passed to the to.dfs function or returned by map and reduce, or assigned based on the format (csv files are read as data frames, text as character vectors, JSON TBD). Each key-value pair holds a subrange of the data (range of rows where applicable)
+* Hadoop data is no longer seen as a big list where the elements can be any pair (key and value) of R objects, but as an on disk representation of a variety of R data structures: lists, atomic vectors, matrices or data frames. Which data type will be determined by the type of the R variable passed to the to.dfs function or returned by map and reduce, or assigned based on the format (csv files are read as data frames, text as character vectors, JSON TBD). Each key-value pair holds a subrange of the data (range of rows where applicable)
 * `The `keyval` function is always vectorized. The data payload is in the value part of a key-value pair. The key is construed as an index to use in splitting the data for its on-disk representation, particularly for the shuffle operation (the grouping that comes before the reduce phase). The model, albeit with some differences, is the R function split. So if `map` returns `keyval (1, matrix(...))`, the second arguments of some reduce call will be another matrix that has the first as a subrange of rows. If you don't want that to happen because, say, you need to sum all the smaller matrices together, not stack them, do not fret. Have your map function return `keyval(1, list(matrix(...)))` and on the reduce side do a `Reduce("+", vv)` where `vv` is the second argument to a reduce. Get the idea? In the first case one is building a large matrix from smaller ones, in the second just collecting the matrices to sum them up. 
 * As a consequence, all lists of key-value pairs have been ostracized from the API. One `keyval` call is all that can and needs to be called in each map and reduce call.
 * The `mapreduce` function is always vectorized, meaning that each `map` call processes a range of elements or, when applicable, rows of data and each `reduce` call processes all the data associated with the same key. Please note that we are talking always in terms of R dimensions, not numbers of on disk records, providing some independence from the exact format of the data.
