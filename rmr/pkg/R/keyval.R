@@ -97,6 +97,6 @@ split.keyval = function(kv, size = 1000) {
            unname(split(v, ind)))}}  
 
 apply.keyval = 
-  function(FUN, kv) {
-    kvs = split.keyval(kv)
-    mapply(FUN, keys(kvs), values(kvs))}
+  function(kv, FUN, split.size = 1000) {
+    kvs = split.keyval(kv, split.size)
+    mapply(FUN, keys(kvs), values(kvs), SIMPLIFY = FALSE)}

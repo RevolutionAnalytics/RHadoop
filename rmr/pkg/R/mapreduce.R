@@ -304,7 +304,6 @@ mapreduce = function(
   combine = NULL, 
   input.format = "native", 
   output.format = "native", 
-  vectorized = list(map = rmr.options.get("vectorized.keyval.length"), reduce = FALSE),
   backend.parameters = list(), 
   verbose = TRUE) {
 
@@ -334,7 +333,6 @@ mapreduce = function(
      profile.nodes = profile.nodes, 
      input.format = input.format, 
      output.format = output.format, 
-     vectorized = vectorized,
      backend.parameters = backend.parameters[[backend]], 
      verbose = verbose)
   output
