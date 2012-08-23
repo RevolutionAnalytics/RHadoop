@@ -69,7 +69,7 @@ make.typed.bytes.input.format = function() {
   raw.buffer = raw()
   read.size = 1000
   function(con, keyval.length) {
-    while(length(obj.buffer) == 0 || 
+    while(length(obj.buffer) < 2 || 
       sum(sapply(obj.buffer, rmr.length) * c(0,1)) < keyval.length) {
       raw.buffer <<- c(raw.buffer, readBin(con, raw(), read.size))
       if(length(raw.buffer) == 0) break;
