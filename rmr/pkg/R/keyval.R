@@ -45,6 +45,24 @@ rmr.slice =
     else
       x[r]}
 
+rmr.recycle = 
+  function(x,y) {
+    lx = rmr.length(x)
+    ly = rmr.length(y)
+    rmr.slice(
+      c.or.rbind(
+        replicate(
+          ceiling(ly/lx),
+                  x,
+          simplify = FALSE)),
+      1:max(ly, lx))}
+
+recycle.keyval =
+  function(kv) {
+    keyval(
+      rmr.recycle(k, v),
+      rmr.recycle(v, k))}
+
 expand.keys = 
   function(kv)
     keyval(
@@ -92,7 +110,7 @@ split.keyval = function(kv, size = 1000) {
   if(is.null(k)) {
     k =  ceiling(1:rmr.length(v)/size)
     keyval(NULL,
-           split(v, k))}
+           unname(split(v, k)))}
   else {
     ind = 
       if(is.list(k) && !is.data.frame(k))
