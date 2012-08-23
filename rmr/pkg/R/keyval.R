@@ -81,8 +81,14 @@ c.keyval =
 split.keyval = function(kv, size = 1000) {
   k = keys(kv)
   v = values(kv)
-  if(has.rows(v))
-    split = split.data.frame
+  split.v =
+    if(has.rows(v))
+      split.data.frame
+  else split
+  split.k =
+    if(has.rows(k))
+      split.data.frame
+  else split
   if(is.null(k)) {
     k =  ceiling(1:rmr.length(v)/size)
     keyval(NULL,
@@ -93,8 +99,8 @@ split.keyval = function(kv, size = 1000) {
         sapply(k, digest)
       else
         k
-    keyval(unname(split(k, ind)), 
-           unname(split(v, ind)))}}  
+    keyval(unname(split.k(k, ind)), 
+           unname(split.v(v, ind)))}}  
 
 apply.keyval = 
   function(kv, FUN, split.size = 1000) {
