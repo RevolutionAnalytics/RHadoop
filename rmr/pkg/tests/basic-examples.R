@@ -24,7 +24,7 @@ for (be in c("local", "hadoop")) {
 ## @knitr end
 ## @knitr lapply-mapreduce
   small.ints = to.dfs(1:1000)
-  mapreduce(input = small.ints, map = function(k,v) keyval(cbind(v,v^2))
+  mapreduce(input = small.ints, map = function(k,v) keyval(cbind(v,v^2)))
 ## @knitr end
   from.dfs(mapreduce(input = small.ints, map = function(k,v) keyval(cbind(v, v^2)))
   
