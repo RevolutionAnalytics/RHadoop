@@ -24,9 +24,9 @@ for (be in c("local", "hadoop")) {
 ## @knitr end
 ## @knitr lapply-mapreduce
   small.ints = to.dfs(1:1000)
-  mapreduce(input = small.ints, map = function(k,v) keyval(cbind(v,v^2)))
+  mapreduce(input = small.ints, map = function(k,v) cbind(v,v^2))
 ## @knitr end
-  from.dfs(mapreduce(input = small.ints, map = function(k,v) keyval(cbind(v, v^2))))
+  from.dfs(mapreduce(input = small.ints, map = function(k,v) cbind(v, v^2)))
   
   # tapply like job
 ## @knitr tapply
@@ -43,16 +43,15 @@ for (be in c("local", "hadoop")) {
   ## it will be evaluated on the value only, not on the key
   
 ## @knitr  filter  
-  filtermap = function(pred) function(k,v) {if (pred(v)) keyval(k,v) else NULL}
+  filtermap = function(pred) function(k,v) {v[pred(v)]}
   
   mrfilter = function (input, output = NULL, pred) {
     mapreduce(input = input,
               output = output,
-              map = filtermap(pred))
-  }
+              map = filtermap(pred))}
 
-  filtertest = to.dfs(lapply (1:10, function(i) keyval(NULL, rnorm(1))))
-  from.dfs(mrfilter(input = filtertest, pred = function(x) x > 0))}
+  filtertest = to.dfs(rnorm(10))
+  from.dfs(mrfilter(input = filtertest, pred = function(x) x > 0))
 ## @knitr end
 
 ## pipeline of two filters, sweet
