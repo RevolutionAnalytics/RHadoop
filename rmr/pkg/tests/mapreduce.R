@@ -12,44 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+library(quickcheck)
 library(rmr)
 
 for (be in c("local", "hadoop")) {
   rmr.options.set(backend = be)
   
-  ## test for default writer TBA
-  ##counter and status -- unused for now
-  
-  ## test for typed bytes read/write
-  ## replace with unit.test when possible
-    
-  unit.test(function(l) {
-    l = rapply(l, how = 'replace', 
-               function(x){
-                 if(is.null(x)) list()
-                 else as.list(x)})
-    isTRUE(all.equal(l, rmr:::typed.bytes.reader(rmr:::typed.bytes.writer(l), length(l) + 5)$objects))},
-            generators = list(tdgg.list()))
-  
-  ##keys and values
-  unit.test(function(kvl) isTRUE(all.equal(kvl, 
-                               apply(cbind(keys(kvl), 
-                                           values(kvl)),1,function(x) keyval(x[[1]], x[[2]])))), 
-           generators = list(tdgg.keyval.list()))
-  ##keyval
-  unit.test(function(kv) {
-    isTRUE(all.equal(kv,keyval(kv$key,kv$val))) &&      
-    attr(kv, "rmr.keyval")},
-    generators = list(tdgg.keyval()))
   
   ##from.dfs to.dfs
   ##native
   unit.test(function(kvl) {
     isTRUE(
       all.equal(kvl, from.dfs(to.dfs(kvl))))},
-    generators = list(tdgg.keyval.list()),
-    sample.size = 10)
+            generators = list(tdgg.keyval.list()),
+            sample.size = 10)
   
   ## csv
   unit.test(function(df) {
@@ -89,8 +65,8 @@ for (be in c("local", "hadoop")) {
     else {
       kvl1 = from.dfs(mapreduce(input = to.dfs(kvl)))
       kvl.cmp(kvl, kvl1)}},
-           generators = list(tdgg.keyval.list(lambda = 10)),
-           sample.size = 10)
+            generators = list(tdgg.keyval.list(lambda = 10)),
+            sample.size = 10)
   
   ##put in a reduce for good measure
   unit.test(function(kvl) {
@@ -118,17 +94,17 @@ for (be in c("local", "hadoop")) {
   library(digest)
   data.frame.order = function(x) order(apply(x, 1, function(y) digest(as.character(y))))
   unit.test(function(df) {
-      inpf = make.input.format(
-        format = "csv", 
-        colClasses = lapply(df[1,], class))
-      df1 = from.dfs(
-        mapreduce(
-          to.dfs(df, 
-                 format = "csv"),
-          input.format = inpf,
-          output.format = "csv"),
-        format = inpf, 
-        structured = TRUE)
+    inpf = make.input.format(
+      format = "csv", 
+      colClasses = lapply(df[1,], class))
+    df1 = from.dfs(
+      mapreduce(
+        to.dfs(df, 
+               format = "csv"),
+        input.format = inpf,
+        output.format = "csv"),
+      format = inpf, 
+      structured = TRUE)
     isTRUE(
       all.equal(
         df[data.frame.order(df),], 
@@ -139,4 +115,4 @@ for (be in c("local", "hadoop")) {
             sample.size = 10)
   
   
-  }                                           
+}                                           
