@@ -20,24 +20,29 @@
 library(rmr)
 
 ## @knitr wordcount
-wordcount = function (input, output = NULL, pattern = " ") {
-  mapreduce(input = input ,
-            output = output,
-            input.format = "text",
-            map = function(k,v) {
-                      lapply(
-                         strsplit(
-                                  x = v,
-                                  split = pattern)[[1]],
-                         function(w) keyval(w,1))},
-                reduce = function(k,vv) {
-                    keyval(k, sum(unlist(vv)))},
-                combine = T)}
+
+wordcount = 
+  function (input, output = NULL, pattern = " ") {
+    wc.map = 
+      function(k,v) {
+        keyval(
+          unlist(
+            strsplit(
+              x = v,
+              split = pattern)),
+          1)}
+    wc.reduce =
+      function(k,vv) {
+        keyval(k, sum(vv))}
+    mapreduce(input = input ,
+              output = output,
+              input.format = "text",
+              map = wc.map,
+              reduce = wc.reduce,
+              combine = T)}
 ## @knitr end
 
 rmr:::hdfs.put("/etc/passwd", "/tmp/wordcount-test")
-file.remove("/tmp/wordcount-test")
-file.copy("/etc/passwd",  "/tmp/wordcount-test")
 rmr.options.set(backend = "local")
 out.local = from.dfs(wordcount("/tmp/wordcount-test", pattern = " +"))
 rmr.options.set(backend = "hadoop")
