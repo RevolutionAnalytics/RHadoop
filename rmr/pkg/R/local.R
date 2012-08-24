@@ -36,9 +36,10 @@ mr.local = function(map,
           get.data)),
       map)
   map.out = from.dfs(to.dfs(c.keyval(lapply(map.out, as.keyval))))
+  reduce.helper = function(kk,vv) reduce(kk[[1]], vv)
   reduce.out = 
     if(!is.null(reduce))
-      c.keyval(lapply(apply.keyval(map.out, reduce), as.keyval))
+      c.keyval(lapply(apply.keyval(map.out, reduce.helper), as.keyval))
     else
       map.out
   to.dfs(reduce.out, out.folder, format = output.format)}
