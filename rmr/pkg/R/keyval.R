@@ -47,8 +47,8 @@ rmr.slice =
 
 rmr.recycle = 
   function(x,y) {
-    lx = rmr.length(x)
-    ly = rmr.length(y)
+    lx = if(is.null(x)) 1 else rmr.length(x)
+    ly = if(is.null(y)) 1 else rmr.length(y)
     rmr.slice(
       c.or.rbind(
         replicate(
@@ -59,26 +59,17 @@ rmr.recycle =
 
 recycle.keyval =
   function(kv) {
+    k = keys(kv)
+    v = values(kv)
     keyval(
       rmr.recycle(k, v),
       rmr.recycle(v, k))}
 
-expand.keys = 
-  function(kv)
-    keyval(
-      rmr.slice(
-        if(is.null(keys(kv))) replicate(rmr.length(values(kv)), NULL, simplify = FALSE)
-        else
-          c.or.rbind(replicate(ceiling(rmr.length(values(kv))/rmr.length(keys(kv))),
-                               keys(kv),
-                               simplify = FALSE)),
-        1:rmr.length(values(kv))),
-      values(kv))
-
 slice.keyval = 
-  function(kv, r)
-    keyval(rmr.slice(expand.keys(keys(kv), values(kv)), r),
-           rmr.slice(values(kv), r))
+  function(kv, r) {
+    kv = recycle.keyval(kv)
+    keyval(rmr.slice(keys(kv), r),
+           rmr.slice(values(kv), r))}
 
 c.or.rbind = 
   Make.single.or.multi.arg(
@@ -91,14 +82,14 @@ c.or.rbind =
 c.keyval = 
   Make.single.or.multi.arg(
   function(kvs) {
-    kvs = lapply(kvs, expand.keys)
+    kvs = lapply(kvs, recycle.keyval)
     vv = lapply(kvs, values)
     kk = lapply(kvs, keys)
     keyval(c.or.rbind(kk), c.or.rbind(vv))})
   
-split.keyval = function(kv, size = 1000) {
+split.keyval = function(kv, size = rmr.options.get("vectorized.keyval.length")) {
   k = keys(kv)
-  v = values(kv)
+  v = rmr.recycle(values(kv), k)
   split.v =
     if(has.rows(v))
       split.data.frame
@@ -109,8 +100,9 @@ split.keyval = function(kv, size = 1000) {
   else split
   if(is.null(k)) {
     k =  ceiling(1:rmr.length(v)/size)
-    keyval(NULL,
-           unname(split(v, k)))}
+    recycle.keyval(
+      keyval(list(NULL),
+             unname(split.v(v, k))))}
   else {
     ind = 
       if(is.list(k) && !is.data.frame(k))
