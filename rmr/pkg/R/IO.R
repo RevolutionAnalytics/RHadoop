@@ -122,7 +122,7 @@ native.output.format = function(kv, con){
 make.keyval.reader = function(mode = make.input.format()$mode, 
                               format = make.input.format()$format, 
                               con = NULL, 
-                              size = 1000) {
+                              size = rmr.options.get("vectorized.keyval.length")) {
   if(mode == "text") {
     if(is.null(con)) con = file("stdin", "r")} #not stdin() which is parsed by the interpreter
   else {

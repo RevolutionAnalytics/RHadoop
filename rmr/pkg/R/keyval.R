@@ -113,6 +113,6 @@ split.keyval = function(kv, size = rmr.options.get("vectorized.keyval.length")) 
            unname(split.v(v, ind)))}}  
 
 apply.keyval = 
-  function(kv, FUN, split.size = 1000) {
+  function(kv, FUN, rmr.options.get("vectorized.keyval.length")) {
     kvs = split.keyval(kv, split.size)
     mapply(FUN, keys(kvs), values(kvs), SIMPLIFY = FALSE)}
