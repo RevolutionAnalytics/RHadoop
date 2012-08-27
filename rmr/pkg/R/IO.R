@@ -85,7 +85,7 @@ make.typed.bytes.input.format = function() {
         if(length(obj.buffer)%%2 ==1) {
            straddler = obj.buffer[length(obj.buffer)]
            obj.buffer <<- obj.buffer[-length(obj.buffer)]}
-        c.keyval(izip(key = obj.buffer[c(T,F)], val = obj.buffer[c(F,T)]))}
+        c.keyval(as.list(izip(key = obj.buffer[c(T,F)], val = obj.buffer[c(F,T)])))}
     obj.buffer <<- straddler
     retval}}
   

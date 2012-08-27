@@ -41,7 +41,7 @@ as.keyval =
 rmr.slice = 
   function(x, r) {
     if(has.rows(x))
-      x[r,]
+      x[r, , drop = FALSE]
     else
       x[r]}
 
@@ -52,7 +52,7 @@ rmr.recycle =
     rmr.slice(
       c.or.rbind(
         rep(list(x),
-          ceiling(ly/lx)),
+          ceiling(ly/lx))),
       1:max(ly, lx))}
 
 recycle.keyval =
@@ -111,6 +111,6 @@ split.keyval = function(kv, size = rmr.options.get("vectorized.keyval.length")) 
            unname(split.v(v, ind)))}}  
 
 apply.keyval = 
-  function(kv, FUN, rmr.options.get("vectorized.keyval.length")) {
+  function(kv, FUN, split.size = rmr.options.get("vectorized.keyval.length")) {
     kvs = split.keyval(kv, split.size)
     mapply(FUN, keys(kvs), values(kvs), SIMPLIFY = FALSE)}
