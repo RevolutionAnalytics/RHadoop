@@ -51,10 +51,8 @@ rmr.recycle =
     ly = if(is.null(y)) 1 else rmr.length(y)
     rmr.slice(
       c.or.rbind(
-        replicate(
-          ceiling(ly/lx),
-                  x,
-          simplify = FALSE)),
+        rep(list(x),
+          ceiling(ly/lx)),
       1:max(ly, lx))}
 
 recycle.keyval =

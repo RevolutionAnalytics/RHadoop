@@ -52,7 +52,7 @@ rmr.options.set = function(backend = c("hadoop", "local"),
 
 to.list = function(x) {
   if(is.data.frame(x)) {
-    .Call('dataframe_to_list', x, nrow(x), ncol(x), replicate(nrow(x), as.list(1:ncol(x)), simplify=F))}
+    .Call('dataframe_to_list', x, nrow(x), ncol(x), rep(as.list(1:ncol(x)), nrow(x)))}
     else {
       if(is.matrix(x))
         apply(x,1,as.list)
