@@ -14,6 +14,32 @@
 
 library(rmr)
 
+kmeans.mr = 
+  function(P, n) {
+    dist.fun = 
+      function(C, P) {
+        apply(C,
+              1, 
+              function(x) matrix(rowSums((t(t(P) - x))^2), ncol = length(x)))}
+    
+    kmeans.map.1 = 
+      function(k, P) {
+        D = dist.fun(C, P)
+        nearest = max.col(-D)
+        keyval(nearest, P) }
+    
+    kmeans.reduce.1 = function(x, P) {
+      t(as.matrix(apply(P,2,mean)))}
+    
+    C = matrix(rnorm(10), ncol=2)
+    for(i in 1:n ) {
+      C = 
+        from.dfs(
+          mapreduce(P, map = kmeans.map.1, reduce = kmeans.reduce.1))$val
+      if(nrow(C) < 5) C = rbind(C , matrix(rnorm(2*(5-nrow(C))),ncol = 2))}
+    C}
+
+
 ## @knitr kmeans.iter
 kmeans.iter =
   function(points, distfun, ncenters = dim(centers)[1], centers = NULL) {
