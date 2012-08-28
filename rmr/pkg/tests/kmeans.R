@@ -15,7 +15,7 @@
 library(rmr)
 
 kmeans.mr = 
-  function(P, n) {
+  function(P, n.clust, n.iter, plot = F) {
     dist.fun = 
       function(C, P) {
         apply(C,
@@ -24,19 +24,25 @@ kmeans.mr =
     
     kmeans.map.1 = 
       function(k, P) {
-        D = dist.fun(C, P)
-        nearest = max.col(-D)
+        nearest = 
+          if(is.null(C)) {
+            sample(1:n.clust, nrow(P), replace = T)}
+        else {
+          D = dist.fun(C, P)
+          nearest = max.col(-D)}
+        if(plot) print(points(P, col = nearest, pch = 19, cex = .5))
+        Sys.sleep(.1)
         keyval(nearest, P) }
     
     kmeans.reduce.1 = function(x, P) {
       t(as.matrix(apply(P,2,mean)))}
     
-    C = matrix(rnorm(10), ncol=2)
-    for(i in 1:n ) {
+    C = NULL
+    for(i in 1:n.iter ) {
       C = 
         from.dfs(
           mapreduce(P, map = kmeans.map.1, reduce = kmeans.reduce.1))$val
-      if(nrow(C) < 5) C = rbind(C , matrix(rnorm(2*(5-nrow(C))),ncol = 2))}
+      if(nrow(C) < 5) C = rbind(C , matrix(rnorm(2*(n.clust-nrow(C))),ncol = 2))}
     C}
 
 
