@@ -28,14 +28,14 @@ for (be in c("local", "hadoop")) {
   rmr.options.set(backend = be)
 ## @knitr input
   input.size = if(rmr.options.get('backend') == "local") 10^4 else 10^6
-  input = to.dfs(as.list(1:input.size))
+  input = to.dfs(1:input.size)
 ## @knitr  
   system.time({out = 
 ## @knitr read-write
     from.dfs(input)
 ## @knitr end        
   })
-  stopifnot(rmr:::cmp(data, out))
+  stopifnot(all(1:input.size == sort(values(out))))
   #   user  system elapsed 
   #   9.633   3.727  12.671 
   
@@ -44,9 +44,11 @@ for (be in c("local", "hadoop")) {
     mapreduce(input, map = function(k,v) keyval(k,v))
 ## @knitr end        
               })
+  stopifnot(all(1:input.size == sort(values(from.dfs(out)))))
   # user  system elapsed 
   # 46.370   1.830  42.669 
-   
+  
+  
 ## @knitr predicate            
   predicate = function(k,v) unlist(v)%%2 == 0
 ## @knitr end            
@@ -57,6 +59,7 @@ for (be in c("local", "hadoop")) {
                                    keyval(k[filter], v[filter])})
 ## @knitr end                               
                 })
+  stopifnot(all(2*(1:(input.size/2)) == sort(values(from.dfs(out)))))
   # user  system elapsed 
   # 44.716   1.707  40.361 
   
@@ -66,11 +69,13 @@ for (be in c("local", "hadoop")) {
   system.time({out = 
 ## @knitr select                 
     mapreduce(input.select,
-              map = function(k,v) v$b
+              map = function(k,v) v$b)
 ## @knitr                                   
               })
-               
+  stopifnot(all(1:input.size == sort(values(from.dfs(out)))))
+  
 ## @knitr bigsum-input
+  set.seed(0)
   input.bigsum = to.dfs(rnorm(input.size))
 ## @knitr 
   system.time({out = 
@@ -81,9 +86,9 @@ for (be in c("local", "hadoop")) {
               combine = TRUE)
 ## @knitr                                   
   })
-
+  stopifnot(isTRUE(all.equal(sum(values(from.dfs(out))), 104.4752, tolerance=.000001)))
   ## @knitr group-aggregate-input
-  input.ga = to.dfs(keyval(1:input.size, rnorm(input.size))
+  input.ga = to.dfs(keyval(1:input.size, rnorm(input.size)))
   ## @knitr group-aggregate-functions
   group = function(k,v) k%%100
   aggregate = function(x) sum(x)
