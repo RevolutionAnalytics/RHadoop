@@ -97,10 +97,7 @@ for (be in c("local", "hadoop")) {
 ## @knitr group-aggregate
     mapreduce(input.ga, 
               map = function(k,v) keyval(group(k,v), v),
-              reduce = function(k, vv) {
-                str(k)
-                str(vv)
-                data.frame(key = k, sum = aggregate(vv))},
+              reduce = function(k, vv) data.frame(key = k, sum = aggregate(vv)),
               combine = TRUE)
 ## @knitr                                   
               })
