@@ -128,7 +128,7 @@ make.keyval.reader = function(mode = make.input.format()$mode,
   else {
     if(is.null(con)) con = pipe("cat", "rb")}
   function() 
-    format(con, rmr.options.get("vectorized.keyval.length")}
+    format(con, rmr.options.get("vectorized.keyval.length"))}
 
 make.keyval.writer = function(mode = make.output.format()$mode, 
                               format = make.output.format()$format,
