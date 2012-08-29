@@ -7,16 +7,14 @@
 
 \usage{
 to.dfs(object, output = dfs.tempfile(), format = "native")
-from.dfs(input, format = "native", structured = FALSE, vectorized = FALSE, structured = FALSE)
+from.dfs(input, format = "native")
 }
 
 \arguments{
   \item{object}{A list of non-vectorized key-value pairs as returned by \code{\link{keyval}} or a vectorized key-value pair; also, a vector or a data frame (in this case keys will be set to NULL)}
   \item{input}{A file in HDFS or other storage layer as specified by active backend to read from or the return value of \code{mapreduce}}
   \item{output}{A file in HDFS or other storage layer as specified by active backend to read from}
-  \item{format}{For \code{from.dfs} either a string naming a format, the same as those allowed by \code{make.input.format}, or the value returned by \code{\link{make.input.format}}. The same is true for \code{to.dfs}, but refer to \code{\link{make.output.format}} instead.}
-  \item{vectorized}{Return a vectorized key-value pair, that is a pair of lists, one for the keys and one for the values (see \code{\link{keyval}})}
-  \item{structured}{When data is structured, that is it has columns that can be represented as atomic vectors, return a data frame; it will likely fail on unstructured data and results are unpredictable.}}
+  \item{format}{For \code{from.dfs} either a string naming a format, the same as those allowed by \code{make.input.format}, or the value returned by \code{\link{make.input.format}}. The same is true for \code{to.dfs}, but refer to \code{\link{make.output.format}} instead.}}
 
 \details{ These functions allow to move data from RAM to file system and back. Keep in mind that the capacity of these two storage media is
 different by two or more orders of magnitude, so the conversion will make sense only in specific situations. These

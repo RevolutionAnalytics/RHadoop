@@ -13,8 +13,6 @@
   combine = NULL,
   input.format = "native",
   output.format = "native",
-  vectorized = list(map = FALSE, reduce = FALSE),
-  structured = list(map = FALSE, reduce = FALSE),
   backend.parameters = list(),
   verbose = TRUE) }
 
@@ -25,11 +23,8 @@
 \item{map}{An optional R function of two arguments, a key and a value, returning either NULL or the return value of \code{\link{keyval}} or a list thereof (when non-vectorized,see \code{\link{keyval}}, that specifies the map operation to execute as part of a mapreduce job}
 \item{reduce}{An optional R function of two arguments, a key and a list of all the values associated with that key, returning either NULL or the return value of \code{\link{keyval}} or a list thereof, that specifies the reduce operation to  execute as part of a map reduce job}
 \item{combine}{A function with the same signature as the reduce function, or TRUE, which means use the reduce function as combiner}
-\item{reduce.on.data.frame}{DEPRECATED. Use \code{structured} instead. Flatten the list of values to a data frame in the reduce call}
 \item{input.format}{Input specification, see  \code{\link{make.input.format}}}
 \item{output.format}{Output specification, see  \code{\link{make.output.format}}}
-\item{vectorized}{Whether to process multiple records in a single function call. Its value is a list with two named entries, \code{map} and \code{reduce}. The reduce entry is there for future use only. The map entry can be a boolean or an integer specifying the exact number of records to be processed (defaults to 1000 when set to TRUE). In this case the map function arguments will be equal length lists of keys and values, unless \code{structured$map} is specified (see that option). Available shorthands are to set \code{vectorized} to an integer or a logical value, in which case they will apply to both the map and reduce phases (the latter in future versions only)}
-\item{structured}{Whether the input to map or reduce is structured data. This applies to the map function only when \code{structured$map} is \code{TRUE} and \code{vectorized$map} is \code{TRUE} or greater than 1 and will try to coerce the list of keys and the list of values to data frames. It is on by default for certain formats that can only represent structured data such as "csv"" (this statement is more or less accurate depending on what you mean by structured data, but here we take it to mean that it can represented by a data frame with atomic columns). \code{reduce$map} applies only to the list of values passed to the reduce function, also converted to a data frame when possible. This replaces the now deprecated \code{reduce.on.data.frame}. An available shortand is to set \code{structured} to a logical value, in which case it will affect both the map and reduce phases}
 \item{backend.parameters}{This option is for advanced users only and may be removed in the future. Specify additional, backend-specific
     options,
     as in \code{backend.parameters = list(hadoop

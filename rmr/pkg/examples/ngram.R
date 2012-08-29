@@ -68,9 +68,7 @@ filter.norm.data =
   mapreduce(input = source,
             input.format = "text", #comment this on real data
             map = filter.map,
-            reduce = filter.reduce,
-            vectorized = list(map = TRUE),
-            structured = list(reduce = TRUE))
+            reduce = filter.reduce)
   
 totals.map = 
   function(ngram, year.counts) {
@@ -89,8 +87,7 @@ from.dfs(
   mapreduce(input = filter.norm.data,
             map = totals.map,
             reduce = totals.reduce,
-            combine = TRUE),
-  structured = TRUE)
+            combine = TRUE))
 
 names(year.totals) = c("year", "count")
 yt = tapply(year.totals$count, year.totals$year, function(x) sum(x))
@@ -123,8 +120,7 @@ outlier.ngrams[
         from.dfs(
           mapreduce(input = filter.norm.data,
                     map = outlier.map,
-                    reduce = outlier.reduce,
-                    structured = list(reduce = TRUE)))))] = TRUE
+                    reduce = outlier.reduce))))] = TRUE
 
 ngram.filter = 
   function(ngram) !is.na(outlier.ngrams[ngram])

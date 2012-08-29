@@ -15,10 +15,10 @@
 ## push a file through this to get as many partitions as possible (depending on system settings)
 ## data is unchanged
 
-scatter = function(input, output = NULL, vectorized = FALSE, ...)
+scatter = function(input, output = NULL, ...)
   mapreduce(input, 
             output, 
-            map = function(k, v) keyval(sample(1:1000, 1), keyval(k, v, vectorized)), 
+            map = function(k, v) keyval(sample(1:1000, size=1000, replace = FALSE), keyval(k, v)), 
             reduce = function(k, vv) vv)
 
 gather = function(input, output = NULL, ...) {
@@ -74,7 +74,7 @@ rmr.sample = function(input, output = NULL, method = c("any", "Bernoulli"), ...)
                 if(rbinom(1,1,p) == 1)
                   keyval(k,v))}}
 
-##other
+## dev support
 
 reload = function() {
   detach("package:rmr", unload=T)

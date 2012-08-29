@@ -44,5 +44,5 @@ like any reduce function.}
 ##---- Should be DIRECTLY executable !! ----
 ##-- ==>  Define data, use random,
 ##--	or do  help(data=index)  for the standard data sets.
- from.dfs(equijoin(left.input = to.dfs(lapply(1:10, function(i) keyval(i, i^2))), right.input = to.dfs(lapply(1:10, function(i) keyval(i, i^3)))), structured = TRUE)
+ from.dfs(equijoin(left.input = to.dfs(lapply(1:10, function(i) keyval(i, i^2))), right.input = to.dfs(lapply(1:10, function(i) keyval(i, i^3)))))
 }
