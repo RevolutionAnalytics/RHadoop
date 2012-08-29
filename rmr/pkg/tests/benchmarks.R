@@ -36,8 +36,8 @@ for (be in c("local", "hadoop")) {
 ## @knitr end        
   })
   stopifnot(all(1:input.size == sort(values(out))))
-  #   user  system elapsed 
-  #   9.633   3.727  12.671 
+#   user  system elapsed 
+#   9.466   0.266   8.403 
   
   system.time({out = 
 ## @knitr pass-through
@@ -45,8 +45,8 @@ for (be in c("local", "hadoop")) {
 ## @knitr end        
               })
   stopifnot(all(1:input.size == sort(values(from.dfs(out)))))
-  # user  system elapsed 
-  # 46.370   1.830  42.669 
+#   user  system elapsed 
+#   10.160   0.764   9.443 
   
   
 ## @knitr predicate            
@@ -60,9 +60,9 @@ for (be in c("local", "hadoop")) {
 ## @knitr end                               
                 })
   stopifnot(all(2*(1:(input.size/2)) == sort(values(from.dfs(out)))))
-  # user  system elapsed 
-  # 44.716   1.707  40.361 
-  
+#   user  system elapsed 
+#   8.671   0.868   8.162 
+    
 ## @knitr select-input           
   input.select = to.dfs(data.frame(a=rnorm(input.size), b=1:input.size, c = as.character(1:input.size)))
 ## @knitr             
