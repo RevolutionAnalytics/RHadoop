@@ -7,23 +7,18 @@
 \description{Creates a key-value pair from its arguments or extracts keys or values from a list of pairs.}
 
 \usage{
-  keys(kvl)
-  values(kvl)
-  keyval(k, v, vectorized = FALSE)
+  keys(kv)
+  values(kv)
+  keyval(k, v)
 }
 
 \arguments{
-\item{kvl}{list containing key/value pairs}
+\item{kv}{A key-value pair}
 \item{k}{the desired key or keys}
-\item{v}{the desired value or values}
-\item{vectorized}{\code{k,v} are to be construed not as a single key-value pair but as a list of keys and list of values of equal length, 
-to be matched positionally. Vectors and data frames are also accepted; for the latter each row then corresponds to a key when \code{vectorized} is \code{TRUE}}}
+\item{v}{the desired value or values}}
 
 \details{The keyval function is used to create return values for the map and reduce functions passed as parameters to
-\code{mapreduce}, which can also return NULL or a list of non vectorized (`vectorized` option set to `FALSE`) key-value pairs 
-or a single vectorized key-value pair. 
-The \code{vectorized} option is used for efficiency when many, small key-value pairs need to be returned. Lists of non vectorized
-key-value pairs or a single vectorized key-value pair are also appropriate arguments for the \code{to.dfs} function and are returned by 
+\code{mapreduce}, which can also return NULL. A key-value pair are also appropriate arguments for the \code{to.dfs} function and are returned by 
 \code{from.dfs}. \code{keys} and \code{values} extract a list of keys or values resp. from a list of key value pairs or a
 vectorized key-value pair.} 
 

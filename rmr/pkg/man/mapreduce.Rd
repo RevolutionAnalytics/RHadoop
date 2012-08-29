@@ -20,7 +20,7 @@
 \item{input}{Paths to the input folder(s) (on HDFS) or vector thereof
     or or the return value of another \code{mapreduce} or a \code{\link{to.dfs}} call}
 \item{output}{A path to the destination folder (on HDFS); if missing, use the return value of \code{mapreduce} itself as output}
-\item{map}{An optional R function of two arguments, a key and a value, returning either NULL or the return value of \code{\link{keyval}} or a list thereof (when non-vectorized,see \code{\link{keyval}}, that specifies the map operation to execute as part of a mapreduce job}
+\item{map}{An optional R function of two arguments, a key and a value, returning either NULL or the return value of \code{\link{keyval}} or a list thereof, that specifies the map operation to execute as part of a mapreduce job}
 \item{reduce}{An optional R function of two arguments, a key and a list of all the values associated with that key, returning either NULL or the return value of \code{\link{keyval}} or a list thereof, that specifies the reduce operation to  execute as part of a map reduce job}
 \item{combine}{A function with the same signature as the reduce function, or TRUE, which means use the reduce function as combiner}
 \item{input.format}{Input specification, see  \code{\link{make.input.format}}}

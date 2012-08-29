@@ -101,17 +101,10 @@ Sending 1 line at a time to the map function:
 ```{r getting-data.from.dfs.one.line}
 ```
 
-Sending more than 1 line at a time to the map function via the vectorized API:
-```{r getting-data.from.dfs.multiple.lines}
-```
-
 Frequency count on `cyl`:
 ```{r getting-data.cyl.frequency.count}
 ```
 
-Frequency count on `cyl` with vectorized API:
-```{r getting-data.cyl.vectorized.frequency.count}
-```
 
 To get your data out - say you input file, apply column transformations, add columns, and want to output a new csv file
 Just like input.format, one must define an output format function:

@@ -243,11 +243,11 @@ to.dfs = function(kv, output = dfs.tempfile(), format = "native") {
   file.remove(tmp)
   output}
 
-from.dfs = function(input, format = "native", vectorized = rmr.options.get("vectorized.keyval.length")) {
+from.dfs = function(input, format = "native")) {
   
   read.file = function(f) {
     con = file(f, if(format$mode == "text") "r" else "rb")
-    keyval.reader = make.keyval.reader(format$mode, format$format, con, vectorized)
+    keyval.reader = make.keyval.reader(format$mode, format$format, con)
     retval = make.fast.list()
     kv = keyval.reader()
     while(!is.null(kv)) {

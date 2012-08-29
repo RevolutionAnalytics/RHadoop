@@ -75,8 +75,7 @@ totals.map =
     names(year.counts) = c("year", "counts")
     keyval(year.counts$year + sample(seq(from=0,to=.9, by = .01), nrow(year.counts), replace = TRUE)
            , 
-           year.counts$counts,
-           vectorized = TRUE)}
+           year.counts$counts)}
 
 totals.reduce = 
   function(year, counts) keyval(floor(year), sum(unlist(counts), na.rm = TRUE))
@@ -107,8 +106,7 @@ outlier.map =
     log.freq = log((count + 1)/(year.totals$count + 1))
     keyval(year.totals$year[-1] + sample(seq(from=0,to=.9, by = .1), nrow(year.totals) - 1, replace = TRUE)
            , cbind(ngram, log.freq[-length(log.freq)], 
-                                     log.freq[-1]),
-           vectorized = TRUE)}
+                                     log.freq[-1]))}
 
 outlier.reduce = function(year, log.freqs) {
   keyval(NULL, unique(log.freqs[!adjOutlyingness(log.freqs[,2:3])$nonOut,1]))}

@@ -8,14 +8,14 @@ Functions to set and get package options}
 set and get package options}
 \usage{
 rmr.options.get(...)
-rmr.options.set(backend = c("hadoop", "local"), profile.nodes = NULL, vectorized.nrows = NULL)
+rmr.options.set(backend = c("hadoop", "local"), profile.nodes = NULL, vectorized.keyval.length = NULL)
 %-, depend.check = NULL, managed.dir = NULL)
 }
 \arguments{
   \item{...}{Character names of option to get the value of}
   \item{backend}{One of "hadoop" or "local", the latter being implemented entirely in the current R interpreter, sequentially. Very useful for learning and debugging.}
   \item{profile.nodes}{Collect profiling information when running additional R interpreters (besides the current one) on the cluster. }
-  \item{vectorized.nrows}{How many records to read into a single, vectorized, key-value pair, when the vectorized option in \code{\link{mapreduce}} or \code{\link{from.dfs}} is set to TRUE. See also \code{\link{keyval}}.}
+  \item{vectorized.keyval.length}{How many records to read into a single, vectorized, key-value pair.}
  %\item{depend.check}{Activate makefile-like dependency checking (under construction)}
  % \item{managed.dir}{Where to put intermediate result when makefile-like features are activated}
 }

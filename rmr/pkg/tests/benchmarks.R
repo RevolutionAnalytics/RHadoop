@@ -21,8 +21,8 @@ rmr.digest = function(input, output = NULL)
 
 test = function (out.1, out.2) {
   stopifnot(
-    sort(unlist(keys(from.dfs(rmr.digest(out.1), vectorized = TRUE)))) ==
-    sort(unlist(keys(from.dfs(rmr.digest(out.2), vectorized = TRUE)))))}
+    sort(unlist(keys(from.dfs(rmr.digest(out.1))))) ==
+    sort(unlist(keys(from.dfs(rmr.digest(out.2))))))}
 
 for (be in c("local", "hadoop")) {
   rmr.options.set(backend = be)
