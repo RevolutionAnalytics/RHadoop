@@ -37,8 +37,7 @@ for (be in c("local", "hadoop")) {
                  format = "csv"), 
           format = make.input.format(
             format = "csv", 
-            colClasses = lapply(df[1,], class)), 
-          structured = TRUE), 
+            colClasses = lapply(df[1,], class))), 
         tolerance = 1e-4, 
         check.attributes = FALSE))},
             generators = list(tdgg.data.frame()),
@@ -47,7 +46,7 @@ for (be in c("local", "hadoop")) {
   
   for(fmt in c("json", "sequence.typedbytes")) {
     unit.test(function(df,fmt) {
-      isTRUE(all.equal(df, from.dfs(to.dfs(df, format = fmt), format = fmt, structured = TRUE), tolerance = 1e-4, check.attributes = FALSE))},
+      isTRUE(all.equal(df, from.dfs(to.dfs(df, format = fmt), format = fmt), tolerance = 1e-4, check.attributes = FALSE))},
               generators = list(tdgg.data.frame(), tdgg.constant(fmt)),
               sample.size = 10)}
   
@@ -84,8 +83,7 @@ for (be in c("local", "hadoop")) {
                                               reduce = to.reduce.all(identity),
                                               input.format = fmt,
                                               output.format = fmt),
-                                    format = fmt, 
-                                    structured = TRUE), 
+                                    format = fmt), 
                        tolerance = 1e-4, check.attributes = FALSE))},
               generators = list(tdgg.data.frame(), tdgg.constant(fmt)),
               sample.size = 10)}
@@ -103,8 +101,7 @@ for (be in c("local", "hadoop")) {
                format = "csv"),
         input.format = inpf,
         output.format = "csv"),
-      format = inpf, 
-      structured = TRUE)
+      format = inpf)
     isTRUE(
       all.equal(
         df[data.frame.order(df),], 
