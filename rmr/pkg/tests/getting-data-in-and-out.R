@@ -137,11 +137,6 @@ out <- from.dfs(mapreduce(input = fwf.data,
                           input.format = fwf.input.format))
 out$val
 ## @knitr end
-## @knitr getting-data.from.dfs.multiple.lines
-out <- from.dfs(mapreduce(input = fwf.data,
-                          input.format = fwf.input.format,
-                          vectorized = list(map = TRUE)))
-## @knitr end
 ## @knitr getting-data.cyl.frequency.count
 out <- from.dfs(mapreduce(input = fwf.data,
                           input.format = fwf.input.format,
@@ -152,13 +147,4 @@ df <- data.frame(out$key, out$val)
 names(df) <- c("cyl","count")
 df
 ## @knitr end
-## @knitr getting-data.cyl.vectorized.frequency.count
-out <- from.dfs(mapreduce(input = fwf.data,
-                          input.format = fwf.input.format,
-                          map = function(key, value) keyval(value[,"cyl"], 1, vectorized = TRUE),
-                          reduce = function(key, value) keyval(key, sum(unlist(value))),
-                          combine = TRUE))
-df <- data.frame(out$key, out$val)
-names(df) <- c("cyl","count")
-df
-## @knitr end
+
