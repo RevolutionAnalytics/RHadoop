@@ -48,7 +48,8 @@ make.csv.input.format = function(...) function(con, keyval.length) {
   else keyval(NULL, df)}
 
 make.csv.output.format = function(...) function(kv, con) {
-  k = expand.keys(kv)
+  kv = recycle.keyval(kv)
+  k = keys(kv)
   v = values(kv)
   write.table(file = con, 
               x = if(is.null(k)) v else cbind(k,v), 
@@ -142,7 +143,7 @@ make.keyval.writer = function(mode = make.output.format()$mode,
 IO.formats = c("text", "json", "csv", "native",
                "sequence.typedbytes")
 
-make.input.format = function(format = native.input.format(), 
+make.input.format = function(format = make.native.input.format(), 
                              mode = c("binary", "text"),
                              streaming.format = NULL, ...) {
   mode = match.arg(mode)
