@@ -1,5 +1,5 @@
-`r read_chunk('../tests/getting-data-in-and-out.R')`
-`r read_chunk('../tests/wordcount.R')`
+`r read_chunk('../pkg/tests/getting-data-in-and-out.R')`
+`r read_chunk('../pkg/tests/wordcount.R')`
 `r opts_chunk$set(echo=TRUE, eval=FALSE, cache=FALSE, tidy=FALSE)`
 ```{r cache=FALSE, eval=TRUE, echo=FALSE, results='hide', message=FALSE}
 library(rmr)
