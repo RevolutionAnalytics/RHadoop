@@ -70,7 +70,7 @@ make.typed.bytes.input.format = function() {
   read.size = 1000
   function(con, keyval.length) {
     while(length(obj.buffer) < 2 || 
-      sum(sapply(obj.buffer, rmr.length) * c(0,1)) < keyval.length) {
+      sum(sapply(even(obj.buffer), rmr.length)) < keyval.length) {
       raw.buffer <<- c(raw.buffer, readBin(con, raw(), read.size))
       if(length(raw.buffer) == 0) break;
       parsed = typed.bytes.reader(raw.buffer, as.integer(read.size/2))
@@ -85,7 +85,7 @@ make.typed.bytes.input.format = function() {
         if(length(obj.buffer)%%2 ==1) {
            straddler = obj.buffer[length(obj.buffer)]
            obj.buffer <<- obj.buffer[-length(obj.buffer)]}
-        c.keyval(as.list(izip(key = obj.buffer[c(T,F)], val = obj.buffer[c(F,T)])))}
+        c.keyval(as.list(izip(key = odd(obj.buffer), val = even(obj.buffer))))}
     obj.buffer <<- straddler
     retval}}
   

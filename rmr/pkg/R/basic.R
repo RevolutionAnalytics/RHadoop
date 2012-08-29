@@ -67,6 +67,20 @@ named.slice = function(x, n) x[which(names(x) == n)]
 
 #list manip
 
+
+
+every.second = 
+  function(pattern)
+    function(x) {
+      opt = options("warn")[[1]]
+      options(warn = -1)
+      y = x[pattern]
+      options(warn = opt)
+      y}
+
+odd = every.second(c(T,F))
+even = every.second(c(F,T))
+
 catply = function(x, fun) do.call(c, lapply(x, fun))
 
 interleave = 
