@@ -88,30 +88,27 @@ c.keyval =
     kk = lapply(kvs, keys)
     keyval(c.or.rbind(kk), c.or.rbind(vv))})
   
+rmr.split = 
+  function(x, ind) {
+    spl = if(has.rows(x)) split.data.frame else split
+    spl(x,ind)}
+
 split.keyval = function(kv, size = rmr.options.get("vectorized.keyval.length")) {
   k = keys(kv)
   v = rmr.recycle(values(kv), k)
-  split.v =
-    if(has.rows(v))
-      split.data.frame
-  else split
-  split.k =
-    if(has.rows(k))
-      split.data.frame
-  else split
   if(is.null(k)) {
     k =  ceiling(1:rmr.length(v)/size)
     recycle.keyval(
       keyval(list(NULL),
-             unname(split.v(v, k))))}
+             unname(rmr.split(v, k))))}
   else {
     ind = 
       if(is.list(k) && !is.data.frame(k))
         sapply(k, digest)
       else
         k
-    keyval(unname(split.k(k, ind)), 
-           unname(split.v(v, ind)))}}  
+    keyval(unname(rmr.split(k, ind)), 
+           unname(rmr.split(v, ind)))}}  
 
 apply.keyval = 
   function(kv, FUN, split.size = rmr.options.get("vectorized.keyval.length")) {
