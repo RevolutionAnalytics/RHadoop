@@ -15,7 +15,7 @@ gather(input, output = NULL, ...)
 The input file}
   \item{output}{
 Output, defaults to the same as \code{\link{mapreduce}} output}
-  \item(\dots){Other options passed directly to mapreduce}
+  \item{\dots}{Other options passed directly to mapreduce}
 }
 
 \value{
