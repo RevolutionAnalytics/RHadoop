@@ -28,7 +28,7 @@ map.loop = function(map, keyval.reader, keyval.writer, profile) {
   while(!is.null(kv)) { 
     out = map(keys(kv), values(kv))
     if(!is.null(out)) {
-      keyval.writer(out)}
+      keyval.writer(as.keyval(out))}
     kv = keyval.reader()}
   if(profile) close.profiling()
   invisible()}
@@ -38,9 +38,9 @@ list.cmp = function(ll, e) sapply(ll, function(l) isTRUE(all.equal(e, l, check.a
 
 reduce.loop = function(reduce, keyval.reader, keyval.writer, profile) {
   reduce.flush = function(current.key, vv) {
-    out = reduce(current.key, vv)
+    out = reduce(current.key, c.or.rbind(vv))
     if(!is.null(out)) {
-      keyval.writer(out)}}
+      keyval.writer(as.keyval(out))}}
   if(profile) activate.profiling()
   kv = keyval.reader()
   current.key = keys(kv)
