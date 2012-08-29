@@ -27,8 +27,8 @@ keyval =
     if(missing(val)) list(key = NULL, val = key)
     else list(key = key, val = val)}
 
-keys = function(kv) kv$k
-values = function(kv) kv$v
+keys = function(kv) kv$key
+values = function(kv) kv$val
 
 is.keyval = 
   function(x) is.list(x) && 
