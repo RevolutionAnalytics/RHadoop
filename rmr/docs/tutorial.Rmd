@@ -1,9 +1,9 @@
 
-`r read_chunk('../tests/basic-examples.R')`
-`r read_chunk('../tests/wordcount.R')`
-`r read_chunk('../tests/logistic-regression.R')`
-`r read_chunk('../tests/linear-least-squares.R')`
-`r read_chunk('../tests/kmeans.R')`
+`r read_chunk('../pkg/tests/basic-examples.R')`
+`r read_chunk('../pkg/tests/wordcount.R')`
+`r read_chunk('../pkg/tests/logistic-regression.R')`
+`r read_chunk('../pkg/tests/linear-least-squares.R')`
+`r read_chunk('../pkg/tests/kmeans.R')`
 `r opts_chunk$set(echo=TRUE, eval=FALSE, cache=FALSE, tidy=FALSE)`
 
 # Mapreduce in R
@@ -34,7 +34,7 @@ function, which we are not using here, is a regular R function with a few constr
 1. It returns a key value pair as returned by the helper function `keyval`, which takes any two R objects as arguments; you can also return a list of such objects, or `NULL`.
 
 In this example, we are not using the key at all, only the value, but we still need both to support the general mapreduce case. 
-The return value is an object, and you can pass it as input to other jobs or read it into memory (watch out, not good for big data) with `from.dfs`. `from.dfs` is complementary `to.dfs`. It returns a list of key-value pairs, which is the most general data type that mapreduce can handle. If you prefer data frames to lists, you can instruct `from.dfs` to perform a conversion to data frames, which will cover many many important use cases but is not as general as a list of pairs (structured vs. unstructured case). `from.dfs` is useful in defining map reduce algorithms whenever a mapreduce job produces something of reasonable size, like a summary, that can fit in memory and needs to be inspected to decide on the next steps, or to visualize it.
+The return value is an object, and you can pass it as input to other jobs or read it into memory (watch out, not good for big data) with `from.dfs`. `from.dfs` is complementary `to.dfs`. It returns a list of key-value pairs, which is the most general data type that mapreduce can handle. `from.dfs` is useful in defining map reduce algorithms whenever a mapreduce job produces something of reasonable size, like a summary, that can fit in memory and needs to be inspected to decide on the next steps, or to visualize it.
 
 ## My second mapreduce job
 
