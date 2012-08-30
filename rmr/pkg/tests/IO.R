@@ -13,11 +13,17 @@
 # limitations under the License.
 
 ## test for typed bytes read/write
+library(quickcheck)
+library(rmr)
 
-unit.test(function(l) {
-  l = rapply(l, how = 'replace', 
-             function(x){
-               if(is.null(x)) list()
-               else as.list(x)})
-  isTRUE(all.equal(l, rmr:::typed.bytes.reader(rmr:::typed.bytes.writer(l), length(l) + 5)$objects))},
-          generators = list(tdgg.list()))
+
+unit.test(
+  function(l) {
+    l = rapply(l, how = 'replace', 
+               function(x){
+                 if(is.null(x)) list()
+                 else as.list(x)})
+    isTRUE(all.equal(l, 
+                     rmr:::typed.bytes.reader(rmr:::typed.bytes.writer(l), length(l) + 5)$objects, 
+                     check.attributes = FALSE))},
+  generators = list(tdgg.list()))
