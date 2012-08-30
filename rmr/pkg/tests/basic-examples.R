@@ -52,6 +52,8 @@ for (be in c("local", "hadoop")) {
 
   filtertest = to.dfs(rnorm(10))
   from.dfs(mrfilter(input = filtertest, pred = function(x) x > 0))
+}
+
 ## @knitr end
 
 ## pipeline of two filters, sweet
