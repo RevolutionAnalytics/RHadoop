@@ -9,7 +9,7 @@
 Create combinations of IO settings either from named formats or from a combination of a Java class, a mode and an R function
 }
 \usage{
-make.input.format(format = native.input.format(), mode = c("binary", "text"), streaming.format = NULL, ...)
+make.input.format(format = make.native.input.format(), mode = c("binary", "text"), streaming.format = NULL, ...)
 make.output.format(format = native.output.format, mode = c("binary", "text"), streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat", ...)}
 
 \arguments{
