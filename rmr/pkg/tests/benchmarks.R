@@ -100,5 +100,5 @@ for (be in c("local", "hadoop")) {
               reduce = function(k, vv) data.frame(key = k, sum = aggregate(vv)),
               combine = TRUE)
 ## @knitr                                   
-              })
+              })}
   
