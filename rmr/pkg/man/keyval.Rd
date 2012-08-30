@@ -9,7 +9,7 @@
 \usage{
   keys(kv)
   values(kv)
-  keyval(k, v)
+  keyval(key, val)
 }
 
 \arguments{
