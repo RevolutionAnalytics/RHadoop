@@ -75,7 +75,7 @@ slice.keyval =
 c.or.rbind = 
   Make.single.or.multi.arg(
     function(x) {
-      if(all.have.rows(x))        
+      if(has.rows(x[[1]]))        
         do.call(rbind,x)
       else
         do.call(c,x)})
