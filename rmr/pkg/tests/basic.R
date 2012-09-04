@@ -19,36 +19,36 @@ library(rmr)
 library(quickcheck)
 
 #qw
-rmr:::unit.test(
+unit.test(
   function(ss) {
     ss = paste("v", ss, sep = "")
     ss == eval(parse(text = paste("rmr:::qw(", paste(ss, collapse = ","), ")")))},
-  list(rmr:::tdgg.character()))
+  list(tdgg.character()))
 
 # Make.single.arg
-rmr:::unit.test(
+unit.test(
   function(l) {
     f = function(...) list(...)
     g = rmr:::Make.single.arg(f)
     identical(do.call(f, l), g(l))},
-  list(rmr:::tdgg.list()))
+  list(tdgg.list()))
                   
 # Make.multi.arg
-rmr:::unit.test(
+unit.test(
   function(l) {
     f = function(x) x
     g = rmr:::Make.multi.arg(f)
     identical(do.call(g, l), f(l))},
-  list(rmr:::tdgg.list()))
+  list(tdgg.list()))
 
 # Make.single.or.multi.arg
-rmr:::unit.test(
+unit.test(
   function(l, arity) {
     f = if(arity == "single") identity else c 
     g = rmr:::Make.single.or.multi.arg(f, from = arity)
     identical(g(l), do.call(g, l))},
-  list(rmr:::tdgg.list(),
-       rmr:::tdgg.select(rmr:::qw(single, multi))))
+  list(tdgg.list(),
+       tdgg.select(rmr:::qw(single, multi))))
 
 #%:% TODO
 # all.predicate TODO
@@ -56,14 +56,14 @@ rmr:::unit.test(
 # make.fast.list TODO
 # actually the function has been working forever, the test doesn't
 
-# rmr:::unit.test(
+# unit.test(
 #   function(l){
 #     fl = rmr:::make.fast.list()
 #     lapply(l, fl)
 #     print(x=as.list(do.call(c, l)))
 #     print(x=fl())
 #     identical(as.list(do.call(c, l)), fl())},
-#   list(rmr:::tdgg.list(lambda=1, max.level=8)))
+#   list(tdgg.list(lambda=1, max.level=8)))
 #     
 
 #named.slice TODO
