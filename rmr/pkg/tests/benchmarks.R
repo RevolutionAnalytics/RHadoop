@@ -15,15 +15,6 @@
 library(rmr)
 #timings from macbook pro i7 2011, standalone CDH3, one core
   
-rmr.digest = function(input, output = NULL)
-  mapreduce(input, output, map = function(k,v) {attr(v, "rmr.input") = NULL
-                                                keyval(digest(keyval(k,v)), 1)})
-
-test = function (out.1, out.2) {
-  stopifnot(
-    sort(unlist(keys(from.dfs(rmr.digest(out.1))))) ==
-    sort(unlist(keys(from.dfs(rmr.digest(out.2))))))}
-
 for (be in c("local", "hadoop")) {
   rmr.options.set(backend = be)
 ## @knitr input
