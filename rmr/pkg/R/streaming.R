@@ -45,13 +45,9 @@ reduce.loop = function(reduce, keyval.reader, keyval.writer, profile) {
   current.key = NULL
   vv = make.fast.list()
   while(!is.null(kv)) {
-    rmr.print(kv)
     apply.keyval(
       kv,
       function(k,v) {
-        rmr.print(keyval(k,v))
-        rmr.print(vv())
-        rmr.print(current.key)
         if(length(vv()) == 0) { #start
           current.key <<- k
           vv(list(v))}
