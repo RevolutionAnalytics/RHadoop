@@ -318,8 +318,7 @@ mapreduce = function(
   if(!missing(backend.parameters)) warning("backend.parameters is deprecated.")
   
   backend  =  rmr.options.get('backend')
-  profile.nodes = rmr.options.get('profile.nodes')
-    
+ 
   mr = switch(backend, 
               hadoop = rhstream, 
               local = mr.local, 
@@ -330,7 +329,8 @@ mapreduce = function(
      combine = combine, 
      in.folder = if(is.list(input)) {lapply(input, to.dfs.path)} else to.dfs.path(input), 
      out.folder = to.dfs.path(output), 
-     profile.nodes = profile.nodes, 
+     profile.nodes = rmr.options.get('profile.nodes'), 
+     vectorized.keyval.length = rmr.options.get('vectorized.keyval.length'),
      input.format = input.format, 
      output.format = output.format, 
      backend.parameters = backend.parameters[[backend]], 

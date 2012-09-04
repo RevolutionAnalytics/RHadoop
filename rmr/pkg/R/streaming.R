@@ -89,6 +89,7 @@ rhstream = function(
   in.folder, 
   out.folder, 
   profile.nodes, 
+  vectorized.keyval.length,
   input.format, 
   output.format, 
   backend.parameters, 
@@ -104,7 +105,7 @@ rhstream = function(
   '  
   map.line = '  rmr:::map.loop(map = map, 
               keyval.reader = rmr:::make.keyval.reader(input.format$mode, 
-  input.format$format), 
+  input.format$format, vectorized.keyval.length), 
   keyval.writer = if(is.null(reduce)) {
   rmr:::make.keyval.writer(output.format$mode, 
   output.format$format)}
@@ -112,12 +113,12 @@ rhstream = function(
   rmr:::make.keyval.writer()},
   profile = profile.nodes)'
   reduce.line  =  '  rmr:::reduce.loop(reduce = reduce, 
-                 keyval.reader = rmr:::make.keyval.reader(), 
+                 keyval.reader = rmr:::make.keyval.reader(vectorized.keyval.length = vectorized.keyval.length), 
   keyval.writer = rmr:::make.keyval.writer(output.format$mode, 
   output.format$format), 
   profile = profile.nodes)'
   combine.line = '  rmr:::reduce.loop(reduce = combine, 
-                 keyval.reader = rmr:::make.keyval.reader(), 
+                 keyval.reader = rmr:::make.keyval.reader(vectorized.keyval.length = vectorized.keyval.length), 
   keyval.writer = rmr:::make.keyval.writer(), 
   profile = profile.nodes)'
 
