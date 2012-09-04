@@ -80,3 +80,8 @@ reload = function() {
   detach("package:rmr", unload=T)
   library.dynam.unload("rmr",system.file(package="rmr"))
   library(rmr)}
+
+rmr.print  = function(x) {
+  message(paste(match.call() [[2]], paste(capture.output(str(x)), collapse="\n")))}
+
+
