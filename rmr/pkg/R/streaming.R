@@ -39,19 +39,28 @@ list.cmp = function(ll, e) sapply(ll, function(l) isTRUE(all.equal(e, l, check.a
 reduce.loop = function(reduce, keyval.reader, keyval.writer, profile) {
   reduce.flush = function(current.key, vv) {
     out = reduce(current.key, c.or.rbind(vv))
-    if(!is.null(out)) {
-      keyval.writer(as.keyval(out))}}
+    if(!is.null(out)) keyval.writer(as.keyval(out))}
   if(profile) activate.profiling()
   kv = keyval.reader()
-  current.key = keys(kv)
+  current.key = NULL
   vv = make.fast.list()
   while(!is.null(kv)) {
-    if(identical(keys(kv), current.key)) 
-      vv(list(values(kv)))
-    else {
-      reduce.flush(current.key, vv())
-      current.key = keys(kv)
-      vv = make.fast.list(values(kv))}
+    rmr.print(kv)
+    apply.keyval(
+      kv,
+      function(k,v) {
+        rmr.print(keyval(k,v))
+        rmr.print(vv())
+        rmr.print(current.key)
+        if(length(vv()) == 0) { #start
+          current.key <<- k
+          vv(list(v))}
+        else { #accumulate
+          if(identical(k, current.key)) vv(list(v))
+          else { #flush
+            reduce.flush(current.key, vv())
+            current.key <<- k
+            vv <<- make.fast.list(list(v))}}})
     kv = keyval.reader()}
   if(length(vv()) > 0) reduce.flush(current.key, vv())
   if(profile) close.profiling()
