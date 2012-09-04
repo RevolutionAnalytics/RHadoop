@@ -107,7 +107,7 @@ split.keyval = function(kv, size = rmr.options.get("vectorized.keyval.length")) 
         sapply(k, digest)
       else
         k
-    keyval(unname(rmr.split(k, ind)), 
+    keyval(lapply(unname(rmr.split(k, ind)), unique), 
            unname(rmr.split(v, ind)))}}  
 
 apply.keyval = 
