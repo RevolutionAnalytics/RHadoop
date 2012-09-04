@@ -243,7 +243,7 @@ to.dfs = function(kv, output = dfs.tempfile(), format = "native") {
   file.remove(tmp)
   output}
 
-from.dfs = function(input, format = "native")) {
+from.dfs = function(input, format = "native") {
   
   read.file = function(f) {
     con = file(f, if(format$mode == "text") "r" else "rb")
@@ -364,7 +364,7 @@ equijoin = function(
   reduce.all  = function(k, vl, vr) keyval(k, list(left = vl, right = vr))) {
   
   stopifnot(xor(!is.null(left.input), !is.null(input) &&
-                (is.null(left.input)==is.null(right.input))))
+                (is.null(left.input) == is.null(right.input))))
   outer = match.arg(outer)
   left.outer = outer == "left"
   right.outer = outer == "right"
@@ -372,7 +372,13 @@ equijoin = function(
   if (is.null(left.input)) {
     left.input = input}
   mark.side =
-    function(kv, isleft) keyval(kv$key, list(val = kv$val, isleft = isleft))
+    function(kv, is.left) {
+      kv = split.keyval(kv)
+      keyval(keys(kv),
+             lapply(values(kv),
+                    function(v) {
+                      attributes(v) = c(list(is.left = is.left), attributes(v))
+                      v}))}
   is.left.side = 
     function(left.input) {
       leftin = strsplit(to.dfs.path(left.input), "/+")[[1]]
@@ -381,7 +387,12 @@ equijoin = function(
       mapin = mapin[if(is.element(mapin[1], c("hdfs:", "maprfs:"))) c(-1, -2) else -1]
       all(mapin[1:length(leftin)] == leftin)}
   reduce.split =
-    function(vv) tapply(lapply(vv, function(v) v$val), sapply(vv, function(v) v$isleft), identity, simplify = FALSE)
+    function(vv) {
+      rmr.print(vv)
+      tapply(vv, 
+             sapply(vv, function(v) attr(v, "is.left", exact=T)), 
+             identity, 
+             simplify = FALSE)}
   pad.side =
     function(vv, side.outer, full.outer) if (length(vv) == 0 && (side.outer || full.outer)) c(NA) else vv
   map = if (is.null(input)) {
@@ -393,15 +404,17 @@ equijoin = function(
       mark.side(if(ils) map.left(k, v) else map.right(k, v), ils)}}
   else {
     function(k, v) {
-      list(mark.side(map.left(k, v), TRUE), 
-           mark.side(map.right(k, v), FALSE))}}
+      z = c.keyval(mark.side(map.left(k, v), TRUE), 
+           mark.side(map.right(k, v), FALSE))
+      rmr.print(z)
+      z}}
   eqj.reduce = reduce
   mapreduce(map = map, 
             reduce =
             function(k, vv) {
               rs = reduce.split(vv)
-              eqj.reduce(k, 
-                     pad.side(rs$`TRUE`, right.outer, full.outer), 
-                     pad.side(rs$`FALSE`, left.outer, full.outer))}, 
+              eqj.reduce(c.or.rbind(k), 
+                     pad.side(c.or.rbind(rs$`TRUE`), right.outer, full.outer), 
+                     pad.side(c.or.rbind(rs$`FALSE`), left.outer, full.outer))}, 
             input = c(left.input, right.input), 
             output = output)}
