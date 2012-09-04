@@ -26,19 +26,18 @@ for (be in c("local", "hadoop")) {
     from.dfs(input)
 ## @knitr end        
   })
+  #   user  system elapsed 
+  #   9.466   0.266   8.403
   stopifnot(all(1:input.size == sort(values(out))))
-#   user  system elapsed 
-#   9.466   0.266   8.403 
   
   system.time({out = 
 ## @knitr pass-through
     mapreduce(input, map = function(k,v) keyval(k,v))
 ## @knitr end        
               })
-  stopifnot(all(1:input.size == sort(values(from.dfs(out)))))
-#   user  system elapsed 
-#   10.160   0.764   9.443 
-  
+  #   user  system elapsed 
+  #   10.160   0.764   9.443 
+  stopifnot(all(1:input.size == sort(values(from.dfs(out)))))  
   
 ## @knitr predicate            
   predicate = function(k,v) unlist(v)%%2 == 0
@@ -50,12 +49,12 @@ for (be in c("local", "hadoop")) {
                                    keyval(k[filter], v[filter])})
 ## @knitr end                               
                 })
+  #   user  system elapsed 
+  #   8.671   0.868   8.162 
   stopifnot(all(2*(1:(input.size/2)) == sort(values(from.dfs(out)))))
-#   user  system elapsed 
-#   8.671   0.868   8.162 
     
 ## @knitr select-input           
-  input.select = to.dfs(data.frame(a=rnorm(input.size), b=1:input.size, c = as.character(1:input.size)))
+  input.select = to.dfs(data.frame(a=rnorm(input.size), b=1:input.size, c = sample(as.character(1:10), input.size, replace=TRUE)))
 ## @knitr             
   system.time({out = 
 ## @knitr select                 
@@ -63,11 +62,14 @@ for (be in c("local", "hadoop")) {
               map = function(k,v) v$b)
 ## @knitr                                   
               })
+#   user  system elapsed 
+#   11.737   0.712  10.745
   stopifnot(all(1:input.size == sort(values(from.dfs(out)))))
   
 ## @knitr bigsum-input
   set.seed(0)
-  input.bigsum = to.dfs(rnorm(input.size))
+  big.sample = rnorm(input.size)
+  input.bigsum = to.dfs(big.sample)
 ## @knitr 
   system.time({out = 
 ## @knitr bigsum                
@@ -77,7 +79,9 @@ for (be in c("local", "hadoop")) {
               combine = TRUE)
 ## @knitr                                   
   })
-  stopifnot(isTRUE(all.equal(sum(values(from.dfs(out))), 104.4752, tolerance=.000001)))
+#   user  system elapsed 
+#   10.542   0.863   9.672 
+  stopifnot(isTRUE(all.equal(sum(values(from.dfs(out))), sum(big.sample), tolerance=.000001)))
   ## @knitr group-aggregate-input
   input.ga = to.dfs(keyval(1:input.size, rnorm(input.size)))
   ## @knitr group-aggregate-functions
@@ -88,8 +92,11 @@ for (be in c("local", "hadoop")) {
 ## @knitr group-aggregate
     mapreduce(input.ga, 
               map = function(k,v) keyval(group(k,v), v),
-              reduce = function(k, vv) data.frame(key = k, sum = aggregate(vv)),
+              reduce = function(k, vv) keyval(k, aggregate(vv)),
               combine = TRUE)
 ## @knitr                                   
-              })}
+              })
+#   user  system elapsed 
+#   156.644   2.301 150.737 
+  }
   
