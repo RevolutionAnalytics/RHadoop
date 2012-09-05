@@ -25,7 +25,6 @@ unit.test(
 #rmr.length TODO
 
 #keyval, keys.values
-#vector case
 unit.test(
   function(x){
     k = x
@@ -43,13 +42,3 @@ unit.test(
     identical(keys(kv), k) &&
       identical(values(kv), v)},
   list(tdgg.any()))
-
-# nonvector case
-unit.test(
-  function(k, v){
-    k = k[1]
-    kv = keyval(k, v)
-    identical(keys(kv), k) &&
-    identical(values(kv), list(v))},
-  list(tdgg.any(), tdgg.any()),
-  precondition = function(k, v) rmr:::rmr.length(k) != rmr:::rmr.length(v))
