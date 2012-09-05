@@ -120,12 +120,9 @@ fwf.reader <- function(con, nrecs) {
 fwf.input.format = make.input.format(mode = "text", format = fwf.reader)
 ## @knitr end
 ## @knitr getting-data.fwf.writer
-fwf.writer <- function(k, v, con, vectorized) {
+fwf.writer <- function(kv, con) {
   ser <- function(df) paste(apply(df, 1, function(x) paste(format(x, width = field.size), collapse = "")), collapse = "\n")
-  out <- if(vectorized) {
-    ser(do.call(rbind,v))}
-  else {
-    ser(v)}
+  out = ser(do.call(rbind, values(kv)))
   writeLines(out, con = con)}
 fwf.output.format = make.output.format(mode = "text", format = fwf.writer)
 ## @knitr end
