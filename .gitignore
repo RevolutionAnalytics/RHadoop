@@ -9,8 +9,8 @@ Rprof.out
 .Rproj.user
 *.Rproj
 #for rmr users
-rhstr.*
-rmr-*-env
+rmr-*-env*
+rmr-streaming-*
 #for emacs users
 *~
 #for whirr users
