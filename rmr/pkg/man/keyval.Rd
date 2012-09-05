@@ -14,8 +14,8 @@
 
 \arguments{
 \item{kv}{A key-value pair}
-\item{k}{the desired key or keys}
-\item{v}{the desired value or values}}
+\item{key}{the desired key or keys}
+\item{val}{the desired value or values}}
 
 \details{The keyval function is used to create return values for the map and reduce functions passed as parameters to
 \code{mapreduce}, which can also return NULL. A key-value pair are also appropriate arguments for the \code{to.dfs} function and are returned by 
