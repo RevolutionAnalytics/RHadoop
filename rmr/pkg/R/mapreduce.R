@@ -388,7 +388,6 @@ equijoin = function(
       all(mapin[1:length(leftin)] == leftin)}
   reduce.split =
     function(vv) {
-      rmr.print(vv)
       tapply(vv, 
              sapply(vv, function(v) attr(v, "is.left", exact=T)), 
              identity, 
@@ -404,10 +403,8 @@ equijoin = function(
       mark.side(if(ils) map.left(k, v) else map.right(k, v), ils)}}
   else {
     function(k, v) {
-      z = c.keyval(mark.side(map.left(k, v), TRUE), 
-           mark.side(map.right(k, v), FALSE))
-      rmr.print(z)
-      z}}
+      c.keyval(mark.side(map.left(k, v), TRUE), 
+               mark.side(map.right(k, v), FALSE))}}
   eqj.reduce = reduce
   mapreduce(map = map, 
             reduce =
