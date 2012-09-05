@@ -305,7 +305,7 @@ mapreduce = function(
   backend  =  rmr.options.get('backend')
  
   mr = switch(backend, 
-              hadoop = rhstream, 
+              hadoop = rmr.stream, 
               local = mr.local, 
               stop("Unsupported backend: ", backend))
   

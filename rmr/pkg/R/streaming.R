@@ -112,11 +112,11 @@ hadoop.streaming = function() {
   if(hadoop_streaming == ""){
     hadoop_home = Sys.getenv("HADOOP_HOME")
     if(hadoop_home == "") stop("Please make sure that the env. variable HADOOP_STREAMING or HADOOP_HOME are set")
-    stream.jar = list.files(path=sprintf("%s/contrib/streaming", hadoop_home), pattern="jar$", full.names = TRUE)
-    sprintf("%s jar %s ", hadoop.cmd(), stream.jar)}
-  else sprintf("%s jar %s ", hadoop.cmd(), hadoop_streaming)}
+    stream.jar = list.files(path =  file.path(hadoop_home, "contrib", "streaming"), pattern = "jar$", full.names = TRUE)
+    paste(hadoop.cmd(), "jar", stream.jar)}
+  else paste(hadoop.cmd(), "jar", hadoop_streaming)}
 
-rhstream = function(
+rmr.stream = function(
   map, 
   reduce, 
   combine, 
@@ -130,13 +130,15 @@ rhstream = function(
   verbose = TRUE, 
   debug = FALSE) {
   ## prepare map and reduce executables
-  lines = 'options(warn=1)
-
+  rmr.local.env = tempfile(pattern = "rmr-local-env")
+  rmr.global.env = tempfile(pattern = "rmr-global-env")
+  preamble = paste0('options(warn=1)
+ 
   library(rmr)
-  load("rmr-local-env")
-  load("rmr-global-env")
+  load("',basename(rmr.local.env),'")
+  load("',basename(rmr.global.env),'")
   invisible(lapply(libs, function(l) require(l, character.only = T)))
-  '  
+  ')  
   map.line = '  rmr:::map.loop(map = map, 
               keyval.reader = rmr:::make.keyval.reader(input.format$mode, 
   input.format$format, vectorized.keyval.length = vectorized.keyval.length), 
@@ -156,73 +158,63 @@ rhstream = function(
   keyval.writer = rmr:::make.keyval.writer(), 
   profile = profile.nodes)'
 
-  map.file = tempfile(pattern = "rhstr.map")
-  writeLines(c(lines, map.line), con = map.file)
-  reduce.file = tempfile(pattern = "rhstr.reduce")
-  writeLines(c(lines, reduce.line), con = reduce.file)
-  combine.file = tempfile(pattern = "rhstr.combine")
-  writeLines(c(lines, combine.line), con = combine.file)
+  map.file = tempfile(pattern = "rmr-streaming-map")
+  writeLines(c(preamble, map.line), con = map.file)
+  reduce.file = tempfile(pattern = "rmr-streaming-reduce")
+  writeLines(c(preamble, reduce.line), con = reduce.file)
+  combine.file = tempfile(pattern = "rmr-streaming-combine")
+  writeLines(c(preamble, combine.line), con = combine.file)
   
   ## set up the execution environment for map and reduce
   if (!is.null(combine) && is.logical(combine) && combine) {
     combine = reduce}
   
   save.env = function(fun = NULL, name) {
-    fun.env = file.path(tempdir(), name)
     envir = 
       if(is.null(fun)) parent.env(environment()) else {
         if (is.function(fun)) environment(fun)
         else fun}
-    save(list = ls(all.names = TRUE, envir = envir), file = fun.env, envir = envir)
-    fun.env}
+    save(list = ls(all.names = TRUE, envir = envir), file = name, envir = envir)
+    name}
   
   libs = sub("package:", "", grep("package", search(), value = T))
   image.cmd.line = paste("-file",
-                         c(save.env(name = "rmr-local-env"),
-                           save.env(.GlobalEnv, "rmr-global-env")),
+                         c(save.env(name = rmr.local.env),
+                           save.env(.GlobalEnv, rmr.global.env)),
                          collapse = " ")
   ## prepare hadoop streaming command
   hadoop.command = hadoop.streaming()
   input =  make.input.files(in.folder)
-  output = if(!missing(out.folder)) sprintf("-output %s", out.folder) else " "
-  input.format.opt = if(is.null(input.format$streaming.format)) {
-    ' ' # default is TextInputFormat
-  }else {
-    sprintf(" -inputformat %s", input.format$streaming.format)
-  }
-  output.format.opt = if(is.null(output.format$streaming.format)) {
-    ' '}
-  else {
-    sprintf(" -outputformat %s", output.format$streaming.format)
-  }
+  output = paste.options(output = out.folder)
+  input.format.opt = paste.options(inputformat = input.format$streaming.format)
+  output.format.opt = paste.options(outputformat = output.format$streaming.format)
   stream.map.input =
     if(input.format$mode == "binary") {
-      " -D stream.map.input=typedbytes"}
-  else {''}
+      paste.options(D = "stream.map.input=typedbytes")}
+    else {''}
   stream.map.output = 
     if(is.null(reduce) && output.format$mode == "text") "" 
-  else   " -D stream.map.output=typedbytes"
-  stream.reduce.input = " -D stream.reduce.input=typedbytes"
+    else   paste.options(D = "stream.map.output=typedbytes")
+  stream.reduce.input = paste.options(D = "stream.reduce.input=typedbytes")
   stream.reduce.output = 
-    if(output.format$mode == "binary") " -D stream.reduce.output=typedbytes"
-  else ''
+    if(output.format$mode == "binary") paste.options(D = "stream.reduce.output=typedbytes")
+    else ''
   stream.mapred.io = paste(stream.map.input,
                            stream.map.output,
                            stream.reduce.input,
                            stream.reduce.output)
-  mapper = sprintf('-mapper "Rscript %s" ', tail(strsplit(map.file, "/")[[1]], 1))
-  m.fl = sprintf("-file %s ", map.file)
-  if(!is.null(reduce) ) {
-    reducer = sprintf('-reducer "Rscript %s" ', tail(strsplit(reduce.file, "/")[[1]], 1))
-    r.fl = sprintf("-file %s ", reduce.file)}
-  else {
-    reducer=" ";r.fl = " "}
-  if(!is.null(combine) && is.function(combine)) {
-    combiner = sprintf('-combiner "Rscript %s" ', tail(strsplit(combine.file, "/")[[1]], 1))
-    c.fl = sprintf("-file %s ", combine.file)}
-  else {
-    combiner = " "
-    c.fl = " "}
+  mapper = paste.options(mapper = paste('"Rscript', basename(map.file), '"'))
+  m.fl = paste.options(file = map.file)
+  reducer = paste.options(reducer  = paste('"Rscript', basename(reduce.file), '"'))
+  r.fl =
+    if(!is.null(reduce) ) {
+      paste.options(file = reduce.file)}
+  else " "
+  combiner = paste.options(combiner = paste('"Rscript', basename(combine.file), '"'))  
+  c.fl = 
+    if(!is.null(combine) && is.function(combine)) {
+      c.fl = paste.options(file = combine.file)}
+  else " "
   if(is.null(reduce) && 
     !is.element("mapred.reduce.tasks",
                 sapply(strsplit(as.character(named.slice(backend.parameters, 'D')), '='), 
