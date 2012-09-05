@@ -20,22 +20,37 @@ library(rmr)
 
 ## @knitr logistic.regression
 logistic.regression = function(input, iterations, dims, alpha){
-  plane = rep(0, dims)
+  plane = t(rep(0, dims))
   g = function(z) 1/(1 + exp(-z))
+  lr.map =          
+    function(k, M) {
+      Y = M[,'y'] 
+      X = M[,c("x1","x2")]
+      keyval(1,
+             Y * X * g(-Y * as.numeric(X %*% t(plane))))}
+  lr.reduce =
+    function(k, Z) keyval(k, t(as.matrix(apply(Z,2,sum))))
   for (i in 1:iterations) {
-    gradient = from.dfs(mapreduce(input,
-      map = function(k, v) keyval (1, v$y * v$x * g(-v$y * (plane %*% v$x))),
-      reduce = function(k, vv) keyval(k, apply(do.call(rbind,vv),2,sum)),
-      combine = T))
-    plane = plane + alpha * gradient[[1]]$val }
+    gradient = 
+      values(
+        from.dfs(
+          mapreduce(
+            input,
+            map = lr.map,     
+            reduce = lr.reduce,
+            combine = T)))
+    plane = plane + alpha * gradient }
   plane }
+
 ## @knitr end
 out = list()
+test.size = 10^5
 for (be in c("local", "hadoop")) {
   rmr.options.set(backend = be)
   ## create test set 
   set.seed(0)
-  testdata = to.dfs(lapply (1:100, function(i) {eps = rnorm(1, sd =10) ; keyval(i, list(x = c(i,i+eps), y = 2 * (eps > 0) - 1))}))
+  eps = rnorm(test.size)
+  testdata = to.dfs(as.matrix(data.frame(x1 = 1:test.size, x2 = 1:test.size + eps, y = 2 * (eps > 0) - 1)))
   ## run 
   out[[be]] = logistic.regression(testdata, 3, 2, 0.05)
   ## max likelihood solution diverges for separable dataset, (-inf, inf) such as the above
