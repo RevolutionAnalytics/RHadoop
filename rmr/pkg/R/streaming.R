@@ -105,7 +105,7 @@ rhstream = function(
   '  
   map.line = '  rmr:::map.loop(map = map, 
               keyval.reader = rmr:::make.keyval.reader(input.format$mode, 
-  input.format$format, vectorized.keyval.length), 
+  input.format$format, vectorized.keyval.length = vectorized.keyval.length), 
   keyval.writer = if(is.null(reduce)) {
   rmr:::make.keyval.writer(output.format$mode, 
   output.format$format)}

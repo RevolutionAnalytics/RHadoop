@@ -247,7 +247,7 @@ from.dfs = function(input, format = "native") {
   
   read.file = function(f) {
     con = file(f, if(format$mode == "text") "r" else "rb")
-    keyval.reader = make.keyval.reader(format$mode, format$format, con)
+    keyval.reader = make.keyval.reader(format$mode, format$format, con, rmr.options.get('vectorized.keyval.length'))
     retval = make.fast.list()
     kv = keyval.reader()
     while(!is.null(kv)) {
