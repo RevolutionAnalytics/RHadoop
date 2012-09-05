@@ -205,16 +205,18 @@ rmr.stream = function(
                            stream.reduce.output)
   mapper = paste.options(mapper = paste('"Rscript', basename(map.file), '"'))
   m.fl = paste.options(file = map.file)
-  reducer = paste.options(reducer  = paste('"Rscript', basename(reduce.file), '"'))
-  r.fl =
-    if(!is.null(reduce) ) {
-      paste.options(file = reduce.file)}
-  else " "
-  combiner = paste.options(combiner = paste('"Rscript', basename(combine.file), '"'))  
-  c.fl = 
-    if(!is.null(combine) && is.function(combine)) {
-      c.fl = paste.options(file = combine.file)}
-  else " "
+  if(!is.null(reduce) ) {
+    reducer = paste.options(reducer  = paste('"Rscript', basename(reduce.file), '"'))
+    r.fl = paste.options(file = reduce.file)}
+  else {
+    reducer = ""
+    r.fl = "" }
+  if(!is.null(combine) && is.function(combine)) {
+    combiner = paste.options(combiner = paste('"Rscript', basename(combine.file), '"'))  
+    c.fl =  paste.options(file = combine.file)}
+  else {
+    combiner = ""
+    c.fl = "" }
   if(is.null(reduce) && 
     !is.element("mapred.reduce.tasks",
                 sapply(strsplit(as.character(named.slice(backend.parameters, 'D')), '='), 
