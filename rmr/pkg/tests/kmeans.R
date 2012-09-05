@@ -15,18 +15,18 @@
 library(rmr)
 
 kmeans.mr = 
-  function(P, n.clust, n.iter) {
+  function(P, num.clusters, num.iter) {
     dist.fun = 
       function(C, P) {
         apply(C,
               1, 
               function(x) matrix(rowSums((t(t(P) - x))^2), ncol = length(x)))}
-    
+  
     kmeans.map.1 = 
       function(k, P) {
         nearest = 
           if(is.null(C)) {
-            sample(1:n.clust, nrow(P), replace = T)}
+            sample(1:num.clusters, nrow(P), replace = T)}
         else {
           D = dist.fun(C, P)
           nearest = max.col(-D)}
@@ -36,7 +36,7 @@ kmeans.mr =
       t(as.matrix(apply(P,2,mean)))}
     
     C = NULL
-    for(i in 1:n.iter ) {
+    for(i in 1:num.iter ) {
       C = 
         from.dfs(
           mapreduce(P, map = kmeans.map.1, reduce = kmeans.reduce.1))$val
@@ -48,7 +48,6 @@ kmeans.mr =
 ## 
 
 out = list()
-out.fast = list()
 
 for(be in c("local", "hadoop")) {
   rmr.options.set(backend = be)
@@ -60,15 +59,10 @@ for(be in c("local", "hadoop")) {
 ## @knitr end
   out[[be]] = 
 ## @knitr kmeans.run    
-    kmeans(input, 12, iterations = 5)
+    kmeans.mr(to.dfs(input), num.clusters  = 12, num.iter= 5)
 ## @knitr end
-  set.seed(0)
-## @knitr end
-  out.fast[[be]] = 
-## @knitr kmeans.run.fast
-    kmeans(input, 12, iterations = 5, fast = T)}
+}
 ## @knitr kmeans.end
 
 # would love to take this step but kmeans in randomized in a way that makes it hard to be completely reprodubile
 #stopifnot(rmr:::cmp(out[['hadoop']], out[['local']]))
-#stopifnot(rmr:::cmp(out.fast[['hadoop']], out.fast[['local']]))
