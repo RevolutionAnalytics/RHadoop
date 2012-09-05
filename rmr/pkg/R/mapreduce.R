@@ -90,21 +90,6 @@ compose.mapred =
 union.mapred = 
   function(mr1, mr2) function(k, v) {
     c.keyval(mr1(k, v), mr2(k, v))}
-  
-#some option formatting utils
-
-paste.options = function(optlist) {
-  optlist = unlist(sapply(optlist, function(x) if (is.logical(x)) {if(x) "" else NULL} else x))
-  if(is.null(optlist)) "" 
-  else paste(unlist(rbind(paste("-", names(optlist), sep = ""), optlist)), collapse = " ")}
-
-make.input.files = function(infiles) {
-  if(length(infiles) == 0) return(" ")
-  paste(sapply(infiles, 
-               function(r) {
-                 sprintf("-input %s ", r)}), 
-        collapse=" ")}
-
 
 #output cmp
 cmp = function(x, y) {

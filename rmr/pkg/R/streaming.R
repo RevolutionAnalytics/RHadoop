@@ -12,6 +12,40 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#some option formatting utils
+
+paste.options = function(...) {
+  optlist = 
+    unlist(
+      sapply(
+        list(...), 
+        function(x) { 
+          if (is.null(x)) {NULL}
+          else {
+            if (is.logical(x)) {
+              if(x) "" else NULL} 
+            else x }}))
+  if(is.null(optlist)) "" 
+  else 
+    paste(
+    " ",
+    unlist(
+      rbind(
+        paste(
+          "-", 
+          names(optlist), 
+          sep = ""), 
+        optlist)), 
+    " ",
+    collapse = " ")}
+
+make.input.files = function(infiles) {
+  if(length(infiles) == 0) return(" ")
+  paste(sapply(infiles, 
+               function(r) {
+                 paste.options(input = r)}), 
+        collapse=" ")}
+
 ## loops section, or what runs on the nodes
 
 activate.profiling = function() {
