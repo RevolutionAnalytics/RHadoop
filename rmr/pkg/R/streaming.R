@@ -161,7 +161,7 @@ rmr.stream = function(
   combine.line = '  rmr:::reduce.loop(reduce = combine, 
                  keyval.reader = rmr:::make.keyval.reader(vectorized.keyval.length = vectorized.keyval.length), 
   keyval.writer = rmr:::make.keyval.writer(vectorized.keyval.length = vectorized.keyval.length), 
-  keyval.length = vectorized.keyval.length
+  keyval.length = vectorized.keyval.length,
   profile = profile.nodes)'
 
   map.file = tempfile(pattern = "rmr-streaming-map")
