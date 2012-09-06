@@ -93,30 +93,30 @@ cmp = function(x, y) {
 
 # backend independent dfs section
 part.list = function(fname) {
-  if(rmr.options.get('backend') == "local") fname
+  if(rmr.options('backend') == "local") fname
   else {
     if(dfs.is.dir(fname))
       pretty.hdfs.ls(paste(fname, "part*", sep = "/"))$path
     else fname}}
 
 dfs.exists = function(f) {
-  if (rmr.options.get('backend') == 'hadoop') 
+  if (rmr.options('backend') == 'hadoop') 
     hdfs.test(e = f) 
   else file.exists(f)}
 
 dfs.rm = function(f) {
-  if(rmr.options.get('backend') == 'hadoop')
+  if(rmr.options('backend') == 'hadoop')
     hdfs.rm(f)
   else file.remove(f)}
 
 dfs.is.dir = function(f) { 
-  if (rmr.options.get('backend') == 'hadoop') 
+  if (rmr.options('backend') == 'hadoop') 
     hdfs.test(d = f)
   else file.info(f)['isdir']}
 
 dfs.empty = function(f) {
   f = to.dfs.path(f)
-  if(rmr.options.get('backend') == 'hadoop') {
+  if(rmr.options('backend') == 'hadoop') {
     if(dfs.is.dir(f)) {
       all(
         lapply(
@@ -145,13 +145,14 @@ to.dfs = function(kv, output = dfs.tempfile(), format = "native") {
       con = file(f, if(format$mode == "text") "w" else "wb")
         keyval.writer = make.keyval.writer(format$mode, 
                                            format$format, 
+                                           rmr.options('vectorized.keyval.length'),
                                            con)
       keyval.writer(kv)
       
       close(con)}
     
   write.file(kv, tmp)      
-  if(rmr.options.get('backend') == 'hadoop') {
+  if(rmr.options('backend') == 'hadoop') {
     if(format$mode == "binary")
       system(paste(hadoop.streaming(),  "loadtb", dfsOutput, "<", tmp))
     else  hdfs.put(tmp, dfsOutput)}
@@ -163,7 +164,7 @@ from.dfs = function(input, format = "native") {
   
   read.file = function(f) {
     con = file(f, if(format$mode == "text") "r" else "rb")
-    keyval.reader = make.keyval.reader(format$mode, format$format, con, rmr.options.get('vectorized.keyval.length'))
+    keyval.reader = make.keyval.reader(format$mode, format$format, rmr.options('vectorized.keyval.length'), con)
     retval = make.fast.list()
     kv = keyval.reader()
     while(!is.null(kv)) {
@@ -186,14 +187,14 @@ from.dfs = function(input, format = "native") {
   
   fname = to.dfs.path(input)
   if(is.character(format)) format = make.input.format(format)
-  if(rmr.options.get("backend") == "hadoop") {
+  if(rmr.options("backend") == "hadoop") {
     tmp = tempfile()
     if(format$mode == "binary") dumptb(part.list(fname), tmp)
     else getmerge(part.list(fname), tmp)}
   else
     tmp = fname
   retval = read.file(tmp)
-  if(rmr.options.get("backend") == "hadoop") unlink(tmp)
+  if(rmr.options("backend") == "hadoop") unlink(tmp)
   retval}
 
 # mapreduce
@@ -209,7 +210,7 @@ dfs.tempfile = function(pattern = "file", tmpdir = tempdir()) {
   namefun
 }
 
-dfs.managed.file = function(call, managed.dir = rmr.options.get('managed.dir')) {
+dfs.managed.file = function(call, managed.dir = rmr.options('managed.dir')) {
   file.path(managed.dir, digest(lapply(call, eval)))}
 
 mapreduce = function(
@@ -225,7 +226,7 @@ mapreduce = function(
 
   on.exit(expr = gc(), add = TRUE) #this is here to trigger cleanup of tempfiles
   if (is.null(output)) output = 
-    if(rmr.options.get('depend.check'))
+    if(rmr.options('depend.check'))
       dfs.managed.file(match.call())
     else
       dfs.tempfile()
@@ -233,7 +234,7 @@ mapreduce = function(
   if(is.character(output.format)) output.format = make.output.format(output.format)
   if(!missing(backend.parameters)) warning("backend.parameters is deprecated.")
   
-  backend  =  rmr.options.get('backend')
+  backend  =  rmr.options('backend')
  
   mr = switch(backend, 
               hadoop = rmr.stream, 
@@ -245,8 +246,8 @@ mapreduce = function(
      combine = combine, 
      in.folder = if(is.list(input)) {lapply(input, to.dfs.path)} else to.dfs.path(input), 
      out.folder = to.dfs.path(output), 
-     profile.nodes = rmr.options.get('profile.nodes'), 
-     vectorized.keyval.length = rmr.options.get('vectorized.keyval.length'),
+     profile.nodes = rmr.options('profile.nodes'), 
+     vectorized.keyval.length = rmr.options('vectorized.keyval.length'),
      input.format = input.format, 
      output.format = output.format, 
      backend.parameters = backend.parameters[[backend]], 
@@ -308,10 +309,10 @@ equijoin = function(
     function(vv, side.outer, full.outer) if (length(vv) == 0 && (side.outer || full.outer)) c(NA) else vv
   map = if (is.null(input)) {
     function(k, v) {
-      ils = switch(rmr.options.get('backend'), 
+      ils = switch(rmr.options('backend'), 
                    hadoop = is.left.side(left.input), 
                    local = attr(v, 'rmr.input') == to.dfs.path(left.input), 
-                   stop("Unsupported backend: ", rmr.options.get('backend')))
+                   stop("Unsupported backend: ", rmr.options('backend')))
       mark.side(if(ils) map.left(k, v) else map.right(k, v), ils)}}
   else {
     function(k, v) {
