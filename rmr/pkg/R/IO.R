@@ -115,7 +115,7 @@ native.writer =  function(objs, con) {
 
 native.output.format = function(kv, con, keyval.length){
   # temporarily disabled    typed.bytes.output.format(kv, con, vectorized)
-  kvs = split.keyval(kv)
+  kvs = split.keyval(kv, keyval.length)
   native.writer(interleave(keys(kvs), values(kvs)), con)}
 
 # I/O 
