@@ -40,7 +40,13 @@ mr.local = function(map,
   reduce.helper = function(kk,vv) reduce(kk[1], vv)
   reduce.out = 
     if(!is.null(reduce))
-      c.keyval(lapply(apply.keyval(map.out, reduce.helper), as.keyval))
+      c.keyval(
+        lapply(
+          apply.keyval(
+            map.out, 
+            reduce.helper, 
+            split.size = vectorized.keyval.length), 
+          as.keyval))
     else
       map.out
   to.dfs(reduce.out, out.folder, format = output.format)}
