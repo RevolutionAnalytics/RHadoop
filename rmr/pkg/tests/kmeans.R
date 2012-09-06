@@ -40,7 +40,7 @@ kmeans.mr =
       C = 
         values(
           from.dfs(
-            mapreduce(P, map = kmeans.map.1, reduce = kmeans.reduce.1))
+            mapreduce(P, map = kmeans.map.1, reduce = kmeans.reduce.1)))
       if(nrow(C) < 5) 
         C = matrix(rnorm(n.clust * nrow(C)), ncol = nrow(C)) %*% C }
     C}
