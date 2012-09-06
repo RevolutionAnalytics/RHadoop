@@ -249,6 +249,7 @@ rmr.stream = function(
                               warning = function(e) stop(e)) 
     0}}
 
+
 #hdfs section
 
 hdfs = function(cmd, intern, ...) {
@@ -305,3 +306,4 @@ pretty.hdfs.ls = function(...) {
   names(df) = c("mode", "links", "owner", "group", "size", "last.modified.date", "last.modified.time", "path")
   df$links = as.numeric(sapply(as.character(df$links), function(x) if (x=="-") 0 else x))
   df$size = as.numeric(as.character(df$size))
+  df}

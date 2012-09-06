@@ -90,63 +90,6 @@ cmp = function(x, y) {
   isTRUE(all.equal(kx[ox], ky[oy], check.attributes = FALSE)) &&
   isTRUE(all.equal(vx[ox], vy[oy], check.attributes = FALSE))}
 
-#hdfs section
-
-hdfs = function(cmd, intern, ...) {
-  if (is.null(names(list(...)))) {
-    argnames = sapply(1:length(list(...)), function(i) "")}
-  else {
-    argnames = names(list(...))}
-  system(paste(hadoop.cmd(), " dfs -", cmd, " ", 
-              paste(
-                apply(cbind(argnames, list(...)), 1, 
-                  function(x) paste(
-                    if(x[[1]] == "") {""} else {"-"}, 
-                    x[[1]], 
-                    " ", 
-                    to.dfs.path(x[[2]]), 
-                    sep = ""))[
-                      order(argnames, decreasing = T)], 
-                collapse = " "), 
-               sep = ""), 
-         intern = intern)}
-
-getcmd = function(matched.call)
-  strsplit(tail(as.character(as.list(matched.call)[[1]]), 1), "\\.")[[1]][[2]]
-           
-hdfs.match.sideeffect = function(...) {
-  hdfs(getcmd(match.call()), FALSE, ...) == 0}
-
-#this returns a character matrix, individual cmds may benefit from additional transformations
-hdfs.match.out = function(...) {
-  oldwarn = options("warn")[[1]]
-  options(warn = -1)
-  retval = do.call(rbind, strsplit(hdfs(getcmd(match.call()), TRUE, ...), " +")) 
-  options(warn = oldwarn)
-  retval}
-
-mkhdfsfun = function(hdfscmd, out)
-  eval(parse(text = paste ("hdfs.", hdfscmd, " = hdfs.match.", if(out) "out" else "sideeffect", sep = "")), 
-       envir = parent.env(environment()))
-
-for (hdfscmd in c("ls", "lsr", "df", "du", "dus", "count", "cat", "text", "stat", "tail", "help")) 
-  mkhdfsfun(hdfscmd, TRUE)
-
-for (hdfscmd in c("mv", "cp", "rm", "rmr", "expunge", "put", "copyFromLocal", "moveFromLocal", "get", "getmerge", 
-                 "copyToLocal", "moveToLocal", "mkdir", "setrep", "touchz", "test", "chmod", "chown", "chgrp"))
-  mkhdfsfun(hdfscmd, FALSE)
-
-pretty.hdfs.ls = function(...) {
-  ls.out = hdfs.ls(...)
-  crud = grep("Found", ls.out[,1])
-  if(length(crud) > 0)
-    ls.out = ls.out[-crud,]
-  if(class(ls.out) == "character") ls.out = t(ls.out)
-  df = as.data.frame(ls.out,stringsAsFactors=F)
-  names(df) = c("mode", "links", "owner", "group", "size", "last.modified.date", "last.modified.time", "path")
-  df$links = as.numeric(sapply(as.character(df$links), function(x) if (x=="-") 0 else x))
-  df$size = as.numeric(as.character(df$size))
-  df}
 
 # backend independent dfs section
 part.list = function(fname) {
