@@ -35,7 +35,8 @@ mr.local = function(map,
         lapply(
           in.folder,
           get.data)),
-      map)
+      map,
+      vectorized.keyval.length)
   map.out = from.dfs(to.dfs(c.keyval(lapply(map.out, as.keyval))))
   reduce.helper = function(kk,vv) reduce(kk[1], vv)
   reduce.out = 
