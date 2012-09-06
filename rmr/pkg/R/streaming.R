@@ -70,7 +70,7 @@ map.loop = function(map, keyval.reader, keyval.writer, profile) {
 list.cmp = function(ll, e) sapply(ll, function(l) isTRUE(all.equal(e, l, check.attributes = FALSE)))
 ## using isTRUE(all.equal(x)) because identical() was too strict, but on paper it should be it
 
-reduce.loop = function(reduce, keyval.reader, keyval.writer, profile) {
+reduce.loop = function(reduce, keyval.reader, keyval.writer, keyval.length, profile) {
   reduce.flush = function(current.key, vv) {
     out = reduce(current.key, c.or.rbind(vv))
     if(!is.null(out)) keyval.writer(as.keyval(out))}
@@ -90,7 +90,8 @@ reduce.loop = function(reduce, keyval.reader, keyval.writer, profile) {
           else { #flush
             reduce.flush(current.key, vv())
             current.key <<- k
-            vv <<- make.fast.list(list(v))}}})
+            vv <<- make.fast.list(list(v))}}},
+      keyval.length)
     kv = keyval.reader()}
   if(length(vv()) > 0) reduce.flush(current.key, vv())
   if(profile) close.profiling()
@@ -154,11 +155,13 @@ rmr.stream = function(
                  keyval.reader = rmr:::make.keyval.reader(vectorized.keyval.length = vectorized.keyval.length), 
   keyval.writer = rmr:::make.keyval.writer(output.format$mode, 
   output.format$format,
-  vectorized.keyval.length = vectorized.keyval.length), 
+  vectorized.keyval.length = vectorized.keyval.length),
+  keyval.length = vectorized.keyval.length,
   profile = profile.nodes)'
   combine.line = '  rmr:::reduce.loop(reduce = combine, 
                  keyval.reader = rmr:::make.keyval.reader(vectorized.keyval.length = vectorized.keyval.length), 
   keyval.writer = rmr:::make.keyval.writer(vectorized.keyval.length = vectorized.keyval.length), 
+  keyval.length = vectorized.keyval.length
   profile = profile.nodes)'
 
   map.file = tempfile(pattern = "rmr-streaming-map")
