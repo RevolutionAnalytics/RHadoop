@@ -93,7 +93,7 @@ rmr.split =
     spl = if(has.rows(x)) split.data.frame else split
     spl(x,ind)}
 
-split.keyval = function(kv, size = rmr.options.get("vectorized.keyval.length")) {
+split.keyval = function(kv, size) {
   k = keys(kv)
   v = rmr.recycle(values(kv), k)
   if(is.null(k)) {
@@ -111,6 +111,6 @@ split.keyval = function(kv, size = rmr.options.get("vectorized.keyval.length")) 
            unname(rmr.split(v, ind)))}}  
 
 apply.keyval = 
-  function(kv, FUN, split.size = rmr.options.get("vectorized.keyval.length")) {
+  function(kv, FUN, split.size) {
     kvs = split.keyval(kv, split.size)
     mapply(FUN, keys(kvs), values(kvs), SIMPLIFY = FALSE)}
