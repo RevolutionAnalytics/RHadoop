@@ -16,7 +16,7 @@ library(quickcheck)
 library(rmr)
 
 for (be in c("local", "hadoop")) {
-  rmr.options.set(backend = be)
+  rmr.options(backend = be)
   
   
   ##from.dfs to.dfs

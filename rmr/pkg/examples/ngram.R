@@ -36,14 +36,14 @@ writeLines(
   
 # fake data
 source = "/tmp/fake-ngram-data"
-# rmr.options.set(backend = "local")
+# rmr.options(backend = "local")
 
 # real data
 # do  distcp and then scatter
 # hadoop distcp s3n://$AWS_ACCESS_KEY_ID:$AWS_SECRET_ACCESS_KEY@datasets.elasticmapreduce/ngrams/books/20090715/eng-all/1gram/ hdfs:///user/antonio/
 
 #source = "hdfs:///user/antonio/1gram/data"
-rmr.options.set(backend = "hadoop")
+rmr.options(backend = "hadoop")
 
 ngram.format = function(lines){
   data = as.data.frame(do.call(rbind, strsplit(unlist(lines), "\t"))[,1:3])

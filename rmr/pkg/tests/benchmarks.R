@@ -16,9 +16,9 @@ library(rmr)
 #timings from macbook pro i7 2011, standalone CDH3, one core
   
 for (be in c("local", "hadoop")) {
-  rmr.options.set(backend = be)
+  rmr.options(backend = be)
 ## @knitr input
-  input.size = if(rmr.options.get('backend') == "local") 10^4 else 10^6
+  input.size = if(rmr.options('backend') == "local") 10^4 else 10^6
   input = to.dfs(1:input.size)
 ## @knitr  
   system.time({out = 

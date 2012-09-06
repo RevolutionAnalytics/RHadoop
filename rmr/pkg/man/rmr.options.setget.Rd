@@ -1,14 +1,12 @@
-\name{rmr.options.get}
-\alias{rmr.options.get}
-\alias{rmr.options.set}
+\name{rmr.options}
+\alias{rmr.options}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Functions to set and get package options}
+Function to set and get package options}
 \description{
 set and get package options}
 \usage{
-rmr.options.get(...)
-rmr.options.set(backend = c("hadoop", "local"), profile.nodes = NULL, vectorized.keyval.length = NULL)
+rmr.options(backend = c("hadoop", "local"), profile.nodes = NULL, vectorized.keyval.length = NULL)
 %-, depend.check = NULL, managed.dir = NULL)
 }
 \arguments{
@@ -30,7 +28,7 @@ reducers. Profiling data is collected in the following file: \code{file.path("/t
 
 
 \examples{
-old.backend = rmr.options.get("backend")
-rmr.options.set(backend = "hadoop")
-rmr.options.set(backend = old.backend)
+old.backend = rmr.options("backend")
+rmr.options(backend = "hadoop")
+rmr.options(backend = old.backend)
 }

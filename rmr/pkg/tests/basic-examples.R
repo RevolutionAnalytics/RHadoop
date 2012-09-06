@@ -17,7 +17,7 @@
 library(rmr)
 
 for (be in c("local", "hadoop")) {
-  rmr.options.set(backend = be)
+  rmr.options(backend = be)
 ## @knitr lapply  
   small.ints = 1:1000
   sapply(small.ints, function(x) x^2)

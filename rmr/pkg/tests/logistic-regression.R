@@ -46,7 +46,7 @@ logistic.regression = function(input, iterations, dims, alpha){
 out = list()
 test.size = 10^5
 for (be in c("local", "hadoop")) {
-  rmr.options.set(backend = be)
+  rmr.options(backend = be)
   ## create test set 
   set.seed(0)
   eps = rnorm(test.size)

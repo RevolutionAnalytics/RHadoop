@@ -52,7 +52,7 @@ kmeans.mr =
 out = list()
 
 for(be in c("local", "hadoop")) {
-  rmr.options.set(backend = be)
+  rmr.options(backend = be)
   set.seed(0)
 ## @knitr kmeans.data
   input = 
