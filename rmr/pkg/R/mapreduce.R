@@ -16,49 +16,37 @@
 
 #options
 
-rmr.options = new.env(parent=emptyenv())
-rmr.options$backend = "hadoop"
-rmr.options$vectorized.keyval.length = 1000
-rmr.options$profile.nodes = FALSE
-rmr.options$depend.check = FALSE
+rmr.options.env = new.env(parent=emptyenv())
+rmr.options.env$backend = "hadoop"
+rmr.options.env$vectorized.keyval.length = 1000
+rmr.options.env$profile.nodes = FALSE
+rmr.options.env$depend.check = FALSE
 #rmr.options$managed.dir = "/var/rmr/managed"
 
-rmr.options.get = function(...) {
-  opts = as.list(rmr.options)
-  if(missing(...))
-    opts
-  else {
-    args = c(...)
-    if (length(args) > 1)
-      opts[args]
+rmr.options = 
+  function(backend = c("hadoop", "local"), 
+           profile.nodes = FALSE,
+           vectorized.keyval.length = 1000#, 
+           #depend.check = FALSE, 
+           #managed.dir = FALSE
+           ) {
+    args = as.list(sys.call())[-1]
+    this.call = match.call()
+    lapply(
+      names(args),
+      function(x) {
+        if(x != "")
+          assign(x, eval(this.call[[x]]), envir = rmr.options.env)})
+    read.args =
+      if(is.null(names(args)))
+        args
     else 
-      opts[[args]]}}
-
-rmr.options.set = function(backend = c("hadoop", "local"), 
-                           profile.nodes = NULL,
-                           vectorized.keyval.length = NULL#, 
-                           #depend.check = NULL, 
-                           #managed.dir = NULL
-                           ) {
-  this.call = match.call()
-  backend = match.arg(backend) #this doesn't do anything, fix
-  lapply(names(this.call)[-1], 
-         function(x) 
-           assign(x, eval(this.call[[x]]), envir = rmr.options))
-  as.list(rmr.options)}
-
-
-## could think of this as a utils section
-
-to.list = function(x) {
-  if(is.data.frame(x)) {
-    .Call('dataframe_to_list', x, nrow(x), ncol(x), rep(as.list(1:ncol(x)), nrow(x)))}
-    else {
-      if(is.matrix(x))
-        apply(x,1,as.list)
-      else
-        as.list(x)}}
-
+      named.slice(args, "")
+    if(length(read.args) > 0) {
+      read.args = simplify2array(read.args)
+      retval = as.list(rmr.options.env)[read.args]
+      if (length(retval) == 1) retval[[1]] else retval}
+    else NULL }
 
 ## map and reduce function generation
 
