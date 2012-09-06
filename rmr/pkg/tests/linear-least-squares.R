@@ -13,8 +13,10 @@
 # limitations under the License.
 
 
-X = to.dfs(matrix())
-y = to.dfs()
+X = to.dfs(matrix(rnorm(2000), ncol = 10))
+y = as.matrix(rnorm(200))
+
+Sum = function(k, YY) keyval(1, list(Reduce('+', YY)))
 
 XtX = 
   values(
@@ -22,15 +24,19 @@ XtX =
       mapreduce(
         input = X,
         map = 
-          function(k, Xi) { 
-            rmr:::rmr.print("map")
-            keyval(1,
-                 list(t(Xi) %*% Xi))},
-        reduce = 
-          function(k, Xii) 
-            Reduce('+', Xii),
-        combine = FALSE)))
+          function(k, Xi) 
+            keyval(1, list(t(Xi) %*% Xi)),
+        reduce = Sum,
+        combine = TRUE)))[[1]]
 
-Xty
+Xty = 
+  values(
+    from.dfs(
+      mapreduce(
+        input = X,
+        map = function(k, Xi)
+          keyval(1, list(t(Xi) %*% y)),
+        reduce = Sum,
+        combine = TRUE)))[[1]]
 
-solve(value(from.dfs(XtX), from.dfs(XtY)))
+solve(XtX, Xty)
