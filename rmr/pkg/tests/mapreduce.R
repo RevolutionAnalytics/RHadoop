@@ -18,13 +18,12 @@ library(rmr)
 for (be in c("local", "hadoop")) {
   rmr.options(backend = be)
   
-  
   ##from.dfs to.dfs
   ##native
-  unit.test(function(kvl) {
+  unit.test(function(kv) {
     isTRUE(
-      all.equal(kvl, from.dfs(to.dfs(kvl))))},
-            generators = list(tdgg.keyval.list()),
+      all.equal(kv, from.dfs(to.dfs(kv))))},
+            generators = list(rmr:::tdgg.keyval),
             sample.size = 10)
   
   ## csv
@@ -32,49 +31,53 @@ for (be in c("local", "hadoop")) {
     isTRUE(
       all.equal(
         df, 
-        from.dfs(
-          to.dfs(df, 
-                 format = "csv"), 
-          format = make.input.format(
-            format = "csv", 
-            colClasses = lapply(df[1,], class))), 
+        values(
+          from.dfs(
+            to.dfs(df, 
+                   format = "csv"), 
+            format = make.input.format(
+              format = "csv", 
+              colClasses = lapply(df[1,], class)))), 
         tolerance = 1e-4, 
         check.attributes = FALSE))},
             generators = list(tdgg.data.frame()),
             sample.size = 10)
   
-  
-  for(fmt in c("json", "sequence.typedbytes")) {
-    unit.test(function(df,fmt) {
-      isTRUE(all.equal(df, from.dfs(to.dfs(df, format = fmt), format = fmt), tolerance = 1e-4, check.attributes = FALSE))},
-              generators = list(tdgg.data.frame(), tdgg.constant(fmt)),
-              sample.size = 10)}
+#   
+#   for(fmt in c("json", "sequence.typedbytes")) {
+#     unit.test(function(df,fmt) {
+#       isTRUE(all.equal(df, values(from.dfs(to.dfs(df, format = fmt), format = fmt), tolerance = 1e-4, check.attributes = FALSE)))},
+#               generators = list(tdgg.data.frame(), tdgg.constant(fmt)),
+#               sample.size = 10)}
   
   ##mapreduce
   
   ##unordered compare
-  kvl.cmp = function(l1, l2) {
-    l1 = l1[order(unlist(keys(l1)))]  
-    l2 = l2[order(unlist(keys(l2)))]
-    isTRUE(all.equal(l1, l2, tolerance=1e-4, check.attributes=FALSE))}
+  kv.cmp = function(kv1, kv2) {
+    kv1 = rmr:::split.keyval(kv1)
+    kv2 = rmr:::split.keyval(kv2)
+    o1 = order(unlist(keys(kv1)))  
+    o2 = order(unlist(keys(kv2)))
+    isTRUE(all.equal(keys(kv1)[o1], keys(kv2)[o2], tolerance=1e-4, check.attributes=FALSE)) &&
+      isTRUE(all.equal(values(kv1)[o1], values(kv2)[o2], tolerance=1e-4, check.attributes=FALSE)) }
   
   ##simplest mapreduce, all default
-  unit.test(function(kvl) {
-    if(length(kvl) == 0) TRUE
+  unit.test(function(kv) {
+    if(length(kv) == 0) TRUE
     else {
-      kvl1 = from.dfs(mapreduce(input = to.dfs(kvl)))
-      kvl.cmp(kvl, kvl1)}},
-            generators = list(tdgg.keyval.list(lambda = 10)),
+      kv1 = from.dfs(mapreduce(input = to.dfs(kv)))
+      kv.cmp(kv, kv1)}},
+            generators = list(rmr:::tdgg.keyval()),
             sample.size = 10)
   
   ##put in a reduce for good measure
-  unit.test(function(kvl) {
-    if(length(kvl) == 0) TRUE
+  unit.test(function(kv) {
+    if(length(kv) == 0) TRUE
     else {
-      kvl1 = from.dfs(mapreduce(input = to.dfs(kvl),
-                                reduce = to.reduce.all(identity)))
-      kvl.cmp(kvl, kvl1)}},
-            generators = list(tdgg.keyval.list(lambda = 10)),
+      kv1 = from.dfs(mapreduce(input = to.dfs(kv),
+                                reduce = to.reduce(identity)))
+      kv.cmp(kv, kv1)}},
+            generators = list(rmr:::tdgg.keyval()),
             sample.size = 10)
   
   for(fmt in c("json", "sequence.typedbytes")) {
