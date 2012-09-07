@@ -76,7 +76,7 @@ freq.counts =
     reduce = function(k, vv) keyval(k, mean(unlist(vv))))                      
 ## @knitr end
 ## @knitr getting-data.csv.output
-csv.writer = function(k, v){
+csv.writer = function(k, v, keyval.length){
   paste(k, paste(v, collapse = ","), sep = ",")}
 ## @knitr end
 ## @knitr getting-data.csv.output.simpler
@@ -120,7 +120,7 @@ fwf.reader <- function(con, nrecs) {
 fwf.input.format = make.input.format(mode = "text", format = fwf.reader)
 ## @knitr end
 ## @knitr getting-data.fwf.writer
-fwf.writer <- function(kv, con) {
+fwf.writer <- function(kv, con, keyval.size) {
   ser <- function(df) paste(apply(df, 1, function(x) paste(format(x, width = field.size), collapse = "")), collapse = "\n")
   out = ser(do.call(rbind, values(kv)))
   writeLines(out, con = con)}
