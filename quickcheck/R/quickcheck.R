@@ -66,7 +66,7 @@ tdgg.data.frame =
                   tdgg.double(), 
                   tdgg.character())
       columns = lapply(sample(gens,ncol, replace=TRUE), 
-                      function(g) replicate(nrow, g(), simplify = TRUE))
+                      function(g) replicate(nrow, g()[1], simplify = TRUE))
       names(columns) = paste("col", 1:ncol)
       do.call(data.frame, columns)}}
 
