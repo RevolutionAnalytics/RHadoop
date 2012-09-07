@@ -83,7 +83,6 @@ cmp = function(x, y) {
   isTRUE(all.equal(kx[ox], ky[oy], check.attributes = FALSE)) &&
   isTRUE(all.equal(vx[ox], vy[oy], check.attributes = FALSE))}
 
-
 # backend independent dfs section
 part.list = function(fname) {
   if(rmr.options('backend') == "local") fname
