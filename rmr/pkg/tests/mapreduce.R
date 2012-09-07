@@ -18,12 +18,23 @@ library(rmr)
 for (be in c("local", "hadoop")) {
   rmr.options(backend = be)
   
+  
+  ## keyval compare
+  kv.cmp = function(kv1, kv2) {
+    kv1 = rmr:::split.keyval(kv1)
+    kv2 = rmr:::split.keyval(kv2)
+    o1 = order(unlist(keys(kv1)))  
+    o2 = order(unlist(keys(kv2)))
+    isTRUE(all.equal(keys(kv1)[o1], keys(kv2)[o2], tolerance=1e-4, check.attributes=FALSE)) &&
+      isTRUE(all.equal(values(kv1)[o1], values(kv2)[o2], tolerance=1e-4, check.attributes=FALSE)) }
+  
   ##from.dfs to.dfs
   ##native
-  unit.test(function(kv) {
-    isTRUE(
-      all.equal(kv, from.dfs(to.dfs(kv))))},
-            generators = list(rmr:::tdgg.keyval),
+  unit.test(
+    function(kv) {
+      kv.cmp(kv, 
+             from.dfs(to.dfs(kv)))},
+            generators = list(rmr:::tdgg.keyval()),
             sample.size = 10)
   
   ## csv
@@ -51,16 +62,7 @@ for (be in c("local", "hadoop")) {
 #               sample.size = 10)}
   
   ##mapreduce
-  
-  ##unordered compare
-  kv.cmp = function(kv1, kv2) {
-    kv1 = rmr:::split.keyval(kv1)
-    kv2 = rmr:::split.keyval(kv2)
-    o1 = order(unlist(keys(kv1)))  
-    o2 = order(unlist(keys(kv2)))
-    isTRUE(all.equal(keys(kv1)[o1], keys(kv2)[o2], tolerance=1e-4, check.attributes=FALSE)) &&
-      isTRUE(all.equal(values(kv1)[o1], values(kv2)[o2], tolerance=1e-4, check.attributes=FALSE)) }
-  
+ 
   ##simplest mapreduce, all default
   unit.test(function(kv) {
     if(length(kv) == 0) TRUE
