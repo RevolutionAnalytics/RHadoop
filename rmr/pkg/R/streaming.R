@@ -70,7 +70,7 @@ map.loop = function(map, keyval.reader, keyval.writer, profile) {
 list.cmp = function(ll, e) sapply(ll, function(l) isTRUE(all.equal(e, l, check.attributes = FALSE)))
 ## using isTRUE(all.equal(x)) because identical() was too strict, but on paper it should be it
 
-reduce.loop = function(reduce, keyval.reader, keyval.writer, keyval.length, profile) {
+reduce.loop = function(reduce, keyval.reader, keyval.writer, profile) {
   reduce.flush = function(current.key, vv) {
     out = reduce(current.key, c.or.rbind(vv))
     if(!is.null(out)) keyval.writer(as.keyval(out))}
@@ -90,8 +90,7 @@ reduce.loop = function(reduce, keyval.reader, keyval.writer, keyval.length, prof
           else { #flush
             reduce.flush(current.key, vv())
             current.key <<- k
-            vv <<- make.fast.list(list(v))}}},
-      keyval.length)
+            vv <<- make.fast.list(list(v))}}})
     kv = keyval.reader()}
   if(length(vv()) > 0) reduce.flush(current.key, vv())
   if(profile) close.profiling()
@@ -139,29 +138,41 @@ rmr.stream = function(
   load("',basename(rmr.local.env),'")
   load("',basename(rmr.global.env),'")
   invisible(lapply(libs, function(l) require(l, character.only = T)))
+  
+  input.reader = 
+    rmr:::make.keyval.reader(
+      input.format$mode, 
+      input.format$format, 
+      keyval.length = keyval.length)
+  output.writer = 
+    rmr:::make.keyval.writer(
+      output.format$mode, 
+      output.format$format)
+  
+  default.reader = rmr:::make.keyval.reader(default.input.format$mode, default.input.format$format)
+  default.writer = rmr:::make.keyval.writer(default.output.format$mode, default.output.format$format)
   ')  
-  map.line = '  rmr:::map.loop(map = map, 
-              keyval.reader = rmr:::make.keyval.reader(input.format$mode, 
-  input.format$format, 
-  keyval.length = keyval.length), 
-  keyval.writer = if(is.null(reduce)) {
-  rmr:::make.keyval.writer(output.format$mode, 
-  output.format$format,
-  keyval.length = keyval.length)}
-  else {
-  rmr:::make.keyval.writer(keyval.length = keyval.length)},
-  profile = profile.nodes)'
-  reduce.line  =  '  rmr:::reduce.loop(reduce = reduce, 
-                 keyval.reader = rmr:::make.keyval.reader(keyval.length = keyval.length), 
-  keyval.writer = rmr:::make.keyval.writer(output.format$mode, 
-  output.format$format,
-  keyval.length = keyval.length),
-  keyval.length = keyval.length,
-  profile = profile.nodes)'
-  combine.line = '  rmr:::reduce.loop(reduce = combine, 
-                 keyval.reader = rmr:::make.keyval.reader(keyval.length = keyval.length), 
-  keyval.writer = rmr:::make.keyval.writer(keyval.length = keyval.length), 
-  keyval.length = keyval.length,
+  map.line = '  
+  rmr:::map.loop(
+    map = map, 
+    keyval.reader = input.reader, 
+    keyval.writer = 
+      if(is.null(reduce)) {
+        output.writer}
+      else {
+        default.writer},
+    profile = profile.nodes)'
+  reduce.line  =  '  
+  rmr:::reduce.loop(
+    reduce = reduce, 
+    keyval.reader = default.reader, 
+    keyval.writer = output.writer,
+    profile = profile.nodes)'
+  combine.line = '  
+  rmr:::reduce.loop(
+    reduce = combine, 
+    keyval.reader = default.reader,
+    keyval.writer = default.writer, 
   profile = profile.nodes)'
 
   map.file = tempfile(pattern = "rmr-streaming-map")
@@ -182,6 +193,9 @@ rmr.stream = function(
         else fun}
     save(list = ls(all.names = TRUE, envir = envir), file = name, envir = envir)
     name}
+  
+  default.input.format = make.input.format("native")
+  default.output.format = make.output.format("native", keyval.length = keyval.length)
   
   libs = sub("package:", "", grep("package", search(), value = T))
   image.cmd.line = paste("-file",
@@ -209,6 +223,7 @@ rmr.stream = function(
                            stream.map.output,
                            stream.reduce.input,
                            stream.reduce.output)
+ 
   mapper = paste.options(mapper = paste('"Rscript', basename(map.file), '"'))
   m.fl = paste.options(file = map.file)
   if(!is.null(reduce) ) {

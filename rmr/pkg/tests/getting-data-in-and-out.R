@@ -76,7 +76,7 @@ freq.counts =
     reduce = function(k, vv) keyval(k, mean(unlist(vv))))                      
 ## @knitr end
 ## @knitr getting-data.csv.output
-csv.writer = function(k, v, keyval.length){
+csv.writer = function(k, v){
   paste(k, paste(v, collapse = ","), sep = ",")}
 ## @knitr end
 ## @knitr getting-data.csv.output.simpler

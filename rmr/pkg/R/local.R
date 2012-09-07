@@ -45,8 +45,7 @@ mr.local = function(map,
         lapply(
           apply.keyval(
             map.out, 
-            reduce.helper, 
-            split.size = keyval.length), 
+            reduce.helper), 
           as.keyval))
     else
       map.out

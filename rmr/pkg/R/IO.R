@@ -21,7 +21,7 @@ json.input.format = function(con, keyval.length) {
     keyval(lapply(splits, function(x) fromJSON(x[1], asText = TRUE)), 
            lapply(splits, function(x) fromJSON(x[2], asText = TRUE)))}}
 
-json.output.format = function(kv, con, keyval.length) {
+json.output.format = function(kv, con) {
   warning("format not updated to new API")
   ser = function(k, v) paste(gsub("\n", "", toJSON(k, .escapeEscapes=TRUE, collapse = "")),
                              gsub("\n", "", toJSON(v, .escapeEscapes=TRUE, collapse = "")),
@@ -34,9 +34,9 @@ text.input.format = function(con, keyval.length) {
   if (length(lines) == 0) NULL
   else keyval(NULL, lines)}
 
-text.output.format = function(kv, con, keyval.length) {
+text.output.format = function(kv, con) {
   ser = function(k, v) paste(k, v, collapse = "", sep = "\t")
-  out = apply.keyval(ser, kv)
+  out = apply.keyval(ser, kv, length.keyval(kv))
   writeLines(out, sep = "\n", con = con)}
 
 make.csv.input.format = function(...) function(con, keyval.length) {
@@ -47,7 +47,7 @@ make.csv.input.format = function(...) function(con, keyval.length) {
   if(is.null(df) || dim(df)[[1]] == 0) NULL
   else keyval(NULL, df)}
 
-make.csv.output.format = function(...) function(kv, con, keyval.length) {
+make.csv.output.format = function(...) function(kv, con) {
   kv = recycle.keyval(kv)
   k = keys(kv)
   v = values(kv)
@@ -90,7 +90,7 @@ make.typed.bytes.input.format = function() {
     obj.buffer <<- straddler
     retval}}
   
-typed.bytes.output.format = function(kv, con, keyval.length){
+typed.bytes.output.format = function(kv, con){
   warning("format not updated to new API")
   writeBin(
     typed.bytes.writer({
@@ -113,17 +113,16 @@ native.writer =  function(objs, con) {
            w(bytes)})
   TRUE}
 
-native.output.format = function(kv, con, keyval.length){
-  # temporarily disabled    typed.bytes.output.format(kv, con)
-  kvs = split.keyval(kv, keyval.length)
-  native.writer(interleave(keys(kvs), values(kvs)), con)}
+make.native.output.format = 
+  function(keyval.length)
+    function(kv, con){
+      # temporarily disabled    typed.bytes.output.format(kv, con)
+      kvs = split.keyval(kv, keyval.length)
+      native.writer(interleave(keys(kvs), values(kvs)), con)}
 
 # I/O 
 
-make.keyval.reader = function(mode = make.input.format()$mode, 
-                              format = make.input.format()$format, 
-                              keyval.length,
-                              con = NULL) {
+make.keyval.reader = function(mode, format, keyval.length, con = NULL) {
   if(mode == "text") {
     if(is.null(con)) con = file("stdin", "r")} #not stdin() which is parsed by the interpreter
   else {
@@ -131,15 +130,12 @@ make.keyval.reader = function(mode = make.input.format()$mode,
   function() 
     format(con, keyval.length)}
 
-make.keyval.writer = function(mode = make.output.format()$mode, 
-                              format = make.output.format()$format,
-                              keyval.length,
-                              con = NULL) {
+make.keyval.writer = function(mode, format, con = NULL) {
   if(mode == "text") {
     if(is.null(con)) con = stdout()}
   else {
     if(is.null(con)) con = pipe("cat", "wb")}
-  function(kv) format(kv, con, keyval.length)}
+  function(kv) format(kv, con)}
 
 IO.formats = c("text", "json", "csv", "native",
                "sequence.typedbytes")
@@ -165,7 +161,7 @@ make.input.format = function(format = make.native.input.format(),
     streaming.format = "org.apache.hadoop.streaming.AutoInputFormat"
   list(mode = mode, format = format, streaming.format = streaming.format)}
 
-make.output.format = function(format = native.output.format, 
+make.output.format = function(format = make.native.output.format(),#rmr.options('keyval.length')), 
                               mode = c("binary", "text"),
                               streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat", 
                               ...) {
@@ -182,7 +178,7 @@ make.output.format = function(format = native.output.format,
            csv = {format = make.csv.output.format(...)
                   mode = "text"
                   streaming.format = NULL}, 
-           native = {format = native.output.format 
+           native = {format = make.native.output.format(keyval.length = rmr.options('keyval.length'))
                      mode = "binary"
                      streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"}, 
            sequence.typedbytes = {format = typed.bytes.output.format 

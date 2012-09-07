@@ -124,31 +124,36 @@ to.dfs.path = function(input) {
     if(is.function(input)) {
       input()}}}
 
-to.dfs = function(kv, output = dfs.tempfile(), format = "native") {
-  kv = as.keyval(kv)
-  tmp = tempfile()
-  dfsOutput = to.dfs.path(output)
-  if(is.character(format)) format = make.output.format(format)
-  
-  write.file = 
-    function(kv, f) {
-      con = file(f, if(format$mode == "text") "w" else "wb")
+to.dfs = 
+  function(
+    kv, 
+    output = dfs.tempfile(), 
+    format = 
+      make.output.format("native")) {
+    
+    kv = as.keyval(kv)
+    tmp = tempfile()
+    dfsOutput = to.dfs.path(output)
+    if(is.character(format)) format = make.output.format(format)
+    
+    write.file = 
+      function(kv, f) {
+        con = file(f, if(format$mode == "text") "w" else "wb")
         keyval.writer = make.keyval.writer(format$mode, 
                                            format$format, 
-                                           rmr.options('keyval.length'),
                                            con)
-      keyval.writer(kv)
-      
-      close(con)}
+        keyval.writer(kv)
+        
+        close(con)}
     
-  write.file(kv, tmp)      
-  if(rmr.options('backend') == 'hadoop') {
-    if(format$mode == "binary")
-      system(paste(hadoop.streaming(),  "loadtb", dfsOutput, "<", tmp))
-    else  hdfs.put(tmp, dfsOutput)}
-  else file.copy(tmp, dfsOutput)
-  file.remove(tmp)
-  output}
+    write.file(kv, tmp)      
+    if(rmr.options('backend') == 'hadoop') {
+      if(format$mode == "binary")
+        system(paste(hadoop.streaming(),  "loadtb", dfsOutput, "<", tmp))
+      else  hdfs.put(tmp, dfsOutput)}
+    else file.copy(tmp, dfsOutput)
+    file.remove(tmp)
+    output}
 
 from.dfs = function(input, format = "native") {
   

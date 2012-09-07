@@ -111,6 +111,10 @@ split.keyval = function(kv, size) {
            unname(rmr.split(v, ind)))}}  
 
 apply.keyval = 
-  function(kv, FUN, split.size) {
+  function(
+    kv, 
+    FUN, 
+    split.size = 
+      stop("Must specify key when using keyval in map and combine functions")) {
     kvs = split.keyval(kv, split.size)
     mapply(FUN, keys(kvs), values(kvs), SIMPLIFY = FALSE)}
