@@ -140,39 +140,51 @@ rmr.stream = function(
   invisible(lapply(libs, function(l) require(l, character.only = T)))
   
   input.reader = 
-    rmr:::make.keyval.reader(
-      input.format$mode, 
-      input.format$format, 
-      keyval.length = keyval.length)
+    function()
+      rmr:::make.keyval.reader(
+        input.format$mode, 
+        input.format$format, 
+        keyval.length = keyval.length)
   output.writer = 
-    rmr:::make.keyval.writer(
-      output.format$mode, 
-      output.format$format)
-  
-  default.reader = rmr:::make.keyval.reader(default.input.format$mode, default.input.format$format)
-  default.writer = rmr:::make.keyval.writer(default.output.format$mode, default.output.format$format)
+    function()
+      rmr:::make.keyval.writer(
+        output.format$mode, 
+        output.format$format)
+    
+  default.reader = 
+    function() 
+      rmr:::make.keyval.reader(
+        default.input.format$mode, 
+        default.input.format$format, 
+        keyval.length = keyval.length)
+  default.writer = 
+    function() 
+      rmr:::make.keyval.writer(
+        default.output.format$mode, 
+        default.output.format$format)
+ 
   ')  
   map.line = '  
   rmr:::map.loop(
     map = map, 
-    keyval.reader = input.reader, 
+    keyval.reader = input.reader(), 
     keyval.writer = 
       if(is.null(reduce)) {
-        output.writer}
+        output.writer()}
       else {
-        default.writer},
+        default.writer()},
     profile = profile.nodes)'
   reduce.line  =  '  
   rmr:::reduce.loop(
     reduce = reduce, 
-    keyval.reader = default.reader, 
-    keyval.writer = output.writer,
+    keyval.reader = default.reader(), 
+    keyval.writer = output.writer(),
     profile = profile.nodes)'
   combine.line = '  
   rmr:::reduce.loop(
     reduce = combine, 
-    keyval.reader = default.reader,
-    keyval.writer = default.writer, 
+    keyval.reader = default.reader(),
+    keyval.writer = default.writer(), 
   profile = profile.nodes)'
 
   map.file = tempfile(pattern = "rmr-streaming-map")
