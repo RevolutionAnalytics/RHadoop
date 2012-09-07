@@ -80,16 +80,26 @@ for (be in c("local", "hadoop")) {
             generators = list(rmr:::tdgg.keyval()),
             sample.size = 10)
   
-  for(fmt in c("json", "sequence.typedbytes")) {
-    unit.test(function(df,fmt) {
-      isTRUE(all.equal(df, from.dfs(mapreduce(to.dfs(df, format = fmt),
-                                              reduce = to.reduce.all(identity),
-                                              input.format = fmt,
-                                              output.format = fmt),
-                                    format = fmt), 
-                       tolerance = 1e-4, check.attributes = FALSE))},
-              generators = list(tdgg.data.frame(), tdgg.constant(fmt)),
-              sample.size = 10)}
+  for(fmt in c(#"json", 
+    "sequence.typedbytes")) {
+    unit.test(
+      function(df,fmt) {
+        isTRUE(
+          all.equal(
+            df, 
+            values(
+              from.dfs(
+                mapreduce(
+                  to.dfs(
+                    df, 
+                    format = fmt),
+                  reduce = to.reduce.all(identity),
+                  input.format = fmt,
+                  output.format = fmt),
+                format = fmt)), 
+            tolerance = 1e-4, check.attributes = FALSE))},
+      generators = list(tdgg.data.frame(), tdgg.constant(fmt)),
+      sample.size = 10)}
   
   ## csv
   library(digest)
