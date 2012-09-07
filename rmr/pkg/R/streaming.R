@@ -124,7 +124,7 @@ rmr.stream = function(
   in.folder, 
   out.folder, 
   profile.nodes, 
-  vectorized.keyval.length,
+  keyval.length,
   input.format, 
   output.format, 
   backend.parameters, 
@@ -143,25 +143,25 @@ rmr.stream = function(
   map.line = '  rmr:::map.loop(map = map, 
               keyval.reader = rmr:::make.keyval.reader(input.format$mode, 
   input.format$format, 
-  vectorized.keyval.length = vectorized.keyval.length), 
+  keyval.length = keyval.length), 
   keyval.writer = if(is.null(reduce)) {
   rmr:::make.keyval.writer(output.format$mode, 
   output.format$format,
-  vectorized.keyval.length = vectorized.keyval.length)}
+  keyval.length = keyval.length)}
   else {
-  rmr:::make.keyval.writer(vectorized.keyval.length = vectorized.keyval.length)},
+  rmr:::make.keyval.writer(keyval.length = keyval.length)},
   profile = profile.nodes)'
   reduce.line  =  '  rmr:::reduce.loop(reduce = reduce, 
-                 keyval.reader = rmr:::make.keyval.reader(vectorized.keyval.length = vectorized.keyval.length), 
+                 keyval.reader = rmr:::make.keyval.reader(keyval.length = keyval.length), 
   keyval.writer = rmr:::make.keyval.writer(output.format$mode, 
   output.format$format,
-  vectorized.keyval.length = vectorized.keyval.length),
-  keyval.length = vectorized.keyval.length,
+  keyval.length = keyval.length),
+  keyval.length = keyval.length,
   profile = profile.nodes)'
   combine.line = '  rmr:::reduce.loop(reduce = combine, 
-                 keyval.reader = rmr:::make.keyval.reader(vectorized.keyval.length = vectorized.keyval.length), 
-  keyval.writer = rmr:::make.keyval.writer(vectorized.keyval.length = vectorized.keyval.length), 
-  keyval.length = vectorized.keyval.length,
+                 keyval.reader = rmr:::make.keyval.reader(keyval.length = keyval.length), 
+  keyval.writer = rmr:::make.keyval.writer(keyval.length = keyval.length), 
+  keyval.length = keyval.length,
   profile = profile.nodes)'
 
   map.file = tempfile(pattern = "rmr-streaming-map")

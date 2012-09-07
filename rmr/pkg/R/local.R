@@ -18,7 +18,7 @@ mr.local = function(map,
                     in.folder, 
                     out.folder, 
                     profile.nodes, 
-                    vectorized.keyval.length,
+                    keyval.length,
                     input.format, 
                     output.format, 
                     backend.parameters, 
@@ -36,7 +36,7 @@ mr.local = function(map,
           in.folder,
           get.data)),
       map,
-      vectorized.keyval.length)
+      keyval.length)
   map.out = from.dfs(to.dfs(c.keyval(lapply(map.out, as.keyval))))
   reduce.helper = function(kk,vv) reduce(kk[1], vv)
   reduce.out = 
@@ -46,7 +46,7 @@ mr.local = function(map,
           apply.keyval(
             map.out, 
             reduce.helper, 
-            split.size = vectorized.keyval.length), 
+            split.size = keyval.length), 
           as.keyval))
     else
       map.out

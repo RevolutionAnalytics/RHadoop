@@ -114,7 +114,7 @@ native.writer =  function(objs, con) {
   TRUE}
 
 native.output.format = function(kv, con, keyval.length){
-  # temporarily disabled    typed.bytes.output.format(kv, con, vectorized)
+  # temporarily disabled    typed.bytes.output.format(kv, con)
   kvs = split.keyval(kv, keyval.length)
   native.writer(interleave(keys(kvs), values(kvs)), con)}
 
@@ -122,24 +122,24 @@ native.output.format = function(kv, con, keyval.length){
 
 make.keyval.reader = function(mode = make.input.format()$mode, 
                               format = make.input.format()$format, 
-                              vectorized.keyval.length,
+                              keyval.length,
                               con = NULL) {
   if(mode == "text") {
     if(is.null(con)) con = file("stdin", "r")} #not stdin() which is parsed by the interpreter
   else {
     if(is.null(con)) con = pipe("cat", "rb")}
   function() 
-    format(con, vectorized.keyval.length)}
+    format(con, keyval.length)}
 
 make.keyval.writer = function(mode = make.output.format()$mode, 
                               format = make.output.format()$format,
-                              vectorized.keyval.length,
+                              keyval.length,
                               con = NULL) {
   if(mode == "text") {
     if(is.null(con)) con = stdout()}
   else {
     if(is.null(con)) con = pipe("cat", "wb")}
-  function(kv) format(kv, con, vectorized.keyval.length)}
+  function(kv) format(kv, con, keyval.length)}
 
 IO.formats = c("text", "json", "csv", "native",
                "sequence.typedbytes")

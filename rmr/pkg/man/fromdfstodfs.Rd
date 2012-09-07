@@ -11,7 +11,7 @@ from.dfs(input, format = "native")
 }
 
 \arguments{
-  \item{kv}{A list of non-vectorized key-value pairs as returned by \code{\link{keyval}} or a vectorized key-value pair; also, a vector or a data frame (in this case keys will be set to NULL)}
+  \item{kv}{A key-value pair; also, a vector, list, matrix or a data frame (in this case the keys will be set to NULL)}
   \item{input}{A file in HDFS or other storage layer as specified by active backend to read from or the return value of \code{mapreduce}}
   \item{output}{A file in HDFS or other storage layer as specified by active backend to read from}
   \item{format}{For \code{from.dfs} either a string naming a format, the same as those allowed by \code{make.input.format}, or the value returned by \code{\link{make.input.format}}. The same is true for \code{to.dfs}, but refer to \code{\link{make.output.format}} instead.}}

@@ -57,7 +57,7 @@ filter.map = function(k, lines) {
   data = ngram.format(lines)
   data$ngram = tolower(data$ngram)
   data = data[regexpr("^[a-z+'-]+$", data$ngram) > 0,]
-  keyval(data$ngram[data$year > 1700], data[data$year > 1700, -1], vectorized = TRUE)}
+  keyval(data$ngram[data$year > 1700], data[data$year > 1700, -1])}
 
 filter.reduce = 
   function(ngram, year.counts) {

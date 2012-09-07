@@ -18,7 +18,7 @@
 
 rmr.options.env = new.env(parent=emptyenv())
 rmr.options.env$backend = "hadoop"
-rmr.options.env$vectorized.keyval.length = 1000
+rmr.options.env$keyval.length = 1000
 rmr.options.env$profile.nodes = FALSE
 rmr.options.env$depend.check = FALSE
 #rmr.options$managed.dir = "/var/rmr/managed"
@@ -26,7 +26,7 @@ rmr.options.env$depend.check = FALSE
 rmr.options = 
   function(backend = c("hadoop", "local"), 
            profile.nodes = FALSE,
-           vectorized.keyval.length = 1000#, 
+           keyval.length = 1000#, 
            #depend.check = FALSE, 
            #managed.dir = FALSE
            ) {
@@ -137,7 +137,7 @@ to.dfs = function(kv, output = dfs.tempfile(), format = "native") {
       con = file(f, if(format$mode == "text") "w" else "wb")
         keyval.writer = make.keyval.writer(format$mode, 
                                            format$format, 
-                                           rmr.options('vectorized.keyval.length'),
+                                           rmr.options('keyval.length'),
                                            con)
       keyval.writer(kv)
       
@@ -156,7 +156,7 @@ from.dfs = function(input, format = "native") {
   
   read.file = function(f) {
     con = file(f, if(format$mode == "text") "r" else "rb")
-    keyval.reader = make.keyval.reader(format$mode, format$format, rmr.options('vectorized.keyval.length'), con)
+    keyval.reader = make.keyval.reader(format$mode, format$format, rmr.options('keyval.length'), con)
     retval = make.fast.list()
     kv = keyval.reader()
     while(!is.null(kv)) {
@@ -239,7 +239,7 @@ mapreduce = function(
      in.folder = if(is.list(input)) {lapply(input, to.dfs.path)} else to.dfs.path(input), 
      out.folder = to.dfs.path(output), 
      profile.nodes = rmr.options('profile.nodes'), 
-     vectorized.keyval.length = rmr.options('vectorized.keyval.length'),
+     keyval.length = rmr.options('keyval.length'),
      input.format = input.format, 
      output.format = output.format, 
      backend.parameters = backend.parameters[[backend]], 
