@@ -59,13 +59,6 @@ to.map =
 
 to.reduce = to.map
 
-to.reduce.all = 
-  function(fun1, fun2 = identity) {
-    if (missing(fun2)) {
-      function(k, vv) lapply(vv, function(v) fun1(keyval(k, v)))}
-    else {
-      function(k, vv) lapply(vv, function(v) keyval(fun1(k), fun2(v)))}}
-
 ## mapred combinators
 
 compose.mapred = 
