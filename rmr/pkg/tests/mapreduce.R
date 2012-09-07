@@ -107,13 +107,16 @@ for (be in c("local", "hadoop")) {
     inpf = make.input.format(
       format = "csv", 
       colClasses = lapply(df[1,], class))
-    df1 = from.dfs(
-      mapreduce(
-        to.dfs(df, 
-               format = "csv"),
-        input.format = inpf,
-        output.format = "csv"),
-      format = inpf)
+    df1 = 
+      values(
+        from.dfs(
+          mapreduce(
+            to.dfs(
+              df, 
+              format = "csv"),
+            input.format = inpf,
+            output.format = "csv"),
+          format = inpf))
     isTRUE(
       all.equal(
         df[data.frame.order(df),], 
