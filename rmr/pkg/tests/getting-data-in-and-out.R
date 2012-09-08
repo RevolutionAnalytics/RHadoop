@@ -89,7 +89,7 @@ mapreduce(
   output.format = csv.format,
   map = function(k,v){
     # complicated function here
-    keyval(k,v)},
+    keyval(1,v)},
   reduce = function(k, vv) {
     #complicated function here
     keyval(k, vv[[1]])})

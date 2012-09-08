@@ -74,8 +74,8 @@ for (be in c("local", "hadoop")) {
   system.time({out = 
 ## @knitr bigsum                
     mapreduce(input.bigsum, 
-              map  = function(k,v) sum(v), 
-              reduce = function(k, vv) sum(vv),
+              map  = function(k,v) keyval(1, sum(v)), 
+              reduce = function(k, vv) keyval(1, sum(vv)),
               combine = TRUE)
 ## @knitr                                   
   })
