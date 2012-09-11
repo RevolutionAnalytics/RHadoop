@@ -28,5 +28,5 @@ Return a list of IO specifications, to be passed as \code{input.format} and \cod
 ##---- Should be DIRECTLY executable !! ----
 ##-- ==>  Define data, use random,
 ##--	or do  help(data=index)  for the standard data sets.
-
+make.input.format("csv", sep = ",")
 }

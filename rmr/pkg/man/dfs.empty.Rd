@@ -4,7 +4,7 @@
 Check if a dfs file is empty
 }
 \description{
-Also takes objects returned by mapreduce
+ Accepts strings or mapreduce return values/
 }
 \usage{
 dfs.empty(f)
@@ -18,4 +18,7 @@ An file path or object returned by mapreduce
 
 \value{
 A boolean
+}
+\examples{
+dfs.empty(mapreduce(to.dfs(1:10)))
 }
