@@ -66,13 +66,14 @@ rmr.sample = function(input, output = NULL, method = c("any", "Bernoulli"), ...)
                 lapply(vv[1:min(reduce.n, length(vv))], function(v) keyval(NULL,v))},
               reduce = function(k, vv) 
                 vv[1:min(reduce.n, length(vv))])}
-  if(method == "Bernoulli"){
-    p = list(...)[['p']]
-    mapreduce(input,
-              output,
-              map = function(k,v)
-                if(rbinom(1,1,p) == 1)
-                  keyval(k,v))}}
+  else
+    if(method == "Bernoulli"){
+      p = list(...)[['p']]
+      mapreduce(input,
+                output,
+                map = function(k,v)
+                  if(rbinom(1,1,p) == 1)
+                    keyval(k,v))}}
 
 ## dev support
 
