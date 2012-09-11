@@ -14,7 +14,7 @@
 
 # lapply like job, first intro
 
-library(rmr)
+library(rmr2)
 
 for (be in c("local", "hadoop")) {
   rmr.options(backend = be)

@@ -16,7 +16,7 @@
 ## see spark implementation http://www.spark-project.org/examples.html
 ## see nice derivation here http://people.csail.mit.edu/jrennie/writing/lr.pdf
 
-library(rmr)
+library(rmr2)
 
 ## @knitr logistic.regression
 logistic.regression = function(input, iterations, dims, alpha){

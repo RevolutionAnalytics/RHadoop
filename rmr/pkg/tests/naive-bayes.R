@@ -18,7 +18,7 @@
 
 ## input format is keyval(NULL, list(x=c(x1, ..., xn), y = y)
 
-##library(rmr)
+##library(rmr2)
 
 ##naive.bayes = function(input, output = NULL) {
 ##  mapreduce(input = input, output = output,

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-library(rmr)
+library(rmr2)
 
 X = to.dfs(matrix(rnorm(2000), ncol = 10))
 y = as.matrix(rnorm(200))

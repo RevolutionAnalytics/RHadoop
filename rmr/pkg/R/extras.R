@@ -79,8 +79,8 @@ rmr.sample = function(input, output = NULL, method = c("any", "Bernoulli"), ...)
 
 reload = function() {
   detach("package:rmr", unload=T)
-  library.dynam.unload("rmr",system.file(package="rmr"))
-  library(rmr)}
+  library.dynam.unload("rmr2",system.file(package="rmr2"))
+  library(rmr2)}
 
 rmr.print  = function(x) {
   message(paste(match.call() [[2]], paste(capture.output(str(x)), collapse="\n")))}

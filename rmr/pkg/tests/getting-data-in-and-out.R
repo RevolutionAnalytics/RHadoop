@@ -1,4 +1,4 @@
-library(rmr)
+library(rmr2)
 ## @knitr getting-data.IO.formats
 rmr:::IO.formats
 ## @knitr end

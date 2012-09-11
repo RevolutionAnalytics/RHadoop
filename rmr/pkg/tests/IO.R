@@ -14,7 +14,7 @@
 
 ## test for typed bytes read/write
 library(quickcheck)
-library(rmr)
+library(rmr2)
 
 
 unit.test(

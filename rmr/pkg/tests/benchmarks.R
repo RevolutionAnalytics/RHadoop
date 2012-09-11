@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-library(rmr)
+library(rmr2)
 #timings from macbook pro i7 2011, standalone CDH3, one core
   
 for (be in c("local", "hadoop")) {

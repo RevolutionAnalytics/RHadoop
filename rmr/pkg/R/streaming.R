@@ -134,7 +134,7 @@ rmr.stream = function(
   rmr.global.env = tempfile(pattern = "rmr-global-env")
   preamble = paste0('options(warn=1)
  
-  library(rmr)
+  library(rmr2)
   load("',basename(rmr.local.env),'")
   load("',basename(rmr.global.env),'")
   invisible(lapply(libs, function(l) require(l, character.only = T)))

@@ -17,7 +17,7 @@
 ## input can be any text file
 ## inspect output with from.dfs(output) -- this will produce an R list watch out with big datasets
 
-library(rmr)
+library(rmr2)
 
 ## @knitr wordcount
 

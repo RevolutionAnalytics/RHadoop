@@ -13,7 +13,7 @@
 # limitations under the License.
 
 library(quickcheck)
-library(rmr)
+library(rmr2)
 
 for (be in c("local", "hadoop")) {
   rmr.options(backend = be)

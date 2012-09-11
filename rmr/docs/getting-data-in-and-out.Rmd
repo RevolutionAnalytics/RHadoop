@@ -2,7 +2,7 @@
 `r read_chunk('../pkg/tests/wordcount.R')`
 `r opts_chunk$set(echo=TRUE, eval=FALSE, cache=FALSE, tidy=FALSE)`
 ```{r cache=FALSE, eval=TRUE, echo=FALSE, results='hide', message=FALSE}
-library(rmr)
+library(rmr2)
 ```
 
 * This document responds to several inquiries on data formats and how to get data in and out of the rmr system
