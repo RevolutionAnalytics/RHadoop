@@ -78,7 +78,7 @@ rmr.sample = function(input, output = NULL, method = c("any", "Bernoulli"), ...)
 ## dev support
 
 reload = function() {
-  detach("package:rmr", unload=T)
+  detach("package:rmr2", unload=T)
   library.dynam.unload("rmr2",system.file(package="rmr2"))
   library(rmr2)}
 

@@ -1,6 +1,6 @@
 library(rmr2)
 ## @knitr getting-data.IO.formats
-rmr:::IO.formats
+rmr2:::IO.formats
 ## @knitr end
 ## @knitr getting-data.make.input.format.csv
 make.input.format("csv")

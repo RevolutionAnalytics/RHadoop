@@ -60,10 +60,10 @@ make.csv.output.format = function(...) function(kv, con) {
 typed.bytes.reader = function(data, nobjs) {
   if(is.null(data)) NULL
   else
-    .Call("typed_bytes_reader", data, nobjs, PACKAGE = "rmr")}
+    .Call("typed_bytes_reader", data, nobjs, PACKAGE = "rmr2")}
 
 typed.bytes.writer = function(objects) {
-  .Call("typed_bytes_writer", objects, PACKAGE = "rmr")}
+  .Call("typed_bytes_writer", objects, PACKAGE = "rmr2")}
 
 make.typed.bytes.input.format = function() {
   obj.buffer = list()

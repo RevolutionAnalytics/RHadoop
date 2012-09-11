@@ -18,7 +18,7 @@ library(rmr2)
 #has.rows
 unit.test(
   function(x) {
-    is.null(nrow(x)) == !rmr:::has.rows(x)},
+    is.null(nrow(x)) == !rmr2:::has.rows(x)},
   list(tdgg.any()))
 
 #all.have rows TODO

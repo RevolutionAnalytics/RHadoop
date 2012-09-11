@@ -24,6 +24,6 @@ unit.test(
                  if(is.null(x)) list()
                  else as.list(x)})
     isTRUE(all.equal(l, 
-                     rmr:::typed.bytes.reader(rmr:::typed.bytes.writer(l), length(l) + 5)$objects, 
+                     rmr2:::typed.bytes.reader(rmr2:::typed.bytes.writer(l), length(l) + 5)$objects, 
                      check.attributes = FALSE))},
   generators = list(tdgg.list()))

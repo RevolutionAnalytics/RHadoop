@@ -22,14 +22,14 @@ library(quickcheck)
 unit.test(
   function(ss) {
     ss = paste("v", ss, sep = "")
-    ss == eval(parse(text = paste("rmr:::qw(", paste(ss, collapse = ","), ")")))},
+    ss == eval(parse(text = paste("rmr2:::qw(", paste(ss, collapse = ","), ")")))},
   list(tdgg.character()))
 
 # Make.single.arg
 unit.test(
   function(l) {
     f = function(...) list(...)
-    g = rmr:::Make.single.arg(f)
+    g = rmr2:::Make.single.arg(f)
     identical(do.call(f, l), g(l))},
   list(tdgg.list()))
                   
@@ -37,7 +37,7 @@ unit.test(
 unit.test(
   function(l) {
     f = function(x) x
-    g = rmr:::Make.multi.arg(f)
+    g = rmr2:::Make.multi.arg(f)
     identical(do.call(g, l), f(l))},
   list(tdgg.list()))
 
@@ -45,10 +45,10 @@ unit.test(
 unit.test(
   function(l, arity) {
     f = if(arity == "single") identity else c 
-    g = rmr:::Make.single.or.multi.arg(f, from = arity)
+    g = rmr2:::Make.single.or.multi.arg(f, from = arity)
     identical(g(l), do.call(g, l))},
   list(tdgg.list(),
-       tdgg.select(rmr:::qw(single, multi))))
+       tdgg.select(rmr2:::qw(single, multi))))
 
 #%:% TODO
 # all.predicate TODO
@@ -58,7 +58,7 @@ unit.test(
 
 # unit.test(
 #   function(l){
-#     fl = rmr:::make.fast.list()
+#     fl = rmr2:::make.fast.list()
 #     lapply(l, fl)
 #     print(x=as.list(do.call(c, l)))
 #     print(x=fl())

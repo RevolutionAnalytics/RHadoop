@@ -21,8 +21,8 @@ for (be in c("local", "hadoop")) {
   
   ## keyval compare
   kv.cmp = function(kv1, kv2) {
-    kv1 = rmr:::split.keyval(kv1)
-    kv2 = rmr:::split.keyval(kv2)
+    kv1 = rmr2:::split.keyval(kv1)
+    kv2 = rmr2:::split.keyval(kv2)
     o1 = order(unlist(keys(kv1)))  
     o2 = order(unlist(keys(kv2)))
     isTRUE(all.equal(keys(kv1)[o1], keys(kv2)[o2], tolerance=1e-4, check.attributes=FALSE)) &&
@@ -34,7 +34,7 @@ for (be in c("local", "hadoop")) {
     function(kv) {
       kv.cmp(kv, 
              from.dfs(to.dfs(kv)))},
-            generators = list(rmr:::tdgg.keyval()),
+            generators = list(rmr2:::tdgg.keyval()),
             sample.size = 10)
   
   ## csv
@@ -69,7 +69,7 @@ for (be in c("local", "hadoop")) {
     else {
       kv1 = from.dfs(mapreduce(input = to.dfs(kv)))
       kv.cmp(kv, kv1)}},
-            generators = list(rmr:::tdgg.keyval()),
+            generators = list(rmr2:::tdgg.keyval()),
             sample.size = 10)
   
   ##put in a reduce for good measure
@@ -79,7 +79,7 @@ for (be in c("local", "hadoop")) {
       kv1 = from.dfs(mapreduce(input = to.dfs(kv),
                                 reduce = to.reduce(identity)))
       kv.cmp(kv, kv1)}},
-            generators = list(rmr:::tdgg.keyval()),
+            generators = list(rmr2:::tdgg.keyval()),
             sample.size = 10)
   
 #   for(fmt in c("json", "sequence.typedbytes")) {

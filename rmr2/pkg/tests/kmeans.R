@@ -67,4 +67,4 @@ for(be in c("local", "hadoop")) {
 ## @knitr kmeans.end
 
 # would love to take this step but kmeans in randomized in a way that makes it hard to be completely reprodubile
-#stopifnot(rmr:::cmp(out[['hadoop']], out[['local']]))
+#stopifnot(rmr2:::cmp(out[['hadoop']], out[['local']]))

@@ -1,4 +1,4 @@
-useDynLib(rmr)
+useDynLib(rmr2)
 export(mapreduce)
 export(from.dfs, to.dfs)
 export(equijoin)

@@ -141,31 +141,31 @@ rmr.stream = function(
   
   input.reader = 
     function()
-      rmr:::make.keyval.reader(
+      rmr2:::make.keyval.reader(
         input.format$mode, 
         input.format$format, 
         keyval.length = keyval.length)
   output.writer = 
     function()
-      rmr:::make.keyval.writer(
+      rmr2:::make.keyval.writer(
         output.format$mode, 
         output.format$format)
     
   default.reader = 
     function() 
-      rmr:::make.keyval.reader(
+      rmr2:::make.keyval.reader(
         default.input.format$mode, 
         default.input.format$format, 
         keyval.length = keyval.length)
   default.writer = 
     function() 
-      rmr:::make.keyval.writer(
+      rmr2:::make.keyval.writer(
         default.output.format$mode, 
         default.output.format$format)
  
   ')  
   map.line = '  
-  rmr:::map.loop(
+  rmr2:::map.loop(
     map = map, 
     keyval.reader = input.reader(), 
     keyval.writer = 
@@ -175,13 +175,13 @@ rmr.stream = function(
         default.writer()},
     profile = profile.nodes)'
   reduce.line  =  '  
-  rmr:::reduce.loop(
+  rmr2:::reduce.loop(
     reduce = reduce, 
     keyval.reader = default.reader(), 
     keyval.writer = output.writer(),
     profile = profile.nodes)'
   combine.line = '  
-  rmr:::reduce.loop(
+  rmr2:::reduce.loop(
     reduce = combine, 
     keyval.reader = default.reader(),
     keyval.writer = default.writer(), 
