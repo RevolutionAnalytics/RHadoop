@@ -16,7 +16,7 @@ A generalized form of equijoin, hybrid between the SQL brethen and mapreduce
                  to.map(identity), reduce = function(k, values.left,
                  values.right) keyval(k, merge(values.left,
                  values.right, by = NULL)), reduce.all = function(k,
-                 vl, vr) keyval(k, list(left = vl, right = vr)))}
+                 vl, vr) keyval(k, list(list(left = vl, right = vr))))}
 \arguments{\item{left.input}{The left side input to the join.}
   \item{right.input}{The right side input to the join.}
   \item{input}{The only input in case of a self join. Mutually exclusive with the previous two.}

@@ -128,8 +128,7 @@ to.dfs =
   function(
     kv, 
     output = dfs.tempfile(), 
-    format = 
-      make.output.format("native")) {
+    format = "native") {
     
     kv = as.keyval(kv)
     tmp = tempfile()

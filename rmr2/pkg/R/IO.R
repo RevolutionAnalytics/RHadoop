@@ -94,8 +94,8 @@ typed.bytes.output.format = function(kv, con){
   warning("format not updated to new API")
   writeBin(
     typed.bytes.writer({
-      k = to.list(k)
-      v = to.list(v)
+      k = as.list(k)
+      v = as.list(v)
       interleave(kv)}),
     con)}
 

@@ -22,4 +22,4 @@ Output, defaults to the same as \code{\link{mapreduce}} output}
 Same as for \code{\link{mapreduce}}.
 }
 
-\notes{Scatter discards keys. This is a limitation that should be addressed in the future}
+\section{Known Limitations}{Scatter discards keys. This is a limitation that should be addressed in the future}

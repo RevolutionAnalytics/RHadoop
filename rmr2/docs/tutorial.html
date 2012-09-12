@@ -1,9 +1,8 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 <!-- saved from url=(0014)about:internet -->
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
 <title>Mapreduce in R</title>
 
@@ -191,31 +190,23 @@ hljs.initHighlightingOnLoad();
 <p>Conceptually, mapreduce is not very different than a combination of lapplys and a tapply: transform elements of a list, compute an index &mdash; key in mapreduce jargon &mdash; and process the groups thus defined. Let&#39;s start with a simple lapply example:</p>
 
 <pre><code class="r">  small.ints = 1:1000
-  lapply(small.ints, function(x) x^2)
+  sapply(small.ints, function(x) x^2)
 </code></pre>
 
 <p>The example is trivial, just computing the first 10 squares, but we just want to get the basics here, there are interesting examples later on. Now to the mapreduce equivalent:</p>
 
 <pre><code class="r">  small.ints = to.dfs(1:1000)
-  mapreduce(input = small.ints, map = function(k,v) keyval(v, v^2))
+  mapreduce(input = small.ints, map = function(k,v) cbind(v,v^2))
 </code></pre>
 
-<p>This is all it takes to write your first mapreduce job in <code>rmr</code>. There are some difference that we will go through, but the first thing to notice is that it isn&#39;t all that different, and just two lines of code. There are some superficial differences and<br/>
-some more fundamental ones. The first line puts the data into HDFS, where the bulk of the data has to be for mapreduce to operate on. Of course, we are unlikely to write out big data with<br/>
-<code>to.dfs</code>, certainly not in a scalable way. <code>to.dfs</code> is nonetheless very useful for a variety of uses like writing test cases, REPL and HPC-type uses of mapreduce &mdash; that<br/>
-is, small data but big CPU demands. <code>to.dfs</code> can put the data in a file of your own choosing, but if you don&#39;t specify one it will create tempfiles and clean them up when done. The return value is<br/>
-a an object that you can use as a &ldquo;big data&rdquo; object. You can assign it to variables, pass it to functions, mapreduce jobs or read it back in. Now onto the second line. It has <code>mapreduce</code> replace<br/>
-<code>lapply</code>. We prefer named arguments with <code>mapreduce</code> because there&#39;s quite a few possible arguments, but one could do otherwise. The input is the variable <code>out</code> which contains the output<br/>
-of <code>to.dfs</code>, that is our small number data set in its HDFS version, but there are other choices as we will see. The function to apply, which is called a map function in contrast with the reduce<br/>
-function, which we are not using here, is a regular R function with a few constraints:</p>
+<p>This is all it takes to write your first mapreduce job in <code>rmr</code>. There are some difference that we will go through, but the first thing to notice is that it isn&#39;t all that different, and just two lines of code. There are some superficial differences and some more fundamental ones. The first line puts the data into HDFS, where the bulk of the data has to be for mapreduce to operate on. Of course, we are unlikely to write out big data with <code>to.dfs</code>, certainly not in a scalable way. <code>to.dfs</code> is nonetheless very useful for a variety of uses like writing test cases, learning and debugging. <code>to.dfs</code> can put the data in a file of your own choosing, but if you don&#39;t specify one it will create tempfiles and clean them up when done. The return value is something we call a <em>big data object</em>. You can assign it to variables, pass it to functions, mapreduce jobs or read it back in. It is a stub, that is the data is not in memory, only some information that helps finding and managing the data. This way you can refer to very large data sets that would exceed the memory limits. Now onto the second line. It has <code>mapreduce</code> replace <code>lapply</code>. We prefer named arguments with <code>mapreduce</code> because there&#39;s quite a few possible arguments, but one could do otherwise. The input is the variable <code>small.ints</code> which contains the output of <code>to.dfs</code>, that is our small number data set in its HDFS version, but there are other choices as we will see. The function to apply, which is called a map function in contrast with the reduce function, which we are not using here, is a regular R function with a few constraints:</p>
 
 <ol>
-<li>It&#39;s a function of two arguments, a key and a value</li>
-<li>It returns a key value pair as returned by the helper function <code>keyval</code>, which takes any two R objects as arguments; you can also return a list of such objects, or <code>NULL</code>.</li>
+<li>It&#39;s a function of two arguments, a collection of keys and one of values</li>
+<li>It returns key value pairs as defined by the helper function <code>keyval</code>, which can have vectors, lists, matrices or data.frames as arguments; you can also return <code>NULL</code>. Anything else will be converted with a call to <code>keyval(NULL,x)</code>. This is not allowed in the map function when the reduce is function is specified and under no circumstance in the combine function, since specifying the key is necessary for the shuffle phase.</li>
 </ol>
 
-<p>In this example, we are not using the key at all, only the value, but we still need both to support the general mapreduce case. <br/>
-The return value is an object, and you can pass it as input to other jobs or read it into memory (watch out, not good for big data) with <code>from.dfs</code>. <code>from.dfs</code> is complementary <code>to.dfs</code>. It returns a list of key-value pairs, which is the most general data type that mapreduce can handle. If you prefer data frames to lists, you can instruct <code>from.dfs</code> to perform a conversion to data frames, which will cover many many important use cases but is not as general as a list of pairs (structured vs. unstructured case). <code>from.dfs</code> is useful in defining map reduce algorithms whenever a mapreduce job produces something of reasonable size, like a summary, that can fit in memory and needs to be inspected to decide on the next steps, or to visualize it.</p>
+<p>In this example, we are not using the keys at all, only the value, but we still need both to support the general mapreduce case. The return value is big data object, and you can pass it as input to other jobs or read it into memory (watch out, it will fail for big data!) with <code>from.dfs</code>. <code>from.dfs</code> is complementary <code>to.dfs</code> and returns a key-value pair collection. <code>from.dfs</code> is useful in defining map reduce algorithms whenever a mapreduce job produces something of reasonable size, like a summary, that can fit in memory and needs to be inspected to decide on the next steps, or to visualize it.</p>
 
 <h2>My second mapreduce job</h2>
 
@@ -231,25 +222,31 @@ The return value is an object, and you can pass it as input to other jobs or rea
   from.dfs(mapreduce(input = groups, map = function(k,v) keyval(v, 1), reduce = function(k,vv) keyval(k, length(vv))))
 </code></pre>
 
-<p>First we move the data into HDFS with <code>to.dfs</code>. As we said earlier, this is not the normal way in which big data will enter HDFS; it is normally the responsibility of scalable data collection systems such as Flume or Sqoop. In that case we would just specify the HDFS path to the data as input to <code>mapreduce</code>. But in this case the input is the variable <code>groups</code> which points to where the data is temporarily stored, and the naming and clean up is taken care of for you. All you need to know is how you can use it. There isn&#39;t a map function, so it is set to default which is like an identity but consistent with the map requirements, that is <code>function(k,v) keyval(k,v)</code>. The reduce function takes two arguments, one is a key and the other is a list of all the values associated with that key. Like in the map case, the reduce function can return <code>NULL</code>, a key value pair as generated by the function <code>keyval</code> or a list thereof. The default is somewhat equivalent to an identity function, under the constraints of a reduce function, that is <code>function(k, vv) lapply(vv, function(v) keyval(k,v))</code>. In this case they key is one possible outcome of the binomial and the values are all <code>NULL</code> and the only important thing is how many there are, so <code>length</code> gets the job done. Looking back at this second example, there are some small differences with <code>tapply</code> but the overall complexity is very similar.</p>
+<p>First we move the data into HDFS with <code>to.dfs</code>. As we said earlier, this is not the normal way in which big data will enter HDFS; it is normally the responsibility of scalable data collection systems such as Flume or Sqoop. In that case we would just specify the HDFS path to the data as input to <code>mapreduce</code>. But in this case the input is the variable <code>groups</code> which contains a big data object, which keep track of where the data is and does the clean up when the data is no longer needed. There isn&#39;t a map function, so it is set to default which is like an identity but consistent with the map requirements, that is <code>function(k,v) keyval(k,v)</code>. The reduce function takes two arguments, one is a key and the other is a collection of all the values associated with that key. It could be one of vector, list, data frame or matrix depending on what was returned by the map function. Like in the map case, the reduce function can return <code>NULL</code>, a key value pair as generated by the function <code>keyval</code> or a list thereof. The default is no reduce, that is the output of the map is the output of mapreduce. In this case the keys are realizations of the binomial and the values are all <code>1</code> and the only important thing is how many there are, so <code>length</code> gets the job done. Looking back at this second example, there are some small differences with <code>tapply</code> but the overall complexity is very similar.</p>
 
 <h2>Wordcount</h2>
 
 <p>The word count program has become a sort of &ldquo;hello world&rdquo; of the mapreduce world. For a review of how the same task can be accomplished in several languages, but always for map reduce, see this <a href="http://blog.piccolboni.info/2011/04/looking-for-map-reduce-language.html">blog entry</a>.</p>
 
-<pre><code class="r">wordcount = function (input, output = NULL, pattern = &quot; &quot;) {
-  mapreduce(input = input ,
-            output = output,
-            input.format = &quot;text&quot;,
-            map = function(k,v) {
-                      lapply(
-                         strsplit(
-                                  x = v,
-                                  split = pattern)[[1]],
-                         function(w) keyval(w,1))},
-                reduce = function(k,vv) {
-                    keyval(k, sum(unlist(vv)))},
-                combine = T)}
+<pre><code class="r">wordcount = 
+  function (input, output = NULL, pattern = &quot; &quot;) {
+    wc.map = 
+      function(k,v) {
+        keyval(
+          unlist(
+            strsplit(
+              x = v,
+              split = pattern)),
+          1)}
+    wc.reduce =
+      function(k,vv) {
+        keyval(k, sum(vv))}
+    mapreduce(input = input ,
+              output = output,
+              input.format = &quot;text&quot;,
+              map = wc.map,
+              reduce = wc.reduce,
+              combine = T)}
 </code></pre>
 
 <p>We are defining a function, <code>wordcount</code>, that encapsulates this job. This may not look like a big deal but it is important. Our main goal was not simply to make it easy to run a mapreduce job but to make mapreduce jobs first class citizens of the R environment and to make it easy to create abstractions based on them. For instance, we wanted to be able to assign the result of a mapreduce job to a variable &mdash; and I mean <em>the result</em>, not some error code or diagnostics &mdash; and to create complex expressions including mapreduce jobs. We take the first step here by creating a function that is itself a job, can be chained with other jobs, executed in a loop etc.  </p>
@@ -267,14 +264,26 @@ The return value is an object, and you can pass it as input to other jobs or rea
 <p>Now onto an example from supervised learning, specifically logistic regression by gradient descent. Again we are going to create a function that encapsulates this algorithm. </p>
 
 <pre><code class="r">logistic.regression = function(input, iterations, dims, alpha){
-  plane = rep(0, dims)
+  plane = t(rep(0, dims))
   g = function(z) 1/(1 + exp(-z))
+  lr.map =          
+    function(k, M) {
+      Y = M[,&#39;y&#39;] 
+      X = M[,c(&quot;x1&quot;,&quot;x2&quot;)]
+      keyval(1,
+             Y * X * g(-Y * as.numeric(X %*% t(plane))))}
+  lr.reduce =
+    function(k, Z) keyval(k, t(as.matrix(apply(Z,2,sum))))
   for (i in 1:iterations) {
-    gradient = from.dfs(mapreduce(input,
-      map = function(k, v) keyval (1, v$y * v$x * g(-v$y * (plane %*% v$x))),
-      reduce = function(k, vv) keyval(k, apply(do.call(rbind,vv),2,sum)),
-      combine = T))
-    plane = plane + alpha * gradient[[1]]$val }
+    gradient = 
+      values(
+        from.dfs(
+          mapreduce(
+            input,
+            map = lr.map,     
+            reduce = lr.reduce,
+            combine = T)))
+    plane = plane + alpha * gradient }
   plane }
 </code></pre>
 
@@ -302,39 +311,11 @@ The return value is an object, and you can pass it as input to other jobs or rea
 
 <p>We are talking about k-means and we are going to implement it in two parts: a function that controls the iterations and termination of the algorithm and one, essentially a mapreduce job, that does the grunt work of computing distances and electing centers. This is not a production ready implementation, but should be illustrative of the power of this package. You simply can not do this in pig or hive alone and it would take hundreds of lines of code in java.</p>
 
-<pre><code class="r">kmeans =
-  function(points, ncenters, iterations = 10, distfun = NULL, 
-           plot = FALSE, fast = F) {
-    if(is.null(distfun)) 
-      distfun = 
-        if (!fast) function(a,b) norm(as.matrix(a-b), type = &#39;F&#39;)
-        else fast.dist  
-    if (fast) kmeans.iter = kmeans.iter.fast
-    newCenters = kmeans.iter(points, distfun, ncenters = ncenters)
-    for(i in 1:iterations)
-      newCenters = kmeans.iter(points, distfun, centers = newCenters)
-    newCenters}
-</code></pre>
-
 <p>This is the controlling program. Most of its lines are executed locally, meaning in the same interpreter where the <code>kmeans</code> function is called. We define a function that  takes a set of points, a desired number of centers, a number of iterations (a convergence test would be better, just for illustration purposes) and a distance function defaulting to euclidean distance.</p>
 
 <p>This function uses another function, <code>kmeans.iter</code> which implements one iteration of kmeans. It can be called in two flavors. In the first call, only the number of centers is specified. The function returns  a new set of centers.</p>
 
 <p>Now let&#39;s look at the main loop. It gets executed a user-set number of times, for simplicity&#39;s sake, but implementing a convergence criterion should be easy. Its body is just a call to the other flavor of <code>kmeans.iter</code>, where a set of centers rather than just the number of centers is provided. and the return value is, as before, a new set of centers. Let&#39;s now look at <code>kmeans.iter</code>, the real workhorse.</p>
-
-<pre><code class="r">kmeans.iter =
-  function(points, distfun, ncenters = dim(centers)[1], centers = NULL) {
-    from.dfs(mapreduce(input = points,
-                         map = 
-                           if (is.null(centers)) {
-                             function(k,v) keyval(sample(1:ncenters,1),v)}
-                           else {
-                             function(k,v) {
-                               distances = apply(centers, 1, function(c) distfun(c,v))
-                               keyval(centers[which.min(distances),], v)}},
-                         reduce = function(k,vv) keyval(NULL, apply(do.call(rbind, vv), 2, mean))),
-             structured = T)}
-</code></pre>
 
 <p>This is one iteration of kmeans, implemented as a map reduce job. We are already familiar with all the parameters to this function and we know what <code>from.dfs</code> does, in this case it moves new cluster centers computed by a mapreduce job and stored in HDFS into main memory. Here we are assuming we have a lot of points, as in big data, but a small number of centers, as in they fit in RAM. It&#39;s a common case but it might not cover all applications.</p>
 
@@ -342,14 +323,15 @@ The return value is an object, and you can pass it as input to other jobs or rea
 
 <p>To perform a sample run, we need some data. We can create it very easily from the R prompt:</p>
 
-<pre><code class="r">  input = to.dfs(lapply(1:1000, function(i) keyval(NULL, c(rnorm(1, mean = i%%3, sd = 0.1), 
-                                                         rnorm(1, mean = i%%4, sd = 0.1)))))
+<pre><code class="r">  input = 
+    do.call(rbind, rep(list(matrix(rnorm(10, sd = 10), ncol=2)), 20)) + 
+    matrix(rnorm(200), ncol =2)
 </code></pre>
 
 <p>That is, create some arbitrary data in the form of a list of key value pairs, the key here doesn&#39;t really matter and write it out to hdfs.<br/>
 And this is a simple test of what we&#39;ve just implemented, </p>
 
-<pre><code class="r">    kmeans(input, 12, iterations = 5)
+<pre><code class="r">    kmeans.mr(to.dfs(input), num.clusters  = 12, num.iter= 5)
 </code></pre>
 
 <p>With a little extra work you can even get pretty visualizations like <a href="kmeans.gif">this one</a>.</p>
@@ -390,17 +372,9 @@ And this is a simple test of what we&#39;ve just implemented, </p>
 
 <p>We start implementing the transpose with a tiny auxiliary function that swaps the elements of a two element list. You guessed right that this is going to be used to swap the raw index with the column index.</p>
 
-<pre><code class="r">swap = function(x) list(x[[2]], x[[1]])
-</code></pre>
-
 <p>Then we define the map function for the transpose map reduce job. It uses a higher order function, <code>to.map</code>, to turn two ordinary functions into a map. This is possible because they act independently on the key and on the value. What this says is: swap the elements of the key and let the value through. We could have written it just as easily without <code>to.map</code>, but once you are familiar with it it is more readable this way.</p>
 
 <p>Then we have the map reduce transpose job which is abstracted into a function transpose, that we can use like any other job from now on. </p>
-
-<pre><code class="r">transpose = function(input, output = NULL){
-  mapreduce(input = input, output = output, map = transpose.map)
-}
-</code></pre>
 
 <p>It takes an input, an optional output and returns the return value of the map reduce job. It passes input and output to it and the map function we&#39;ve just defined and that&#39;s all.</p>
 
@@ -444,23 +418,7 @@ a_{ij}=\sum_k b_{ik} c_{kj}
 
 <p>We first define the map function. It comes in two flavors, wether you want to join on the column index or on the row index, and in a matrix multiplication we need both. So here is a higher order function that generates both maps. It just produces a key-value pair with as key the desired index and as value a list with all the information, row, column and element, which we will need later on.</p>
 
-<pre><code class="r">mat.mult.map = function(i) function(k,v) keyval(k[[i]], list(pos = k, elem = v))
-</code></pre>
-
 <p>And finally to the actual matrix multiplication. It is implemented as the composition of two jobs. One does the multiplications and the other the sums. There are other ways of implementing it but this is the most straightforward.</p>
-
-<pre><code class="r">mat.mult = function(left, right, result = NULL) {
-  mapreduce(
-                input =
-                equijoin(left.input = left, right.input = right,
-                                 map.left = mat.mult.map(2),
-                                 map.right = mat.mult.map(1), 
-                                 reduce = function(k, vvl, vvr) 
-                                   do.call(c, lapply(vvl, function(vl)
-                                     lapply(vvr, function(vr) keyval(c(vl$pos[[1]], vr$pos[[2]]), vl$elem*vr$elem))))),
-                output = result,
-                reduce = to.reduce(identity, function(x) sum(unlist(x))))}
-</code></pre>
 
 <p>The first step is a join on the the column index for the left side  and the row index from the right side, so that we bring together pairs of the  form  \( (b_{ik}, c_{kj}) \). In the reduce we perform the multiplication and return a record with a key of (i,j) and a value equal to the multiplication. </p>
 
@@ -470,17 +428,7 @@ a_{ij}=\sum_k b_{ik} c_{kj}
 
 <p>We need a simple function to turn matrices represented in list form and sparse format, that we use with mapreduce, into regular dense in memory R matrices. We rely on a feature of <code>from.dfs</code> that turns lists into data frames whenever possible so that this function just has to go from dataframe to dense matrix, using the <code>Matrix</code> package and <code>sparseMatrix</code> in particular.</p>
 
-<pre><code class="r">to.matrix = function(df) as.matrix(sparseMatrix(i=df$key[,1], j=df$key[,2], x=df$val[,1]))
-</code></pre>
-
 <p>Then our sought after semi-big-data LLS solution</p>
-
-<pre><code class="r">linear.least.squares = function(X,y) {
-  Xt = transpose(X)
-  XtX = from.dfs(mat.mult(Xt, X), to.data.frame = TRUE)
-  Xty = from.dfs(mat.mult(Xt, y), to.data.frame = TRUE)
-  solve(to.matrix(XtX),to.matrix(Xty))}
-</code></pre>
 
 <p>We start with a transpose, compute the normal equations,  left and right side, and call solve on the converted data.</p>
 

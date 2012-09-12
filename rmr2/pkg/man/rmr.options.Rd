@@ -6,14 +6,14 @@ Function to set and get package options}
 \description{
 set and get package options}
 \usage{
-rmr.options(backend = c("hadoop", "local"), profile.nodes = NULL, keyval.length = NULL)
+rmr.options(backend = c("hadoop", "local"), profile.nodes = FALSE, keyval.length = 1000)
 %-, depend.check = NULL, managed.dir = NULL)
 }
 \arguments{
   \item{...}{Names of options to get values of, as character}
   \item{backend}{One of "hadoop" or "local", the latter being implemented entirely in the current R interpreter, sequentially, for learning and debugging.}
   \item{profile.nodes}{Collect profiling information when running additional R interpreters (besides the current one) on the cluster. No effect on the local backend, use Rprof instead}
-  \item{keyval.length}{How many records to read into a single, key-value pair or how many to write to when the key is \code{NULL}. Controls both \code{\link{from.dfs}} and \code{\link{to.dfd}} and \code{\link{mapreduce}} behavior.}
+  \item{keyval.length}{How many records to read into a single, key-value pair or how many to write to when the key is \code{NULL}. Controls both \code{\link{from.dfs}} and \code{\link{to.dfs}} and \code{\link{mapreduce}} behavior.}
  %\item{depend.check}{Activate makefile-like dependency checking (under construction)}
  % \item{managed.dir}{Where to put intermediate result when makefile-like features are activated}
 }

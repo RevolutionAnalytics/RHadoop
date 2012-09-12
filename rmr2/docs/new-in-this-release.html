@@ -4,7 +4,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
-<title>What&#39;s new in 1.4</title>
+<title>What&#39;s new in 2.0</title>
 
 <base target="_blank"/>
 
@@ -142,26 +142,26 @@ hr {
 </head>
 
 <body>
-<p><em>This document is being used as a planning document to help in developing 1.4. These features and changes are not yet implemented even in the dev or any other branch</em></p>
+<p><em>This document is being used as a planning document to help in developing 2.0. These features and changes are mostly implemented in the rmr-2.0 branch</em></p>
 
-<h1>What&#39;s new in 1.4</h1>
+<h1>What&#39;s new in 2.0</h1>
 
-<p>With 1.3 we added support for vectorized processing and structured data, and the feedback from users was encouraging. At the same time. we didn&#39;t want to increase the complexity of the API. With this version we tried to define a synthesis between all the modes (element-at-a-time, vectorized and structured) present in 1.3, with the following goals:</p>
+<p>With 1.3 we added support for vectorized processing and structured data, and the feedback from users was encouraging. At the same time, we increased the complexity of the API. With this version we tried to define a synthesis between all the modes (record-at-a-time, vectorized and structured) present in 1.3, with the following goals:</p>
 
 <ul>
 <li>bring the footprint of the API back to 1.2 levels. </li>
 <li>make sure that no matter what the corner of the API one is exercising, he or she can rely on simple properties and invariants; writing an identity mapreduce should be trivial.</li>
-<li>encourage writing the most efficient and idiomatic R code from the start, not writing against a simple API first and then developing a vectorized version for speed. </li>
+<li>encourage writing the most efficient and idiomatic R code from the start, as opposed to writing against a simple API first and then developing a vectorized version for speed. </li>
 </ul>
 
 <p>This is how we tried to get there:</p>
 
 <ul>
-<li>Hadoop data is no longer seen as a big list where the elements can be any pair (key and value) of R objects, but as an on disk representation of a variety of R data structures: lists, atomic vectors, matrices or data frames. Which data type will be determined by the type of the R variable passed to the to.dfs function or returned by map and reduce, or assigned based on the format (csv files are read as data frames, text as character vectors, JSON TBD). Each key-value pair holds a subrange of the data (range of rows where applicable)</li>
-<li><code>The</code>keyval<code>function is always vectorized. The data payload is in the value part of a key-value pair. The key is construed as an index to use in splitting the data for its on-disk representation, particularly for the shuffle operation (the grouping that comes before the reduce phase). The model, albeit with some differences, is the R function split. So if</code>map<code>returns</code>keyval (1, matrix(&hellip;))<code>, the second arguments of some reduce call will be another matrix that has the first as a subrange of rows. If you don&#39;t want that to happen because, say, you need to sum all the smaller matrices together, not stack them, do not fret. Have your map function return</code>keyval(1, list(matrix(&hellip;)))<code>and on the reduce side do a</code>Reduce(&ldquo;+&rdquo;, vv)<code>where</code>vv is the second argument to a reduce. Get the idea? In the first case one is building a large matrix from smaller ones, in the second just collecting the matrices to sum them up. </li>
+<li>Hadoop data is no longer seen as a big list where the elements can be any pair (key and value) of R objects, but as an on disk representation of a variety of R data structures: lists, atomic vectors, matrices or data frames, split according to the key. Which data type will be determined by the type of the R variable passed to the <code>to.dfs</code> function or returned by map and reduce, or assigned based on the format (csv files are read as data frames, text as character vectors, JSON TBD). Each key-value pair holds a subrange of the data (range of rows where applicable)</li>
+<li>The <code>keyval</code> function is always vectorized. The data payload is in the value part of a key-value pair. The key is construed as an index to use in splitting the data for its on-disk representation, particularly as it concerns the shuffle operation (the grouping that comes before the reduce phase). The model, albeit with some differences, is the R function split. So if <code>map</code> returns <code>keyval (1, matrix(...))</code>, the second arguments of some reduce call will be another matrix that has the matrix returned by map as a subrange of rows. If you don&#39;t want that to happen because, say, you need to sum all the smaller matrices together, not stack them, do not fret. Have your map function return <code>keyval(1, list(matrix(...)))</code> and on the reduce side do a <code>Reduce(&quot;+&quot;, vv)</code> where <code>vv</code> is the second argument to a reduce. Get the idea? In the first case one is building a large matrix from smaller ones, in the second just collecting the matrices to sum them up. <code>keyval(NULL, x)</code> or, equivalently <code>keyval(x)</code> means that we don&#39;t care how the data is split. This is not allowed in the map or combine functions, where defining the grouping is important.</li>
 <li>As a consequence, all lists of key-value pairs have been ostracized from the API. One <code>keyval</code> call is all that can and needs to be called in each map and reduce call.</li>
 <li>The <code>mapreduce</code> function is always vectorized, meaning that each <code>map</code> call processes a range of elements or, when applicable, rows of data and each <code>reduce</code> call processes all the data associated with the same key. Please note that we are talking always in terms of R dimensions, not numbers of on disk records, providing some independence from the exact format of the data.</li>
-<li>The <code>structured</code> option which converted lists into data.frames has no reason to exist any more. What started as list will be seen by the user as list, data frames as data frames etc. throughout a mapreduce, removing the need for complex conversions.</li>
+<li>The <code>structured</code> option which converted lists into data.frames has no reason to exist any more. What started as list will be seen by the user as list, data frames as data frames etc. throughout a mapreduce, removing the need for complex conversions. </li>
 </ul>
 
 <h2>Other improvements</h2>
@@ -169,7 +169,7 @@ hr {
 <ul>
 <li>The source has been deeply refactored. The subdivision of the source into many files (<code>IO.R       extras.R        local.R         quickcheck-rmr.R
 basic.R         keyval.R        mapreduce.R     streaming.R</code>) suggests a modularization that is not complete and not enforced by the language, but helps reduce the complexity of the implementation.</li>
-<li>The testing code (not the actual tests) has been factored out as a <code>quickcheck</code> package, inspired by Haskell&#39;s module by the same name. For now it is neither supported nor documented, but it belonged in a separate package.</li>
+<li>The testing code (not the actual tests) has been factored out as a <code>quickcheck</code> package, inspired by Haskell&#39;s module by the same name. For now it is neither supported nor documented, but it belonged in a separate package. </li>
 <li>The <code>gather</code> function helps you collect all the data into a single file in sorted order. Be advised this requires the use of a single reducer, so it is non-scalable. This would normally be the last step before bringing the data on the local file system. Some users have expressed a preference for doing that rather than using <code>from.dfs</code> which bring the data into main memory.</li>
 <li>When the <code>reduce</code> argument to <code>mapreduce</code> is <code>NULL</code> the mapreduce job is going to be map-only rather than have an identity reduce. </li>
 <li>The <em>war on boilerplate code</em> continues. <code>keyval(v)</code>, with a single argument,  means <code>keyval(NULL,v)</code>. When you provide a value that is not a <code>keyval</code> return value where one is expected, one is generated with <code>keyval(v)</code> where v was whatever argument has been provided. For instance <code>to.dfs(matrix(...))</code> means <code>to.dfs(keyval(NULL, matrix(...)))</code>.</li>
