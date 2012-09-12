@@ -20,7 +20,7 @@ reduce functions.}
 we hate boilerplate code. That's where the functions documented herein can help. They take one or two functions of a single argument and
 return a valid map or reduce function. In the case of \code{to.map} when two functions are specified they are applied independently to the
 key and the value and the return values are returned as a key-value pair; when only one is, it is applied to the key-value pair. For
-\code{to.reduce} the behavior is the same with the only difference the a single value is replaced by a list of values. }
+\code{to.reduce} the behavior is the same. }
 
 \examples{ 
 ##The identity map: 
@@ -29,5 +29,5 @@ to.map(identity)
 ##Replace key with mod 10 of the key and pass the value along: 
 to.map(function(x) x \%\% 10, identity ) 
 ##Sum up all the values for the same key: 
-to.reduce(identity, function(vv) sum(unlist(vv)))
+to.reduce(identity, function(vv) sum(vv))
 }

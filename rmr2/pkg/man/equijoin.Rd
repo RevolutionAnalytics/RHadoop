@@ -22,22 +22,16 @@ A generalized form of equijoin, hybrid between the SQL brethen and mapreduce
   \item{input}{The only input in case of a self join. Mutually exclusive with the previous two.}
   \item{output}{Where to write the output.}
   \item{outer}{Whether to perform an outer join, one of the usual three types, left, right or full.}
-  \item{map.left}{Function to apply to each record from the left input, follows same conventions as any map function. The returned key
-will become the join key.}
-  \item{map.right}{Function to apply to each record from the right input, follows same conventions as any map function. The returned key
-will become the join key.}
-  \item{reduce}{Function to be applied, key by key, on the lists of values associated with that key, one from the right side as produced
-by map.left and the other from the right side and map.right. This is a more mapreduce like API, very much like a reduce but with two lists
-of values, all sharing the same key. Returns 0 or more keyval pairs like any reduce function.}
+  \item{map.left}{Function to apply to each record from the left input, follows same conventions as any map function. The returned keys
+will become join keys.}
+  \item{map.right}{Function to apply to each record from the right input, follows same conventions as any map function. The returned keys
+will become join keys.}
+  \item{reduce}{Function to be applied, key by key, on the values associated with that key. Those values are in the arguments \code{values.left} \code{values.right} and their type is determined by the type returned by the map functions, separately for the left side and the right side. This is a mapreduce like API, where you have explicit access to the grouped values and can do whatever you want with them. The default is appropriate for data frames and is equivalent to a cartesian product. The allowable return values are like those of any reduce function, see \code{\link{mapreduce}}. Specify either this or the next argument.}
   \item{reduce.all}{Function to be applied to each triple comprising a key, a value associated with that key from the left input and a
-value associated with that key from the right input. This is more an SQL like interface, like an equijoin. Returns 0 or more keyval pairs
-like any reduce function.}
+value associated with that key from the right input. This is more an SQL like interface, like an equijoin, whereby the user code has access to individual values associated with a key instead of a complete group. The allowable return values are like those of any reduce function, see \code{\link{mapreduce}}. Specify either this or the previous argument.}
 }
 
-\value{If output is specified, returns output itself. Otherwise, an object that can be used as input to \code{\link{from.dfs}} or
-\code{mapreduce}
-
-}
+\value{If output is specified, returns output itself. Otherwise, a \code{\link{big.data.object}}}
 
 
 \section{Warning}{Doesn't work with multiple inputs like \code{mapreduce}}

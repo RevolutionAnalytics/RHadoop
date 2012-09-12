@@ -21,3 +21,5 @@ Output, defaults to the same as \code{\link{mapreduce}} output}
 \value{
 Same as for \code{\link{mapreduce}}.
 }
+
+\notes{Scatter discards keys. This is a limitation that should be addressed in the future}
