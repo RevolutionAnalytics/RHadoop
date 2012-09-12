@@ -18,7 +18,7 @@
 scatter = function(input, output = NULL, ...)
   mapreduce(input, 
             output, 
-            map = function(k, v) keyval(sample(1:1000, size=1000, replace = FALSE), keyval(k, v)), 
+            map = function(k, v) keyval(sample(1:1000, size = rmr2:::rmr.length(v), replace = TRUE), v), 
             reduce = function(k, vv) vv)
 
 gather = function(input, output = NULL, ...) {
@@ -29,7 +29,7 @@ gather = function(input, output = NULL, ...) {
             backend.parameters = backend.parameters,
             ...)}
             
-            ##optimizer
+##optimizer
 
 is.mapreduce = function(x) {
   is.call(x) && x[[1]] == "mapreduce"}
