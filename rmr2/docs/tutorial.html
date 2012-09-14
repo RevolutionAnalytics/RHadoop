@@ -183,7 +183,7 @@ hljs.initHighlightingOnLoad();
 
 <h2>My first mapreduce job</h2>
 
-<p>Conceptually, mapreduce is not very different than a combination of lapplys and a tapply: transform elements of a list, compute an index &mdash; key in mapreduce jargon &mdash; and process the groups thus defined. Let&#39;s start with a simple lapply example:</p>
+<p>Conceptually, mapreduce is not very different than a combination of <code>lapply</code>s and a <code>tapply</code>: transform elements of a list, compute an index &mdash; key in mapreduce jargon &mdash; and process the groups thus defined. Let&#39;s start with a simple <code>lapply</code> example:</p>
 
 <pre><code class="r">  small.ints = 1:1000
   sapply(small.ints, function(x) x^2)
@@ -208,7 +208,7 @@ hljs.initHighlightingOnLoad();
 
 <h2>My second mapreduce job</h2>
 
-<p>We&#39;ve just created a simple job that was logically equivalent to a lapply but can run on big data. That job had only a map. Now to the reduce part. The closest equivalent in R is arguably a tapply. So here is the example from the R docs:</p>
+<p>We&#39;ve just created a simple job that was logically equivalent to a <code>lapply</code> but can run on big data. That job had only a map. Now to the reduce part. The closest equivalent in R is arguably a <code>tapply</code>. So here is the example from the R docs:</p>
 
 <pre><code class="r">  groups = rbinom(32, n = 50, prob = 0.4)
   tapply(groups, groups, length)

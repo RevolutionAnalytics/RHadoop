@@ -10,7 +10,7 @@
 
 ## My first mapreduce job
   
-  Conceptually, mapreduce is not very different than a combination of lapplys and a tapply: transform elements of a list, compute an index &mdash; key in mapreduce jargon &mdash; and process the groups thus defined. Let's start with a simple lapply example:
+  Conceptually, mapreduce is not very different than a combination of `lapply`s and a `tapply`: transform elements of a list, compute an index &mdash; key in mapreduce jargon &mdash; and process the groups thus defined. Let's start with a simple `lapply` example:
  
 
 ```r
@@ -40,7 +40,7 @@ In this example, we are not using the keys at all, only the value, but we still 
 
 ## My second mapreduce job
 
-We've just created a simple job that was logically equivalent to a lapply but can run on big data. That job had only a map. Now to the reduce part. The closest equivalent in R is arguably a tapply. So here is the example from the R docs:
+We've just created a simple job that was logically equivalent to a `lapply` but can run on big data. That job had only a map. Now to the reduce part. The closest equivalent in R is arguably a `tapply`. So here is the example from the R docs:
 
 
 ```r
