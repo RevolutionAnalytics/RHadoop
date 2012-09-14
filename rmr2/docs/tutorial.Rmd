@@ -151,165 +151,40 @@ This is the basic equation we want to solve in the least square sense:
   
   But let's assume that X is too big to fit in memory, so we have to compute the transpose and matrix products using map reduce, then we can do the solve as usual on the results. This is our general plan.
 
-We are going to adopt the following representation for matrices, here in data frame form (behind the scenes it's still lists).
+Let's get some data first, potentially big data matrix `X` and a regular vector `y`:
 
-<pre>
-  key1 key2        val
-
-1     1    1  0.7595035
-2     1    2  1.1731512
-3     1    3  0.2112339
-4     2    1  0.2305024
-5     2    2 -0.5277821
-6     2    3 -2.4413680
-7     3    1 -0.8510856
-</pre>
-  
-  The key is the pair row, col and the value is the matrix element. In practice this representation makes sense only for sparse matrices, so in a real world implementation we might want to use a representation with a submatrix for each record, but this is  simpler to develop the ideas.
-
-We start implementing the transpose with a tiny auxiliary function that swaps the elements of a two element list. You guessed right that this is going to be used to swap the raw index with the column index.
-
-```{r linear.least.squares.swap}
-```
-  
-  
-  Then we define the map function for the transpose map reduce job. It uses a higher order function, `to.map`, to turn two ordinary functions into a map. This is possible because they act independently on the key and on the value. What this says is: swap the elements of the key and let the value through. We could have written it just as easily without `to.map`, but once you are familiar with it it is more readable this way.
-                          
-```{r linear.least.squares.transposeMap}
+```{r  LLS-data}
 ```
 
-Then we have the map reduce transpose job which is abstracted into a function transpose, that we can use like any other job from now on. 
+The next is a reusable reduce function that just sums a list of matrices, ignores the key.
 
-```{r linear.least.squares.transpose}
+```{r  LLS-sum}
 ```
 
-It takes an input, an optional output and returns the return value of the map reduce job. It passes input and output to it and the map function we've just defined and that's all.
+The big matrix is passed to the mapper in chunks of complete rows. Smaller crossproducts are computed for these submatrices and passed on to a single reducer, which sums them together. Since we have a single key a combiner is mandatory and since matrix sum is associative and commutatitve we certainly can use it here.
 
-
-### Detour: Relational Joins
-
-Now we would like to tackle matrix multiplication but we need a short detour first. This takes one step further in hadoop mastery as we need to combine and process two files into one map reduce job. By default mapreduce supports merging two inputs the way hadoop does, that is once can specify multiple inputs and the only guarantee is that every record will go through one mapper. No order or grouping of  any sort is guaranteed as the mappers are processing the input files.
-
-
-What we need here is a very orderly merging so that we can multiply matrix elements that share an index and then sum them together. It actually looks like a join on one specific index. It turns out that joins are a very important subtask in many mapreduce algorithms and are more or less supported in a number of hadoop dialects. A generalized equijoin is part of the rmr API:
-
-<pre>
-equijoin(
-  left.input = NULL,
-  right.input = NULL, 
-  input = NULL, 
-  output = NULL, 
-  outer = c("", "left", "right", "full"), 
-  map.left = to.map(identity), 
-  map.right = to.map(identity), 
-  reduce = function(k, values.left, values.right) do.call(c, lapply(values.left, function(vl)lapply(values.right, function(vr) reduce.all(k, vl, vr)))), 
-  reduce.all = function(k, vl, vr) keyval(k, list(left = vl, right = vr)))
-</pre>
-
-Instead of a single input, we have a `left.input` and `right.input`, as joins normally do, but in case we want to perform a self join, we can skip the first two arguments and specify only the third, `input`.
-
-Then we have an output, optional as usual, and we can specify different flavors of join such as in left outer, right outer or full outer as usual.
-
-Now to the interesting bits. This function is a bit relational join and a bit map reduce job. Instead of specifying join keys, we specify two separate map functions, one for the left input and one for the right input. Map functions, as usual, produce a key and a value. The join will be an equijoin on the keys. For each pair of matching records there will be a shared key and two values, one coming from each side. By default, we have simple pass-throguh or identity mappers.
-
-The reduce can be specified as usual, but an alternate interface is offered with `reduce.all` which is more SQL-like in that it is a join without a group by on the join key, whereas the reduce form implies a group by. This is a little advanced in a number of ways and also very reusable, so we made it part of the library even if it is built on top of `mapreduce`. No we are going to see its application to perform a matrix multiplication.
-
-### Linear Least Squares (continued)
-
-Back to our matrix multiplication task, which we will implement as an application of the equijoin just shown.
-
-a<sub>ij</sub> = &Sigma;<sub>k</sub> b<sub>ik</sub> c<sub>kj</sub>
-
-<!--$$
-A = BC\\
-a_{ij}=\sum_k b_{ik} c_{kj}
-$$-->
-
-We first define the map function. It comes in two flavors, wether you want to join on the column index or on the row index, and in a matrix multiplication we need both. So here is a higher order function that generates both maps. It just produces a key-value pair with as key the desired index and as value a list with all the information, row, column and element, which we will need later on.
-
-```{r linear.least.squares.mat.mult.map}
+```{r  LLS-XtX}
 ```
 
-And finally to the actual matrix multiplication. It is implemented as the composition of two jobs. One does the multiplications and the other the sums. There are other ways of implementing it but this is the most straightforward.
-   
-```{r linear.least.squares.mat.mult}
-```
-     
-The first step is a join on the the column index for the left side  and the row index from the right side, so that we bring together pairs of the  form  $(b_{ik}, c_{kj})$. In the reduce we perform the multiplication and return a record with a key of (i,j) and a value equal to the multiplication. 
-   
-   The following or outer mapreduce doesn't have an explicit map, that means it defaults to the pass-through one. The interesting thing is that, by default, the grouping will happen on the (i,j) pair, therefore grouping all the right products that need to be summed together.
+The same pretty much goes on also for vectory y, which is made available to the nodes according to normal scope rules.
 
-   We now have all the elements in place to solve LLS: mapreduce transpose and matrix multiplication and old fashioned solve().
-   
-   We need a simple function to turn matrices represented in list form and sparse format, that we use with mapreduce, into regular dense in memory R matrices. We rely on a feature of `from.dfs` that turns lists into data frames whenever possible so that this function just has to go from dataframe to dense matrix, using the `Matrix` package and `sparseMatrix` in particular.
-   
-```{r linear.least.squares.to.matrix}
+```{r  LLS-Xty}
 ```
 
-   Then our sought after semi-big-data LLS solution
-   
-```{r linear.least.squares}
+And finally we just need to call `solve`.
+
+```{r  LLS-solve}
 ```
-   
-   We start with a transpose, compute the normal equations,  left and right side, and call solve on the converted data.
-   
-## What we have learned
-   
-   We will summarize here a few ways in which we have used the functions in the library.
-   
-   Specify mapreduce jobs using familiar R functions:
-   <pre>
-   mapreduce(..., map = function(k,v)..., reduce = function(k,vv)...)
-   </pre>
-   
-   Compose jobs like functions
-   
-   <pre>
-   mapreduce(mapreduce(...
-   </pre>
-   
-   store results where you want
-   
-   <pre>
-   mapreduce(..., output = "my-result-file", ...)
-   </pre>
-   
-   or in a variable
-   
-   <pre>
-   my.result = mapreduce(...)
-   </pre>
-   
-   create abstractions
-   
-   <pre>
-   my.job = function(x,y,z) { .... out = mapreduce(...);  ... out}
-   </pre>
-   
-   describe any data flow
-   
-   <pre>
-   out1 = my.job1(my.result); out2 = my.job2(my.result); merge.job(out1, out2)
-   </pre>
-   
-   move things in an out of memory and HDFS to create hybrid big-small-data algorithms, control flow and iteration, display results etc
-   
-   <pre>
-   if(length(from.dfs(my.job(...)))==0){...} else {...}
-   ggplot2(from.dfs(my.job(...)), ...)
-   </pre>
-   
    
 ### Related Links
-   
-   * [Comparison of high level languages for mapreduce: k means](https://github.com/RevolutionAnalytics/RHadoop/wiki/Comparison-of-high-level-languages-for-mapreduce%3A-k-means)
-   * [Fast k means](https://github.com/RevolutionAnalytics/RHadoop/wiki/Fast-k-means)
-   * [Changelog](https://github.com/RevolutionAnalytics/RHadoop/wiki/Changelog)
-   * [Design philosophy](https://github.com/RevolutionAnalytics/RHadoop/wiki/Design-philosophy)
-   * [Efficient rmr techniques](https://github.com/RevolutionAnalytics/RHadoop/wiki/Efficient-rmr-techniques)
-   * [Writing composable mapreduce jobs](https://github.com/RevolutionAnalytics/RHadoop/wiki/Writing-composable-mapreduce-jobs)
-   * [Use cases](https://github.com/RevolutionAnalytics/RHadoop/wiki/Use-cases)
-   * [Getting data in and out](https://github.com/RevolutionAnalytics/RHadoop/wiki/Getting-data-in-and-out)
-   * [FAQ](https://github.com/RevolutionAnalytics/RHadoop/wiki/FAQ)
-   
+  
+  * [Comparison of high level languages for mapreduce: k means](https://github.com/RevolutionAnalytics/RHadoop/wiki/Comparison-of-high-level-languages-for-mapreduce%3A-k-means)
+  * [Changelog](https://github.com/RevolutionAnalytics/RHadoop/wiki/Changelog)
+  * [Design philosophy](https://github.com/RevolutionAnalytics/RHadoop/wiki/Design-philosophy)
+  * [Efficient rmr techniques](https://github.com/RevolutionAnalytics/RHadoop/wiki/Efficient-rmr-techniques)
+  * [Writing composable mapreduce jobs](https://github.com/RevolutionAnalytics/RHadoop/wiki/Writing-composable-mapreduce-jobs)
+  * [Use cases](https://github.com/RevolutionAnalytics/RHadoop/wiki/Use-cases)
+  * [Getting data in and out](https://github.com/RevolutionAnalytics/RHadoop/wiki/Getting-data-in-and-out)
+  * [FAQ](https://github.com/RevolutionAnalytics/RHadoop/wiki/FAQ)
+
    

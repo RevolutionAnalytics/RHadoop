@@ -14,11 +14,12 @@
 
 library(rmr2)
 
+## @knitr LLS-data
 X = to.dfs(matrix(rnorm(2000), ncol = 10))
 y = as.matrix(rnorm(200))
-
+## @knitr LLS-sum
 Sum = function(k, YY) keyval(1, list(Reduce('+', YY)))
-
+## @knitr LLS-XtX
 XtX = 
   values(
     from.dfs(
@@ -29,7 +30,7 @@ XtX =
             keyval(1, list(t(Xi) %*% Xi)),
         reduce = Sum,
         combine = TRUE)))[[1]]
-
+## @knitr LLS-Xty
 Xty = 
   values(
     from.dfs(
@@ -39,5 +40,6 @@ Xty =
           keyval(1, list(t(Xi) %*% y)),
         reduce = Sum,
         combine = TRUE)))[[1]]
-
+## @knitr LLS-solve
 solve(XtX, Xty)
+## @knitr end
