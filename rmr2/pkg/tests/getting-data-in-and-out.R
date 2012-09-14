@@ -1,19 +1,14 @@
 library(rmr2)
 ## @knitr getting-data.IO.formats
 rmr2:::IO.formats
-## @knitr end
 ## @knitr getting-data.make.input.format.csv
 make.input.format("csv")
-## @knitr end
 ## @knitr getting-data.make.output.format.csv
 make.output.format("csv")
-## @knitr end
 ## @knitr getting-data.generic.list
 my.data = list(TRUE, list("nested list", 7.2), seq(1:3), letters[1:4], matrix(1:25, nrow = 5,ncol = 5))
-## @knitr end
 ## @knitr getting-data.to.dfs
 hdfs.data = to.dfs(my.data)
-## @knitr end
 ## @knitr getting-data.object.length.frequency
 result = mapreduce(
   input = hdfs.data,
@@ -30,13 +25,11 @@ tsv.reader = function(con, nrecs){
   else {
     delim = strsplit(lines, split = "\t")[[1]]
     keyval(delim[1], delim[-1])}} # first column is the key, note that column indexes moved by 1
-## @knitr end
 ## @knitr getting-data.tsv.input.format
 tsv.format = 
   make.input.format(
     format = tsv.reader,
     mode = "text")
-## @knitr end
 ## @knitr getting-data.generate.tsv.data
 
 tsv.data = to.dfs(data.frame(x = 1:100, y = rnorm(100), z = runif(100), w = 1:100), format = make.output.format("csv", sep = "\t"))
@@ -47,7 +40,6 @@ freq.counts =
     input.format = tsv.format,
     map = function(k,v) keyval(v[[1]], 1),
     reduce = function(k,vv) keyval(k, sum(unlist(vv))))
-## @knitr end
 ## @knitr getting-data.named.columns
 tsv.reader = 
   function(con, nrecs){
@@ -57,13 +49,11 @@ tsv.reader =
     else {
       delim = strsplit(lines, split = "\t")[[1]]
       keyval(delim[[1]], list(location = delim[[2]], name = delim[[3]], value = delim[[4]]))}}
-## @knitr end
 ## @knitr getting-data.tsv.input.format.1
 tsv.format = 
   make.input.format(
     format=tsv.reader,
     mode = "text")
-## @knitr end
 ## @knitr getting-data.named.column.access
 freq.counts =
   mapreduce(
@@ -74,14 +64,11 @@ freq.counts =
         if (v$name == "blarg"){
           keyval(k, log(v$value))}},
     reduce = function(k, vv) keyval(k, mean(unlist(vv))))                      
-## @knitr end
 ## @knitr getting-data.csv.output
 csv.writer = function(k, v){
   paste(k, paste(v, collapse = ","), sep = ",")}
-## @knitr end
 ## @knitr getting-data.csv.output.simpler
 csv.format = make.output.format("csv", sep = ",")
-## @knitr end
 ## @knitr getting-data.explicit.output.arg
 mapreduce(
   input = hdfs.data,
@@ -93,12 +80,10 @@ mapreduce(
   reduce = function(k, vv) {
     #complicated function here
     keyval(k, vv[[1]])})
-## @knitr end
 ## @knitr getting-data.create.fields.list
 qw = function(...) as.character(match.call())[-1]
 fields <- qw(mpg, cyl, disp, hp, drat, wt, qsec, vs, am, gear, carb) 
 field.size = 8
-## @knitr end
 ## @knitr getting-data.fwf.reader
 fwf.reader <- function(con, nrecs) {  
   lines <- readLines(con, nrecs)  
@@ -118,22 +103,18 @@ fwf.reader <- function(con, nrecs) {
     names(df) = fields
     keyval(NULL, df)}} 
 fwf.input.format = make.input.format(mode = "text", format = fwf.reader)
-## @knitr end
 ## @knitr getting-data.fwf.writer
 fwf.writer <- function(kv, con, keyval.size) {
   ser <- function(df) paste(apply(df, 1, function(x) paste(format(x, width = field.size), collapse = "")), collapse = "\n")
   out = ser(do.call(rbind, values(kv)))
   writeLines(out, con = con)}
 fwf.output.format = make.output.format(mode = "text", format = fwf.writer)
-## @knitr end
 ## @knitr getting-data.generate.fwf.data
 fwf.data <- to.dfs(mtcars, format = fwf.output.format)
-## @knitr end
 ## @knitr getting-data.from.dfs.one.line
 out <- from.dfs(mapreduce(input = fwf.data,
                           input.format = fwf.input.format))
 out$val
-## @knitr end
 ## @knitr getting-data.cyl.frequency.count
 out <- from.dfs(mapreduce(input = fwf.data,
                           input.format = fwf.input.format,
