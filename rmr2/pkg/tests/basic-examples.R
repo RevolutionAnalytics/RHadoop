@@ -21,7 +21,6 @@ for (be in c("local", "hadoop")) {
 ## @knitr lapply  
   small.ints = 1:1000
   sapply(small.ints, function(x) x^2)
-## @knitr end
 ## @knitr lapply-mapreduce
   small.ints = to.dfs(1:1000)
   mapreduce(input = small.ints, map = function(k,v) cbind(v,v^2))
@@ -32,7 +31,6 @@ for (be in c("local", "hadoop")) {
 ## @knitr tapply
   groups = rbinom(32, n = 50, prob = 0.4)
   tapply(groups, groups, length)
-## @knitr end
 ## @knitr tapply-mapreduce
   groups = to.dfs(groups)
   from.dfs(mapreduce(input = groups, map = function(k,v) keyval(v, 1), reduce = function(k,vv) keyval(k, length(vv))))
@@ -53,7 +51,6 @@ for (be in c("local", "hadoop")) {
   filtertest = to.dfs(rnorm(10))
   from.dfs(mrfilter(input = filtertest, pred = function(x) x > 0))
 }
-
 ## @knitr end
 
 ## pipeline of two filters, sweet
