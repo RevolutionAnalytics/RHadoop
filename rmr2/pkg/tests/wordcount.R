@@ -19,10 +19,10 @@
 
 library(rmr2)
 
-## @knitr wordcount
-
+## @knitr wordcount-signature
 wordcount = 
   function (input, output = NULL, pattern = " ") {
+## @knitr wordcout-map
     wc.map = 
       function(k,v) {
         keyval(
@@ -31,9 +31,11 @@ wordcount =
               x = v,
               split = pattern)),
           1)}
+## @knitr wordcount-reduce
     wc.reduce =
       function(k,vv) {
         keyval(k, sum(vv))}
+## @knitr wordcount-mapreduce
     mapreduce(input = input ,
               output = output,
               input.format = "text",

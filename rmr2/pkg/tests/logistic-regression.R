@@ -18,18 +18,21 @@
 
 library(rmr2)
 
-## @knitr logistic.regression
+## @knitr logistic.regression-signature
 logistic.regression = function(input, iterations, dims, alpha){
   plane = t(rep(0, dims))
   g = function(z) 1/(1 + exp(-z))
+## @knitr logistic.regression-map
   lr.map =          
     function(k, M) {
       Y = M[,'y'] 
       X = M[,c("x1","x2")]
       keyval(1,
              Y * X * g(-Y * as.numeric(X %*% t(plane))))}
+## @knitr logistic.regression-reduce
   lr.reduce =
     function(k, Z) keyval(k, t(as.matrix(apply(Z,2,sum))))
+## @knitr logistic.regression-main
   for (i in 1:iterations) {
     gradient = 
       values(
@@ -41,8 +44,8 @@ logistic.regression = function(input, iterations, dims, alpha){
             combine = T)))
     plane = plane + alpha * gradient }
   plane }
-
 ## @knitr end
+
 out = list()
 test.size = 10^5
 for (be in c("local", "hadoop")) {
