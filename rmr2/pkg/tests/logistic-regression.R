@@ -20,8 +20,7 @@ library(rmr2)
 
 ## @knitr logistic.regression-signature
 logistic.regression = function(input, iterations, dims, alpha){
-  plane = t(rep(0, dims))
-  g = function(z) 1/(1 + exp(-z))
+
 ## @knitr logistic.regression-map
   lr.map =          
     function(k, M) {
@@ -33,6 +32,8 @@ logistic.regression = function(input, iterations, dims, alpha){
   lr.reduce =
     function(k, Z) keyval(k, t(as.matrix(apply(Z,2,sum))))
 ## @knitr logistic.regression-main
+  plane = t(rep(0, dims))
+  g = function(z) 1/(1 + exp(-z))
   for (i in 1:iterations) {
     gradient = 
       values(
