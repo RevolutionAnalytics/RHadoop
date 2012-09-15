@@ -19,7 +19,7 @@ This is how we tried to get there:
 ## Other improvements
 * The source has been deeply refactored. The subdivision of the source into many files (`IO.R  		extras.R		local.R			quickcheck-rmr.R
 basic.R			keyval.R		mapreduce.R		streaming.R`) suggests a modularization that is not complete and not enforced by the language, but helps reduce the complexity of the implementation.
-* The testing code (not the actual tests) has been factored out as a `quickcheck` package, inspired by Haskell's module by the same name. For now it is neither supported nor documented, but it belonged in a separate package. 
-* The `gather` function helps you collect all the data into a single file in sorted order. Be advised this requires the use of a single reducer, so it is non-scalable. This would normally be the last step before bringing the data on the local file system. Some users have expressed a preference for doing that rather than using `from.dfs` which bring the data into main memory.
+* The testing code (not the actual tests) has been factored out as a `quickcheck` package, inspired by Haskell's module by the same name. For now it is neither supported nor documented, but it belonged in a separate package. Required only to run the tests.
+* Useful tools like `scatter`, `gather`, `rmr.sample` and `rmr.str`.
 * When the `reduce` argument to `mapreduce` is `NULL` the mapreduce job is going to be map-only rather than have an identity reduce. 
 * The *war on boilerplate code* continues. `keyval(v)`, with a single argument,  means `keyval(NULL,v)`. When you provide a value that is not a `keyval` return value where one is expected, one is generated with `keyval(v)` where v was whatever argument has been provided. For instance `to.dfs(matrix(...))` means `to.dfs(keyval(NULL, matrix(...)))`.
