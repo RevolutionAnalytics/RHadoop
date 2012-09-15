@@ -77,12 +77,20 @@ rmr.sample = function(input, output = NULL, method = c("any", "Bernoulli"), ...)
 
 ## dev support
 
-reload = function() {
-  detach("package:rmr2", unload=T)
-  library.dynam.unload("rmr2",system.file(package="rmr2"))
-  library(rmr2)}
+reload = 
+  function() {
+    detach("package:rmr2", unload=T)
+    library.dynam.unload("rmr2",system.file(package="rmr2"))
+    library(rmr2)}
 
-rmr.print  = function(x) {
-  message(paste(match.call() [[2]], paste(capture.output(str(x)), collapse="\n")))}
-
-
+rmr.str = 
+  function(x) {
+    sc = sys.calls()
+    message(
+      paste(
+        c(
+          capture.output(
+            str(sc)), 
+          match.call() [[2]], 
+          capture.output(str(x))), 
+        collapse="\n"))}
