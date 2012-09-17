@@ -54,11 +54,13 @@ rmr.recycle =
   function(x,y) {
     lx = if(is.null(x)) 1 else rmr.length(x)
     ly = if(is.null(y)) 1 else rmr.length(y)
-    rmr.slice(
-      c.or.rbind(
-        rep(list(x),
-          ceiling(ly/lx))),
-      1:max(ly, lx))}
+    if(lx == ly) x
+    else
+      rmr.slice(
+        c.or.rbind(
+          rep(list(x),
+              ceiling(ly/lx))),
+        1:max(ly, lx))}
 
 recycle.keyval =
   function(kv) {
