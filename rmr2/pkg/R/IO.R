@@ -62,8 +62,10 @@ typed.bytes.reader = function(data, nobjs) {
   else
     .Call("typed_bytes_reader", data, nobjs, PACKAGE = "rmr2")}
 
-typed.bytes.writer = function(objects) {
-  .Call("typed_bytes_writer", objects, PACKAGE = "rmr2")}
+typed.bytes.writer = function(objects, con) {
+  writeBin(
+    .Call("typed_bytes_writer", objects, PACKAGE = "rmr2"),
+    con)}
 
 make.typed.bytes.input.format = function() {
   obj.buffer = list()
@@ -97,11 +99,10 @@ make.typed.bytes.input.format = function() {
   
 typed.bytes.output.format = function(kv, con){
   warning("format not updated to new API")
-  writeBin(
-    typed.bytes.writer({
-      k = as.list(k)
-      v = as.list(v)
-      interleave(kv)}),
+  k = as.list(keys(kv))
+  v = as.list(values(kv))
+  typed.bytes.writer(
+    interleave(k, v),
     con)}
 
 make.native.input.format = make.typed.bytes.input.format
