@@ -31,10 +31,12 @@ keys = function(kv) kv$key
 values = function(kv) kv$val
 
 is.keyval = 
-  function(x) is.list(x) && 
-  length(x) == 2 && 
-  !is.null(names(x)) && 
-  all(names(x) == qw(key, val))
+  function(x) 
+    is.list(x) && 
+      length(x) == 2 && 
+      !is.null(names(x)) && 
+      all(names(x) == qw(key, val))
+
 
 as.keyval = 
   function(x) {
