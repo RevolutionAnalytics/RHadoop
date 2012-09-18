@@ -12,22 +12,40 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-json.input.format = function(con, keyval.length) {
-  warning("format not updated to new API")
-  lines = readLines(con, keyval.length)
-  if (length(lines) == 0) NULL
-  else {
-    splits =  strsplit(lines, "\t")
-    keyval(lapply(splits, function(x) fromJSON(x[1], asText = TRUE)), 
-           lapply(splits, function(x) fromJSON(x[2], asText = TRUE)))}}
+
+make.json.input.format =
+  function(key.class = qw(list, vector, data.frame, matrix),
+           value.class = qw(list, vector, data.frame, matrix)) {
+    cast =
+      function(class)
+        switch(
+          class,
+          list = identity,
+          vector = as.vector,
+          data.frame = function(x) do.call(data.frame, x),
+          matrix = function(x) do.call(rbind, x))
+    process.field = 
+      function(field, class)
+        cast(class)(fromJSON(field, asText = TRUE))
+    function(con, keyval.length) {
+      lines = readLines(con, keyval.length)
+      if (length(lines) == 0) NULL
+      else {
+        splits =  strsplit(lines, "\t")
+        c.keyval(
+          lapply(splits, 
+                 function(x) 
+                   if(length(x) == 1) 
+                     keyval(NULL, process.field(x[1], value.class)) 
+                 else 
+                   keyval(process.field(x[1], key.class), process.field(x[2], value.class))))}}}
 
 json.output.format = function(kv, con) {
-  warning("format not updated to new API")
   ser = function(k, v) paste(gsub("\n", "", toJSON(k, .escapeEscapes=TRUE, collapse = "")),
                              gsub("\n", "", toJSON(v, .escapeEscapes=TRUE, collapse = "")),
                              sep = "\t")
-  out = apply.keyval(ser, kv)
-  writeLines(out, con = con, sep = "\n")}
+  out = apply.keyval(kv, ser)
+  writeLines(paste(out, collapse = "\n"), con = con, sep = "\n")}
 
 text.input.format = function(con, keyval.length) {
   lines = readLines(con, keyval.length)
@@ -164,7 +182,7 @@ make.input.format = function(format = make.native.input.format(),
     switch(format, 
            text = {format = text.input.format 
                    mode = "text"}, 
-           json = {format = json.input.format 
+           json = {format = make.json.input.format(...) 
                    mode = "text"}, 
            csv = {format = make.csv.input.format(...) 
                   mode = "text"}, 
