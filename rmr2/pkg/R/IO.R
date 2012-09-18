@@ -92,7 +92,16 @@ make.typed.bytes.input.format = function() {
         if(length(obj.buffer)%%2 ==1) {
            straddler = obj.buffer[length(obj.buffer)]
            obj.buffer <<- obj.buffer[-length(obj.buffer)]}
-        keyval(c.or.rbind(odd(obj.buffer)), c.or.rbind(even(obj.buffer)))}
+        kk = odd(obj.buffer)
+        vv = even(obj.buffer)
+        kk = 
+          inverse.rle(
+            list(
+              lengths = sapply(vv, length),
+              values = kk))
+        keyval(
+          c.or.rbind(kk),
+          c.or.rbind(vv))}
     obj.buffer <<- straddler
     obj.buffer.rmr.length <<- 0
     retval}}
