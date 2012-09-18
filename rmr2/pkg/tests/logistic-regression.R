@@ -23,7 +23,7 @@ logistic.regression = function(input, iterations, dims, alpha){
 
 ## @knitr logistic.regression-map
   lr.map =          
-    function(k, M) {
+    function(dummy, M) {
       Y = M[,'y'] 
       X = M[,c("x1","x2")]
       keyval(1,

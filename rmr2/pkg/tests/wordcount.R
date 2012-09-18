@@ -24,11 +24,11 @@ wordcount =
   function (input, output = NULL, pattern = " ") {
 ## @knitr wordcout-map
     wc.map = 
-      function(k,v) {
+      function(dummy, lines) {
         keyval(
           unlist(
             strsplit(
-              x = v,
+              x = lines,
               split = pattern)),
           1)}
 ## @knitr wordcount-reduce
