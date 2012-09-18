@@ -17,13 +17,13 @@ library(quickcheck)
 library(rmr2)
 
 
-unit.test(
-  function(l) {
-    l = rapply(l, how = 'replace', 
-               function(x){
-                 if(is.null(x)) list()
-                 else as.list(x)})
-    isTRUE(all.equal(l, 
-                     rmr2:::typed.bytes.reader(rmr2:::typed.bytes.writer(l), length(l) + 5)$objects, 
-                     check.attributes = FALSE))},
-  generators = list(tdgg.list()))
+# unit.test(
+#   function(l) {
+#     l = rapply(l, how = 'replace', 
+#                function(x){
+#                  if(is.null(x)) list()
+#                  else as.list(x)})
+#     isTRUE(all.equal(l, 
+#                      rmr2:::typed.bytes.reader(rmr2:::typed.bytes.writer(l), length(l) + 5)$objects, 
+#                      check.attributes = FALSE))},
+#   generators = list(tdgg.list()))

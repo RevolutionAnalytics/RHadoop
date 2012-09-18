@@ -46,7 +46,7 @@ kmeans.mr =
           from.dfs(
             mapreduce(P, map = kmeans.map.1, reduce = kmeans.reduce.1)))
       if(nrow(C) < 5) 
-        C = matrix(rnorm(n.clust * nrow(C)), ncol = nrow(C)) %*% C }
+        C = matrix(rnorm(num.clusters * nrow(C)), ncol = nrow(C)) %*% C }
     C}
 ## @knitr end
 
