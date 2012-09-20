@@ -19,6 +19,6 @@
 
 
 RcppExport SEXP typed_bytes_reader(SEXP data, SEXP nobjs);
-RcppExport SEXP typed_bytes_writer(SEXP data);
+RcppExport SEXP typed_bytes_writer(SEXP data, SEXP native);
 
 #endif
