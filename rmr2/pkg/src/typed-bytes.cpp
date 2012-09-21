@@ -195,10 +195,8 @@ SEXP typed_bytes_reader(SEXP data, SEXP _nobjs){
     catch (ReadPastEnd rpe){
       break;}
 		catch (UnsupportedType ue) {
-      std::cerr << "Unsupported type: " << (int)ue.type_code << std::endl;
       return R_NilValue;}
 		catch (NegativeLength nl) {
-      std::cerr << "Negative length Exception" << std::endl;
       return R_NilValue;}}
   Rcpp::List list_tmp(objs.begin(), objs.begin() + objs_end);
 	return Rcpp::wrap(Rcpp::List::create(
@@ -243,7 +241,6 @@ template <typename T> void serialize_many(const T & data, unsigned char type_cod
 void serialize(const SEXP & object, raw & serialized, bool native); 
 
 template <typename T> void serialize_vector(T & data, unsigned char type_code, raw & serialized, bool native){  
-  std::cerr << "serialize_vector:" << "size of data[0] = " << sizeof(data[0]) << std::endl;
   if(data.size() == 1) {
     serialize_one(data[0], type_code, serialized);}
   else {
@@ -275,7 +272,6 @@ void serialize_native(const SEXP & object, raw & serialized) {
 void serialize(const SEXP & object, raw & serialized, bool native) {
   Rcpp::RObject robj(object);
   bool has_attr = robj.attributeNames().size() > 0;
-  std::cerr << "serialize: " << robj.sexp_type() << std::endl;
   if(native) {
     switch(robj.sexp_type()) {
       case LGLSXP: {
@@ -321,7 +317,6 @@ void serialize(const SEXP & object, raw & serialized, bool native) {
           serialize_many(data[i], 7, serialized);}}
         break; 
       case LGLSXP: { //logical
-        std::cerr << "319:LGLSXP" << std::endl;      
         Rcpp::LogicalVector data(object);
         std::vector<unsigned char> bool_data(data.size());
         for(int i = 0; i < data.size(); i++) {
