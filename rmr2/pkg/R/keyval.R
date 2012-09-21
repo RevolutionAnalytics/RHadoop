@@ -20,7 +20,10 @@ all.have.rows = Curry(all.predicate, P = has.rows)
 rmr.length = 
   function(x) if(has.rows(x)) nrow(x) else length(x)
 
-length.keyval = function(kv) rmr.length(values(kv))
+length.keyval = 
+  function(kv) 
+    max(rmr.length(keys(kv)), 
+        rmr.length(values(kv)))
   
 keyval = 
   function(key, val = NULL) {
