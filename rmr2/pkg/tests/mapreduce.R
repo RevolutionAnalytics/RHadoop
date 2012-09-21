@@ -65,7 +65,7 @@ for (be in c("local", "hadoop")) {
  
   ##simplest mapreduce, all default
   unit.test(function(kv) {
-    if(length(kv) == 0) TRUE
+      if(rmr2:::length.keyval(kv) == 0) TRUE
     else {
       kv1 = from.dfs(mapreduce(input = to.dfs(kv)))
       kv.cmp(kv, kv1)}},
