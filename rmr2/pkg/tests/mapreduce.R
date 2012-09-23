@@ -38,28 +38,61 @@ for (be in c("local", "hadoop")) {
             sample.size = 10)
   
   ## csv
-  unit.test(function(df) {
-    isTRUE(
-      all.equal(
-        df, 
-        values(
-          from.dfs(
-            to.dfs(df, 
-                   format = "csv"), 
-            format = make.input.format(
-              format = "csv", 
-              colClasses = lapply(df[1,], class)))), 
-        tolerance = 1e-4, 
-        check.attributes = FALSE))},
-            generators = list(tdgg.data.frame()),
-            sample.size = 10)
+  unit.test(
+    function(df) {
+      isTRUE(
+        all.equal(
+          df, 
+          values(
+            from.dfs(
+              to.dfs(
+                df, 
+                format = "csv"), 
+              format = make.input.format(
+                format = "csv"))), 
+          tolerance = 1e-4, 
+          check.attributes = FALSE))},
+    generators = list(tdgg.data.frame()),
+    sample.size = 10)
   
+  #json
+  fmt = "json"
+  unit.test(
+    function(df,fmt) {
+      isTRUE(
+        all.equal(
+          df, 
+          values(
+            from.dfs(
+              to.dfs(
+                df, 
+                format = fmt), 
+              format = make.input.format("json", key.class = "list", value.class = "data.frame"))), 
+          tolerance = 1e-4, 
+          check.attributes = FALSE))},
+    generators = list(tdgg.data.frame(), tdgg.constant(fmt)),
+    sample.size = 10)
   
-  for(fmt in c("json", "sequence.typedbytes")) {
-    unit.test(function(df,fmt) {
-      isTRUE(all.equal(df, values(from.dfs(to.dfs(df, format = fmt), format = fmt), tolerance = 1e-4, check.attributes = FALSE)))},
-              generators = list(tdgg.data.frame(), tdgg.constant(fmt)),
-              sample.size = 10)}
+  #sequence.typedbytes
+  fmt = "sequence.typedbytes"
+  unit.test(
+    function(l,fmt) {
+      isTRUE(
+        all.equal(
+          rapply(
+            l,
+            as.list,
+            how = "replace"),    
+          values(
+            from.dfs(
+              to.dfs(
+                keyval(1,l), 
+                format = fmt), 
+              format = fmt)), 
+          tolerance = 1e-4, 
+          check.attributes = FALSE))},
+    generators = list(tdgg.list(), tdgg.constant(fmt)),
+    sample.size = 10)
   
   ##mapreduce
  

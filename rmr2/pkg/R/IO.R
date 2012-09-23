@@ -135,25 +135,6 @@ typed.bytes.output.format = function(kv, con){
 
 make.native.input.format = make.typed.bytes.input.format
 
-
-# native.writer = function(objs, con) {
-#   w = function(x, size = NA_integer_) writeBin(x, con, size = size, endian = "big")
-#   write.code = function(x) w(as.integer(x), size = 1)
-#   write.length = function(x) w(as.integer(x), size = 4)
-#   R.typed.bytes.ser = 
-#     function(x) {
-#       bytes = serialize(x, NULL)
-#       write.code(144) 
-#       write.length(length(bytes))
-#       w(bytes)}
-#   lapply(objs,
-#          function(x) {
-#            if (is.atomic(x) && is.null(names(x)))
-#              typed.bytes.writer(list(x), con, TRUE)
-#            else 
-#              R.typed.bytes.ser(x)})
-#   TRUE}
-
 make.native.output.format = 
   function(keyval.length)
     function(kv, con){

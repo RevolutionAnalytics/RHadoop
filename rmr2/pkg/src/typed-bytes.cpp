@@ -23,7 +23,12 @@ typedef std::deque<unsigned char> raw;
 
 class ReadPastEnd {
 public:
-  ReadPastEnd(){};};
+  unsigned char type_code;
+  int start;
+  ReadPastEnd(unsigned char _type_code, int _start){
+    type_code = _type_code;
+    start = _start;
+  };};
 
 class UnsupportedType{
 public:
@@ -37,7 +42,7 @@ public:
 
 int raw2int(const raw & data, int & start) {
   if(data.size() < start + 4) {
-    throw ReadPastEnd();}
+    throw ReadPastEnd(3, start);}
   int retval = 0;
   for (int i = 0; i < 4; i ++) {
     retval = retval + ((data[start + i] & 255) << (8*(3 - i)));}
@@ -46,7 +51,7 @@ int raw2int(const raw & data, int & start) {
 
 long raw2long(const raw & data, int & start) {
   if(data.size() < start + 8) {
-    throw ReadPastEnd();  }
+    throw ReadPastEnd(4, start);  }
   long retval = 0;
   for(int i = 0; i < 8; i++) {
     retval = retval + (((long) data[start + i] & 255) << (8*(7 - i)));}
@@ -68,7 +73,7 @@ int get_length(const raw & data, int & start) {
 
 unsigned char get_type(const raw & data, int & start) {
   if(data.size() < start + 1) {
-    throw ReadPastEnd();}
+    throw ReadPastEnd(255, start);}
   unsigned char retval  = data[start];
   start = start + 1;
   return retval;}
@@ -80,7 +85,7 @@ void unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & obj
     case 0: { //raw bytes
       int length = get_length(data, raw_start);
       if(data.size() < raw_start + length) {
-        throw ReadPastEnd();}
+        throw ReadPastEnd(type_code, raw_start);}
       raw tmp(data.begin() + raw_start, data.begin() + raw_start + length);
       objs[objs_end] = Rcpp::wrap(tmp);
       raw_start = raw_start + length;
@@ -88,14 +93,14 @@ void unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & obj
       break;
     case 1: { //byte
       if(data.size() < raw_start + 1) {
-        throw ReadPastEnd();}
+        throw ReadPastEnd(type_code, raw_start);}
       objs[objs_end] = Rcpp::wrap((unsigned char)(data[raw_start]));
       raw_start = raw_start + 1; 
       objs_end = objs_end + 1;}
       break;
     case 2: { //boolean
       if(data.size() < raw_start + 1) {
-        throw ReadPastEnd();}
+        throw ReadPastEnd(type_code, raw_start);}
       objs[objs_end] = Rcpp::wrap(bool(data[raw_start]));
       raw_start = raw_start + 1;
       objs_end = objs_end + 1;}
@@ -118,7 +123,7 @@ void unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & obj
     case 7: { //string
       int length = get_length(data, raw_start);
       if(data.size() < raw_start + length) {
-        throw ReadPastEnd();}
+        throw ReadPastEnd(type_code, raw_start);}
       std::string tmp(data.begin() + raw_start, data.begin() + raw_start + length);
       objs[objs_end] = Rcpp::wrap(tmp);
       raw_start = raw_start + length;
@@ -140,7 +145,7 @@ void unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & obj
     case 144: { //R serialization
       int length = get_length(data, raw_start);
       if(data.size() < raw_start + length) {
-        throw ReadPastEnd();}
+        throw ReadPastEnd(type_code, raw_start);}
       Rcpp::Function r_unserialize("unserialize");
       raw tmp(data.begin() + raw_start, data.begin() + raw_start + length);
       objs[objs_end] = r_unserialize(Rcpp::wrap(tmp));
@@ -188,23 +193,25 @@ SEXP typed_bytes_reader(SEXP data, SEXP _nobjs){
 	int raw_start = 0;
 	int parsed_raw_start = 0;
 	int objs_end = 0;
-	while(rd.size() > raw_start, objs_end < nobjs[0]) {
+	while(rd.size() > raw_start && objs_end < nobjs[0]) {
  		try{
       unserialize(rd, raw_start, objs, objs_end);
       parsed_raw_start = raw_start;}
     catch (ReadPastEnd rpe){
+      std::cerr << "Read past end exception" << (int)rpe.type_code 
+                << "\t" << rpe.start << std::endl;
       break;}
 		catch (UnsupportedType ue) {
+      std::cerr << "Unsupported type exception: " << (int)ue.type_code << std::endl;
       return R_NilValue;}
 		catch (NegativeLength nl) {
+            std::cerr << "Negative length exception" << std::endl;
       return R_NilValue;}}
   Rcpp::List list_tmp(objs.begin(), objs.begin() + objs_end);
-	return Rcpp::wrap(Rcpp::List::create(
-                                       Rcpp::Named("objects") = Rcpp::wrap(list_tmp),
-                                       Rcpp::Named("length") = Rcpp::wrap(parsed_raw_start)));}
-
-
-
+	return Rcpp::wrap(
+    Rcpp::List::create(
+      Rcpp::Named("objects") = Rcpp::wrap(list_tmp),
+      Rcpp::Named("length") = Rcpp::wrap(parsed_raw_start)));}
 
 void T2raw(unsigned char data, raw & serialized) {
   serialized.push_back(data);}
