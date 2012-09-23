@@ -124,22 +124,13 @@ make.typed.bytes.input.format = function() {
     obj.buffer.rmr.length <<- 0
     retval}}
   
-typed.bytes.output.format = function(kv, con){
-  warning("format not updated to new API")
-  k = as.list(keys(kv))
-  v = as.list(values(kv))
-  typed.bytes.writer(
-    interleave(k, v),
-    con, 
-    FALSE)}
-
 make.native.input.format = make.typed.bytes.input.format
 
-make.native.output.format = 
-  function(keyval.length)
+make.native.or.typedbytes.output.format = 
+  function(keyval.length, native)
     function(kv, con){
       kvs = split.keyval(kv, keyval.length)
-      typed.bytes.writer(interleave(keys(kvs), values(kvs)), con, TRUE)}
+      typed.bytes.writer(interleave(keys(kvs), values(kvs)), con, native)}
 
 # I/O 
 
