@@ -161,50 +161,67 @@ make.keyval.writer = function(mode, format, con = NULL) {
 IO.formats = c("text", "json", "csv", "native",
                "sequence.typedbytes")
 
-make.input.format = function(format = make.native.input.format(), 
-                             mode = c("binary", "text"),
-                             streaming.format = NULL, ...) {
-  mode = match.arg(mode)
-  if(is.character(format)) {
-    format = match.arg(format, IO.formats)
-    switch(format, 
-           text = {format = text.input.format 
-                   mode = "text"}, 
-           json = {format = make.json.input.format(...) 
-                   mode = "text"}, 
-           csv = {format = make.csv.input.format(...) 
-                  mode = "text"}, 
-           native = {format = make.native.input.format() 
-                     mode = "binary"}, 
-           sequence.typedbytes = {format = make.typed.bytes.input.format() 
-                                  mode = "binary"})}
-  if(is.null(streaming.format) && mode == "binary") 
-    streaming.format = "org.apache.hadoop.streaming.AutoInputFormat"
-  list(mode = mode, format = format, streaming.format = streaming.format)}
+make.input.format = 
+  function(
+    format = make.native.input.format(), 
+    mode = c("binary", "text"),
+    streaming.format = NULL, 
+    ...) {
+    mode = match.arg(mode)
+    if(is.character(format)) {
+      format = match.arg(format, IO.formats)
+      switch(
+        format, 
+        text = {
+          format = text.input.format 
+          mode = "text"}, 
+        json = {
+          format = make.json.input.format(...) 
+          mode = "text"}, 
+        csv = {
+          format = make.csv.input.format(...) 
+          mode = "text"}, 
+        native = {
+          format = make.native.input.format() 
+          mode = "binary"}, 
+        sequence.typedbytes = {
+          format = make.typed.bytes.input.format() 
+          mode = "binary"})}
+    if(is.null(streaming.format) && mode == "binary") 
+      streaming.format = "org.apache.hadoop.streaming.AutoInputFormat"
+    list(mode = mode, format = format, streaming.format = streaming.format)}
 
-make.output.format = function(format = make.native.output.format(),#rmr.options('keyval.length')), 
-                              mode = c("binary", "text"),
-                              streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat", 
-                              ...) {
-  mode = match.arg(mode)
-  if(is.character(format)) {
-    format = match.arg(format, IO.formats)
-    switch(format, 
-           text = {format = text.output.format
-                   mode = "text"
-                   streaming.format = NULL},
-           json = {format = json.output.format
-                   mode = "text"
-                   streaming.format = NULL}, 
-           csv = {format = make.csv.output.format(...)
-                  mode = "text"
-                  streaming.format = NULL}, 
-           native = {format = make.native.output.format(keyval.length = rmr.options('keyval.length'))
-                     mode = "binary"
-                     streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"}, 
-           sequence.typedbytes = {format = typed.bytes.output.format 
-                                  mode = "binary"
-                                  streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"})}
-  mode = match.arg(mode)
-  list(mode = mode, format = format, streaming.format = streaming.format)}
-
+make.output.format = 
+  function(
+    format = make.native.output.format(),
+    mode = c("binary", "text"),
+    streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat", 
+    ...) {
+    mode = match.arg(mode)
+    if(is.character(format)) {
+      format = match.arg(format, IO.formats)
+      switch(
+        format, 
+        text = {
+          format = text.output.format
+          mode = "text"
+          streaming.format = NULL},
+        json = {
+          format = json.output.format
+          mode = "text"
+          streaming.format = NULL}, 
+        csv = {
+          format = make.csv.output.format(...)
+          mode = "text"
+          streaming.format = NULL}, 
+        native = {
+          format = make.native.or.typedbytes.output.format(
+            keyval.length = rmr.options('keyval.length'), native = TRUE)
+          mode = "binary"
+          streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"}, 
+        sequence.typedbytes = {
+          format = make.native.or.typedbytes.output.format(keyval.length = rmr.options('keyval.length'), native = FALSE)
+          mode = "binary"
+          streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"})}
+    mode = match.arg(mode)
+    list(mode = mode, format = format, streaming.format = streaming.format)}
