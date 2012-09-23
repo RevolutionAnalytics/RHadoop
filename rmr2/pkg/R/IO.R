@@ -14,8 +14,10 @@
 
 
 make.json.input.format =
-  function(key.class = qw(list, vector, data.frame, matrix),
-           value.class = qw(list, vector, data.frame, matrix)) {
+  function(key.class = rmr2:::qw(list, vector, data.frame, matrix),
+           value.class = rmr2:::qw(list, vector, data.frame, matrix)) {
+    key.class = match.arg(key.class)
+    value.class = match.arg(value.class)
     cast =
       function(class)
         switch(
@@ -44,7 +46,7 @@ json.output.format = function(kv, con) {
   ser = function(k, v) paste(gsub("\n", "", toJSON(k, .escapeEscapes=TRUE, collapse = "")),
                              gsub("\n", "", toJSON(v, .escapeEscapes=TRUE, collapse = "")),
                              sep = "\t")
-  out = apply.keyval(kv, ser)
+  out = apply.keyval(kv, ser, rmr.options('keyval.length'))
   writeLines(paste(out, collapse = "\n"), con = con, sep = "\n")}
 
 text.input.format = function(con, keyval.length) {
