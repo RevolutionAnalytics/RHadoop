@@ -316,8 +316,9 @@ void serialize(const SEXP & object, raw & serialized, bool native) {
         break;
       case STRSXP: { //character
         Rcpp::CharacterVector data(object);
-        serialized.push_back(8);
-        length_header(data.size(), serialized);
+        if(data.size() > 1) {
+          serialized.push_back(8);
+          length_header(data.size(), serialized);}
         for(int i = 0; i < data.size(); i++) {
           serialize_many(data[i], 7, serialized);}}
         break; 
