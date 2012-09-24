@@ -58,7 +58,7 @@ for (be in c("local", "hadoop")) {
   #json
   fmt = "json"
   unit.test(
-    function(df,fmt) {
+    function(df) {
       isTRUE(
         all.equal(
           df, 
@@ -70,19 +70,23 @@ for (be in c("local", "hadoop")) {
               format = make.input.format("json", key.class = "list", value.class = "data.frame"))), 
           tolerance = 1e-4, 
           check.attributes = FALSE))},
-    generators = list(tdgg.data.frame(), tdgg.constant(fmt)),
+    generators = list(tdgg.data.frame()),
     sample.size = 10)
   
   #sequence.typedbytes
+  seq.tb.data.loss = 
+    function(l)
+      rapply(
+        l,
+        function(x) if(class(x) == "raw") x else as.list(x),
+        how = "replace")    
+    
   fmt = "sequence.typedbytes"
   unit.test(
-    function(l,fmt) {
+    function(l) {
       isTRUE(
         all.equal(
-          rapply(
-            l,
-            as.list,
-            how = "replace"),    
+          seq.tb.data.loss(l),
           values(
             from.dfs(
               to.dfs(
@@ -91,7 +95,8 @@ for (be in c("local", "hadoop")) {
               format = fmt)), 
           tolerance = 1e-4, 
           check.attributes = FALSE))},
-    generators = list(tdgg.list(), tdgg.constant(fmt)),
+    generators = list(tdgg.list()),
+    precondition = function(l) length(l) > 0,
     sample.size = 10)
   
   ##mapreduce
@@ -115,51 +120,67 @@ for (be in c("local", "hadoop")) {
             generators = list(rmr2:::tdgg.keyval()),
             sample.size = 10)
   
-  for(fmt in c("json", "sequence.typedbytes")) {
-    unit.test(
-      function(df,fmt) {
-        isTRUE(
-          all.equal(
-            df, 
-            values(
-              from.dfs(
-                mapreduce(
-                  to.dfs(
-                    df, 
-                    format = fmt),
-                  reduce = to.reduce.all(identity),
-                  input.format = fmt,
-                  output.format = fmt),
-                format = fmt)), 
-            tolerance = 1e-4, check.attributes = FALSE))},
-      generators = list(tdgg.data.frame(), tdgg.constant(fmt)),
-      sample.size = 10)}
-  
   ## csv
-  library(digest)
-  data.frame.order = function(x) order(apply(x, 1, function(y) digest(as.character(y))))
-  unit.test(function(df) {
-    inpf = make.input.format(
-      format = "csv", 
-      colClasses = lapply(df[1,], class))
-    df1 = 
-      values(
-        from.dfs(
-          mapreduce(
-            to.dfs(
-              df, 
-              format = "csv"),
-            input.format = inpf,
-            output.format = "csv"),
-          format = inpf))
-    isTRUE(
-      all.equal(
-        df[data.frame.order(df),], 
-        df1[data.frame.order(df1),], 
-        tolerance = 1e-4, 
-        check.attributes = FALSE))},
-            generators = list(tdgg.data.frame()),
-            sample.size = 10)
+  unit.test(
+    function(df) {
+      isTRUE(
+        all.equal(
+          df, 
+          values(
+            from.dfs(
+              mapreduce(
+                to.dfs(
+                  df, 
+                  format = "csv"),
+                input.format = "csv",
+                output.format = "csv"),
+              format = "csv")), 
+          tolerance = 1e-4, 
+          check.attributes = FALSE))},
+    generators = list(tdgg.data.frame()),
+    sample.size = 10)
   
+  #json
+  fmt = "json"
+  unit.test(
+    function(df) {
+      isTRUE(
+        all.equal(
+          df, 
+          values(
+            from.dfs(
+              mapreduce(
+                to.dfs(
+                  df, 
+                  format = fmt),
+                input.format = make.input.format("json", key.class = "list", value.class = "data.frame"),
+                output.format = fmt),
+              format = make.input.format("json", key.class = "list", value.class = "data.frame"))), 
+          tolerance = 1e-4, 
+          check.attributes = FALSE))},
+    generators = list(tdgg.data.frame()),
+    sample.size = 10)
   
-}                                           
+  #sequence.typedbytes
+  fmt = "sequence.typedbytes"
+  unit.test(
+    function(l) {
+      l = seq.tb.data.loss(l)
+      isTRUE(
+        all.equal(
+          l,     
+          values(
+            from.dfs(
+              mapreduce(
+                to.dfs(
+                  keyval(1,l), 
+                  format = fmt), 
+                input.format = fmt,
+                output.format = fmt),
+              format = fmt)), 
+          tolerance = 1e-4, 
+          check.attributes = FALSE))},
+    generators = list(tdgg.list()),
+    precondition = function(l) length(l) > 0,
+    sample.size = 10)
+}
