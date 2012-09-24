@@ -198,8 +198,6 @@ SEXP typed_bytes_reader(SEXP data, SEXP _nobjs){
       unserialize(rd, raw_start, objs, objs_end);
       parsed_raw_start = raw_start;}
     catch (ReadPastEnd rpe){
-      std::cerr << "Read past end exception" << (int)rpe.type_code 
-                << "\t" << rpe.start << std::endl;
       break;}
 		catch (UnsupportedType ue) {
       std::cerr << "Unsupported type exception: " << (int)ue.type_code << std::endl;
