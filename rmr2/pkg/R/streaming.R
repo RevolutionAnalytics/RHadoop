@@ -132,7 +132,7 @@ rmr.stream = function(
   ## prepare map and reduce executables
   rmr.local.env = tempfile(pattern = "rmr-local-env")
   rmr.global.env = tempfile(pattern = "rmr-global-env")
-  preamble = paste0('options(warn=1)
+  preamble = paste(sep = "", 'options(warn=1)
  
   library(rmr2)
   load("',basename(rmr.local.env),'")
