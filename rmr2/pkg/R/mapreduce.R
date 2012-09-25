@@ -83,13 +83,19 @@ cmp =
       isTRUE(all.equal(vx[ox], vy[oy], check.attributes = FALSE))}
 
 # backend independent dfs section
+
+is.hidden.file = 
+  function(f)
+    regexpr("[\\._]", basename(f)) == 1
+
 part.list = 
   function(fname) {
     if(rmr.options('backend') == "local") fname
     else {
-      if(dfs.is.dir(fname))
-        pretty.hdfs.ls(paste(fname, "part*", sep = "/"))$path
-      else fname}}
+      if(dfs.is.dir(fname)) {
+        du = hdfs.du(fname)
+        du[!is.hidden.file(du[,2]),2]}
+        else fname}}
 
 dfs.exists = 
   function(f) {
@@ -110,16 +116,18 @@ dfs.is.dir =
     else file.info(f)['isdir']}
 
 dfs.empty = 
+  function(f) 
+    dfs.size(f) == 0
+
+dfs.size = 
   function(f) {
     f = to.dfs.path(f)
     if(rmr.options('backend') == 'hadoop') {
-      if(dfs.is.dir(f)) {
-        all(
-          lapply(
-            part.list(f),
-            function(x) hdfs.test(z = x)))}
-      else {hdfs.test(z = f)}}
-    else file.info(f)['size'] == 0}
+      du = hdfs.du(f)
+      if(is.null(du)) 0 
+      else
+        sum(as.integer(du[!is.hidden.file(du[,2]), 1]))}
+    else file.info(f)[1, 'size'] }
 
 # dfs bridge
 
