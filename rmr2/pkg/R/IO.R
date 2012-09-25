@@ -186,7 +186,7 @@ make.input.format =
 
 make.output.format = 
   function(
-    format = make.native.output.format(),
+    format = make.native.or.typedbytes.output.format(keyval.length = rmr.options('keyval.length'), native = TRUE),
     mode = c("binary", "text"),
     streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat", 
     ...) {
