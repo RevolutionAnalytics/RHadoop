@@ -10,7 +10,9 @@ Create combinations of IO settings either from named formats or from a combinati
 }
 \usage{
 make.input.format(format = make.native.input.format(), mode = c("binary", "text"), streaming.format = NULL, ...)
-make.output.format(format = make.native.output.format(), mode = c("binary", "text"), streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat", ...)}
+make.output.format(format = make.native.output.format( keyval.length =   rmr.options("keyval.length")), 
+                   mode = c("binary", "text"), 
+                   streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat", ...)}
 
 \arguments{
   \item{format}{Either a string describing a predefined combination of IO settings (possibilities include: "text", "json", "csv", "native","sequence.typedbytes") or a function. For an input format, this function accepts a connection and a number of records and returns a key-value pair (see \code{\link{keyval}}. For an output format, this function accepts a key-value pair, a connection and  writes the first to the connection.}
