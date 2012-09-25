@@ -180,25 +180,28 @@ hljs.initHighlightingOnLoad();
 
 <body>
 <pre><code class="r">zz =rmr2:::interleave(1:10^6, 1:10^6)
-con = file(&quot;/tmp/nwtest&quot;, &quot;wb&quot;)
-&gt; system.time({rmr2:::native.writer(zz, con)})
-user  system elapsed 
-56.864   4.599  61.481 
-&gt; system.time({save(zz, file= &quot;/tmp/save-test&quot;)})
-user  system elapsed 
-1.535   0.010   1.546 
-&gt; system.time({writeBin(rmr2:::typed.bytes.writer(objects=zz), con=file(&quot;/tmp/tb-test&quot;, &quot;wb&quot;))})
-user  system elapsed 
-0.312   0.038   0.350 
-&gt; system.time({rmr2:::make.typed.bytes.input.format()(file(&quot;/tmp/nwtest&quot;, &quot;rb&quot;), 10^5)})
-user  system elapsed 
-4.169   0.158   4.336 
-&gt; system.time({load(file=&quot;/tmp/save-test&quot;)})
-user  system elapsed 
-0.645   0.009   0.659 
-&gt; system.time({rmr2:::make.typed.bytes.input.format()(file(&quot;/tmp/tb-test&quot;, &quot;rb&quot;), 10^6)})
-user  system elapsed 
-2.215   0.162   2.376 
+con = file(&quot;/tmp/n-test&quot;, &quot;wb&quot;)
+system.time({rmr2:::typed.bytes.writer(zz, con, TRUE)})
+#   user  system elapsed 
+#  0.355   0.058   0.468 
+close(con)
+con = file(&quot;/tmp/tb-test&quot;, &quot;wb&quot;)
+system.time({rmr2:::typed.bytes.writer(zz, con, FALSE)})
+#   user  system elapsed 
+#  0.310   0.023   0.333 
+close(con)
+system.time({save(zz, file= &quot;/tmp/save-test&quot;)})
+#user  system elapsed 
+#1.535   0.010   1.546 
+system.time({rmr2:::make.typed.bytes.input.format()(file(&quot;/tmp/n-test&quot;, &quot;rb&quot;), 10^6)})
+#user  system elapsed 
+# 8.398   0.252   8.650 
+system.time({rmr2:::make.typed.bytes.input.format()(file(&quot;/tmp/tb-test&quot;, &quot;rb&quot;), 10^6)})
+#user  system elapsed 
+# 6.999   0.212   7.206
+system.time({load(file=&quot;/tmp/save-test&quot;)})
+#user  system elapsed 
+#0.645   0.009   0.659 
 </code></pre>
 
 </body>
