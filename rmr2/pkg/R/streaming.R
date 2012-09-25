@@ -328,15 +328,3 @@ for (hdfscmd in c("ls", "lsr", "df", "du", "dus", "count", "cat", "text", "stat"
 for (hdfscmd in c("mv", "cp", "rm", "rmr", "expunge", "put", "copyFromLocal", "moveFromLocal", "get", "getmerge", 
                   "copyToLocal", "moveToLocal", "mkdir", "setrep", "touchz", "test", "chmod", "chown", "chgrp"))
   mkhdfsfun(hdfscmd, FALSE)
-
-pretty.hdfs.ls = function(...) {
-  ls.out = hdfs.ls(...)
-  crud = grep("Found", ls.out[,1])
-  if(length(crud) > 0)
-    ls.out = ls.out[-crud,]
-  if(class(ls.out) == "character") ls.out = t(ls.out)
-  df = as.data.frame(ls.out,stringsAsFactors=F)
-  names(df) = c("mode", "links", "owner", "group", "size", "last.modified.date", "last.modified.time", "path")
-  df$links = as.numeric(sapply(as.character(df$links), function(x) if (x=="-") 0 else x))
-  df$size = as.numeric(as.character(df$size))
-  df}
