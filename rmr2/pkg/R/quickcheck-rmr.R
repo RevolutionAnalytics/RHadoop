@@ -13,7 +13,6 @@
 # limitations under the License.
 
 ##app-specific generators
-library(quickcheck)
-
-tdgg.keyval = function(keytdg = tdgg.double(), valtdg = tdgg.any()) function() keyval(keytdg(), valtdg())
-tdgg.keyvalsimple = function() function() keyval(runif(1), runif(1)) #we can do better than this
+if(require(quickcheck)) {
+  tdgg.keyval = function(keytdg = tdgg.double(), valtdg = tdgg.any()) function() keyval(keytdg(), valtdg())
+  tdgg.keyvalsimple = function() function() keyval(runif(1), runif(1))} #we can do better than this
