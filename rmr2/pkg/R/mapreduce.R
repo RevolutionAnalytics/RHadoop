@@ -27,7 +27,7 @@ rmr.options =
            keyval.length = 1000#, 
            #depend.check = FALSE, 
            #managed.dir = FALSE
-           ) {
+  ) {
     args = as.list(sys.call())[-1]
     this.call = match.call()
     lapply(
@@ -65,64 +65,71 @@ compose.mapred =
       out = mapred(k, v)
       if (is.null(out)) NULL
       else map(keys(out), values(out))}
-      
+
 union.mapred = 
   function(mr1, mr2) function(k, v) {
     c.keyval(mr1(k, v), mr2(k, v))}
 
 #output cmp
-cmp = function(x, y) {
-  kx  = keys(x)
-  ky = keys(y)
-  vx = values(x)
-  vy = values(y)
-  ox = order(sapply(kx, digest), sapply(vx, function(z){attr(z, "rmr.input") = NULL; digest(z)}))
-  oy = order(sapply(ky, digest), sapply(vy, function(z){attr(z, "rmr.input") = NULL; digest(z)}))
-  isTRUE(all.equal(kx[ox], ky[oy], check.attributes = FALSE)) &&
-  isTRUE(all.equal(vx[ox], vy[oy], check.attributes = FALSE))}
+cmp = 
+  function(x, y) {
+    kx  = keys(x)
+    ky = keys(y)
+    vx = values(x)
+    vy = values(y)
+    ox = order(sapply(kx, digest), sapply(vx, function(z){attr(z, "rmr.input") = NULL; digest(z)}))
+    oy = order(sapply(ky, digest), sapply(vy, function(z){attr(z, "rmr.input") = NULL; digest(z)}))
+    isTRUE(all.equal(kx[ox], ky[oy], check.attributes = FALSE)) &&
+      isTRUE(all.equal(vx[ox], vy[oy], check.attributes = FALSE))}
 
 # backend independent dfs section
-part.list = function(fname) {
-  if(rmr.options('backend') == "local") fname
-  else {
-    if(dfs.is.dir(fname))
-      pretty.hdfs.ls(paste(fname, "part*", sep = "/"))$path
-    else fname}}
+part.list = 
+  function(fname) {
+    if(rmr.options('backend') == "local") fname
+    else {
+      if(dfs.is.dir(fname))
+        pretty.hdfs.ls(paste(fname, "part*", sep = "/"))$path
+      else fname}}
 
-dfs.exists = function(f) {
-  if (rmr.options('backend') == 'hadoop') 
-    hdfs.test(e = f) 
-  else file.exists(f)}
+dfs.exists = 
+  function(f) {
+    if (rmr.options('backend') == 'hadoop') 
+      hdfs.test(e = f) 
+    else file.exists(f)}
 
-dfs.rm = function(f) {
-  if(rmr.options('backend') == 'hadoop')
-    hdfs.rm(f)
-  else file.remove(f)}
+dfs.rm = 
+  function(f) {
+    if(rmr.options('backend') == 'hadoop')
+      hdfs.rm(f)
+    else file.remove(f)}
 
-dfs.is.dir = function(f) { 
-  if (rmr.options('backend') == 'hadoop') 
-    hdfs.test(d = f)
-  else file.info(f)['isdir']}
+dfs.is.dir = 
+  function(f) { 
+    if (rmr.options('backend') == 'hadoop') 
+      hdfs.test(d = f)
+    else file.info(f)['isdir']}
 
-dfs.empty = function(f) {
-  f = to.dfs.path(f)
-  if(rmr.options('backend') == 'hadoop') {
-    if(dfs.is.dir(f)) {
-      all(
-        lapply(
-          part.list(f),
-          function(x) hdfs.test(z = x)))}
-    else {hdfs.test(z = f)}}
-  else file.info(f)['size'] == 0}
+dfs.empty = 
+  function(f) {
+    f = to.dfs.path(f)
+    if(rmr.options('backend') == 'hadoop') {
+      if(dfs.is.dir(f)) {
+        all(
+          lapply(
+            part.list(f),
+            function(x) hdfs.test(z = x)))}
+      else {hdfs.test(z = f)}}
+    else file.info(f)['size'] == 0}
 
 # dfs bridge
 
-to.dfs.path = function(input) {
-  if (is.character(input)) {
-    input}
-  else {
-    if(is.function(input)) {
-      input()}}}
+to.dfs.path = 
+  function(input) {
+    if (is.character(input)) {
+      input}
+    else {
+      if(is.function(input)) {
+        input()}}}
 
 to.dfs = 
   function(
@@ -200,7 +207,7 @@ dfs.tempfile = function(pattern = "file", tmpdir = tempdir()) {
                 function(e) {
                   fname = eval(expression(fname), envir = e)
                   if(Sys.getenv("mapred_task_id") != "" && dfs.exists(fname)) dfs.rm(fname)
-		})
+                })
   namefun
 }
 
@@ -217,19 +224,19 @@ mapreduce = function(
   output.format = "native", 
   backend.parameters = list(), 
   verbose = TRUE) {
-
+  
   on.exit(expr = gc(), add = TRUE) #this is here to trigger cleanup of tempfiles
   if (is.null(output)) output = 
     if(rmr.options('depend.check'))
       dfs.managed.file(match.call())
-    else
-      dfs.tempfile()
+  else
+    dfs.tempfile()
   if(is.character(input.format)) input.format = make.input.format(input.format)
   if(is.character(output.format)) output.format = make.output.format(output.format)
   if(!missing(backend.parameters)) warning("backend.parameters is deprecated.")
   
   backend  =  rmr.options('backend')
- 
+  
   mr = switch(backend, 
               hadoop = rmr.stream, 
               local = mr.local, 
@@ -251,7 +258,7 @@ mapreduce = function(
 
 
 ##special jobs
- 
+
 ## a sort of relational join very useful in a variety of map reduce algorithms
 
 ## to.dfs(lapply(1:10, function(i) keyval(i, i^2)), "/tmp/reljoin.left")
@@ -271,7 +278,7 @@ equijoin = function(
   reduce.all  = function(k, vl, vr) keyval(k, list(list(left = vl, right = vr)))) { 
   
   stopifnot(xor(!is.null(left.input), !is.null(input) &&
-                (is.null(left.input) == is.null(right.input))))
+    (is.null(left.input) == is.null(right.input))))
   outer = match.arg(outer)
   left.outer = outer == "left"
   right.outer = outer == "right"
@@ -315,10 +322,10 @@ equijoin = function(
   eqj.reduce = reduce
   mapreduce(map = map, 
             reduce =
-            function(k, vv) {
-              rs = reduce.split(vv)
-              eqj.reduce(c.or.rbind(k), 
-                     pad.side(c.or.rbind(rs$`TRUE`), right.outer, full.outer), 
-                     pad.side(c.or.rbind(rs$`FALSE`), left.outer, full.outer))}, 
+              function(k, vv) {
+                rs = reduce.split(vv)
+                eqj.reduce(c.or.rbind(k), 
+                           pad.side(c.or.rbind(rs$`TRUE`), right.outer, full.outer), 
+                           pad.side(c.or.rbind(rs$`FALSE`), left.outer, full.outer))}, 
             input = c(left.input, right.input), 
             output = output)}
