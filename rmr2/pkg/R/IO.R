@@ -134,6 +134,9 @@ make.native.or.typedbytes.output.format =
       kvs = split.keyval(kv, keyval.length)
       typed.bytes.writer(interleave(keys(kvs), values(kvs)), con, native)}
 
+make.native.output.format = Curry(make.native.or.typedbytes.output.format, native = TRUE)
+make.typedbytes.output.format = Curry(make.native.or.typedbytes.output.format, native = FALSE)
+
 # I/O 
 
 make.keyval.reader = function(mode, format, keyval.length, con = NULL) {
@@ -186,7 +189,7 @@ make.input.format =
 
 make.output.format = 
   function(
-    format = make.native.or.typedbytes.output.format(keyval.length = rmr.options('keyval.length'), native = TRUE),
+    format = make.native.output.format(keyval.length = rmr.options('keyval.length')),
     mode = c("binary", "text"),
     streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat", 
     ...) {
@@ -208,12 +211,12 @@ make.output.format =
           mode = "text"
           streaming.format = NULL}, 
         native = {
-          format = make.native.or.typedbytes.output.format(
-            keyval.length = rmr.options('keyval.length'), native = TRUE)
+          format = make.native.output.format(
+            keyval.length = rmr.options('keyval.length'))
           mode = "binary"
           streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"}, 
         sequence.typedbytes = {
-          format = make.native.or.typedbytes.output.format(keyval.length = rmr.options('keyval.length'), native = FALSE)
+          format = make.native.output.format(keyval.length = rmr.options('keyval.length'))
           mode = "binary"
           streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"})}
     mode = match.arg(mode)
