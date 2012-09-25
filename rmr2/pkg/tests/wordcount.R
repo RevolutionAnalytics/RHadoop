@@ -33,8 +33,8 @@ wordcount =
           1)}
 ## @knitr wordcount-reduce
     wc.reduce =
-      function(k,vv) {
-        keyval(k, sum(vv))}
+      function(word, counts ) {
+        keyval(word, sum(counts))}
 ## @knitr wordcount-mapreduce
     mapreduce(input = input ,
               output = output,
