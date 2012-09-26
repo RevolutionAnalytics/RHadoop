@@ -1,6 +1,9 @@
 
 
 
+
+
+
 * This document responds to several inquiries on data formats and how to get data in and out of the rmr system
 * Still more a collection of snippets than anything organized
 * Thanks Damien  and @ryangarner for the examples and Koert for conversations on the subject
@@ -47,7 +50,7 @@ function (con, keyval.length)
         NULL
     else keyval(NULL, df)
 }
-<environment: 0x106921f08>
+<environment: 0x105e1a870>
 
 $streaming.format
 NULL
@@ -76,7 +79,7 @@ function (kv, con)
         v
     else cbind(k, v), ..., row.names = FALSE, col.names = FALSE)
 }
-<environment: 0x10349c550>
+<environment: 0x101bbb718>
 
 $streaming.format
 NULL

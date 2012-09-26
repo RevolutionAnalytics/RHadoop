@@ -185,7 +185,7 @@ hljs.initHighlightingOnLoad();
 <li>Thanks Damien  and @ryangarner for the examples and Koert for conversations on the subject</li>
 </ul>
 
-<p>Internally <code>rmr</code> uses R&#39;s own serialization in most cases and typedbytes serialization when in vectorized mode. The goal is to make you forget about representation issues most of the time. But what happens at the boundary of the<br/>
+<p>Internally <code>rmr</code> uses R&#39;s own serialization in most cases and its own typedbytes extension for some atomic vectors. The goal is to make you forget about representation issues most of the time. But what happens at the boundary of the<br/>
 system, when you need to get non-rmr data in and out of it? Of course <code>rmr</code> has to be able to read and write a variety of formats to be of any use. This is what is available and how to extend it.</p>
 
 <h2>Built in formats</h2>
@@ -198,11 +198,11 @@ system, when you need to get non-rmr data in and out of it? Of course <code>rmr<
 
 <ol>
 <li><code>text</code>: for english text. key is <code>NULL</code> and value is a string, one per line. Please don&#39;t use it for anything else.</li>
-<li><code>json</code>-ish: it is actually <JSON\tJSON\n> so that streaming can tell key and value. This implies you have to escape all newlines and tabs in the JSON part. Your data may not be in this form, but almost any
+<li><code>json</code>-ish: it is actually <code>&lt;JSON\tJSON\n&gt;</code> so that streaming can tell key and value. This implies you have to escape all newlines and tabs in the JSON part. Your data may not be in this form, but almost any
 language has decent JSON libraries. It was the default in <code>rmr</code> 1.0, but we&#39;ll keep because it is almost standard. Parsed in C for efficiency, should handle large objects.</li>
 <li><code>csv</code>: A family of concrete formats modeled after R&#39;s own <code>read.table</code>. See examples below.</li>
 <li><code>native</code>: based on R&#39;s own serialization, it is the default and supports everything that R&#39;s <code>serialize</code> supports. If you want to know the gory details, it is implemented as an application specific type for the typedbytes format, which is further encapsulated in the sequence file format when writing to HDFS, which &hellip; Dont&#39;t worry about it, it just works. Unfortunately, it is written and read by only one package, <code>rmr</code> itself.</li>
-<li><code>sequence.typedbytes</code>: based on specs in HADOOP-1722 it has emerged as the standard for non Java hadoop application talking to the rest of Hadoop.</li>
+<li><code>sequence.typedbytes</code>: based on specs in HADOOP-1722 it has emerged as the standard for non Java hadoop application talking to the rest of Hadoop. Also implemented in C for efficiency, its underlying data model is different from R&#39;s and we tried to map the two systems the best we could.</li>
 </ol>
 
 <h2>Custom formats</h2>
@@ -224,7 +224,7 @@ function (con, keyval.length)
         NULL
     else keyval(NULL, df)
 }
-&lt;environment: 0x106921f08&gt;
+&lt;environment: 0x105e1a870&gt;
 
 $streaming.format
 NULL
@@ -249,7 +249,7 @@ function (kv, con)
         v
     else cbind(k, v), ..., row.names = FALSE, col.names = FALSE)
 }
-&lt;environment: 0x10349c550&gt;
+&lt;environment: 0x101bbb718&gt;
 
 $streaming.format
 NULL
