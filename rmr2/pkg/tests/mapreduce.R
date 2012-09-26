@@ -135,8 +135,8 @@ for (be in c("local", "hadoop")) {
             format = "csv"))
       isTRUE(
         all.equal(
-          df[order(df[,1]),], 
-          df1[order(df1[,1]),], 
+          df[do.call(order,df),], 
+          df1[do.call(order,df1),], 
           tolerance = 1e-4, 
           check.attributes = FALSE))},
     generators = list(tdgg.data.frame()),
@@ -159,8 +159,8 @@ for (be in c("local", "hadoop")) {
             format = make.input.format("json", key.class = "list", value.class = "data.frame")))
       isTRUE(
         all.equal(
-          df[order(df[,1]),], 
-          df1[order(df1[,1]),], 
+          df[do.call(order,df),], 
+          df1[do.call(order,df1),], 
           tolerance = 1e-4, 
           check.attributes = FALSE))},
     generators = list(tdgg.data.frame()),
