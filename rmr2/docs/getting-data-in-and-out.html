@@ -1,9 +1,8 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 <!-- saved from url=(0014)about:internet -->
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
 <title>Built in formats</title>
 
@@ -217,15 +216,15 @@ language has decent JSON libraries. It was the default in <code>rmr</code> 1.0, 
 [1] &quot;text&quot;
 
 $format
-function (con, nrecs) 
+function (con, keyval.length) 
 {
-    df = tryCatch(read.table(file = con, nrows = nrecs, header = FALSE, 
-        ...), error = function(e) NULL)
+    df = tryCatch(read.table(file = con, nrows = keyval.length, 
+        header = FALSE, ...), error = function(e) NULL)
     if (is.null(df) || dim(df)[[1]] == 0) 
         NULL
-    else keyval(NULL, df, vectorized = nrecs &gt; 1)
+    else keyval(NULL, df)
 }
-&lt;environment: 0x105634a78&gt;
+&lt;environment: 0x106921f08&gt;
 
 $streaming.format
 NULL
@@ -241,10 +240,16 @@ NULL
 [1] &quot;text&quot;
 
 $format
-function (k, v, con, vectorized) 
-write.table(file = con, x = if (is.null(k)) v else cbind(k, v), 
-    ..., row.names = FALSE, col.names = FALSE)
-&lt;environment: 0x10514bd88&gt;
+function (kv, con) 
+{
+    kv = recycle.keyval(kv)
+    k = keys(kv)
+    v = values(kv)
+    write.table(file = con, x = if (is.null(k)) 
+        v
+    else cbind(k, v), ..., row.names = FALSE, col.names = FALSE)
+}
+&lt;environment: 0x10349c550&gt;
 
 $streaming.format
 NULL
@@ -277,21 +282,6 @@ from.dfs(result)
 <p>However, if using data which was not generated with <code>rmr</code> (txt, csv, tsv, JSON, log files, etc) it is necessary to specify an input format. </p>
 
 <p>There is a third option in between the simplicity of a string like &ldquo;csv&rdquo; and the full power of <code>make.input.format</code>, which is passing the format string to <code>make.input.format</code> with additional arguments that further specify the specific dialect of <code>csv</code>, as in <code>make.input.format(&quot;csv&quot;, sep = &#39;;&#39;)</code>. <code>csv</code> is the only format offering this possibility as the others are fully specified and it takes the same options as <code>read.table</code>. The same on the output side with <code>write.table</code> being the model.</p>
-
-<pre><code class="r">wordcount = function (input, output = NULL, pattern = &quot; &quot;) {
-  mapreduce(input = input ,
-            output = output,
-            input.format = &quot;text&quot;,
-            map = function(k,v) {
-                      lapply(
-                         strsplit(
-                                  x = v,
-                                  split = pattern)[[1]],
-                         function(w) keyval(w,1))},
-                reduce = function(k,vv) {
-                    keyval(k, sum(unlist(vv)))},
-                combine = T)}
-</code></pre>
 
 <p>To define your own <code>input.format</code> (e.g. to handle tsv):</p>
 
@@ -363,12 +353,9 @@ fwf.input.format = make.input.format(mode = &quot;text&quot;, format = fwf.reade
 
 <p>Using the text <code>output.format</code> as a template, we modify it slightly to write fixed width data without tab seperation:</p>
 
-<pre><code class="r">fwf.writer &lt;- function(k, v, con, vectorized) {
+<pre><code class="r">fwf.writer &lt;- function(kv, con, keyval.size) {
   ser &lt;- function(df) paste(apply(df, 1, function(x) paste(format(x, width = field.size), collapse = &quot;&quot;)), collapse = &quot;\n&quot;)
-  out &lt;- if(vectorized) {
-    ser(do.call(rbind,v))}
-  else {
-    ser(v)}
+  out = ser(do.call(rbind, values(kv)))
   writeLines(out, con = con)}
 fwf.output.format = make.output.format(mode = &quot;text&quot;, format = fwf.writer)
 </code></pre>
@@ -389,15 +376,8 @@ field.size = 8
 <p>Sending 1 line at a time to the map function:</p>
 
 <pre><code class="r">out &lt;- from.dfs(mapreduce(input = fwf.data,
-                          input.format = fwf.input.format), structured = T)
+                          input.format = fwf.input.format))
 out$val
-</code></pre>
-
-<p>Sending more than 1 line at a time to the map function via the vectorized API:</p>
-
-<pre><code class="r">out &lt;- from.dfs(mapreduce(input = fwf.data,
-                          input.format = fwf.input.format,
-                          vectorized = list(map = TRUE)))
 </code></pre>
 
 <p>Frequency count on <code>cyl</code>:</p>
@@ -406,22 +386,7 @@ out$val
                           input.format = fwf.input.format,
                           map = function(key, value) keyval(value[,&quot;cyl&quot;], 1),
                           reduce = function(key, value) keyval(key, sum(unlist(value))),
-                          combine = TRUE), 
-                structured = TRUE)
-df &lt;- data.frame(out$key, out$val)
-names(df) &lt;- c(&quot;cyl&quot;,&quot;count&quot;)
-df
-</code></pre>
-
-<p>Frequency count on <code>cyl</code> with vectorized API:</p>
-
-<pre><code class="r">out &lt;- from.dfs(mapreduce(input = fwf.data,
-                          input.format = fwf.input.format,
-                          map = function(key, value) keyval(value[,&quot;cyl&quot;], 1, vectorized = TRUE),
-                          reduce = function(key, value) keyval(key, sum(unlist(value))),
-                          combine = TRUE,
-                          vectorized = list(map = TRUE),
-                          structured = list(map = TRUE)), structured = TRUE)
+                          combine = TRUE))
 df &lt;- data.frame(out$key, out$val)
 names(df) &lt;- c(&quot;cyl&quot;,&quot;count&quot;)
 df
@@ -447,7 +412,7 @@ Just like input.format, one must define an output format function:</p>
   output.format = csv.format,
   map = function(k,v){
     # complicated function here
-    keyval(k,v)},
+    keyval(1,v)},
   reduce = function(k, vv) {
     #complicated function here
     keyval(k, vv[[1]])})

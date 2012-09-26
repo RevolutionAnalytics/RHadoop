@@ -25,7 +25,7 @@ language has decent JSON libraries. It was the default in `rmr` 1.0, but we'll k
 1. `native`: based on R's own serialization, it is the default and supports everything that R's `serialize` supports. If you want to know the gory details, it is implemented as an application specific type for the typedbytes format, which is further encapsulated in the sequence file format when writing to HDFS, which ... Dont't worry about it, it just works. Unfortunately, it is written and read by only one package, `rmr` itself.
 1. `sequence.typedbytes`: based on specs in HADOOP-1722 it has emerged as the standard for non Java hadoop application talking to the rest of Hadoop. Also implemented in C for efficiency, its underlying data model is different from R's and we tried to map the two systems the best we could.
 
-
+ 
 ## Custom formats
 
 A format is a triple. You can create one with `make.input.format`, for instance:
@@ -39,15 +39,15 @@ $mode
 [1] "text"
 
 $format
-function (con, nrecs) 
+function (con, keyval.length) 
 {
-    df = tryCatch(read.table(file = con, nrows = nrecs, header = FALSE, 
-        ...), error = function(e) NULL)
+    df = tryCatch(read.table(file = con, nrows = keyval.length, 
+        header = FALSE, ...), error = function(e) NULL)
     if (is.null(df) || dim(df)[[1]] == 0) 
         NULL
-    else keyval(NULL, df, vectorized = nrecs > 1)
+    else keyval(NULL, df)
 }
-<environment: 0x105634a78>
+<environment: 0x106921f08>
 
 $streaming.format
 NULL
@@ -67,10 +67,16 @@ $mode
 [1] "text"
 
 $format
-function (k, v, con, vectorized) 
-write.table(file = con, x = if (is.null(k)) v else cbind(k, v), 
-    ..., row.names = FALSE, col.names = FALSE)
-<environment: 0x10514bd88>
+function (kv, con) 
+{
+    kv = recycle.keyval(kv)
+    k = keys(kv)
+    v = values(kv)
+    write.table(file = con, x = if (is.null(k)) 
+        v
+    else cbind(k, v), ..., row.names = FALSE, col.names = FALSE)
+}
+<environment: 0x10349c550>
 
 $streaming.format
 NULL
@@ -113,21 +119,6 @@ However, if using data which was not generated with `rmr` (txt, csv, tsv, JSON, 
 There is a third option in between the simplicity of a string like "csv" and the full power of `make.input.format`, which is passing the format string to `make.input.format` with additional arguments that further specify the specific dialect of `csv`, as in `make.input.format("csv", sep = ';')`. `csv` is the only format offering this possibility as the others are fully specified and it takes the same options as `read.table`. The same on the output side with `write.table` being the model.
 
 
-```r
-wordcount = function (input, output = NULL, pattern = " ") {
-  mapreduce(input = input ,
-            output = output,
-            input.format = "text",
-            map = function(k,v) {
-                      lapply(
-                         strsplit(
-                                  x = v,
-                                  split = pattern)[[1]],
-                         function(w) keyval(w,1))},
-                reduce = function(k,vv) {
-                    keyval(k, sum(unlist(vv)))},
-                combine = T)}
-```
 
 
 To define your own `input.format` (e.g. to handle tsv):
@@ -215,12 +206,9 @@ fwf.input.format = make.input.format(mode = "text", format = fwf.reader)
 Using the text `output.format` as a template, we modify it slightly to write fixed width data without tab seperation:
 
 ```r
-fwf.writer <- function(k, v, con, vectorized) {
+fwf.writer <- function(kv, con, keyval.size) {
   ser <- function(df) paste(apply(df, 1, function(x) paste(format(x, width = field.size), collapse = "")), collapse = "\n")
-  out <- if(vectorized) {
-    ser(do.call(rbind,v))}
-  else {
-    ser(v)}
+  out = ser(do.call(rbind, values(kv)))
   writeLines(out, con = con)}
 fwf.output.format = make.output.format(mode = "text", format = fwf.writer)
 ```
@@ -247,17 +235,8 @@ Sending 1 line at a time to the map function:
 
 ```r
 out <- from.dfs(mapreduce(input = fwf.data,
-                          input.format = fwf.input.format), structured = T)
+                          input.format = fwf.input.format))
 out$val
-```
-
-
-Sending more than 1 line at a time to the map function via the vectorized API:
-
-```r
-out <- from.dfs(mapreduce(input = fwf.data,
-                          input.format = fwf.input.format,
-                          vectorized = list(map = TRUE)))
 ```
 
 
@@ -268,28 +247,12 @@ out <- from.dfs(mapreduce(input = fwf.data,
                           input.format = fwf.input.format,
                           map = function(key, value) keyval(value[,"cyl"], 1),
                           reduce = function(key, value) keyval(key, sum(unlist(value))),
-                          combine = TRUE), 
-                structured = TRUE)
+                          combine = TRUE))
 df <- data.frame(out$key, out$val)
 names(df) <- c("cyl","count")
 df
 ```
 
-
-Frequency count on `cyl` with vectorized API:
-
-```r
-out <- from.dfs(mapreduce(input = fwf.data,
-                          input.format = fwf.input.format,
-                          map = function(key, value) keyval(value[,"cyl"], 1, vectorized = TRUE),
-                          reduce = function(key, value) keyval(key, sum(unlist(value))),
-                          combine = TRUE,
-                          vectorized = list(map = TRUE),
-                          structured = list(map = TRUE)), structured = TRUE)
-df <- data.frame(out$key, out$val)
-names(df) <- c("cyl","count")
-df
-```
 
 
 To get your data out - say you input file, apply column transformations, add columns, and want to output a new csv file
@@ -320,7 +283,7 @@ mapreduce(
   output.format = csv.format,
   map = function(k,v){
     # complicated function here
-    keyval(k,v)},
+    keyval(1,v)},
   reduce = function(k, vv) {
     #complicated function here
     keyval(k, vv[[1]])})

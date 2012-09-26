@@ -25,7 +25,7 @@ language has decent JSON libraries. It was the default in `rmr` 1.0, but we'll k
 1. `native`: based on R's own serialization, it is the default and supports everything that R's `serialize` supports. If you want to know the gory details, it is implemented as an application specific type for the typedbytes format, which is further encapsulated in the sequence file format when writing to HDFS, which ... Dont't worry about it, it just works. Unfortunately, it is written and read by only one package, `rmr` itself.
 1. `sequence.typedbytes`: based on specs in HADOOP-1722 it has emerged as the standard for non Java hadoop application talking to the rest of Hadoop.
 
-
+ 
 ## Custom formats
 
 A format is a triple. You can create one with `make.input.format`, for instance:
