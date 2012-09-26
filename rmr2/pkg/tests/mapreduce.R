@@ -123,39 +123,44 @@ for (be in c("local", "hadoop")) {
   ## csv
   unit.test(
     function(df) {
+      df1 = 
+        values(
+          from.dfs(
+            mapreduce(
+              to.dfs(
+                df, 
+                format = "csv"),
+              input.format = "csv",
+              output.format = "csv"),
+            format = "csv"))
       isTRUE(
         all.equal(
-          df, 
-          values(
-            from.dfs(
-              mapreduce(
-                to.dfs(
-                  df, 
-                  format = "csv"),
-                input.format = "csv",
-                output.format = "csv"),
-              format = "csv")), 
+          df[order(df[,1]),], 
+          df1[order(df1[,1]),], 
           tolerance = 1e-4, 
           check.attributes = FALSE))},
     generators = list(tdgg.data.frame()),
     sample.size = 10)
   
   #json
+  # a more general test would be better for json but the subtleties of mapping R to to JSON are many
   fmt = "json"
   unit.test(
     function(df) {
+      df1 = 
+        values(
+          from.dfs(
+            mapreduce(
+              to.dfs(
+                df, 
+                format = fmt),
+              input.format = make.input.format("json", key.class = "list", value.class = "data.frame"),
+              output.format = fmt),
+            format = make.input.format("json", key.class = "list", value.class = "data.frame")))
       isTRUE(
         all.equal(
-          df, 
-          values(
-            from.dfs(
-              mapreduce(
-                to.dfs(
-                  df, 
-                  format = fmt),
-                input.format = make.input.format("json", key.class = "list", value.class = "data.frame"),
-                output.format = fmt),
-              format = make.input.format("json", key.class = "list", value.class = "data.frame"))), 
+          df[order(df[,1]),], 
+          df1[order(df1[,1]),], 
           tolerance = 1e-4, 
           check.attributes = FALSE))},
     generators = list(tdgg.data.frame()),
