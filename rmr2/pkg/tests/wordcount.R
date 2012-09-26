@@ -44,9 +44,10 @@ wordcount =
               combine = T)}
 ## @knitr end
 
-rmr2:::hdfs.put("/etc/passwd", "/tmp/wordcount-test")
 rmr.options(backend = "local")
+file.copy("/etc/passwd", "/tmp/wordcount-test")
 out.local = from.dfs(wordcount("/tmp/wordcount-test", pattern = " +"))
 rmr.options(backend = "hadoop")
+rmr2:::hdfs.put("/etc/passwd", "/tmp/wordcount-test")
 out.hadoop = from.dfs(wordcount("/tmp/wordcount-test", pattern = " +"))
 stopifnot(rmr2:::cmp(out.hadoop, out.local))
