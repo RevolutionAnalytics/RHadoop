@@ -7,6 +7,6 @@ As with any new release, testing on additional platforms is under way. If you bu
 <tr><th>rmr</th><th>Hadoop</th><th>R</th><th>OS</th><th>Notes</th><th>Reporter</th></tr>
 </thead>
 <tbody>
-<tr><td>2.0.0</td><td>CDH4</td><td>Revolution R 6.0</td><td>CentOS 5.6</td><td>64-bit</td><td>Revolution</td></tr>
+<tr><td>2.0.0</td><td>CDH4</td><td>Revolution R 6.0</td><td>CentOS 5.6</td><td>64-bit, mr1 only</td><td>Revolution</td></tr>
 </tbody>
 </table>
