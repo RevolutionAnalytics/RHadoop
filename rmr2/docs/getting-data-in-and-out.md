@@ -50,7 +50,7 @@ function (con, keyval.length)
         NULL
     else keyval(NULL, df)
 }
-<environment: 0x105e1a870>
+<environment: 0x1046f6c70>
 
 $streaming.format
 NULL
@@ -79,7 +79,7 @@ function (kv, con)
         v
     else cbind(k, v), ..., row.names = FALSE, col.names = FALSE)
 }
-<environment: 0x101bbb718>
+<environment: 0x102f034a8>
 
 $streaming.format
 NULL
