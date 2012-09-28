@@ -12,24 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-freqs = 
+
+## @knitr counts
+count = 
   function(data, ...) {
-    map.fc = 
-      function(k,data) {
-        fc = apply(data,2,function(x) aggregate(x,list(x),length)) 
-        keyval(names(fc), fc)}
-    
-    reduce.fc =   
+    map.count = 
+      function(dummy,data) {
+        counts = apply(data,2,function(x) aggregate(x,list(x),length)) 
+        keyval(names(counts), counts)}
+    reduce.count =   
       function(colname, counts) {
         counts = do.call(rbind, counts)
         keyval(
           colname, 
           list(aggregate(counts$x, list(as.character(counts$Group.1)), sum)))}
-    
     from.dfs(
       mapreduce(
         data, 
-        map = map.fc, 
-        reduce = reduce.fc,
+        map = map.count, 
+        reduce = reduce.count,
         combine = T,
         ...))} 
+## @knitr end
