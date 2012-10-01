@@ -13,31 +13,23 @@
 # limitations under the License.
 
  
-hdfs.init <- function(hadoop=NULL,conf=NULL,libs=NULL,contrib=NULL,verbose=FALSE){
-  if(is.null(hadoop)) hadoop <- Sys.getenv("HADOOP_HOME")
-  if(is.null(conf)) conf <- Sys.getenv("HADOOP_CONF") #sprintf(Sys.getenv,hadoop)
-  if(hadoop=="" || conf=="" )
-    stop(sprintf("One or both of HADOOP_HOME(%s) or HADOOP_CONF(%s) is/are missing. Please set them and rerun",
-                 Sys.getenv("HADOOP_HOME"),Sys.getenv("HADOOP_CONF")))
-  if(is.null(libs)) libs <- sprintf("%s/lib",hadoop)
-  if(is.null(contrib)) contrib <- sprintf("%s/contrib",hadoop)
-  if(verbose) cat(sprintf("Detected hadoop=%s conf=%s libs=%s and contrib=%s\n",hadoop,conf,libs,contrib))
+hdfs.init <- function(hadoop=NULL){
+  if(is.null(hadoop)) hadoop <- Sys.getenv("HADOOP_CMD")
+  if(hadoop=="") stop(sprintf("HADOOP_CMD(%s) is missing. Please set them and rerun", Sys.getenv("HADOOP_CMD")))
   
-  hcp<-system("hadoop classpath", intern=TRUE)
+  command<-sprintf("%s classpath", Sys.getenv("HADOOP_CMD"))
+  hcp<-system(command, intern=TRUE)
   hcp_filelist<-""
   if (length(hcp) > 0) {
 		hcp<-strsplit(gsub("\\*","",hcp), ":")
 		hcp_filelist<-hcp[[1]]
   }
 
-  hadoop.CP <- c(list.files(hadoop,full.names=TRUE,pattern="jar$",recursive=FALSE)
-                 ,list.files(contrib,full.names=TRUE,pattern="jar$",recursive=FALSE)
-                 ,list.files(libs,full.names=TRUE,pattern="jar$",recursive=FALSE)
- 				 ,hcp_filelist
-				 ,unlist(lapply(hcp_filelist, function(x) list.files(x, full.names=TRUE,pattern="jar$",recursive=FALSE)))
-                 ,conf
+  hadoop.CP <- c(hcp_filelist
+                 ,unlist(lapply(hcp_filelist, function(x) list.files(x, full.names=TRUE,pattern="jar$",recursive=FALSE)))
                  ,list.files(paste(system.file(package="rhdfs"),"java",sep=.Platform$file.sep),pattern="jar$",full.names=T)
                )
+               
   assign("classpath",hadoop.CP,envir=.hdfsEnv)
   .jinit(classpath= hadoop.CP)
   configuration <- .jnew("org/apache/hadoop/conf/Configuration")

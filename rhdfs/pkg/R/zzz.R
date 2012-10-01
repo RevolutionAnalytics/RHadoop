@@ -18,9 +18,8 @@ library(utils)
 .onLoad <- function(libname,pkgname){
   vrs <- packageDescription(pkgname, lib.loc = libname, fields = "Version",
                             drop = TRUE)
-  if (Sys.getenv("HADOOP_HOME") == "") stop(sprintf("Environment variable HADOOP_HOME must be set before loading package %s", pkgname))
-  if (Sys.getenv("HADOOP_CONF") == "") stop(sprintf("Environment variable HADOOP_CONF must be set before loading package %s", pkgname))
-  packageStartupMessage("\nHADOOP_HOME=", Sys.getenv("HADOOP_HOME"),
-                        "\nHADOOP_CONF=", Sys.getenv("HADOOP_CONF"))
-  hdfs.init()
+  if (Sys.getenv("HADOOP_CMD") == "") stop(sprintf("Environment variable HADOOP_CMD must be set before loading package %s", pkgname))
+  packageStartupMessage("\nHADOOP_CMD=", Sys.getenv("HADOOP_CMD"))
+  packageStartupMessage("\nBe sure to run hdfs.init()")
+  #hdfs.init()
 }
