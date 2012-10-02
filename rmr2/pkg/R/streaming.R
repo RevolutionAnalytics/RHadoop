@@ -314,7 +314,18 @@ hdfs.match.sideeffect = function(...) {
 hdfs.match.out = function(...) {
   oldwarn = options("warn")[[1]]
   options(warn = -1)
-  retval = do.call(rbind, strsplit(hdfs(getcmd(match.call()), TRUE, ...), " +")) 
+  retval = 
+    do.call(
+      rbind, 
+      strsplit(
+        grep("Found [0-9]+ items",
+             hdfs(
+               getcmd(match.call()), 
+               TRUE, 
+               ...),
+             value = TRUE, 
+             invert = TRUE),
+        " +")) 
   options(warn = oldwarn)
   retval}
 
