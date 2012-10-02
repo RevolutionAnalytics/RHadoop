@@ -22,7 +22,7 @@ library(rmr2)
 ## @knitr wordcount-signature
 wordcount = 
   function (input, output = NULL, pattern = " ") {
-## @knitr wordcout-map
+## @knitr wordcount-map
     wc.map = 
       function(dummy, lines) {
         keyval(

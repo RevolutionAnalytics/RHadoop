@@ -77,6 +77,16 @@ wordcount =
 There is an input and optional output and a pattern that defines what a word is. 
 
 
+```r
+    wc.map = 
+      function(dummy, lines) {
+        keyval(
+          unlist(
+            strsplit(
+              x = lines,
+              split = pattern)),
+          1)}
+```
 
 
 The map function, as we know already, takes two arguments, a key and a value. The key here is not important, indeed always `NULL`. The value contains several lines of text, which gets split according to a pattern. Here you can see that `pattern` is accessible in the mapper without any particular work on the programmer side and according to normal R scope rules. This apparent simplicity hides the fact that the map function is executed in a different interpreter and on a different machine than the `mapreduce` function. Behind the scenes the R environment is serialized, broadcast to the cluster and restored on each interpreter running on the nodes. For each word, a key value pair (*w*, 1) is generated with `keyval` and their collection is the return value of the mapper. 

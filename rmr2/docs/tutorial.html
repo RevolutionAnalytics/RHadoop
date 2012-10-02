@@ -236,6 +236,16 @@ hljs.initHighlightingOnLoad();
 
 <p>There is an input and optional output and a pattern that defines what a word is. </p>
 
+<pre><code class="r">    wc.map = 
+      function(dummy, lines) {
+        keyval(
+          unlist(
+            strsplit(
+              x = lines,
+              split = pattern)),
+          1)}
+</code></pre>
+
 <p>The map function, as we know already, takes two arguments, a key and a value. The key here is not important, indeed always <code>NULL</code>. The value contains several lines of text, which gets split according to a pattern. Here you can see that <code>pattern</code> is accessible in the mapper without any particular work on the programmer side and according to normal R scope rules. This apparent simplicity hides the fact that the map function is executed in a different interpreter and on a different machine than the <code>mapreduce</code> function. Behind the scenes the R environment is serialized, broadcast to the cluster and restored on each interpreter running on the nodes. For each word, a key value pair (<em>w</em>, 1) is generated with <code>keyval</code> and their collection is the return value of the mapper. </p>
 
 <pre><code class="r">    wc.reduce =
