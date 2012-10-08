@@ -137,7 +137,10 @@ rmr.stream = function(
   library(rmr2)
   load("',basename(rmr.local.env),'")
   load("',basename(rmr.global.env),'")
-  invisible(lapply(libs, function(l) require(l, character.only = T)))
+  capture.output(
+    invisible(
+      lapply(libs, function(l) require(l, character.only = T))), 
+    file = stderr())
   
   input.reader = 
     function()
