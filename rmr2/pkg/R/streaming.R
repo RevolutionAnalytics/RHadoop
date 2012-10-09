@@ -135,8 +135,8 @@ rmr.stream = function(
   preamble = paste(sep = "", 'options(warn=1)
  
   library(rmr2)
-  load("',basename(rmr.local.env),'")
   load("',basename(rmr.global.env),'")
+  load("',basename(rmr.local.env),'")  
   capture.output(
     invisible(
       lapply(libs, function(l) require(l, character.only = T))), 
