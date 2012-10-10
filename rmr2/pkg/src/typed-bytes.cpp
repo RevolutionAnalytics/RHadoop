@@ -219,7 +219,7 @@ void T2raw(int data, raw & serialized) {
   for(int i = 0; i < 4; i++) {
     serialized.push_back((data >> (8*(3 - i))) & 255);}}
 
-void T2raw(unsigned long data, raw & serialized) {
+void T2raw(uint64_t data, raw & serialized) {
   for(int i = 0; i < 8; i++) {  
     serialized.push_back((data >> (8*(7 - i))) & 255);}}
 
@@ -229,6 +229,7 @@ void T2raw(double data, raw & serialized) {
     uint64_t u;} ud;
   ud.d = data;
   T2raw(ud.u, serialized);}
+
 
 void length_header(int len, raw & serialized){
   if(len < 0) {
