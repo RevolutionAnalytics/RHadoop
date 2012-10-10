@@ -16,6 +16,7 @@
 #include <deque>
 #include <iostream>
 #include <algorithm>
+#include <stdint.h>
 
 typedef std::deque<unsigned char> raw;
 #include <string>
@@ -61,7 +62,7 @@ long raw2long(const raw & data, int & start) {
 double raw2double(const raw & data, int & start) {
   union udouble {
     double d;
-    unsigned long u;} ud;
+    uint64_t u;} ud;
   ud.u = raw2long(data, start);
   return ud.d;} 
 
@@ -225,7 +226,7 @@ void T2raw(unsigned long data, raw & serialized) {
 void T2raw(double data, raw & serialized) {
   union udouble {
     double d;
-    unsigned long u;} ud;
+    uint64_t u;} ud;
   ud.d = data;
   T2raw(ud.u, serialized);}
 
