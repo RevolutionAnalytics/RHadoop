@@ -1,0 +1,53 @@
+`r read_chunk('../../pkg/tests/benchmarks.R')`
+`r opts_chunk$set(echo=TRUE, eval=FALSE, cache=FALSE, tidy=FALSE)`
+
+## 
+
+<ul class="incremental" style="list-style: none" >
+<li>
+```{r write}
+```
+<li>
+```{r read}
+```
+</ul>
+
+## 
+```{r pass-through}
+```
+## 
+<ul class="incremental" style="list-style: none" >
+<li>
+```{r predicate }
+```
+<li> 
+```{r filter }
+```
+</ul>
+## 
+<ul class="incremental" style="list-style: none" >
+<li>
+```{r select-input }
+```
+<li>
+```{r select }
+```
+</ul>
+## 
+<ul class="incremental" style="list-style: none" >
+<li>
+```{r bigsum-input}
+```
+<li>
+```{r bigsum }
+```
+</ul>
+## 
+```{r group-aggregate-input}
+```
+## 
+```{r group-aggregate-functions}
+```
+## 
+```{r group-aggregate}
+```
