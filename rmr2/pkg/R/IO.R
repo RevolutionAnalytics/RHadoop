@@ -72,7 +72,7 @@ make.csv.output.format = function(...) function(kv, con) {
   k = keys(kv)
   v = values(kv)
   write.table(file = con, 
-              x = if(is.null(k)) v else cbind(k,v), 
+              x = if(is.null(k)) v else cbind(k, v), 
               ..., 
               row.names = FALSE, 
               col.names = FALSE)}

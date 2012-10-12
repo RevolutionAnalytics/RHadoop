@@ -25,12 +25,12 @@ for (be in c("local", "hadoop")) {
   small.ints = to.dfs(1:1000)
   mapreduce(
     input = small.ints, 
-    map = function(k,v) cbind(v,v^2))
+    map = function(k, v) cbind(v, v^2))
 ## @knitr end
   from.dfs(
     mapreduce(
       input = small.ints, 
-      map = function(k,v) cbind(v, v^2)))
+      map = function(k, v) cbind(v, v^2)))
   
   # tapply like job
 ## @knitr tapply
@@ -41,9 +41,9 @@ for (be in c("local", "hadoop")) {
   from.dfs(
     mapreduce(
       input = groups, 
-      map = function(.,v) keyval(v, 1), 
+      map = function(., v) keyval(v, 1), 
       reduce = 
-        function(k,vv) 
+        function(k, vv) 
           keyval(k, length(vv))))
 ## @knitr end 
   
@@ -54,7 +54,7 @@ for (be in c("local", "hadoop")) {
 ## @knitr  basic.examples-filter  
   filter.map = 
     function(pred) 
-      function(.,v) {v[pred(v)]}
+      function(., v) {v[pred(v)]}
   
   mrfilter = 
     function (input, 

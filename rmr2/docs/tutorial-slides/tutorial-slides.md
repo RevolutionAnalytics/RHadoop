@@ -23,7 +23,7 @@
 - <img src="rhadoop.png" width="20%">
 - rhdfs
 - rhbase
-- rmr
+- rmr2
 
 # Mapreduce 
 
@@ -43,7 +43,7 @@
   small.ints = to.dfs(1:1000)
   mapreduce(
     input = small.ints, 
-    map = function(k,v) cbind(v,v^2))
+    map = function(k, v) cbind(v, v^2))
 ```
 
 </ul>
@@ -65,9 +65,9 @@
   from.dfs(
     mapreduce(
       input = groups, 
-      map = function(.,v) keyval(v, 1), 
+      map = function(., v) keyval(v, 1), 
       reduce = 
-        function(k,vv) 
+        function(k, vv) 
           keyval(k, length(vv))))
 ```
 
@@ -97,7 +97,7 @@
 ```r
     mapreduce(
       input, 
-      map = function(k,v) keyval(k,v))
+      map = function(k, v) keyval(k, v))
 ```
 
 ## 
@@ -106,7 +106,7 @@
 
 ```r
   predicate = 
-    function(.,v) unlist(v)%%2 == 0
+    function(., v) unlist(v)%%2 == 0
 ```
 
 <li> 
@@ -115,8 +115,8 @@
     mapreduce(
       input, 
       map = 
-        function(k,v) {
-          filter = predicate(k,v); 
+        function(k, v) {
+          filter = predicate(k, v); 
           keyval(k[filter], v[filter])})
 ```
 
@@ -140,7 +140,7 @@
 
 ```r
     mapreduce(input.select,
-              map = function(.,v) v$b)
+              map = function(., v) v$b)
 ```
 
 </ul>
@@ -160,7 +160,7 @@
     mapreduce(
       input.bigsum, 
       map  = 
-        function(.,v) keyval(1, sum(v)), 
+        function(., v) keyval(1, sum(v)), 
       reduce = 
         function(., v) keyval(1, sum(v)),
       combine = TRUE)
@@ -180,7 +180,7 @@
 ## 
 
 ```r
-  group = function(k,v) k%%100
+  group = function(k, v) k%%100
   aggregate = function(x) sum(x)
 ```
 
@@ -190,8 +190,8 @@
     mapreduce(
       input.ga, 
       map = 
-        function(k,v) 
-          keyval(group(k,v), v),
+        function(k, v) 
+          keyval(group(k, v), v),
       reduce = 
         function(k, vv) 
           keyval(k, aggregate(vv)),

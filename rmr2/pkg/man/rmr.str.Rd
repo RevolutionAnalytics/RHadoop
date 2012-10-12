@@ -24,5 +24,5 @@ NULL
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \examples{
-mapreduce(to.dfs(1), map = function(k,v) rmr.str(v))
+mapreduce(to.dfs(1), map = function(k, v) rmr.str(v))
 }

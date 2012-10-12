@@ -12,8 +12,8 @@ hdfs.data = to.dfs(my.data)
 ## @knitr getting-data.object.length.frequency
 result = mapreduce(
   input = hdfs.data,
-  map = function(k,v) keyval(length(v), 1),
-  reduce = function(k,vv) keyval(k, sum(unlist(vv))))
+  map = function(k, v) keyval(length(v), 1),
+  reduce = function(k, vv) keyval(k, sum(unlist(vv))))
 
 from.dfs(result)
 ## @knitr end
@@ -38,8 +38,8 @@ freq.counts =
   mapreduce(
     input = tsv.data,
     input.format = tsv.format,
-    map = function(k,v) keyval(v[[1]], 1),
-    reduce = function(k,vv) keyval(k, sum(unlist(vv))))
+    map = function(k, v) keyval(v[[1]], 1),
+    reduce = function(k, vv) keyval(k, sum(unlist(vv))))
 ## @knitr getting-data.named.columns
 tsv.reader = 
   function(con, nrecs){
@@ -74,9 +74,9 @@ mapreduce(
   input = hdfs.data,
   output = tempfile(),
   output.format = csv.format,
-  map = function(k,v){
+  map = function(k, v){
     # complicated function here
-    keyval(1,v)},
+    keyval(1, v)},
   reduce = function(k, vv) {
     #complicated function here
     keyval(k, vv[[1]])})

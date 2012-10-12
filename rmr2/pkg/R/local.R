@@ -38,7 +38,7 @@ mr.local = function(map,
       map,
       keyval.length)
   map.out = from.dfs(to.dfs(c.keyval(lapply(map.out, as.keyval))))
-  reduce.helper = function(kk,vv) reduce(kk[1], vv)
+  reduce.helper = function(kk, vv) reduce(kk[1], vv)
   reduce.out = 
     if(!is.null(reduce))
       c.keyval(

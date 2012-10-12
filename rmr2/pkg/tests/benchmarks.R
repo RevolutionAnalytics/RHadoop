@@ -46,7 +46,7 @@ for (be in c("local", "hadoop")) {
 ## @knitr pass-through
     mapreduce(
       input, 
-      map = function(k,v) keyval(k,v))
+      map = function(k, v) keyval(k, v))
 ## @knitr end        
               })
   #   user  system elapsed 
@@ -58,15 +58,15 @@ for (be in c("local", "hadoop")) {
   
 ## @knitr predicate            
   predicate = 
-    function(.,v) unlist(v)%%2 == 0
+    function(., v) unlist(v)%%2 == 0
 ## @knitr end            
   system.time({out = 
 ## @knitr filter              
     mapreduce(
       input, 
       map = 
-        function(k,v) {
-          filter = predicate(k,v); 
+        function(k, v) {
+          filter = predicate(k, v); 
           keyval(k[filter], v[filter])})
 ## @knitr end                               
   })
@@ -90,7 +90,7 @@ for (be in c("local", "hadoop")) {
   system.time({out = 
 ## @knitr select                 
     mapreduce(input.select,
-              map = function(.,v) v$b)
+              map = function(., v) v$b)
 ## @knitr end                                   
               })
 #   user  system elapsed 
@@ -110,7 +110,7 @@ for (be in c("local", "hadoop")) {
     mapreduce(
       input.bigsum, 
       map  = 
-        function(.,v) keyval(1, sum(v)), 
+        function(., v) keyval(1, sum(v)), 
       reduce = 
         function(., v) keyval(1, sum(v)),
       combine = TRUE)
@@ -131,7 +131,7 @@ for (be in c("local", "hadoop")) {
         1:input.size,
         rnorm(input.size)))
 ## @knitr group-aggregate-functions
-  group = function(k,v) k%%100
+  group = function(k, v) k%%100
   aggregate = function(x) sum(x)
 ## @knitr end             
   system.time({out = 
@@ -139,8 +139,8 @@ for (be in c("local", "hadoop")) {
     mapreduce(
       input.ga, 
       map = 
-        function(k,v) 
-          keyval(group(k,v), v),
+        function(k, v) 
+          keyval(group(k, v), v),
       reduce = 
         function(k, vv) 
           keyval(k, aggregate(vv)),

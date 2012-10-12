@@ -85,7 +85,7 @@ reduce.loop = function(reduce, keyval.reader, keyval.writer, profile) {
   while(!is.null(kv)) {
     apply.keyval(
       kv,
-      function(k,v) {
+      function(k, v) {
         if(length(vv()) == 0) { #start
           current.key <<- k
           vv(list(v))}
