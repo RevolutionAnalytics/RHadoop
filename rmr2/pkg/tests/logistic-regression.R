@@ -19,18 +19,22 @@
 library(rmr2)
 
 ## @knitr logistic.regression-signature
-logistic.regression = function(input, iterations, dims, alpha){
+logistic.regression = 
+  function(input, iterations, dims, alpha){
 
 ## @knitr logistic.regression-map
   lr.map =          
-    function(dummy, M) {
-      Y = M[,'y'] 
-      X = M[,c("x1","x2")]
-      keyval(1,
-             Y * X * g(-Y * as.numeric(X %*% t(plane))))}
+    function(., M) {
+      Y = M[,1] 
+      X = M[,-1]
+      keyval(
+        1,
+        Y * X * 
+          g(-Y * as.numeric(X %*% t(plane))))}
 ## @knitr logistic.regression-reduce
   lr.reduce =
-    function(k, Z) keyval(k, t(as.matrix(apply(Z,2,sum))))
+    function(k, Z) 
+      keyval(k, t(as.matrix(apply(Z,2,sum))))
 ## @knitr logistic.regression-main
   plane = t(rep(0, dims))
   g = function(z) 1/(1 + exp(-z))
@@ -53,10 +57,22 @@ for (be in c("local", "hadoop")) {
   rmr.options(backend = be)
   ## create test set 
   set.seed(0)
+## @knitr logistic.regression-data
   eps = rnorm(test.size)
-  testdata = to.dfs(as.matrix(data.frame(x1 = 1:test.size, x2 = 1:test.size + eps, y = 2 * (eps > 0) - 1)))
-  ## run 
-  out[[be]] = logistic.regression(testdata, 3, 2, 0.05)
+  testdata = 
+    to.dfs(
+      as.matrix(
+        data.frame(
+          y = 2 * (eps > 0) - 1,
+          x1 = 1:test.size, 
+          x2 = 1:test.size + eps)))
+## @knitr end  
+  out[[be]] = 
+## @knitr logistic.regression-run 
+    logistic.regression(
+      testdata, 3, 2, 0.05)
+## @knitr end  
   ## max likelihood solution diverges for separable dataset, (-inf, inf) such as the above
 }
-stopifnot(isTRUE(all.equal(out[['local']], out[['hadoop']])))
+stopifnot(
+  isTRUE(all.equal(out[['local']], out[['hadoop']])))

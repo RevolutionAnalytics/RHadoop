@@ -21,10 +21,13 @@ library(rmr2)
 
 ## @knitr wordcount-signature
 wordcount = 
-  function (input, output = NULL, pattern = " ") {
+  function(
+    input, 
+    output = NULL, 
+    pattern = " "){
 ## @knitr wordcount-map
     wc.map = 
-      function(dummy, lines) {
+      function(., lines) {
         keyval(
           unlist(
             strsplit(
