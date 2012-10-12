@@ -1,0 +1,232 @@
+`r read_chunk('../../pkg/tests/benchmarks.R')`
+`r read_chunk('../../pkg/tests/basic-examples.R')`
+`r read_chunk('../../pkg/tests/wordcount.R')`
+`r read_chunk('../../pkg/tests/logistic-regression.R')`
+`r read_chunk('../../pkg/tests/linear-least-squares.R')`
+`r read_chunk('../../pkg/tests/kmeans.R')`
+`r opts_chunk$set(echo=TRUE, eval=FALSE, cache=FALSE, tidy=FALSE)`
+
+
+## RHadoop Tutorial
+### Revolution Analytics
+#### Antonio Piccolboni
+#### rhadoop@revolutionanalytics.com
+#### antonio@piccolboni.info
+
+#RHadoop 
+
+##
+
+- R + Hadoop
+- OSS
+- <img src="revolution.jpeg" width="20%">
+- <img src="rhadoop.png" width="20%">
+- rhdfs
+- rhbase
+- rmr2
+
+# Mapreduce 
+
+##
+
+<ul class="incremental" style="list-style: none" >
+<li>
+```{r lapply}
+```
+<li>
+```{r lapply-mapreduce}
+```
+</ul>
+
+## 
+
+<ul class="incremental" style="list-style: none" >
+<li>
+```{r tapply}
+```
+<li>
+```{r tapply-mapreduce}
+```
+</ul>
+
+# rmr-ABC
+
+## 
+
+<ul class="incremental" style="list-style: none" >
+<li>
+```{r write}
+```
+<li>
+```{r read}
+```
+</ul>
+
+## 
+```{r pass-through}
+```
+## 
+<ul class="incremental" style="list-style: none" >
+<li>
+```{r predicate }
+```
+<li> 
+```{r filter }
+```
+</ul>
+## 
+<ul class="incremental" style="list-style: none" >
+<li>
+```{r select-input }
+```
+<li>
+```{r select }
+```
+</ul>
+## 
+<ul class="incremental" style="list-style: none" >
+<li>
+```{r bigsum-input}
+```
+<li>
+```{r bigsum }
+```
+</ul>
+## 
+```{r group-aggregate-input}
+```
+## 
+```{r group-aggregate-functions}
+```
+## 
+```{r group-aggregate}
+```
+
+# Wordcount
+##
+
+<ul class="incremental" style="list-style: none" >
+<li>
+```{r wordcount-signature}
+```
+<li>
+```{r wordcount-mapreduce}
+```
+</ul>
+
+##
+
+<ul class="incremental" style="list-style: none" >
+<li>
+```{r wordcount-map}
+```
+<li>
+```{r wordcount-reduce}
+```
+</ul>
+
+
+
+# Logistic Regression
+
+##
+<ul class="incremental" style="list-style: none" >
+
+<li>
+```{r logistic.regression-signature}
+```
+<li>
+```{r logistic.regression-main}
+```
+</ul>
+
+##
+<ul class="incremental" style="list-style: none" >
+
+<li>
+```{r logistic.regression-map}
+```
+</li>
+```{r logistic.regression-reduce}
+```
+</ul>
+
+##
+
+<ul class="incremental" style="list-style: none" >
+
+<li>
+```{r logistic.regression-data}
+```
+</li>
+```{r logistic.regression-run}
+```
+</ul>
+
+
+# K-means
+
+##
+
+```{r kmeans-dist.fun}
+```
+ 
+##
+```{r kmeans.map.1}
+```
+
+##
+```{r kmeans.reduce.1}
+```
+
+##
+```{r kmeans-signature}
+```
+##
+```{r kmeans-main}
+```
+
+##
+<ul class="incremental" style="list-style: none" >
+<li>
+```{r kmeans-data}
+```
+<li>
+```{r kmeans-run}
+```  
+</ul>
+
+# Linear Least Squares
+
+##
+  
+  $$ \mathbf{X b = y}$$  
+
+```
+  solve(t(X)%*%X, t(X)%*%y)
+```
+  
+##
+
+```{r  LLS-sum}
+```
+
+##
+```{r  LLS-XtX}
+```
+
+##
+```{r  LLS-Xty}
+```
+
+##
+<ul class="incremental" style="list-style: none" >
+
+<li>
+```{r  LLS-solve}
+```
+<li>   
+
+```{r  LLS-data}
+```
+</ul>
