@@ -216,12 +216,13 @@ wordcount =
 <li>
 
 ```r
-    mapreduce(input = input ,
-              output = output,
-              input.format = "text",
-              map = wc.map,
-              reduce = wc.reduce,
-              combine = T)}
+    mapreduce(
+      input = input ,
+      output = output,
+      input.format = "text",
+      map = wc.map,
+      reduce = wc.reduce,
+      combine = T)}
 ```
 
 </ul>

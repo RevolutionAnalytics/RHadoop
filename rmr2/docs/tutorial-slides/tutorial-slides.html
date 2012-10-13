@@ -251,12 +251,13 @@ code > span.er { color: #ff0000; font-weight: bold; }
     <span class="dt">pattern =</span> <span class="st">&quot; &quot;</span>){</code></pre>
 <li>
 
-<pre class="sourceCode r"><code class="sourceCode r">    <span class="kw">mapreduce</span>(<span class="dt">input =</span> input ,
-              <span class="dt">output =</span> output,
-              <span class="dt">input.format =</span> <span class="st">&quot;text&quot;</span>,
-              <span class="dt">map =</span> wc.map,
-              <span class="dt">reduce =</span> wc.reduce,
-              <span class="dt">combine =</span> T)<span class="er">}</span></code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">    <span class="kw">mapreduce</span>(
+      <span class="dt">input =</span> input ,
+      <span class="dt">output =</span> output,
+      <span class="dt">input.format =</span> <span class="st">&quot;text&quot;</span>,
+      <span class="dt">map =</span> wc.map,
+      <span class="dt">reduce =</span> wc.reduce,
+      <span class="dt">combine =</span> T)<span class="er">}</span></code></pre>
 </ul>
 
 </section><section class="slide level2" id="section-12">

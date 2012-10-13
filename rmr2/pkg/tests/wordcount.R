@@ -39,12 +39,13 @@ wordcount =
       function(word, counts ) {
         keyval(word, sum(counts))}
 ## @knitr wordcount-mapreduce
-    mapreduce(input = input ,
-              output = output,
-              input.format = "text",
-              map = wc.map,
-              reduce = wc.reduce,
-              combine = T)}
+    mapreduce(
+      input = input ,
+      output = output,
+      input.format = "text",
+      map = wc.map,
+      reduce = wc.reduce,
+      combine = T)}
 ## @knitr end
 
 rmr.options(backend = "local")
