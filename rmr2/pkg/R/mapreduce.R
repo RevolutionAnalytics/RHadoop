@@ -19,12 +19,14 @@ rmr.options.env$backend = "hadoop"
 rmr.options.env$keyval.length = 1000
 rmr.options.env$profile.nodes = FALSE
 rmr.options.env$depend.check = FALSE
+rmr.options.env$install.args = NULL
 #rmr.options$managed.dir = "/var/rmr/managed"
 
 rmr.options = 
   function(backend = c("hadoop", "local"), 
            profile.nodes = FALSE,
-           keyval.length = 1000#, 
+           keyval.length = 1000,
+           install.args = list()#, 
            #depend.check = FALSE, 
            #managed.dir = FALSE
   ) {
@@ -257,6 +259,10 @@ mapreduce = function(
      out.folder = to.dfs.path(output), 
      profile.nodes = rmr.options('profile.nodes'), 
      keyval.length = rmr.options('keyval.length'),
+     rmr.install = {
+       if(!is.null(rmr.options('install.args')))
+         do.call(Curry, rmr.options('install.args'))
+       else NULL},
      input.format = input.format, 
      output.format = output.format, 
      backend.parameters = backend.parameters[[backend]], 
