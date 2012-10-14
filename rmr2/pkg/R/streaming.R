@@ -128,6 +128,7 @@ rmr.stream = function(
   out.folder, 
   profile.nodes, 
   keyval.length,
+  rmr.install,
   input.format, 
   output.format, 
   backend.parameters, 
@@ -143,7 +144,7 @@ rmr.stream = function(
   load("',basename(rmr.local.env),'")  
   capture.output(
     invisible(
-      lapply(libs, function(l) require(l, character.only = T))), 
+      lapply(libs, function(l) if (!require(l, character.only = T) && !is.null(rmr.install)) rmr.install(l))), 
     file = stderr())
   
   input.reader = 
