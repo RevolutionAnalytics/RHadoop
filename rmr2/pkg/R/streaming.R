@@ -139,12 +139,18 @@ rmr.stream = function(
   rmr.global.env = tempfile(pattern = "rmr-global-env")
   preamble = paste(sep = "", 'options(warn=1)
  
-  library(rmr2)
   load("',basename(rmr.global.env),'")
   load("',basename(rmr.local.env),'")  
   capture.output(
     invisible(
-      lapply(libs, function(l) if (!require(l, character.only = T) && !is.null(rmr.install)) rmr.install(l))), 
+      lapply(
+        libs, 
+        function(l)
+          if (!require(l, character.only = T)) {
+            if(is.null(rmr.install)) {
+              warning(paste("can\'t load", l))}
+            else {
+              rmr.install(l)}})), 
     file = stderr())
   
   input.reader = 
