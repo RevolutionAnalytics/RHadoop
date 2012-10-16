@@ -53,8 +53,12 @@ rmr.slice =
 
 rmr.recycle = 
   function(x,y) {
-    lx = if(is.null(x)) 1 else rmr.length(x)
-    ly = if(is.null(y)) 1 else rmr.length(y)
+    recycle.length = 
+      function(z) {
+        if(is.null(z) || rmr.length(z) == 0) 1 
+        else rmr.length(z) }
+    lx = recycle.length(x)
+    ly = recycle.length(y)
     if(lx == ly) x
     else
       rmr.slice(
