@@ -305,7 +305,7 @@ equijoin = function(
              lapply(values(kv),
                     function(v) {
                       attributes(v) = c(list(is.left = is.left), attributes(v))
-                      v}))}
+                      list(v)}))}
   is.left.side = 
     function(left.input) {
       leftin = strsplit(to.dfs.path(left.input), "/+")[[1]]
@@ -315,30 +315,31 @@ equijoin = function(
       all(mapin[1:length(leftin)] == leftin)}
   reduce.split =
     function(vv) {
-      tapply(vv, 
-             sapply(vv, function(v) attr(v, "is.left", exact=T)), 
-             identity, 
-             simplify = FALSE)}
+      tapply(
+        vv, 
+        sapply(vv, function(v) attr(v, "is.left", exact=T)), 
+        identity, 
+        simplify = FALSE)}
   pad.side =
-    function(vv, side.outer, full.outer) if (length(vv) == 0 && (side.outer || full.outer)) c(NA) else vv
-  map = if (is.null(input)) {
-    function(k, v) {
-      ils = switch(rmr.options('backend'), 
-                   hadoop = is.left.side(left.input), 
-                   local = attr(v, 'rmr.input') == to.dfs.path(left.input), 
-                   stop("Unsupported backend: ", rmr.options('backend')))
-      mark.side(if(ils) map.left(k, v) else map.right(k, v), ils)}}
+    function(vv, side.outer, full.outer) 
+      if (length(vv) == 0 && (side.outer || full.outer)) c(NA) else c.or.rbind(vv)
+  map = 
+    if (is.null(input)) {
+      function(k, v) {
+        ils = is.left.side(left.input)
+        mark.side(if(ils) map.left(k, v) else map.right(k, v), ils)}}
   else {
     function(k, v) {
       c.keyval(mark.side(map.left(k, v), TRUE), 
                mark.side(map.right(k, v), FALSE))}}
-  eqj.reduce = reduce
-  mapreduce(map = map, 
-            reduce =
-              function(k, vv) {
-                rs = reduce.split(vv)
-                eqj.reduce(c.or.rbind(k), 
-                           pad.side(c.or.rbind(rs$`TRUE`), right.outer, full.outer), 
-                           pad.side(c.or.rbind(rs$`FALSE`), left.outer, full.outer))}, 
-            input = c(left.input, right.input), 
-            output = output)}
+  eqj.reduce = 
+    function(k, vv) {
+      rs = reduce.split(vv)
+      reduce(k, 
+             pad.side(rs$`TRUE`, right.outer, full.outer), 
+             pad.side(rs$`FALSE`, left.outer, full.outer))}
+  mapreduce(
+    map = map, 
+    reduce = eqj.reduce,
+    input = c(left.input, right.input), 
+    output = output)}
