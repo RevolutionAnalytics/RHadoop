@@ -106,7 +106,7 @@ c.keyval =
 rmr.split = 
   function(x, ind) {
     spl = if(has.rows(x)) split.data.frame else split
-    spl(x,ind)}
+    spl(x,ind, drop = FALSE)}
 
 split.keyval = function(kv, size) {
   k = keys(kv)
