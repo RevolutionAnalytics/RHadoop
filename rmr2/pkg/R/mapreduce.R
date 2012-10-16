@@ -288,8 +288,7 @@ equijoin = function(
   outer = c("", "left", "right", "full"), 
   map.left = to.map(identity), 
   map.right = to.map(identity), 
-  reduce  = function(k, values.left, values.right) keyval(k, merge(values.left, values.right, by = NULL)), 
-  reduce.all  = function(k, vl, vr) keyval(k, list(list(left = vl, right = vr)))) { 
+  reduce  = function(k, vl, vr) keyval(k, list(list(left = vl, right = vr)))) { 
   
   stopifnot(xor(!is.null(left.input), !is.null(input) &&
     (is.null(left.input) == is.null(right.input))))
