@@ -293,7 +293,7 @@ equijoin = function(
       if(is.list(vl) || is.list(vr))
         keyval(k, list(list(left = vl, right = vr)))
       else
-        merge(vl, vr)) { 
+        merge(vl, vr)}) { 
   
   stopifnot(xor(!is.null(left.input), !is.null(input) &&
     (is.null(left.input) == is.null(right.input))))
