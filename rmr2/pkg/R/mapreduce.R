@@ -236,11 +236,12 @@ mapreduce = function(
   verbose = TRUE) {
   
   on.exit(expr = gc(), add = TRUE) #this is here to trigger cleanup of tempfiles
-  if (is.null(output)) output = 
-    if(rmr.options('depend.check'))
-      dfs.managed.file(match.call())
-  else
-    dfs.tempfile()
+  if (is.null(output)) 
+    output = {
+      if(rmr.options('depend.check'))
+        dfs.managed.file(match.call())
+      else
+        dfs.tempfile()}
   if(is.character(input.format)) input.format = make.input.format(input.format)
   if(is.character(output.format)) output.format = make.output.format(output.format)
   if(!missing(backend.parameters)) warning("backend.parameters is deprecated.")
