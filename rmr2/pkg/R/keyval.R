@@ -110,24 +110,20 @@ rmr.split =
 
 split.keyval = function(kv, size) {
   k = keys(kv)
-  v = values(kv)
-  if (is.list(k) && is.list(v) && length(k) == length(v))
-    kv
+  v = rmr.recycle(values(kv), k)
+  if(is.null(k)) {
+    k =  ceiling(1:rmr.length(v)/size)
+    recycle.keyval(
+      keyval(list(NULL),
+             unname(rmr.split(v, k))))}
   else {
-    v = rmr.recycle(v, k)
-    if(is.null(k)) {
-      k =  ceiling(1:rmr.length(v)/size)
-      recycle.keyval(
-        keyval(list(NULL),
-               unname(rmr.split(v, k))))}
-    else {
-      ind = {
-        if(is.list(k) && !is.data.frame(k))
-          sapply(k, digest)
-        else
-          k}
-      keyval(lapply(unname(rmr.split(k, ind)), unique), 
-             unname(rmr.split(v, ind)))}}}
+    ind = {
+      if(is.list(k) && !is.data.frame(k))
+        sapply(k, digest)
+      else
+        k}
+    keyval(lapply(unname(rmr.split(k, ind)), unique), 
+           unname(rmr.split(v, ind)))}}
 
 apply.keyval = 
   function(
