@@ -20,13 +20,15 @@ rmr.options.env$keyval.length = 1000
 rmr.options.env$profile.nodes = FALSE
 rmr.options.env$depend.check = FALSE
 rmr.options.env$install.args = NULL
+rmr.options.env$update.args = NULL
 #rmr.options$managed.dir = "/var/rmr/managed"
 
 rmr.options = 
   function(backend = c("hadoop", "local"), 
            profile.nodes = FALSE,
            keyval.length = 1000,
-           install.args = list()#, 
+           install.args = NULL,
+           update.args = NULL#, 
            #depend.check = FALSE, 
            #managed.dir = FALSE
   ) {
@@ -264,6 +266,10 @@ mapreduce = function(
        if(!is.null(rmr.options('install.args')))
          do.call(Curry, rmr.options('install.args'))
        else NULL},
+     rmr.update = {
+       if(!is.null(rmr.options('update.args')))
+         do.call(Curry, rmr.options('update.args'))
+       else NULL}, 
      input.format = input.format, 
      output.format = output.format, 
      backend.parameters = backend.parameters[[backend]], 
@@ -294,7 +300,7 @@ equijoin = function(
       if(is.list(vl) || is.list(vr))
         keyval(k, list(list(left = vl, right = vr)))
       else
-        merge(vl, vr)}) { 
+        keyval(k, merge(vl, vr, by = NULL))}) { 
   
   stopifnot(xor(!is.null(left.input), !is.null(input) &&
     (is.null(left.input) == is.null(right.input))))
@@ -310,8 +316,7 @@ equijoin = function(
       keyval(keys(kv),
              lapply(values(kv),
                     function(v) {
-                      attributes(v) = c(list(is.left = is.left), attributes(v))
-                      list(v)}))}
+                      list(val = v, is.left = is.left)}))}
   is.left.side = 
     function(left.input) {
       leftin = strsplit(to.dfs.path(left.input), "/+")[[1]]
@@ -323,8 +328,8 @@ equijoin = function(
     function(vv) {
       tapply(
         vv, 
-        sapply(vv, function(v) attr(v, "is.left", exact=T)), 
-        identity, 
+        sapply(vv, function(v) v$is.left), 
+        function(v) lapply(v, function(x)x$val), 
         simplify = FALSE)}
   pad.side =
     function(vv, side.outer, full.outer) 

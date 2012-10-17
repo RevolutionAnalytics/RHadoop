@@ -129,6 +129,7 @@ rmr.stream = function(
   profile.nodes, 
   keyval.length,
   rmr.install,
+  rmr.update,
   input.format, 
   output.format, 
   backend.parameters, 
@@ -141,17 +142,19 @@ rmr.stream = function(
  
   load("',basename(rmr.global.env),'")
   load("',basename(rmr.local.env),'")  
-  capture.output(
-    invisible(
-      lapply(
-        libs, 
+  sink(file = stderr())
+  if(!is.null(rmr.update))
+    rmr.update(ask = FALSE)
+  invisible(
+    lapply(
+      libs, 
         function(l)
           if (!require(l, character.only = T)) {
             if(is.null(rmr.install)) {
               warning(paste("can\'t load", l))}
             else {
-              rmr.install(l)}})), 
-    file = stderr())
+              rmr.install(l)}}))
+  sink(NULL)
   
   input.reader = 
     function()
