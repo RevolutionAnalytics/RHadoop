@@ -4,9 +4,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
-<title>What&#39;s new in 2.0</title>
-
-<base target="_blank"/>
+<title>What&#39;s new in 2.0.1</title>
 
 <style type="text/css">
 body, td {
@@ -52,6 +50,7 @@ pre {
    margin-top: 0;
    max-width: 95%;
    border: 1px solid #ccc;
+   white-space: pre-wrap;
 }
 
 pre code {
@@ -142,36 +141,21 @@ hr {
 </head>
 
 <body>
-<h1>What&#39;s new in 2.0</h1>
-
-<p>With 1.3 we added support for vectorized processing and structured data, and the feedback from users was encouraging. At the same time, we increased the complexity of the API. With this version we tried to define a synthesis between all the modes (record-at-a-time, vectorized and structured) present in 1.3, with the following goals:</p>
+<h1>What&#39;s new in 2.0.1</h1>
 
 <ul>
-<li>bring the footprint of the API back to 1.2 levels. </li>
-<li>make sure that no matter what the corner of the API one is exercising, he or she can rely on simple properties and invariants; writing an identity mapreduce should be trivial.</li>
-<li>encourage writing the most efficient and idiomatic R code from the start, as opposed to writing against a simple API first and then developing a vectorized version for speed. </li>
-</ul>
-
-<p>This is how we tried to get there:</p>
-
-<ul>
-<li>Hadoop data is no longer seen as a big list where the elements can be any pair (key and value) of R objects, but as an on disk representation of a variety of R data structures: lists, atomic vectors, matrices or data frames, split according to the key. Which data type will be determined by the type of the R variable passed to the <code>to.dfs</code> function or returned by map and reduce, or assigned based on the format (csv files are read as data frames, text as character vectors, JSON TBD). Each key-value pair holds a subrange of the data (range of rows where applicable)</li>
-<li>The <code>keyval</code> function is always vectorized. The data payload is in the value part of a key-value pair. The key is construed as an index to use in splitting the data for its on-disk representation, particularly as it concerns the shuffle operation (the grouping that comes before the reduce phase). The model, albeit with some differences, is the R function <code>split</code>. So if <code>map</code> returns <code>keyval (1, matrix(...))</code>, the second arguments of some reduce call will be another matrix that has the matrix returned by map as a subrange of rows. If you don&#39;t want that to happen because, say, you need to sum all the smaller matrices together, not stack them, do not fret. Have your map function return <code>keyval(1, list(matrix(...)))</code> and on the reduce side do a <code>Reduce(&quot;+&quot;, vv)</code> where <code>vv</code> is the second argument to a reduce. Get the idea? In the first case one is building a large matrix from smaller ones, in the second just collecting the matrices to sum them up. <code>keyval(NULL, x)</code> or, equivalently <code>keyval(x)</code> means that we don&#39;t care how the data is split. This is not allowed in the map or combine functions, where defining the grouping is important.</li>
-<li>As a consequence, all lists of key-value pairs have been ostracized from the API. One <code>keyval</code> call is all that can and needs to be called in each map and reduce call.</li>
-<li>The <code>mapreduce</code> function is always vectorized, meaning that each <code>map</code> call processes a range of elements or, when applicable, rows of data and each <code>reduce</code> call processes all the data associated with the same key. Please note that we are talking always in terms of R dimensions, not numbers of on disk records, providing some independence from the exact format of the data.</li>
-<li>The <code>structured</code> option which converted lists into data.frames has no reason to exist any more. What started as list will be seen by the user as list, data frames as data frames etc. throughout a mapreduce, removing the need for complex conversions. </li>
-<li>In 1.3 the default serialization switched from a very R friendly <code>native</code> to a more efficient <code>sequence.typedbytes</code> when the <code>vectorized</code> option was on. Since that option doesn&#39;t exist anymore we need to explain what happens to serialization. We thought that transparency was too important to give up and therefore R native serialization is used unless the alternative is totally transparent to the user. Right now an efficient alternative kicks in only for nameless atomic vectors with the exclusion of character vectors. There is no need for you to know this unless you are using small key-value pairs (say 100 bytes or less) and performance is important. In that case you may find that using nameless non-character vectors gives you a performance boost. Further extensions of the alternate serialization will be considered based on use cases, but the goal is to keep them semantically transparent.</li>
-</ul>
-
-<h2>Other improvements</h2>
-
-<ul>
-<li>The source has been deeply refactored. The subdivision of the source into many files (<code>IO.R       extras.R        local.R         quickcheck-rmr.R
-basic.R         keyval.R        mapreduce.R     streaming.R</code>) suggests a modularization that is not complete and not enforced by the language, but helps reduce the complexity of the implementation.</li>
-<li>The testing code (not the actual tests) has been factored out as a <code>quickcheck</code> package, inspired by Haskell&#39;s module by the same name. For now it is neither supported nor documented, but it belonged in a separate package. Required only to run the tests.</li>
-<li>Added useful functions like <code>scatter</code>, <code>gather</code>, <code>rmr.sample</code>, <code>rmr.str</code> and <code>dfs.size</code>, following up on user feedback.</li>
-<li>When the <code>reduce</code> argument to <code>mapreduce</code> is <code>NULL</code> the mapreduce job is going to be map-only rather than have an identity reduce. </li>
-<li>The <em>war on boilerplate code</em> continues. <code>keyval(v)</code>, with a single argument,  means <code>keyval(NULL,v)</code>. When you provide a value that is not a <code>keyval</code> return value where one is expected, one is generated with <code>keyval(v)</code> where v was whatever argument has been provided. For instance <code>to.dfs(matrix(...))</code> means <code>to.dfs(keyval(NULL, matrix(...)))</code>.</li>
+<li>automatic package install feature</li>
+<li><p><code>keyval</code> as is mode for lists</p></li>
+<li><p>fixed <code>rmr.sample</code>. The function in 2.0 was broken due to a commit mishap.</p></li>
+<li><p>hardened <code>keyval</code> argument recycling feature against some edge cases (not <code>NULL</code> but 0-length keys or values).</p></li>
+<li><p>local mode again compatible with mixed type input files. The local backend failed when multiple inputs were provided but they represented different record types, which is typical of joins. No longer.</p></li>
+<li><p>fixed equijoin with new reduce default. The 2.0 version had a number of problems due to an incomplete port to the 2.0 API. The new reduce default does a <code>merge</code> of left and right side in most cases, returns left and right groups as they are when lists are involved.</p></li>
+<li><p>hardened streaming backend against user code or packages writing to <code>stdout</code>. This output stream is reserved for hadoop streaming use. We now capture all output at package load time and from the map and reduce functions and redirect it to standard error. </p></li>
+<li><p>improved environment load  on the nodes. In some cases local variables could be overwritten by global environment variables, not anymore.</p></li>
+<li><p>hardened hdfs functions against some small platform variations. This seemed to give rise only to error messages without further consequences in most cases, but had been a source of alarm for users.</p></li>
+<li><p>prettified a lot of code to show directly in documents and presentations using literate programming. This is important because the same code is showed everywhere, no copy and paste, no pseudo-code, no nothing. The code in the [Tutorial] and other documentats is always real, fresh and tested. Documents are generated with knitr and presentation with knitr and pandoc. Thanks to  Yihui Xie and John MacFarlane for these great software and direct support.</p></li>
+<li><p>logistic regression test no longer limited to only two dimensions</p></li>
+<li><p>wordcount test now cleans up after itself</p></li>
 </ul>
 
 </body>
