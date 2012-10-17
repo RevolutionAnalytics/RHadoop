@@ -188,4 +188,16 @@ for (be in c("local", "hadoop")) {
     generators = list(tdgg.list()),
     precondition = function(l) length(l) > 0,
     sample.size = 10)
+  
+  #equijoin
+  stopifnot(
+    all(
+      apply(
+        values(
+          from.dfs(
+            equijoin(
+              left.input = to.dfs(keyval(1:10, (1:10)^2)), 
+              right.input = to.dfs(keyval(1:10, (1:10)^3))))),
+        1, 
+        function(x) x[[1]]^(3/2) == x[[2]])))
 }
