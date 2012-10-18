@@ -19,7 +19,7 @@ hb.defaults <- function(arg){
   } else rhbase:::.hbEnv[[arg]]
 }
 
-hb.init <- function(host='127.0.0.1', port=9090, buffsize=3*1024*1024, serialize=c("native", "raw")){
+hb.init <- function(host='127.0.0.1', port=9090, buffsize=3*1024*1024, serialize=c("native", "raw"), transporttype=0){
   ## initializes an hbase thrift connection
   ## host     = the hostname of the thrift server
   ## port     = the port on which the thrift server is listening
@@ -27,7 +27,7 @@ hb.init <- function(host='127.0.0.1', port=9090, buffsize=3*1024*1024, serialize
   ## serialize= the serialization method used to read and write data to hbase
   
   ## return: an object of class "hb.client.connection"
-  y <- .Call("initialize",host,as.integer(port,buffsize),PACKAGE="rhbase")
+  y <- .Call("initialize",host,as.integer(port,buffsize), as.integer(transporttype), PACKAGE="rhbase")
   class(y) <- "hb.client.connection"
   reg.finalizer(y,function(r){
     .Call("deleteclient",r,PACKAGE="rhbase")
@@ -44,7 +44,7 @@ hb.init <- function(host='127.0.0.1', port=9090, buffsize=3*1024*1024, serialize
       assign("sz",function(r) serialize(r,NULL),envir=rhbase:::.hbEnv)
       assign("usz",unserialize,,envir=rhbase:::.hbEnv)
   }else if (serialize=="raw") {
-      assign("sz",function(r) charToRaw(toString(r)),envir=rhbase:::.hbEnv)
+      assign("sz",function(r) charToRaw(as.character(r)),envir=rhbase:::.hbEnv)
       assign("usz",function(r) rawToChar(r),envir=rhbase:::.hbEnv)
   }
   y
@@ -212,6 +212,19 @@ hb.scan <- function(tablename, startrow, end=NULL, colspec,sz=hb.defaults("sz"),
   return(list(get=mu,close=fu))
 }
 
+hb.scan.ex <- function(tablename, startrow="", end="", colspec=character(0), timestamp=0, caching=0, filterstring=character(0), sz=hb.defaults("sz"), usz=hb.defaults("usz"),
+                    hbc=hb.defaults("hbc")){
+  ## Scans thr
+  scanner <- .Call("hbScannerOpenFilterEx", hbc, tablename, sz(startrow), sz(end), colspec, timestamp, as.integer(caching),filterstring)
+  mu <- function(batchsize=1000){
+    x <- .Call("hbScannerGetList",hbc,scanner, as.integer(batchsize))
+    lapply(x,function(r) list(usz(r[[1]]),r[[2]],lapply(r[[3]],usz)))
+  }
+  fu <- function(){
+    invisible(.Call("hbCloseScanner",hbc,scanner))
+  }
+  return(list(get=mu,close=fu))
+}
 
 
 hb.insert.data.frame <- function(tablename, df,sz=hb.defaults("sz"),hbc=hb.defaults("hbc")){

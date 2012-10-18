@@ -3,6 +3,7 @@
 \alias{hb.get}
 \alias{hb.delete}
 \alias{hb.scan}
+\alias{hb.scan.ex}
 \alias{hb.insert.data.frame}
 \alias{hb.get.data.frame}
 
@@ -15,6 +16,7 @@ hb.insert(tablename, changes,sz=hb.defaults("sz"),hbc=hb.defaults("hbc"))
 hb.get(tablename, rows, colspec,sz=hb.defaults("sz"),usz=hb.defaults("usz"),hbc=hb.defaults("hbc"))
 hb.delete(tablename, rows, colspec,sz=hb.defaults("sz"),hbc=hb.defaults("hbc"))
 hb.scan(tablename,startrow, end=NULL,colspec,sz=hb.defaults("sz"), usz=hb.defaults("usz"),hbc=hb.defaults("hbc"))
+hb.scan.ex(tablename, startrow="", end="", colspec=character(0), timestamp=0, caching=0, filterstring=character(0), sz=hb.defaults("sz"), usz=hb.defaults("usz"), hbc=hb.defaults("hbc"))
 hb.insert.data.frame(tablename, df,sz=hb.defaults("sz"),hbc=hb.defaults("hbc"))
 hb.get.data.frame(tablename, start,end=NULL,columns=NULL)
 }
@@ -34,6 +36,9 @@ and 'b' of familiy 'F', and  all of family 'G', use
 \item{df}{A data frame}
 \item{start,end}{the start and end row names of the data frame to retreive. If end is NULL, the iterator continues to the end}
 \item{columns}{the number of columns to retreive. If columns is NULL, the iterator continues to the end}
+\item{timestamp}{A numeric value indicating the timestamp to filter on}
+\item{caching}{A numeric indicating wether or not to using cahcing during filtering}
+\item{filterstring}{A string to use for filtering the Hbase table}
 }
 
 \details{ 
@@ -46,10 +51,18 @@ e.g. 'x', column-family and column label e.g. 'x:e') and the third is
 a list of the values corresponding to the entries in the column
 specification. See examples.
 
-\code{hb.scan} returns an iterator that will iterate over the
+\code{hb.scan} and \code{hb.scan.ex} returns an iterator that will iterate over the
 values. The iterator starts from \code{startrow} and goes till the end
 of the database. If \code{end} is provided the iterator will stop at
 the key preceding \code{end}. 
+
+Note that \code{hb.scan.ex} only works with Hbase 0.92 or greater.  When using
+the function \code{hb.scan.ex} and specifying a 'filterstring' the Thrift server
+is pretty unforgiving about syntax errors and mistakes. If you make an error you 
+will likely see an error like: 
+\code{rhbase<hbScannerOpenFilterEx>:: (TException) No more data to read.} This may have
+the effect of breaking the connection between R and the Thrift server.  To overcome this
+issue, you will have to re-initalize the connection (i.e. call \code{hb.init} again).
 
 The remaining two functions are useful for inserting data frames and
 retreiving data frames. \code{hb.insert.data.frame} will insert each

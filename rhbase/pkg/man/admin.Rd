@@ -20,7 +20,7 @@
 
 \usage{
 hb.defaults(arg)
-hb.init(host='127.0.0.1', port=9090, buffsize=3*1024*1024, serialize=c("native", "raw"))
+hb.init(host='127.0.0.1', port=9090, buffsize=3*1024*1024, serialize=c("native", "raw"), transporttype=0)
 hb.list.tables(hbc=hb.defaults('hbc'))
 hb.describe.table(tablename, hbc=hb.defaults('hbc'))
 hb.set.table.mode(tablename,enable,hbc=hb.defaults('hbc'))
@@ -51,6 +51,7 @@ the database, see Details}
 \item{...}{colum names for the created table}
 \item{opts}{Modifiers for the column names, see Details}
 \item{major}{TRUE/FALSE for major or minor compaction}
+\item{transporttype}{transport type to use for thrift (0 = TBufferedTransport, 1= TFramedTransport)}
 }
 
 \details{ 

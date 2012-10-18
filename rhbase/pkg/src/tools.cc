@@ -30,12 +30,22 @@ using namespace apache::hadoop::hbase::thrift;
 
 #include "rhbase.h"
 
-
 extern "C"{
-  SEXP initialize(SEXP host, SEXP portandbuff){
+  SEXP initialize(SEXP host, SEXP portandbuff, SEXP transporttype){
     boost::shared_ptr<TTransport> socket(new TSocket(std::string(CHAR(STRING_ELT(host,0))), INTEGER(portandbuff)[0]));
-    boost::shared_ptr<TTransport> transport(new TBufferedTransport(socket));
-    boost::shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
+
+	boost::shared_ptr<TTransport> transport;
+	if (INTEGER(transporttype)[0] == 0) {
+		boost::shared_ptr<TTransport> transport2(new TBufferedTransport(socket));
+		transport = transport2;
+	}
+	else {
+		boost::shared_ptr<TTransport> transport2(new TFramedTransport(socket));
+		transport = transport2;
+	}
+	   
+
+	boost::shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
     HbaseClient *client = new HbaseClient(protocol);
     SEXP result = R_NilValue;
     try{
@@ -465,8 +475,8 @@ extern "C"{
 	// I think if the second parameter is NULL and 3rd is 0, the scanner will start from the beginning.
 	// This code won't let that occur, so it might need a fix
 	s=client->scannerOpenWithStop(tbb,std::string((const char*)RAW(st),LENGTH(st)), std::string((const char*)RAW(en),LENGTH(en)), f);
-      else if(t == 1)
-	s=client->scannerOpenWithPrefix(tbb,std::string((const char*)RAW(st),LENGTH(st)), f);
+	  else if(t == 1) 
+	s=client->scannerOpen(tbb,std::string((const char*)RAW(st),LENGTH(st)), f);
       else if(t == 2 )
 	s=client->scannerOpen(tbb,std::string((const char*)RAW(st),LENGTH(st)), f);
       result=Rf_ScalarInteger((int32_t)s);
@@ -474,8 +484,59 @@ extern "C"{
     catch( IOError &tx) {
       Rf_error("rhbase<%s>:: (IOError) %s",__FUNCTION__,tx.what());
     }
+    catch( IllegalArgument &tx) {
+      Rf_error("rhbase<%s>:: (IllegalArgument) %s",__FUNCTION__,tx.what());
+    }
     catch( TException &tx) {
       Rf_error("rhbase<%s>:: (TException) %s",__FUNCTION__,tx.what());
+    }
+    return(result);
+  }
+
+  SEXP hbScannerOpenFilterEx(SEXP r, SEXP tb, SEXP st, SEXP en, SEXP cp, SEXP ts, SEXP caching, SEXP filter){
+    HbaseClient *client  = static_cast<HbaseClient*>(R_ExternalPtrAddr(r));
+    string tbb=std::string(CHAR(STRING_ELT(tb,0)));
+    std::vector<string> f;
+    SEXP result=R_NilValue;
+    for(int j=0;j<LENGTH(cp);j++) f.push_back(std::string(CHAR(STRING_ELT(cp,j))));
+
+	try{
+		ScannerID s=0 ;
+		TScan tscan;
+		if (LENGTH(st) > 0)
+			tscan.__set_startRow(std::string((const char*)RAW(st)));
+		if (LENGTH(en) > 0)
+			tscan.__set_stopRow(std::string((const char*)RAW(en)));
+		if (LENGTH(cp) > 0)
+			tscan.__set_columns(f);
+		if (REAL(ts)[0] > 0)
+			tscan.__set_timestamp((int64_t)REAL(ts)[0]);
+		if (INTEGER(caching)[0] > 0)
+			tscan.__set_caching(INTEGER(caching)[0]);
+		if (LENGTH(filter) > 0)
+			tscan.__set_filterString(std::string(CHAR(STRING_ELT(filter,0))));
+		
+		s=client->scannerOpenWithScan(tbb, tscan);
+
+		result=Rf_ScalarInteger((int32_t)s);
+    }
+    catch( IOError &tx) {
+      Rf_error("rhbase<%s>:: (IOError) %s",__FUNCTION__,tx.what());
+    }
+    catch( TApplicationException &tx) {
+      Rf_error("rhbase<%s>:: (TApplicationException) %s",__FUNCTION__,tx.what());
+    }
+    catch( TProtocolException &tx) {
+      Rf_error("rhbase<%s>:: (TProtocolException) %s",__FUNCTION__,tx.what());
+    }
+    catch( TTransportException &tx) {
+      Rf_error("rhbase<%s>:: (TTransportException) %s",__FUNCTION__,tx.what());
+    }
+    catch( IllegalArgument &tx) {
+      Rf_error("rhbase<%s>:: (IllegalArgument) %s",__FUNCTION__,tx.what());
+    }
+    catch( TException &tx) {
+	  Rf_error("rhbase<%s>:: (TException) %s",__FUNCTION__,tx.what());
     }
     return(result);
   }
