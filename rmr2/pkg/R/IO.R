@@ -47,7 +47,7 @@ json.output.format = function(kv, con) {
                              gsub("\n", "", toJSON(v, .escapeEscapes=TRUE, collapse = "")),
                              sep = "\t")
   out = apply.keyval(kv, ser, rmr.options('keyval.length'))
-  writeLines(paste(out, collapse = "\n"), con = con, sep = "\n")}
+  writeLines(paste(out, collapse = "\n"), sep = "", con = con)}
 
 text.input.format = function(con, keyval.length) {
   lines = readLines(con, keyval.length)
