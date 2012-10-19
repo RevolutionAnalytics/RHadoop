@@ -278,7 +278,9 @@ rmr.stream = function(
     paste(
       hadoop.command, 
       stream.mapred.io,  
-      do.call(paste.options, backend.parameters), 
+      if(is.null(backend.parameters)) ""
+      else
+        do.call(paste.options, backend.parameters), 
       input, 
       output, 
       mapper, 
