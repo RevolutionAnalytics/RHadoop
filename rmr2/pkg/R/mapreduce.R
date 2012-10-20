@@ -297,7 +297,8 @@ equijoin = function(
   map.right = to.map(identity), 
   reduce  = 
     function(k, vl, vr) {
-      if(is.list(vl) || is.list(vr))
+      if((is.list(vl) && !is.data.frame(vl)) || 
+           (is.list(vr) && !is.data.frame(vr)))
         keyval(k, list(list(left = vl, right = vr)))
       else
         keyval(k, merge(vl, vr, by = NULL))}) { 
