@@ -299,9 +299,9 @@ equijoin = function(
     function(k, vl, vr) {
       if((is.list(vl) && !is.data.frame(vl)) || 
            (is.list(vr) && !is.data.frame(vr)))
-        keyval(k, list(list(left = vl, right = vr)))
+        list(left = vl, right = vr)
       else
-        keyval(k, merge(vl, vr, by = NULL))}) { 
+        merge(vl, vr, by = NULL)}) { 
   
   stopifnot(xor(!is.null(left.input), !is.null(input) &&
     (is.null(left.input) == is.null(right.input))))
