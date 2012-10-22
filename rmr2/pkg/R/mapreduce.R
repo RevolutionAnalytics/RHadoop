@@ -320,11 +320,10 @@ equijoin = function(
                       list(val = v, is.left = is.left)}))}
   is.left.side = 
     function(left.input) {
-      leftin = strsplit(to.dfs.path(left.input), "/+")[[1]]
-      mapin = strsplit(Sys.getenv("map_input_file"), "/+")[[1]]
-      leftin = leftin[-1]
-      mapin = mapin[if(is.element(mapin[1], c("hdfs:", "maprfs:"))) c(-1, -2) else -1]
-      all(mapin[1:length(leftin)] == leftin)}
+      rmr.str(parse_url(to.dfs.path(left.input)))
+      rmr.str(parse_url(Sys.getenv("map_input_file")))
+      gsub("/+", "/", parse_url(to.dfs.path(left.input))$path) == 
+        gsub("/+", "/", parse_url(Sys.getenv("map_input_file"))$path)}
   reduce.split =
     function(vv) {
       tapply(
