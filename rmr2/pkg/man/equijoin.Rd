@@ -13,9 +13,12 @@ A generalized form of equijoin, hybrid between the SQL brethen and mapreduce
 \usage{equijoin(left.input = NULL, right.input = NULL, input = NULL,
                  output = NULL, outer = c("", "left", "right", "full"),
                  map.left = to.map(identity), map.right =
-                 to.map(identity), reduce = function(k, vl, vr) { if
-                 (is.list(vl) || is.list(vr)) keyval(k, list(list(left
-                 = vl, right = vr))) else merge(vl, vr, by = NULL)})}
+                 to.map(identity), reduce = function(k, vl, vr) {
+               if ((is.list(vl) && !is.data.frame(vl)) || (is.list(vr) && 
+              !is.data.frame(vr))) 
+              list(left = vl, right = vr)
+          else merge(vl, vr, by = NULL)
+      })}
 \arguments{\item{left.input}{The left side input to the join.}
   \item{right.input}{The right side input to the join.}
   \item{input}{The only input in case of a self join. Mutually exclusive with the previous two.}
@@ -41,3 +44,5 @@ will become join keys.}
 ##--	or do  help(data=index)  for the standard data sets.
  from.dfs(equijoin(left.input = to.dfs(keyval(1:10, 1:10^2)), right.input = to.dfs(keyval(1:10, 1:10^3))))
 }
+
+
