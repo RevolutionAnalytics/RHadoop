@@ -152,7 +152,7 @@ void unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & obj
         Rcpp::wrap(
           Rcpp::List::create(
             Rcpp::Named("keys") = Rcpp::wrap(keys),
-            Rcpp::Named("values") = Rcpp::wrap(values)))
+            Rcpp::Named("values") = Rcpp::wrap(values)));
        objs_end = objs_end + 1;}
       break;
     case 144: { //R serialization
