@@ -140,8 +140,20 @@ void unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & obj
       objs_end = objs_end + 1;}
       break;
     case 9: // list (255 terminated vector)
-    case 10: { //map
-      throw UnsupportedType(type_code);}
+    case 10: { 
+      int length = get_length(data, raw_start);
+      Rcpp::List keys(length);
+      Rcpp::List values(length);
+      int list_end = 0; 
+      for(int i = 0; i < length; i++) {
+        unserialize(data, raw_start, keys, list_end);
+        unserialize(data, raw_start, values, list_end);}
+      objs[objs_end] = 
+        Rcpp::wrap(
+          Rcpp::List::create(
+            Rcpp::Named("keys") = Rcpp::wrap(keys),
+            Rcpp::Named("values") = Rcpp::wrap(values)))
+       objs_end = objs_end + 1;}
       break;
     case 144: { //R serialization
       int length = get_length(data, raw_start);
