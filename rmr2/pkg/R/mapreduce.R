@@ -318,12 +318,22 @@ equijoin = function(
              lapply(values(kv),
                     function(v) {
                       list(val = v, is.left = is.left)}))}
+  rmr.normalize.path = 
+    function(url.or.path)
+      gsub(
+        "/+", 
+        "/", 
+        paste(
+          "/", 
+          parse_url(url.or.path)$path, 
+          "/", 
+          sep = "")) 
   is.left.side = 
     function(left.input) {
       rmr.str(parse_url(to.dfs.path(left.input)))
       rmr.str(parse_url(Sys.getenv("map_input_file")))
-      gsub("/+", "/", parse_url(to.dfs.path(left.input))$path) == 
-        gsub("/+", "/", parse_url(Sys.getenv("map_input_file"))$path)}
+      rmr.normalize.path(to.dfs.path(left.input)) ==
+        rmr.normalize.path(Sys.getenv("map_input_file"))}
   reduce.split =
     function(vv) {
       tapply(
