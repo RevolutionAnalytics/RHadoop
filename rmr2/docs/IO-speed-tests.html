@@ -6,8 +6,6 @@
 
 <title></title>
 
-<base target="_blank"/>
-
 <style type="text/css">
 body, td {
    font-family: sans-serif;
@@ -52,6 +50,7 @@ pre {
    margin-top: 0;
    max-width: 95%;
    border: 1px solid #ccc;
+   white-space: pre-wrap;
 }
 
 pre code {
@@ -181,22 +180,22 @@ hljs.initHighlightingOnLoad();
 <body>
 <pre><code class="r">zz =rmr2:::interleave(1:10^6, 1:10^6)
 con = file(&quot;/tmp/n-test&quot;, &quot;wb&quot;)
-system.time({rmr2:::typed.bytes.writer(zz, con, TRUE)})
+system.time({rmr2:::typedbytes.writer(zz, con, TRUE)})
 #   user  system elapsed 
 #  0.355   0.058   0.468 
 close(con)
 con = file(&quot;/tmp/tb-test&quot;, &quot;wb&quot;)
-system.time({rmr2:::typed.bytes.writer(zz, con, FALSE)})
+system.time({rmr2:::typedbytes.writer(zz, con, FALSE)})
 #   user  system elapsed 
 #  0.310   0.023   0.333 
 close(con)
 system.time({save(zz, file= &quot;/tmp/save-test&quot;)})
 #user  system elapsed 
 #1.535   0.010   1.546 
-system.time({rmr2:::make.typed.bytes.input.format()(file(&quot;/tmp/n-test&quot;, &quot;rb&quot;), 10^6)})
+system.time({rmr2:::make.typedbytes.input.format()(file(&quot;/tmp/n-test&quot;, &quot;rb&quot;), 10^6)})
 #user  system elapsed 
 # 8.398   0.252   8.650 
-system.time({rmr2:::make.typed.bytes.input.format()(file(&quot;/tmp/tb-test&quot;, &quot;rb&quot;), 10^6)})
+system.time({rmr2:::make.typedbytes.input.format()(file(&quot;/tmp/tb-test&quot;, &quot;rb&quot;), 10^6)})
 #user  system elapsed 
 # 6.999   0.212   7.206
 system.time({load(file=&quot;/tmp/save-test&quot;)})

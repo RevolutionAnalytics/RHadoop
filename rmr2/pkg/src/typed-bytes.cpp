@@ -210,7 +210,7 @@ void unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & obj
       else {
           throw UnsupportedType(type_code);}}}}
 
-SEXP typed_bytes_reader(SEXP data, SEXP _nobjs){
+SEXP typedbytes_reader(SEXP data, SEXP _nobjs){
   Rcpp::NumericVector nobjs(_nobjs);
 	Rcpp::List objs(nobjs[0]);
 	Rcpp::RawVector tmp(data);
@@ -370,7 +370,7 @@ void serialize(const SEXP & object, raw & serialized, bool native) {
       default: {
         throw UnsupportedType(robj.sexp_type());}}}}
 
-SEXP typed_bytes_writer(SEXP objs, SEXP native){
+SEXP typedbytes_writer(SEXP objs, SEXP native){
 	raw serialized(0);
 	Rcpp::List objects(objs);
   Rcpp::LogicalVector is_native(native);
