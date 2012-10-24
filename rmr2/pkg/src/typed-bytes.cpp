@@ -188,6 +188,7 @@ void unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & obj
         break;
         case 6:{
           length = (raw_length -1 )/8;}
+        break;
         default:{
           throw UnsupportedType(vec_type_code);}}
       Rcpp::List list(length);
