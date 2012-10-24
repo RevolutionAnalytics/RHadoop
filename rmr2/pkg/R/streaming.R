@@ -135,6 +135,10 @@ rmr.stream = function(
   backend.parameters, 
   verbose = TRUE, 
   debug = FALSE) {
+  backend.parameters = 
+    c(backend.parameters, 
+      input.format$backend.parameters$hadoop, 
+      output.format$backend.parameters$hadoop)
   ## prepare map and reduce executables
   rmr.local.env = tempfile(pattern = "rmr-local-env")
   rmr.global.env = tempfile(pattern = "rmr-global-env")

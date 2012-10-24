@@ -77,17 +77,17 @@ make.csv.output.format = function(...) function(kv, con) {
               row.names = FALSE, 
               col.names = FALSE)}
 
-typed.bytes.reader = function(data, nobjs) {
+typedbytes.reader = function(data, nobjs) {
   if(is.null(data)) NULL
   else
-    .Call("typed_bytes_reader", data, nobjs, PACKAGE = "rmr2")}
+    .Call("typedbytes_reader", data, nobjs, PACKAGE = "rmr2")}
 
-typed.bytes.writer = function(objects, con, native) {
+typedbytes.writer = function(objects, con, native) {
   writeBin(
-    .Call("typed_bytes_writer", objects, native, PACKAGE = "rmr2"),
+    .Call("typedbytes_writer", objects, native, PACKAGE = "rmr2"),
     con)}
 
-make.typed.bytes.input.format = function() {
+make.typedbytes.input.format = function() {
   obj.buffer = list()
   obj.buffer.rmr.length = 0
   raw.buffer = raw()
@@ -98,7 +98,7 @@ make.typed.bytes.input.format = function() {
       raw.buffer <<- c(raw.buffer, readBin(con, raw(), read.size))
       read.size = as.integer(2*read.size)
       if(length(raw.buffer) == 0) break;
-      parsed = typed.bytes.reader(raw.buffer, as.integer(read.size/2))
+      parsed = typedbytes.reader(raw.buffer, as.integer(read.size/2))
       obj.buffer <<- c(obj.buffer, parsed$objects)
       obj.buffer.rmr.length <<- 
         obj.buffer.rmr.length +
@@ -126,13 +126,13 @@ make.typed.bytes.input.format = function() {
     obj.buffer.rmr.length <<- 0
     retval}}
   
-make.native.input.format = make.typed.bytes.input.format
+make.native.input.format = make.typedbytes.input.format
 
 make.native.or.typedbytes.output.format = 
   function(keyval.length, native)
     function(kv, con){
       kvs = split.keyval(kv, keyval.length)
-      typed.bytes.writer(interleave(keys(kvs), values(kvs)), con, native)}
+      typedbytes.writer(interleave(keys(kvs), values(kvs)), con, native)}
 
 make.native.output.format = Curry(make.native.or.typedbytes.output.format, native = TRUE)
 make.typedbytes.output.format = Curry(make.native.or.typedbytes.output.format, native = FALSE)
@@ -155,7 +155,7 @@ make.keyval.writer = function(mode, format, con = NULL) {
   function(kv) format(kv, con)}
 
 IO.formats = c("text", "json", "csv", "native",
-               "sequence.typedbytes")
+               "sequence.typedbytes", "hbase")
 
 make.input.format = 
   function(
@@ -164,6 +164,7 @@ make.input.format =
     streaming.format = NULL, 
     ...) {
     mode = match.arg(mode)
+    backend.parameters = NULL
     if(is.character(format)) {
       format = match.arg(format, IO.formats)
       switch(
@@ -181,11 +182,27 @@ make.input.format =
           format = make.native.input.format() 
           mode = "binary"}, 
         sequence.typedbytes = {
-          format = make.typed.bytes.input.format() 
-          mode = "binary"})}
+          format = make.typedbytes.input.format() 
+          mode = "binary"},
+        hbase = {
+          format = make.typedbytes.input.format()
+          mode = "binary"
+          streaming.format = "com.intel.bigdata.hbase.mapreduce.TypedBytesTableInputFormat"
+          backend.parameters = 
+            list(
+              hadoop = 
+                list(
+                  D = paste("hbase.mapred.tablecolumns=", 
+                            list(...)$family, 
+                            ":", 
+                            list(...)$column, 
+                            sep = "")))})}
     if(is.null(streaming.format) && mode == "binary") 
       streaming.format = "org.apache.hadoop.streaming.AutoInputFormat"
-    list(mode = mode, format = format, streaming.format = streaming.format)}
+    list(mode = mode, 
+         format = format, 
+         streaming.format = streaming.format, 
+         backend.parameters = backend.parameters)}
 
 make.output.format = 
   function(
@@ -194,6 +211,7 @@ make.output.format =
     streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat", 
     ...) {
     mode = match.arg(mode)
+    backend.parameters = NULL
     if(is.character(format)) {
       format = match.arg(format, IO.formats)
       switch(
@@ -216,8 +234,21 @@ make.output.format =
           mode = "binary"
           streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"}, 
         sequence.typedbytes = {
-          format = make.native.output.format(keyval.length = rmr.options('keyval.length'))
+          format = make.typedbytes.output.format(keyval.length = rmr.options('keyval.length'))
           mode = "binary"
-          streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"})}
+          streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"},
+        hbase = {
+          format = make.typedbytes.output.format()
+          mode = "binary"
+          streaming.format = " com.intel.bigdata.hbase.mapreduce.TypedBytesTableOutputFormat"
+          backend.parameters = 
+            list(
+              hadoop = 
+                list(
+                  D = paste("hbase.mapred.tablecolumns=", 
+                            list(...)$family, 
+                            ":", 
+                            list(...)$column, 
+                            sep = "")))})}
     mode = match.arg(mode)
-    list(mode = mode, format = format, streaming.format = streaming.format)}
+    list(mode = mode, format = format, streaming.format = streaming.format, backend.parameters = backend.parameters)}
