@@ -83,15 +83,6 @@ void unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & obj
   if(type_code == 255) {
     type_code = get_type(data, raw_start);}
   switch(type_code) {
-    case 0: { //raw bytes
-      int length = get_length(data, raw_start);
-      if(data.size() < raw_start + length) {
-        throw ReadPastEnd(type_code, raw_start);}
-      raw tmp(data.begin() + raw_start, data.begin() + raw_start + length);
-      objs[objs_end] = Rcpp::wrap(tmp);
-      raw_start = raw_start + length;
-      objs_end = objs_end + 1;}
-      break;
     case 1: { //byte
       if(data.size() < raw_start + 1) {
         throw ReadPastEnd(type_code, raw_start);}
@@ -139,15 +130,25 @@ void unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & obj
       objs[objs_end] = Rcpp::wrap(list);
       objs_end = objs_end + 1;}
       break;
-    case 9: // list (255 terminated vector)
+    case 9: {
+      Rcpp::List list(10);
+      int list_end = 0;
+      type_code = get_type(data, raw_start);
+      while(type_code != 255){
+         unserialize(data, raw_start, list, list_end, type_code);
+         type_code = get_type(data, raw_start);}
+       objs[objs_end] = Rcpp::wrap(list);
+       objs_end = objs_end + 1;}
+      break;
     case 10: { 
       int length = get_length(data, raw_start);
       Rcpp::List keys(length);
       Rcpp::List values(length);
-      int list_end = 0; 
+      int keys_end = 0; 
+      int values_end = 0; 
       for(int i = 0; i < length; i++) {
-        unserialize(data, raw_start, keys, list_end);
-        unserialize(data, raw_start, values, list_end);}
+        unserialize(data, raw_start, keys, keys_end);
+        unserialize(data, raw_start, values, values_end);}
       objs[objs_end] = 
         Rcpp::wrap(
           Rcpp::List::create(
@@ -184,8 +185,7 @@ void unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & obj
         break;
         case 6:{
           length = (raw_length -1 )/8;}
-        break;
-        default: {
+        default:{
           throw UnsupportedType(vec_type_code);}}
       Rcpp::List list(length);
       int list_end = 0; 
@@ -195,8 +195,17 @@ void unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & obj
       objs[objs_end] = unlist(Rcpp::wrap(list));
       objs_end = objs_end + 1;}
       break;
-    default: {
-      throw UnsupportedType(type_code);}}}
+    default: { 
+      if(type_code == 0 || type_code >=50 ) {//raw bytes
+        int length = get_length(data, raw_start);
+        if(data.size() < raw_start + length) {
+          throw ReadPastEnd(type_code, raw_start);}
+        raw tmp(data.begin() + raw_start, data.begin() + raw_start + length);
+        objs[objs_end] = Rcpp::wrap(tmp);
+        raw_start = raw_start + length;
+        objs_end = objs_end + 1;}
+      else {
+          throw UnsupportedType(type_code);}}}}
 
 SEXP typed_bytes_reader(SEXP data, SEXP _nobjs){
 	Rcpp::NumericVector nobjs(_nobjs);
