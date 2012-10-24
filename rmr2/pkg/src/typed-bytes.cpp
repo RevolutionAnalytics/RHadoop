@@ -75,7 +75,7 @@ int get_length(const raw & data, int & start) {
 unsigned char get_type(const raw & data, int & start) {
   if(data.size() < start + 1) {
     throw ReadPastEnd(255, start);}
-  unsigned char retval  = data[start];
+  unsigned char retval = data[start];
   start = start + 1;
   return retval;}
 
@@ -131,13 +131,16 @@ void unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & obj
       objs_end = objs_end + 1;}
       break;
     case 9: {
-      Rcpp::List list(10);
+      Rcpp::List list(1);
       int list_end = 0;
+      std::vector<Rcpp::RObject> vec;
       type_code = get_type(data, raw_start);
       while(type_code != 255){
          unserialize(data, raw_start, list, list_end, type_code);
+         vec.push_back(list[0]);
+         list_end = 0;
          type_code = get_type(data, raw_start);}
-       objs[objs_end] = Rcpp::wrap(list);
+       objs[objs_end] = Rcpp::wrap(vec);
        objs_end = objs_end + 1;}
       break;
     case 10: { 
@@ -208,7 +211,7 @@ void unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & obj
           throw UnsupportedType(type_code);}}}}
 
 SEXP typed_bytes_reader(SEXP data, SEXP _nobjs){
-	Rcpp::NumericVector nobjs(_nobjs);
+  Rcpp::NumericVector nobjs(_nobjs);
 	Rcpp::List objs(nobjs[0]);
 	Rcpp::RawVector tmp(data);
 	raw rd(tmp.begin(), tmp.end());
