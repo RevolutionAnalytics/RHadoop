@@ -127,7 +127,7 @@ void unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & obj
       int list_end = 0; 
       for(int i = 0; i < length; i++) {
         unserialize(data, raw_start, list, list_end);}
-      objs[objs_end] = Rcpp::wrap(list);
+      objs[objs_end] = list;
       objs_end = objs_end + 1;}
       break;
     case 9: {
@@ -144,6 +144,8 @@ void unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & obj
        objs_end = objs_end + 1;}
       break;
     case 10: { 
+      Rcpp::Function data_frame("data.frame");
+      Rcpp::Function I("I");
       int length = get_length(data, raw_start);
       Rcpp::List keys(length);
       Rcpp::List values(length);
@@ -153,10 +155,9 @@ void unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & obj
         unserialize(data, raw_start, keys, keys_end);
         unserialize(data, raw_start, values, values_end);}
       objs[objs_end] = 
-        Rcpp::wrap(
-          Rcpp::List::create(
-            Rcpp::Named("keys") = Rcpp::wrap(keys),
-            Rcpp::Named("values") = Rcpp::wrap(values)));
+          data_frame(
+            Rcpp::Named("keys") = I(keys),
+            Rcpp::Named("values") = I(values));
        objs_end = objs_end + 1;}
       break;
     case 144: { //R serialization
@@ -196,7 +197,7 @@ void unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & obj
       for(int i = 0; i < length; i++) {
         unserialize(data, raw_start, list, list_end, vec_type_code);}
       Rcpp::Function unlist("unlist");
-      objs[objs_end] = unlist(Rcpp::wrap(list));
+      objs[objs_end] = unlist(list);
       objs_end = objs_end + 1;}
       break;
     default: { 
@@ -232,10 +233,10 @@ SEXP typedbytes_reader(SEXP data, SEXP _nobjs){
             std::cerr << "Negative length exception" << std::endl;
       return R_NilValue;}}
   Rcpp::List list_tmp(objs.begin(), objs.begin() + objs_end);
-	return Rcpp::wrap(
+	return 
     Rcpp::List::create(
-      Rcpp::Named("objects") = Rcpp::wrap(list_tmp),
-      Rcpp::Named("length") = Rcpp::wrap(parsed_raw_start)));}
+      Rcpp::Named("objects") = list_tmp,
+      Rcpp::Named("length") = parsed_raw_start);}
 
 void T2raw(unsigned char data, raw & serialized) {
   serialized.push_back(data);}
@@ -292,7 +293,7 @@ template <typename T> void serialize_list(const T & data, raw & serialized){
   serialized.push_back(8);
   length_header(data.size(), serialized);
   for(typename T::iterator i = data.begin(); i < data.end(); i++) {
-    serialize(Rcpp::wrap(*i), serialized, FALSE);}}
+    serialize(*i, serialized, FALSE);}}
 
 void serialize_native(const SEXP & object, raw & serialized) {
   serialized.push_back(144);
@@ -377,7 +378,7 @@ SEXP typedbytes_writer(SEXP objs, SEXP native){
   Rcpp::LogicalVector is_native(native);
 	for(Rcpp::List::iterator i = objects.begin(); i < objects.end(); i++) {
     try{
-      serialize(Rcpp::wrap(*i), serialized, is_native[0]);}
+      serialize(*i, serialized, is_native[0]);}
     catch(UnsupportedType ut){
       return R_NilValue;}}
 	return Rcpp::wrap(serialized);}	
