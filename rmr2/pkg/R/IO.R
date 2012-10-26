@@ -14,8 +14,8 @@
 
 
 make.json.input.format =
-  function(key.class = rmr2:::qw(list, vector, data.frame, matrix),
-           value.class = rmr2:::qw(list, vector, data.frame, matrix)) {
+  function(key.class = qw(list, vector, data.frame, matrix),
+           value.class = qw(list, vector, data.frame, matrix)) {
     key.class = match.arg(key.class)
     value.class = match.arg(value.class)
     cast =
