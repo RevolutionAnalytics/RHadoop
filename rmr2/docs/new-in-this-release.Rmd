@@ -1,11 +1,15 @@
 # What's new in 2.0.1
 
+## Compatibility 
+
+Works with CDH3, CDH4 and Apache 1.0.4. See [Compatibility](compatibility.md)
+
 ## Fixes
 * fixed `rmr.sample`. The function in 2.0 was broken due to a commit mishap.
 * hardened `keyval` argument recycling feature against some edge cases (not `NULL` but 0-length keys or values).
 * local mode again compatible with mixed type input files. The local backend failed when multiple inputs were provided but they represented different record types, which is typical of joins. No longer.
 * fixed equijoin with new reduce default. The 2.0 version had a number of problems due to an incomplete port to the 2.0 API. The new reduce default does a `merge` of left and right side in most cases, returns left and right groups as they are when lists are involved.
-* hardened streaming backend against user code or packages writing to `stdout`. This output stream is reserved for hadoop streaming use. We now capture all output at package load time and from the map and reduce functions and redirect it to standard error. 
+* hardened streaming backend against user code or packages writing to `stdout`. This output stream is reserved for hadoop streaming use. We now capture all output at package load time and from the map and reduce functions and redirect it to standard error. There is one case we can't handle, see #40.
 * improved environment load  on the nodes. In some cases local variables could be overwritten by global environment variables, not anymore.
 * hardened hdfs functions against some small platform variations. This seemed to give rise only to error messages without further consequences in most cases, but had been a source of alarm for users.
 
