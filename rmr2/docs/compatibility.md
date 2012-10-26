@@ -8,6 +8,7 @@ If you build your own Hadoop, see [Which Hadoop for rmr](https://github.com/Revo
 </thead>
 <tbody>
 <tr><td>CDH4.1.1</td><td>Revolution R 6.0</td><td>CentOS 5.6</td><td>64-bit, mr1 only</td><td>Revolution</td></tr>
-<tr><td>CDH3u5</td><td>Revolution R 6.0</td><td>CentOS 5.6</td><td>64-bit, mr1 only</td><td>Revolution</td></tr>
+<tr><td>CDH3u5</td><td>Revolution R 6.0</td><td>CentOS 5.6</td><td>64-bit</td><td>Revolution</td></tr>
+<tr><td>Apache Hadoop 1.0.4</td><td>Revolution R 6.0</td><td>CentOS 5.6</td><td>64-bit</td><td>Revolution</td></tr>
 </tbody>
 </table>
