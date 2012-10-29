@@ -18,7 +18,9 @@ library(rmr2)
 X = to.dfs(matrix(rnorm(2000), ncol = 10))
 y = as.matrix(rnorm(200))
 ## @knitr LLS-sum
-Sum = function(k, YY) keyval(1, list(Reduce('+', YY)))
+Sum = 
+  function(., YY) 
+    keyval(1, list(Reduce('+', YY)))
 ## @knitr LLS-XtX
 XtX = 
   values(
@@ -26,7 +28,7 @@ XtX =
       mapreduce(
         input = X,
         map = 
-          function(k, Xi) 
+          function(., Xi) 
             keyval(1, list(t(Xi) %*% Xi)),
         reduce = Sum,
         combine = TRUE)))[[1]]
@@ -36,7 +38,7 @@ Xty =
     from.dfs(
       mapreduce(
         input = X,
-        map = function(k, Xi)
+        map = function(., Xi)
           keyval(1, list(t(Xi) %*% y)),
         reduce = Sum,
         combine = TRUE)))[[1]]

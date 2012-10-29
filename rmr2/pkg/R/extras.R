@@ -54,26 +54,23 @@ optimize = function(mrex) {
 rmr.sample = function(input, output = NULL, method = c("any", "Bernoulli"), ...) {
   method = match.arg(method)
   if (method == "any") {
-    map.n = list(...)[['n']]
-    reduce.n = map.n
+    n = list(...)[['n']]
+    some = function(k, v) keyval(rmr.slice(k, 1:min(n, length(k))),
+                                 rmr.slice(v, 1:min(n, length(v))))
     mapreduce(input, 
               output,
-              map = function(k,v) {
-                if (map.n > 0){
-                  map.n <<- map.n - 1
-                  keyval(1, keyval(k,v))}},
-              combine = function(k, vv) {
-                lapply(vv[1:min(reduce.n, length(vv))], function(v) keyval(NULL,v))},
-              reduce = function(k, vv) 
-                vv[1:min(reduce.n, length(vv))])}
-  else
-    if(method == "Bernoulli"){
-      p = list(...)[['p']]
-      mapreduce(input,
-                output,
-                map = function(k,v)
-                  if(rbinom(1,1,p) == 1)
-                    keyval(k,v))}}
+              map = some,
+              combine = T,
+              reduce = some)}
+    else
+      if(method == "Bernoulli"){
+        p = list(...)[['p']]
+        mapreduce(input,
+                  output,
+                  map = function(k, v) {
+                    filter = rbinom(rmr.length(k),1,p) == 1
+                    keyval(rmr.slice(k, filter),
+                           rmr.slice(v, filter))})}}
 
 ## dev support
 

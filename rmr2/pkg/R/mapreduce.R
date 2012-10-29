@@ -19,12 +19,16 @@ rmr.options.env$backend = "hadoop"
 rmr.options.env$keyval.length = 1000
 rmr.options.env$profile.nodes = FALSE
 rmr.options.env$depend.check = FALSE
+rmr.options.env$install.args = NULL
+rmr.options.env$update.args = NULL
 #rmr.options$managed.dir = "/var/rmr/managed"
 
 rmr.options = 
   function(backend = c("hadoop", "local"), 
            profile.nodes = FALSE,
-           keyval.length = 1000#, 
+           keyval.length = 1000,
+           install.args = NULL,
+           update.args = NULL#, 
            #depend.check = FALSE, 
            #managed.dir = FALSE
   ) {
@@ -234,11 +238,12 @@ mapreduce = function(
   verbose = TRUE) {
   
   on.exit(expr = gc(), add = TRUE) #this is here to trigger cleanup of tempfiles
-  if (is.null(output)) output = 
-    if(rmr.options('depend.check'))
-      dfs.managed.file(match.call())
-  else
-    dfs.tempfile()
+  if (is.null(output)) 
+    output = {
+      if(rmr.options('depend.check'))
+        dfs.managed.file(match.call())
+      else
+        dfs.tempfile()}
   if(is.character(input.format)) input.format = make.input.format(input.format)
   if(is.character(output.format)) output.format = make.output.format(output.format)
   if(!missing(backend.parameters)) warning("backend.parameters is deprecated.")
@@ -257,6 +262,14 @@ mapreduce = function(
      out.folder = to.dfs.path(output), 
      profile.nodes = rmr.options('profile.nodes'), 
      keyval.length = rmr.options('keyval.length'),
+     rmr.install = {
+       if(!is.null(rmr.options('install.args')))
+         do.call(Curry, rmr.options('install.args'))
+       else NULL},
+     rmr.update = {
+       if(!is.null(rmr.options('update.args')))
+         do.call(Curry, rmr.options('update.args'))
+       else NULL}, 
      input.format = input.format, 
      output.format = output.format, 
      backend.parameters = backend.parameters[[backend]], 
@@ -282,8 +295,13 @@ equijoin = function(
   outer = c("", "left", "right", "full"), 
   map.left = to.map(identity), 
   map.right = to.map(identity), 
-  reduce  = function(k, values.left, values.right) keyval(k, merge(values.left, values.right, by = NULL)), 
-  reduce.all  = function(k, vl, vr) keyval(k, list(list(left = vl, right = vr)))) { 
+  reduce  = 
+    function(k, vl, vr) {
+      if((is.list(vl) && !is.data.frame(vl)) || 
+           (is.list(vr) && !is.data.frame(vr)))
+        list(left = vl, right = vr)
+      else
+        merge(vl, vr, by = NULL)}) { 
   
   stopifnot(xor(!is.null(left.input), !is.null(input) &&
     (is.null(left.input) == is.null(right.input))))
@@ -299,41 +317,50 @@ equijoin = function(
       keyval(keys(kv),
              lapply(values(kv),
                     function(v) {
-                      attributes(v) = c(list(is.left = is.left), attributes(v))
-                      v}))}
+                      list(val = v, is.left = is.left)}))}
+  rmr.normalize.path = 
+    function(url.or.path)
+      gsub(
+        "/+", 
+        "/", 
+        paste(
+          "/", 
+          parse_url(url.or.path)$path, 
+          "/", 
+          sep = "")) 
   is.left.side = 
     function(left.input) {
-      leftin = strsplit(to.dfs.path(left.input), "/+")[[1]]
-      mapin = strsplit(Sys.getenv("map_input_file"), "/+")[[1]]
-      leftin = leftin[-1]
-      mapin = mapin[if(is.element(mapin[1], c("hdfs:", "maprfs:"))) c(-1, -2) else -1]
-      all(mapin[1:length(leftin)] == leftin)}
+      rmr.str(parse_url(to.dfs.path(left.input)))
+      rmr.str(parse_url(Sys.getenv("map_input_file")))
+      rmr.normalize.path(to.dfs.path(left.input)) ==
+        rmr.normalize.path(Sys.getenv("map_input_file"))}
   reduce.split =
     function(vv) {
-      tapply(vv, 
-             sapply(vv, function(v) attr(v, "is.left", exact=T)), 
-             identity, 
-             simplify = FALSE)}
+      tapply(
+        vv, 
+        sapply(vv, function(v) v$is.left), 
+        function(v) lapply(v, function(x)x$val), 
+        simplify = FALSE)}
   pad.side =
-    function(vv, side.outer, full.outer) if (length(vv) == 0 && (side.outer || full.outer)) c(NA) else vv
-  map = if (is.null(input)) {
-    function(k, v) {
-      ils = switch(rmr.options('backend'), 
-                   hadoop = is.left.side(left.input), 
-                   local = attr(v, 'rmr.input') == to.dfs.path(left.input), 
-                   stop("Unsupported backend: ", rmr.options('backend')))
-      mark.side(if(ils) map.left(k, v) else map.right(k, v), ils)}}
+    function(vv, side.outer, full.outer) 
+      if (length(vv) == 0 && (side.outer || full.outer)) c(NA) else c.or.rbind(vv)
+  map = 
+    if (is.null(input)) {
+      function(k, v) {
+        ils = is.left.side(left.input)
+        mark.side(if(ils) map.left(k, v) else map.right(k, v), ils)}}
   else {
     function(k, v) {
       c.keyval(mark.side(map.left(k, v), TRUE), 
                mark.side(map.right(k, v), FALSE))}}
-  eqj.reduce = reduce
-  mapreduce(map = map, 
-            reduce =
-              function(k, vv) {
-                rs = reduce.split(vv)
-                eqj.reduce(c.or.rbind(k), 
-                           pad.side(c.or.rbind(rs$`TRUE`), right.outer, full.outer), 
-                           pad.side(c.or.rbind(rs$`FALSE`), left.outer, full.outer))}, 
-            input = c(left.input, right.input), 
-            output = output)}
+  eqj.reduce = 
+    function(k, vv) {
+      rs = reduce.split(vv)
+      reduce(k, 
+             pad.side(rs$`TRUE`, right.outer, full.outer), 
+             pad.side(rs$`FALSE`, left.outer, full.outer))}
+  mapreduce(
+    map = map, 
+    reduce = eqj.reduce,
+    input = c(left.input, right.input), 
+    output = output)}

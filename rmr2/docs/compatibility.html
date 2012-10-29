@@ -4,9 +4,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
-<title>Compatibility testing for rmr 2.0.x</title>
-
-<base target="_blank"/>
+<title>Compatibility testing for rmr 2.0.1</title>
 
 <style type="text/css">
 body, td {
@@ -52,6 +50,7 @@ pre {
    margin-top: 0;
    max-width: 95%;
    border: 1px solid #ccc;
+   white-space: pre-wrap;
 }
 
 pre code {
@@ -142,18 +141,21 @@ hr {
 </head>
 
 <body>
-<h1>Compatibility testing for rmr 2.0.x</h1>
+<h1>Compatibility testing for rmr 2.0.1</h1>
 
-<p>Please contribute with additional reports. To claim compatibility you need to run <code>R CMD  check path-to-rmr</code> successfully.<br/>
-As with any new release, testing on additional platforms is under way. If you build your own Hadoop, see <a href="https://github.com/RevolutionAnalytics/RHadoop/wiki/Which-Hadoop-for-rmr">Which Hadoop for rmr</a>.</p>
+<p>Please contribute with additional reports. To claim compatibility you need to run <code>R CMD  check path-to-rmr</code> successfully.
+If you build your own Hadoop, see <a href="https://github.com/RevolutionAnalytics/RHadoop/wiki/Which-Hadoop-for-rmr">Which Hadoop for rmr</a>.
+If you are interested in the compatibility chart for other releases, choose one from the drop down menu. on the top left. Not every release gets a complete round of testing, so typically a bug fix release (change in the third number only) is more compatible than the previous release, even if we don&#39;t have the resource to test it directly. </p>
 
 <table>
 <thead>
-<tr><th>rmr</th><th>Hadoop</th><th>R</th><th>OS</th><th>Notes</th><th>Reporter</th></tr>
+<tr><th>Hadoop</th><th>R</th><th>OS</th><th>Notes</th><th>Reporter</th></tr>
 </thead>
 <tbody>
-<tr><td>2.0.0</td><td>CDH4</td><td>Revolution R 6.0</td><td>CentOS 5.6</td><td>64-bit, mr1 only</td><td>Revolution</td></tr>
-</tbody>
+<tr><td>CDH4.1.1</td><td>Revolution R 6.0</td><td>CentOS 5.6</td><td>64-bit, mr1 only</td><td>Revolution</td></tr>
+<tr><td>CDH3u5</td><td>Revolution R 6.0</td><td>CentOS 5.6</td><td>64-bit</td><td>Revolution</td></tr>
+<tr><td>Apache Hadoop 1.0.4</td><td>Revolution R 6.0</td><td>CentOS 5.6</td><td>64-bit</td><td>Revolution</td></tr>
+<tr><td>MapR 2.0.1</td><td>Revolution R 6.0</td><td>CentOS 6.2</td><td>64-bit</td><td>MapR</td></tr></tbody>
 </table>
 
 </body>

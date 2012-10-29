@@ -19,6 +19,8 @@ mr.local = function(map,
                     out.folder, 
                     profile.nodes, 
                     keyval.length,
+                    rmr.install,
+                    rmr.update,
                     input.format, 
                     output.format, 
                     backend.parameters, 
@@ -30,15 +32,20 @@ mr.local = function(map,
      attr(kv$val, 'rmr.input') = fname
      kv}
   map.out = 
-    apply.keyval(
-      c.keyval(
+    c.keyval(
+      do.call(
+        c,    
         lapply(
           in.folder,
-          get.data)),
-      map,
-      keyval.length)
-  map.out = from.dfs(to.dfs(c.keyval(lapply(map.out, as.keyval))))
-  reduce.helper = function(kk,vv) reduce(kk[1], vv)
+          function(fname)
+            apply.keyval(
+              get.data(fname),
+              function(k, v) {
+                Sys.setenv(map_input_file = fname)
+                as.keyval(map(k, v))}, 
+            keyval.length))))
+  map.out = from.dfs(to.dfs(map.out))
+  reduce.helper = function(kk, vv) reduce(kk[1], vv)
   reduce.out = 
     if(!is.null(reduce))
       c.keyval(

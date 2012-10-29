@@ -14,8 +14,8 @@ rmr.str(x)
 The variable to print
   }
 }
-\details{
-Remember that writing in stdout from the mapper and reducer will cause the job to fail.
+\warning{
+Remember that writing in stdout from the mapper and reducer is not allowed. Any such output will be redirected to stderr and appear in console or in the logs, depending on hadoop configuration.
 }
 \value{
 NULL
@@ -24,5 +24,5 @@ NULL
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \examples{
-mapreduce(to.dfs(1), map = function(k,v) rmr.str(v))
+mapreduce(to.dfs(1), map = function(k, v) rmr.str(v))
 }

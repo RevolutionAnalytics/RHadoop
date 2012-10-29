@@ -4,7 +4,7 @@
 \alias{values}
 
 \title{Create or extract Key-Value Pairs}
-\description{Creates a key-value pair from its arguments or extracts keys or values from a key value pair}
+\description{Creates a key-value object (a collecton of key-value pairs) from its arguments or extracts keys or values from a key value object}
 
 \usage{
   keys(kv)
@@ -18,8 +18,8 @@
 \item{val}{the desired value or values}}
 
 \details{The keyval function is used to create return values for the map and reduce functions, themselves parameters to
-\code{mapreduce}. Key-value pairs are also appropriate arguments for the \code{to.dfs} function and are returned by 
-\code{from.dfs}. \code{keys} and \code{values} extract keys  and values resp. from a key value pair. A key value pair should be always considered vectorized, meaning that it defines a collection of key-value pairs. For the purpose of forming key-value pairs, the length of an object is considered its number of rows whene defined, that is for matrices and data frames, or its R \code{length} otherwise). Consistently with this definition, the n-th element of a key or value is its n-th row or a subrange including only the n-th element otherwise. Data types are preserved, meaning that, for instance, if the \code{key} is a matrix its n-th element is a matrix with only one row, the n-th row of the larger matrix (the behavior of the \code{[]} operator with \code{drop = FALSE}). The same is true for data frames, list and atomic vectors. When \code{key} and \code{val} have different lengths according to this definition, recycling is applied. The pairing between keys and values is positional, meaning that the n-th key is associated with the n-the value.}
+\code{mapreduce}. Key-value objects are also appropriate arguments for the \code{to.dfs} function and are returned by 
+\code{from.dfs}. \code{keys} and \code{values} extract keys  and values resp. from a key value object. A key value object should be always considered vectorized, meaning that it defines a collection of key-value pairs. For the purpose of forming key-value pairs, the length of an object is considered its number of rows whene defined, that is for matrices and data frames, or its R \code{length} otherwise. Consistently with this definition, the n-th element of a key or value  argument is its n-th row or a subrange including only the n-th element otherwise. Data types are preserved, meaning that, for instance, if the \code{key} is a matrix its n-th element is a matrix with only one row, the n-th row of the larger matrix (the behavior of the \code{[]} operator with \code{drop = FALSE}). The same is true for data frames, list and atomic vectors. When \code{key} and \code{val} have different lengths according to this definition, recycling is applied. The pairing between keys and values is positional, meaning that the n-th element of the key argument is associated with the n-the value of the val argument in a single key-value pair.}
 
 
 \examples{
