@@ -12,8 +12,8 @@ hdfs.data = to.dfs(my.data)
 ## @knitr getting-data.object.length.frequency
 result = mapreduce(
   input = hdfs.data,
-  map = function(k, v) keyval(length(v), 1),
-  reduce = function(k, vv) keyval(k, sum(unlist(vv))))
+  map = function(k, v) keyval(lapply(v, length), 1),
+  reduce = function(k, vv) keyval(k, sum(vv)))
 
 from.dfs(result)
 ## @knitr end
@@ -23,8 +23,9 @@ tsv.reader = function(con, nrecs){
   if(length(lines) == 0)
     NULL
   else {
-    delim = strsplit(lines, split = "\t")[[1]]
-    keyval(delim[1], delim[-1])}} # first column is the key, note that column indexes moved by 1
+    delim = strsplit(lines, split = "\t")
+    keyval(sapply(delim, function(x) x[1]), sapply(delim, function(x) x[-1]))}} 
+## first column is the key, note that column indexes moved by 1
 ## @knitr getting-data.tsv.input.format
 tsv.format = 
   make.input.format(
@@ -38,8 +39,8 @@ freq.counts =
   mapreduce(
     input = tsv.data,
     input.format = tsv.format,
-    map = function(k, v) keyval(v[[1]], 1),
-    reduce = function(k, vv) keyval(k, sum(unlist(vv))))
+    map = function(k, v) keyval(v[1,], 1),
+    reduce = function(k, vv) keyval(k, sum(vv)))
 ## @knitr getting-data.named.columns
 tsv.reader = 
   function(con, nrecs){
@@ -47,8 +48,14 @@ tsv.reader =
     if(length(lines) == 0)
       NULL
     else {
-      delim = strsplit(lines, split = "\t")[[1]]
-      keyval(delim[[1]], list(location = delim[[2]], name = delim[[3]], value = delim[[4]]))}}
+      delim = strsplit(lines, split = "\t")
+      keyval(
+        sapply(delim, function(x) x[1]), 
+        data.frame(
+          location = sapply(delim, function(x) x[2]),
+          name = sapply(delim, function(x) x[3]),
+          value = sapply(delim, function(x) x[4])))}}
+
 ## @knitr getting-data.tsv.input.format.1
 tsv.format = 
   make.input.format(
@@ -61,12 +68,18 @@ freq.counts =
     input.format = tsv.format,
     map = 
       function(k, v) { 
-        if (v$name == "blarg"){
-          keyval(k, log(v$value))}},
-    reduce = function(k, vv) keyval(k, mean(unlist(vv))))                      
+        filter = (v$name == "blarg")
+        keyval(k[filter], log(as.numeric(v$value[filter])))},
+    reduce = function(k, vv) keyval(k, mean(vv)))                      
 ## @knitr getting-data.csv.output
-csv.writer = function(k, v){
-  paste(k, paste(v, collapse = ","), sep = ",")}
+csv.writer = function(kv, con){
+  cat(
+    paste(
+      apply(cbind(1:32, mtcars), 
+            1, 
+            paste, collapse = ","), 
+      collapse = "\n"),
+    file = con)}
 ## @knitr getting-data.csv.output.simpler
 csv.format = make.output.format("csv", sep = ",")
 ## @knitr getting-data.explicit.output.arg
@@ -105,8 +118,19 @@ fwf.reader <- function(con, nrecs) {
 fwf.input.format = make.input.format(mode = "text", format = fwf.reader)
 ## @knitr getting-data.fwf.writer
 fwf.writer <- function(kv, con, keyval.size) {
-  ser <- function(df) paste(apply(df, 1, function(x) paste(format(x, width = field.size), collapse = "")), collapse = "\n")
-  out = ser(do.call(rbind, values(kv)))
+  ser =
+    function(df) 
+      paste(
+          apply(df,
+                1, 
+                function(x) 
+                  paste(
+                    format(
+                      x, 
+                      width = field.size), 
+                    collapse = "")), 
+        collapse = "\n")
+  out = ser(values(kv))
   writeLines(out, con = con)}
 fwf.output.format = make.output.format(mode = "text", format = fwf.writer)
 ## @knitr getting-data.generate.fwf.data
