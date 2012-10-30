@@ -6,8 +6,6 @@
 
 <title>Built in formats</title>
 
-<base target="_blank"/>
-
 <style type="text/css">
 body, td {
    font-family: sans-serif;
@@ -52,6 +50,7 @@ pre {
    margin-top: 0;
    max-width: 95%;
    border: 1px solid #ccc;
+   white-space: pre-wrap;
 }
 
 pre code {
@@ -185,7 +184,7 @@ hljs.initHighlightingOnLoad();
 <li>Thanks Damien  and @ryangarner for the examples and Koert for conversations on the subject</li>
 </ul>
 
-<p>Internally <code>rmr</code> uses R&#39;s own serialization in most cases and its own typedbytes extension for some atomic vectors. The goal is to make you forget about representation issues most of the time. But what happens at the boundary of the<br/>
+<p>Internally <code>rmr</code> uses R&#39;s own serialization in most cases and its own typedbytes extension for some atomic vectors. The goal is to make you forget about representation issues most of the time. But what happens at the boundary of the
 system, when you need to get non-rmr data in and out of it? Of course <code>rmr</code> has to be able to read and write a variety of formats to be of any use. This is what is available and how to extend it.</p>
 
 <h2>Built in formats</h2>
@@ -204,6 +203,22 @@ language has decent JSON libraries. It was the default in <code>rmr</code> 1.0, 
 <li><code>native</code>: based on R&#39;s own serialization, it is the default and supports everything that R&#39;s <code>serialize</code> supports. If you want to know the gory details, it is implemented as an application specific type for the typedbytes format, which is further encapsulated in the sequence file format when writing to HDFS, which &hellip; Dont&#39;t worry about it, it just works. Unfortunately, it is written and read by only one package, <code>rmr</code> itself.</li>
 <li><code>sequence.typedbytes</code>: based on specs in HADOOP-1722 it has emerged as the standard for non Java hadoop application talking to the rest of Hadoop. Also implemented in C for efficiency, its underlying data model is different from R&#39;s and we tried to map the two systems the best we could.</li>
 </ol>
+
+<h2>The easy way</h2>
+
+<p>Specify one of those format strings directly as arguments to <code>mapreduce</code>, <code>from.dfs</code>, <code>to.dfs</code>.</p>
+
+<pre><code>mapreduce(input, input.format = &quot;json&quot;)
+</code></pre>
+
+<h2>Custom formats light</h2>
+
+<p>Use <code>make.input.format</code> with a string format argument and additional arguments to specify some variants to that format. Typical example is <code>csv</code> which is actually a family of character separated formats with lots of variation in the details. In this case you can call something like</p>
+
+<pre><code>mapreduce(input, input.format = make.input.format(&quot;csv&quot;, sep = &quot;\t&quot;))
+</code></pre>
+
+<p>which says to use a CSV format with a tab separator. For this format the arguments are, with few exceptions, the same as <code>read.table</code>. The same is true on the output side with <code>make.output.format</code> and the model for the additional arguments is <code>write.table</code>.</p>
 
 <h2>Custom formats</h2>
 
@@ -224,14 +239,14 @@ function (con, keyval.length)
         NULL
     else keyval(NULL, df)
 }
-&lt;environment: 0x1046f6c70&gt;
+&lt;environment: 0x1039870a8&gt;
 
 $streaming.format
 NULL
 
 </code></pre>
 
-<p>The <code>mode</code> element can be <code>text</code> or <code>binary</code>. The <code>format</code> element is a function that takes a connection, reads <code>nrows</code> records and creates a key-value pair. The <code>streaming.format</code> element is a fully qualified Java class (as a string) that writes to the connection the format function reads from. The default is <code>TextInputFormat</code> and also useful is <code>org.apache.hadoop.streaming.AutoInputFormat</code>. Once you have these three elements you can pass them to <code>make.input.format</code> and get something out that can be used as the <code>input.format</code> option to <code>mapreduce</code> and the <code>format</code>  option to <code>from.dfs</code>. On the output side the situation is reversed with the R function acting first and then the Java class doing its thing.</p>
+<p>The <code>mode</code> element can be <code>text</code> or <code>binary</code>. The <code>format</code> element is a function that takes a connection, reads <code>nrows</code> records and creates a key-value object. The <code>streaming.format</code> element is a fully qualified Java class (as a string) that writes to the connection the format function reads from. The default is <code>TextInputFormat</code> and also useful is <code>org.apache.hadoop.streaming.AutoInputFormat</code>. Once you have these three elements you can pass them to <code>make.input.format</code> and get something out that can be used as the <code>input.format</code> option to <code>mapreduce</code> and the <code>format</code>  option to <code>from.dfs</code>. On the output side the situation is reversed with the R function acting first and then the Java class doing its thing.</p>
 
 <pre><code class="r">make.output.format(&quot;csv&quot;)
 </code></pre>
@@ -249,7 +264,7 @@ function (kv, con)
         v
     else cbind(k, v), ..., row.names = FALSE, col.names = FALSE)
 }
-&lt;environment: 0x102f034a8&gt;
+&lt;environment: 0x1048da140&gt;
 
 $streaming.format
 NULL
@@ -266,22 +281,19 @@ NULL
 <pre><code class="r">hdfs.data = to.dfs(my.data)
 </code></pre>
 
-<p><code>my.data</code> is coerced to a list and each element of a list becomes a record.</p>
-
-<p>Compute a frequency of object lengths.  Only require input, mapper, and reducer. Note that <code>my.data</code> is passed into the mapper, record by<br/>
-record, as <code>key = NULL, value = item</code>. </p>
+<p><code>my.data</code> needs to be one of: vector, data frame, list or matrix. 
+Compute a frequency of object lengths.  Only require input, mapper, and reducer. Note that <code>my.data</code> is passed into the mapper, record by
+record, as <code>key = NULL, value = subrange</code>. </p>
 
 <pre><code class="r">result = mapreduce(
   input = hdfs.data,
-  map = function(k,v) keyval(length(v), 1),
-  reduce = function(k,vv) keyval(k, sum(unlist(vv))))
+  map = function(k, v) keyval(lapply(v, length), 1),
+  reduce = function(k, vv) keyval(k, sum(vv)))
 
 from.dfs(result)
 </code></pre>
 
 <p>However, if using data which was not generated with <code>rmr</code> (txt, csv, tsv, JSON, log files, etc) it is necessary to specify an input format. </p>
-
-<p>There is a third option in between the simplicity of a string like &ldquo;csv&rdquo; and the full power of <code>make.input.format</code>, which is passing the format string to <code>make.input.format</code> with additional arguments that further specify the specific dialect of <code>csv</code>, as in <code>make.input.format(&quot;csv&quot;, sep = &#39;;&#39;)</code>. <code>csv</code> is the only format offering this possibility as the others are fully specified and it takes the same options as <code>read.table</code>. The same on the output side with <code>write.table</code> being the model.</p>
 
 <p>To define your own <code>input.format</code> (e.g. to handle tsv):</p>
 
@@ -290,8 +302,9 @@ from.dfs(result)
   if(length(lines) == 0)
     NULL
   else {
-    delim = strsplit(lines, split = &quot;\t&quot;)[[1]]
-    keyval(delim[1], delim[-1])}} # first column is the key, note that column indexes moved by 1
+    delim = strsplit(lines, split = &quot;\t&quot;)
+    keyval(sapply(delim, function(x) x[1]), sapply(delim, function(x) x[-1]))}} 
+## first column is the key, note that column indexes moved by 1
 </code></pre>
 
 <p>Frequency count on input column two of the tsv data, data comes into map already delimited</p>
@@ -300,8 +313,8 @@ from.dfs(result)
   mapreduce(
     input = tsv.data,
     input.format = tsv.format,
-    map = function(k,v) keyval(v[[1]], 1),
-    reduce = function(k,vv) keyval(k, sum(unlist(vv))))
+    map = function(k, v) keyval(v[1,], 1),
+    reduce = function(k, vv) keyval(k, sum(vv)))
 </code></pre>
 
 <p>Or if you want named columns, this would be specific to your data file</p>
@@ -312,8 +325,13 @@ from.dfs(result)
     if(length(lines) == 0)
       NULL
     else {
-      delim = strsplit(lines, split = &quot;\t&quot;)[[1]]
-      keyval(delim[[1]], list(location = delim[[2]], name = delim[[3]], value = delim[[4]]))}}
+      delim = strsplit(lines, split = &quot;\t&quot;)
+      keyval(
+        sapply(delim, function(x) x[1]), 
+        data.frame(
+          location = sapply(delim, function(x) x[2]),
+          name = sapply(delim, function(x) x[3]),
+          value = sapply(delim, function(x) x[4])))}}
 </code></pre>
 
 <p>You can then use the list names to directly access your column of interest for manipulations</p>
@@ -324,9 +342,9 @@ from.dfs(result)
     input.format = tsv.format,
     map = 
       function(k, v) { 
-        if (v$name == &quot;blarg&quot;){
-          keyval(k, log(v$value))}},
-    reduce = function(k, vv) keyval(k, mean(unlist(vv))))                      
+        filter = (v$name == &quot;blarg&quot;)
+        keyval(k[filter], log(as.numeric(v$value[filter])))},
+    reduce = function(k, vv) keyval(k, mean(vv)))                      
 </code></pre>
 
 <p>Another common <code>input.format</code> is fixed width formatted data:</p>
@@ -354,8 +372,19 @@ fwf.input.format = make.input.format(mode = &quot;text&quot;, format = fwf.reade
 <p>Using the text <code>output.format</code> as a template, we modify it slightly to write fixed width data without tab seperation:</p>
 
 <pre><code class="r">fwf.writer &lt;- function(kv, con, keyval.size) {
-  ser &lt;- function(df) paste(apply(df, 1, function(x) paste(format(x, width = field.size), collapse = &quot;&quot;)), collapse = &quot;\n&quot;)
-  out = ser(do.call(rbind, values(kv)))
+  ser =
+    function(df) 
+      paste(
+          apply(df,
+                1, 
+                function(x) 
+                  paste(
+                    format(
+                      x, 
+                      width = field.size), 
+                    collapse = &quot;&quot;)), 
+        collapse = &quot;\n&quot;)
+  out = ser(values(kv))
   writeLines(out, con = con)}
 fwf.output.format = make.output.format(mode = &quot;text&quot;, format = fwf.writer)
 </code></pre>
@@ -365,7 +394,7 @@ fwf.output.format = make.output.format(mode = &quot;text&quot;, format = fwf.wri
 <pre><code class="r">fwf.data &lt;- to.dfs(mtcars, format = fwf.output.format)
 </code></pre>
 
-<p>The key thing to note about <code>fwf.reader</code> is the global variable <code>fields</code>. In <code>fields</code>, we define the start and<br/>
+<p>The key thing to note about <code>fwf.reader</code> is the global variable <code>fields</code>. In <code>fields</code>, we define the start and
 end byte locations for each field in the data:</p>
 
 <pre><code class="r">qw = function(...) as.character(match.call())[-1]
@@ -392,11 +421,17 @@ names(df) &lt;- c(&quot;cyl&quot;,&quot;count&quot;)
 df
 </code></pre>
 
-<p>To get your data out - say you input file, apply column transformations, add columns, and want to output a new csv file<br/>
+<p>To get your data out - say you input file, apply column transformations, add columns, and want to output a new csv file
 Just like input.format, one must define an output format function:</p>
 
-<pre><code class="r">csv.writer = function(k, v){
-  paste(k, paste(v, collapse = &quot;,&quot;), sep = &quot;,&quot;)}
+<pre><code class="r">csv.writer = function(kv, con){
+  cat(
+    paste(
+      apply(cbind(1:32, mtcars), 
+            1, 
+            paste, collapse = &quot;,&quot;), 
+      collapse = &quot;\n&quot;),
+    file = con)}
 </code></pre>
 
 <p>And then use that as an argument to <code>make.output.format</code>, but why sweat it since the devs have already done the work?</p>
@@ -410,9 +445,9 @@ Just like input.format, one must define an output format function:</p>
   input = hdfs.data,
   output = tempfile(),
   output.format = csv.format,
-  map = function(k,v){
+  map = function(k, v){
     # complicated function here
-    keyval(1,v)},
+    keyval(1, v)},
   reduce = function(k, vv) {
     #complicated function here
     keyval(k, vv[[1]])})

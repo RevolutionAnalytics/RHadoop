@@ -143,19 +143,32 @@ hr {
 <body>
 <h1>What&#39;s new in 2.0.1</h1>
 
+<h2>Compatibility</h2>
+
+<p>Works with CDH3, CDH4, Apache 1.0.4 and MapR 2.0.1. See <a href="compatibility.md">Compatibility</a></p>
+
+<h2>Fixes</h2>
+
 <ul>
-<li>automatic package install feature</li>
-<li><p><code>keyval</code> as is mode for lists</p></li>
-<li><p>fixed <code>rmr.sample</code>. The function in 2.0 was broken due to a commit mishap.</p></li>
-<li><p>hardened <code>keyval</code> argument recycling feature against some edge cases (not <code>NULL</code> but 0-length keys or values).</p></li>
-<li><p>local mode again compatible with mixed type input files. The local backend failed when multiple inputs were provided but they represented different record types, which is typical of joins. No longer.</p></li>
-<li><p>fixed equijoin with new reduce default. The 2.0 version had a number of problems due to an incomplete port to the 2.0 API. The new reduce default does a <code>merge</code> of left and right side in most cases, returns left and right groups as they are when lists are involved.</p></li>
-<li><p>hardened streaming backend against user code or packages writing to <code>stdout</code>. This output stream is reserved for hadoop streaming use. We now capture all output at package load time and from the map and reduce functions and redirect it to standard error. </p></li>
-<li><p>improved environment load  on the nodes. In some cases local variables could be overwritten by global environment variables, not anymore.</p></li>
-<li><p>hardened hdfs functions against some small platform variations. This seemed to give rise only to error messages without further consequences in most cases, but had been a source of alarm for users.</p></li>
-<li><p>prettified a lot of code to show directly in documents and presentations using literate programming. This is important because the same code is showed everywhere, no copy and paste, no pseudo-code, no nothing. The code in the [Tutorial] and other documentats is always real, fresh and tested. Documents are generated with knitr and presentation with knitr and pandoc. Thanks to  Yihui Xie and John MacFarlane for these great software and direct support.</p></li>
-<li><p>logistic regression test no longer limited to only two dimensions</p></li>
-<li><p>wordcount test now cleans up after itself</p></li>
+<li>Fixed <code>rmr.sample</code>. The function in 2.0 was broken due to a commit mishap.</li>
+<li>Hardened <code>keyval</code> argument recycling feature against some edge cases (not <code>NULL</code> but 0-length keys or values).</li>
+<li>Local mode again compatible with mixed type input files. The local backend failed when multiple inputs were provided but they represented different record types, which is typical of joins. No longer.</li>
+<li>Fixed equijoin with new reduce default. The 2.0 version had a number of problems due to an incomplete port to the 2.0 API. The new reduce default does a <code>merge</code> of left and right side in most cases, returns left and right groups as they are when lists are involved.</li>
+<li>Hardened streaming backend against user code or packages writing to <code>stdout</code>. This output stream is reserved for hadoop streaming use. We now capture all output at package load time and from the map and reduce functions and redirect it to standard error. There is one case we can&#39;t handle, see #40.</li>
+<li>Improved environment load  on the nodes. In some cases local variables could be overwritten by global environment variables, not anymore.</li>
+<li>Hardened hdfs functions against some small platform variations. This seemed to give rise only to error messages without further consequences in most cases, but had been a source of alarm for users.</li>
+</ul>
+
+<h2>Features</h2>
+
+<ul>
+<li>automatic package install &amp; update feature (experimental). At default, nothing changes, you need to install all the packages you need on all the nodes. If you set the package option <code>install.args</code> to a list, even empty, rmr will try to install missing packages using that list as additional arguments for <code>install.packages</code> (the <code>libs</code> argument is set to the current list of loaded packages) . Same logic with <code>update.args</code>. This feature is experimental and, as we said, off by default. Testing has been very limited, please consider this a preview of a feature targted for 2.1</li>
+</ul>
+
+<h2>Behind the scenes</h2>
+
+<ul>
+<li>prettified a lot of code to show directly in documents and presentations using literate programming. This is important because the same code is showed everywhere, no copy and paste, no pseudo-code, no nothing. The code in the [Tutorial] and other documents is always real, fresh and tested. Documents are generated with knitr and presentation with knitr and pandoc. Thanks to  Yihui Xie and John MacFarlane for these great software and direct support.</li>
 </ul>
 
 </body>
