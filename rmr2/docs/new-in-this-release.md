@@ -2,7 +2,7 @@
 
 ## Compatibility 
 
-Works with CDH3, CDH4 and Apache 1.0.4. See [Compatibility](compatibility.md)
+Works with CDH3, CDH4, Apache 1.0.4 and MapR 2.0.1. See [Compatibility](compatibility.md)
 
 ## Fixes
 * Fixed `rmr.sample`. The function in 2.0 was broken due to a commit mishap.
