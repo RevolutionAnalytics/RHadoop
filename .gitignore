@@ -25,3 +25,7 @@ src-x86_64
 *.so
 *.rds
 Rprof.out
+
+*.aup
+
+*.au

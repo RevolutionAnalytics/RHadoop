@@ -14,7 +14,7 @@
 
 library(rmr2)
 
-## @knitr kmeans-
+## @knitr kmeans-signature
 kmeans.mr = 
   function(P, num.clusters, num.iter) {
 ## @knitr kmeans-dist.fun
@@ -22,14 +22,19 @@ kmeans.mr =
       function(C, P) {
         apply(C,
               1, 
-              function(x) matrix(rowSums((t(t(P) - x))^2), 
-                                 ncol = length(x)))}
+              function(x) 
+                matrix(
+                  rowSums((t(t(P) - x))^2), 
+                  ncol = length(x)))}
 ## @knitr kmeans.map.1
     kmeans.map.1 = 
-      function(k, P) {
+      function(., P) {
         nearest = 
           if(is.null(C)) {
-            sample(1:num.clusters, nrow(P), replace = T)}
+            sample(
+              1:num.clusters, 
+              nrow(P), 
+              replace = T)}
           else {
             D = dist.fun(C, P)
             nearest = max.col(-D)}
@@ -37,16 +42,23 @@ kmeans.mr =
 ## @knitr kmeans.reduce.1
     kmeans.reduce.1 = 
       function(x, P) {
-        t(as.matrix(apply(P,2,mean)))}
+        t(as.matrix(apply(P, 2, mean)))}
 ## @knitr kmeans-main    
     C = NULL
     for(i in 1:num.iter ) {
       C = 
         values(
           from.dfs(
-            mapreduce(P, map = kmeans.map.1, reduce = kmeans.reduce.1)))
+            mapreduce(
+              P, 
+              map = kmeans.map.1, 
+              reduce = kmeans.reduce.1)))
       if(nrow(C) < 5) 
-        C = matrix(rnorm(num.clusters * nrow(C)), ncol = nrow(C)) %*% C }
+        C = 
+          matrix(
+            rnorm(
+              num.clusters * nrow(C)), 
+            ncol = nrow(C)) %*% C }
     C}
 ## @knitr end
 
@@ -60,12 +72,22 @@ for(be in c("local", "hadoop")) {
   set.seed(0)
 ## @knitr kmeans-data
   input = 
-    do.call(rbind, rep(list(matrix(rnorm(10, sd = 10), ncol=2)), 20)) + 
+    do.call(
+      rbind, 
+      rep(
+        list(
+          matrix(
+            rnorm(10, sd = 10), 
+            ncol=2)), 
+        20)) + 
     matrix(rnorm(200), ncol =2)
 ## @knitr end
   out[[be]] = 
 ## @knitr kmeans-run    
-    kmeans.mr(to.dfs(input), num.clusters  = 12, num.iter= 5)
+    kmeans.mr(
+      to.dfs(input),
+      num.clusters  = 12, 
+      num.iter= 5)
 ## @knitr end
 }
 

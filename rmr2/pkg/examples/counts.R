@@ -17,7 +17,7 @@
 count = 
   function(data, ...) {
     map.count = 
-      function(dummy,data) {
+      function(.,data) {
         counts = apply(data,2,function(x) aggregate(x,list(x),length)) 
         keyval(names(counts), counts)}
     reduce.count =   

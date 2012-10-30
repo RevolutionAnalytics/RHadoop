@@ -25,7 +25,7 @@ key and the value and the return values are returned as a key-value pair; when o
 \examples{ 
 ##The identity map: 
 to.map(identity) 
-## equivalent to function(k,v) keyval(k,v) 
+## equivalent to function(k, v) keyval(k, v) 
 ##Replace key with mod 10 of the key and pass the value along: 
 to.map(function(x) x \%\% 10, identity ) 
 ##Sum up all the values for the same key: 

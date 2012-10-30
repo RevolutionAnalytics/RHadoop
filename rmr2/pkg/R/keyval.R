@@ -53,8 +53,12 @@ rmr.slice =
 
 rmr.recycle = 
   function(x,y) {
-    lx = if(is.null(x)) 1 else rmr.length(x)
-    ly = if(is.null(y)) 1 else rmr.length(y)
+    recycle.length = 
+      function(z) {
+        if(is.null(z) || rmr.length(z) == 0) 1 
+        else rmr.length(z) }
+    lx = recycle.length(x)
+    ly = recycle.length(y)
     if(lx == ly) x
     else
       rmr.slice(
@@ -80,10 +84,16 @@ slice.keyval =
 c.or.rbind = 
   Make.single.or.multi.arg(
     function(x) {
-      if(has.rows(x[[1]]))        
-        do.call(rbind,x)
-      else
-        do.call(c,x)})
+      if(is.null(x))
+        NULL 
+      else {
+        if(length(x) == 0) 
+          list()
+        else {
+          if(has.rows(x[[1]]))        
+            do.call(rbind,x)
+          else
+            do.call(c,x)}}})
 
 c.keyval = 
   Make.single.or.multi.arg(
@@ -96,7 +106,7 @@ c.keyval =
 rmr.split = 
   function(x, ind) {
     spl = if(has.rows(x)) split.data.frame else split
-    spl(x,ind)}
+    spl(x,ind, drop = FALSE)}
 
 split.keyval = function(kv, size) {
   k = keys(kv)
@@ -107,13 +117,13 @@ split.keyval = function(kv, size) {
       keyval(list(NULL),
              unname(rmr.split(v, k))))}
   else {
-    ind = 
+    ind = {
       if(is.list(k) && !is.data.frame(k))
         sapply(k, digest)
       else
-        k
+        k}
     keyval(lapply(unname(rmr.split(k, ind)), unique), 
-           unname(rmr.split(v, ind)))}}  
+           unname(rmr.split(v, ind)))}}
 
 apply.keyval = 
   function(

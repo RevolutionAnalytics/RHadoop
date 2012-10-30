@@ -47,7 +47,7 @@ json.output.format = function(kv, con) {
                              gsub("\n", "", toJSON(v, .escapeEscapes=TRUE, collapse = "")),
                              sep = "\t")
   out = apply.keyval(kv, ser, rmr.options('keyval.length'))
-  writeLines(paste(out, collapse = "\n"), con = con, sep = "\n")}
+  writeLines(paste(out, collapse = "\n"), sep = "", con = con)}
 
 text.input.format = function(con, keyval.length) {
   lines = readLines(con, keyval.length)
@@ -57,7 +57,7 @@ text.input.format = function(con, keyval.length) {
 text.output.format = function(kv, con) {
   ser = function(k, v) paste(k, v, collapse = "", sep = "\t")
   out = apply.keyval(kv, ser, length.keyval(kv))
-  writeLines(paste(out, "\n", collapse="", sep = ""), sep = "\n", con = con)}
+  writeLines(paste(out, "\n", collapse="", sep = ""), sep = "", con = con)}
 
 make.csv.input.format = function(...) function(con, keyval.length) {
   df = 
@@ -72,7 +72,7 @@ make.csv.output.format = function(...) function(kv, con) {
   k = keys(kv)
   v = values(kv)
   write.table(file = con, 
-              x = if(is.null(k)) v else cbind(k,v), 
+              x = if(is.null(k)) v else cbind(k, v), 
               ..., 
               row.names = FALSE, 
               col.names = FALSE)}

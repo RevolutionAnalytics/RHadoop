@@ -60,7 +60,9 @@ map.loop = function(map, keyval.reader, keyval.writer, profile) {
   if(profile) activate.profiling()
   kv = keyval.reader()
   while(!is.null(kv)) { 
-    out = map(keys(kv), values(kv))
+    capture.output({
+      out = map(keys(kv), values(kv))},
+                   file = stderr())
     if(!is.null(out)) {
       keyval.writer(as.keyval(out))}
     kv = keyval.reader()}
@@ -72,7 +74,9 @@ list.cmp = function(ll, e) sapply(ll, function(l) isTRUE(all.equal(e, l, check.a
 
 reduce.loop = function(reduce, keyval.reader, keyval.writer, profile) {
   reduce.flush = function(current.key, vv) {
-    out = reduce(current.key, c.or.rbind(vv))
+    capture.output({
+      out = reduce(current.key, c.or.rbind(vv))},
+                   file = stderr())
     if(!is.null(out)) keyval.writer(as.keyval(out))}
   if(profile) activate.profiling()
   kv = keyval.reader()
@@ -81,7 +85,7 @@ reduce.loop = function(reduce, keyval.reader, keyval.writer, profile) {
   while(!is.null(kv)) {
     apply.keyval(
       kv,
-      function(k,v) {
+      function(k, v) {
         if(length(vv()) == 0) { #start
           current.key <<- k
           vv(list(v))}
@@ -124,6 +128,8 @@ rmr.stream = function(
   out.folder, 
   profile.nodes, 
   keyval.length,
+  rmr.install,
+  rmr.update,
   input.format, 
   output.format, 
   backend.parameters, 
@@ -134,10 +140,21 @@ rmr.stream = function(
   rmr.global.env = tempfile(pattern = "rmr-global-env")
   preamble = paste(sep = "", 'options(warn=1)
  
-  library(rmr2)
-  load("',basename(rmr.local.env),'")
   load("',basename(rmr.global.env),'")
-  invisible(lapply(libs, function(l) require(l, character.only = T)))
+  load("',basename(rmr.local.env),'")  
+  sink(file = stderr())
+  if(!is.null(rmr.update))
+    rmr.update(ask = FALSE)
+  invisible(
+    lapply(
+      libs, 
+        function(l)
+          if (!require(l, character.only = T)) {
+            if(is.null(rmr.install)) {
+              warning(paste("can\'t load", l))}
+            else {
+              rmr.install(l)}}))
+  sink(NULL)
   
   input.reader = 
     function()
@@ -261,7 +278,9 @@ rmr.stream = function(
     paste(
       hadoop.command, 
       stream.mapred.io,  
-      paste.options(backend.parameters), 
+      if(is.null(backend.parameters)) ""
+      else
+        do.call(paste.options, backend.parameters), 
       input, 
       output, 
       mapper, 
@@ -314,7 +333,18 @@ hdfs.match.sideeffect = function(...) {
 hdfs.match.out = function(...) {
   oldwarn = options("warn")[[1]]
   options(warn = -1)
-  retval = do.call(rbind, strsplit(hdfs(getcmd(match.call()), TRUE, ...), " +")) 
+  retval = 
+    do.call(
+      rbind, 
+      strsplit(
+        grep("Found [0-9]+ items",
+             hdfs(
+               getcmd(match.call()), 
+               TRUE, 
+               ...),
+             value = TRUE, 
+             invert = TRUE),
+        " +")) 
   options(warn = oldwarn)
   retval}
 

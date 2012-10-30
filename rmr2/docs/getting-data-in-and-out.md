@@ -28,9 +28,22 @@ language has decent JSON libraries. It was the default in `rmr` 1.0, but we'll k
 1. `native`: based on R's own serialization, it is the default and supports everything that R's `serialize` supports. If you want to know the gory details, it is implemented as an application specific type for the typedbytes format, which is further encapsulated in the sequence file format when writing to HDFS, which ... Dont't worry about it, it just works. Unfortunately, it is written and read by only one package, `rmr` itself.
 1. `sequence.typedbytes`: based on specs in HADOOP-1722 it has emerged as the standard for non Java hadoop application talking to the rest of Hadoop. Also implemented in C for efficiency, its underlying data model is different from R's and we tried to map the two systems the best we could.
 
- 
-## Custom formats
+## The easy way
 
+Specify one of those format strings directly as arguments to `mapreduce`, `from.dfs`, `to.dfs`.
+
+```
+mapreduce(input, input.format = "json")
+```
+
+## Custom formats light
+Use `make.input.format` with a string format argument and additional arguments to specify some variants to that format. Typical example is `csv` which is actually a family of character separated formats with lots of variation in the details. In this case you can call something like
+```
+mapreduce(input, input.format = make.input.format("csv", sep = "\t"))
+```
+which says to use a CSV format with a tab separator. For this format the arguments are, with few exceptions, the same as `read.table`. The same is true on the output side with `make.output.format` and the model for the additional arguments is `write.table`.
+
+## Custom formats 
 A format is a triple. You can create one with `make.input.format`, for instance:
 
 ```r
@@ -50,7 +63,7 @@ function (con, keyval.length)
         NULL
     else keyval(NULL, df)
 }
-<environment: 0x1046f6c70>
+<environment: 0x1039870a8>
 
 $streaming.format
 NULL
@@ -58,7 +71,7 @@ NULL
 ```
 
 
-The `mode` element can be `text` or `binary`. The `format` element is a function that takes a connection, reads `nrows` records and creates a key-value pair. The `streaming.format` element is a fully qualified Java class (as a string) that writes to the connection the format function reads from. The default is `TextInputFormat` and also useful is `org.apache.hadoop.streaming.AutoInputFormat`. Once you have these three elements you can pass them to `make.input.format` and get something out that can be used as the `input.format` option to `mapreduce` and the `format`  option to `from.dfs`. On the output side the situation is reversed with the R function acting first and then the Java class doing its thing.
+The `mode` element can be `text` or `binary`. The `format` element is a function that takes a connection, reads `nrows` records and creates a key-value object. The `streaming.format` element is a fully qualified Java class (as a string) that writes to the connection the format function reads from. The default is `TextInputFormat` and also useful is `org.apache.hadoop.streaming.AutoInputFormat`. Once you have these three elements you can pass them to `make.input.format` and get something out that can be used as the `input.format` option to `mapreduce` and the `format`  option to `from.dfs`. On the output side the situation is reversed with the R function acting first and then the Java class doing its thing.
 
 
 ```r
@@ -79,7 +92,7 @@ function (kv, con)
         v
     else cbind(k, v), ..., row.names = FALSE, col.names = FALSE)
 }
-<environment: 0x102f034a8>
+<environment: 0x1048da140>
 
 $streaming.format
 NULL
@@ -101,17 +114,16 @@ Put into HDFS:
 hdfs.data = to.dfs(my.data)
 ```
 
-`my.data` is coerced to a list and each element of a list becomes a record.
-
+`my.data` needs to be one of: vector, data frame, list or matrix. 
 Compute a frequency of object lengths.  Only require input, mapper, and reducer. Note that `my.data` is passed into the mapper, record by
-record, as `key = NULL, value = item`. 
+record, as `key = NULL, value = subrange`. 
 
 
 ```r
 result = mapreduce(
   input = hdfs.data,
-  map = function(k,v) keyval(length(v), 1),
-  reduce = function(k,vv) keyval(k, sum(unlist(vv))))
+  map = function(k, v) keyval(lapply(v, length), 1),
+  reduce = function(k, vv) keyval(k, sum(vv)))
 
 from.dfs(result)
 ```
@@ -119,7 +131,6 @@ from.dfs(result)
 
 However, if using data which was not generated with `rmr` (txt, csv, tsv, JSON, log files, etc) it is necessary to specify an input format. 
 
-There is a third option in between the simplicity of a string like "csv" and the full power of `make.input.format`, which is passing the format string to `make.input.format` with additional arguments that further specify the specific dialect of `csv`, as in `make.input.format("csv", sep = ';')`. `csv` is the only format offering this possibility as the others are fully specified and it takes the same options as `read.table`. The same on the output side with `write.table` being the model.
 
 
 
@@ -134,8 +145,9 @@ tsv.reader = function(con, nrecs){
   if(length(lines) == 0)
     NULL
   else {
-    delim = strsplit(lines, split = "\t")[[1]]
-    keyval(delim[1], delim[-1])}} # first column is the key, note that column indexes moved by 1
+    delim = strsplit(lines, split = "\t")
+    keyval(sapply(delim, function(x) x[1]), sapply(delim, function(x) x[-1]))}} 
+## first column is the key, note that column indexes moved by 1
 ```
 
 
@@ -147,8 +159,8 @@ freq.counts =
   mapreduce(
     input = tsv.data,
     input.format = tsv.format,
-    map = function(k,v) keyval(v[[1]], 1),
-    reduce = function(k,vv) keyval(k, sum(unlist(vv))))
+    map = function(k, v) keyval(v[1,], 1),
+    reduce = function(k, vv) keyval(k, sum(vv)))
 ```
 
 
@@ -162,8 +174,13 @@ tsv.reader =
     if(length(lines) == 0)
       NULL
     else {
-      delim = strsplit(lines, split = "\t")[[1]]
-      keyval(delim[[1]], list(location = delim[[2]], name = delim[[3]], value = delim[[4]]))}}
+      delim = strsplit(lines, split = "\t")
+      keyval(
+        sapply(delim, function(x) x[1]), 
+        data.frame(
+          location = sapply(delim, function(x) x[2]),
+          name = sapply(delim, function(x) x[3]),
+          value = sapply(delim, function(x) x[4])))}}
 ```
 
 
@@ -176,9 +193,9 @@ freq.counts =
     input.format = tsv.format,
     map = 
       function(k, v) { 
-        if (v$name == "blarg"){
-          keyval(k, log(v$value))}},
-    reduce = function(k, vv) keyval(k, mean(unlist(vv))))                      
+        filter = (v$name == "blarg")
+        keyval(k[filter], log(as.numeric(v$value[filter])))},
+    reduce = function(k, vv) keyval(k, mean(vv)))                      
 ```
 
 
@@ -210,8 +227,19 @@ Using the text `output.format` as a template, we modify it slightly to write fix
 
 ```r
 fwf.writer <- function(kv, con, keyval.size) {
-  ser <- function(df) paste(apply(df, 1, function(x) paste(format(x, width = field.size), collapse = "")), collapse = "\n")
-  out = ser(do.call(rbind, values(kv)))
+  ser =
+    function(df) 
+      paste(
+          apply(df,
+                1, 
+                function(x) 
+                  paste(
+                    format(
+                      x, 
+                      width = field.size), 
+                    collapse = "")), 
+        collapse = "\n")
+  out = ser(values(kv))
   writeLines(out, con = con)}
 fwf.output.format = make.output.format(mode = "text", format = fwf.writer)
 ```
@@ -263,8 +291,14 @@ Just like input.format, one must define an output format function:
 
 
 ```r
-csv.writer = function(k, v){
-  paste(k, paste(v, collapse = ","), sep = ",")}
+csv.writer = function(kv, con){
+  cat(
+    paste(
+      apply(cbind(1:32, mtcars), 
+            1, 
+            paste, collapse = ","), 
+      collapse = "\n"),
+    file = con)}
 ```
 
 
@@ -284,9 +318,9 @@ mapreduce(
   input = hdfs.data,
   output = tempfile(),
   output.format = csv.format,
-  map = function(k,v){
+  map = function(k, v){
     # complicated function here
-    keyval(1,v)},
+    keyval(1, v)},
   reduce = function(k, vv) {
     #complicated function here
     keyval(k, vv[[1]])})
