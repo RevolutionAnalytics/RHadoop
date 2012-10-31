@@ -4,7 +4,7 @@ Title: R and Hadoop Streaming Connector
 Version: 2.0.1
 Date: 2012-10-29
 Author: Revolution Analytics
-Depends: R (>= 2.6.0), Rcpp, RJSONIO (>= 0.8-2), itertools, digest, functional, httr
+Depends: R (>= 2.6.0), Rcpp, RJSONIO (>= 0.8-2), itertools, digest, functional, httr, plyr
 Suggests: quickcheck
 Collate: basic.R keyval.R IO.R local.R streaming.R mapreduce.R extras.R quickcheck-rmr.R
 Maintainer: Revolution Analytics <rhadoop@revolutionanalytics.com>

@@ -300,8 +300,16 @@ equijoin = function(
       if((is.list(vl) && !is.data.frame(vl)) || 
            (is.list(vr) && !is.data.frame(vr)))
         list(left = vl, right = vr)
-      else
-        merge(vl, vr, by = NULL)}) { 
+      else{
+        if(!is.null(names(vl)))
+          names(vl) = paste(names(vl), "l", sep = ".")
+        if(!is.null(names(vr)))
+          names(vr) = paste(names(vr), "r", sep = ".")
+        if(all(is.na(vl))) vr
+        else {
+          if(all(is.na(vr))) vl
+          else
+            merge(vl, vr, by = NULL)}}}) { 
   
   stopifnot(xor(!is.null(left.input), !is.null(input) &&
     (is.null(left.input) == is.null(right.input))))
@@ -354,9 +362,10 @@ equijoin = function(
   eqj.reduce = 
     function(k, vv) {
       rs = reduce.split(vv)
-      reduce(k, 
-             pad.side(rs$`TRUE`, right.outer, full.outer), 
-             pad.side(rs$`FALSE`, left.outer, full.outer))}
+      left.side = pad.side(rs$`TRUE`, right.outer, full.outer)
+      right.side = pad.side(rs$`FALSE`, left.outer, full.outer)
+      if(!is.null(left.side) && !is.null(right.side))
+        reduce(k, left.side, right.side)}
   mapreduce(
     map = map, 
     reduce = eqj.reduce,

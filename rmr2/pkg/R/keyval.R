@@ -91,7 +91,7 @@ c.or.rbind =
           list()
         else {
           if(has.rows(x[[1]]))        
-            do.call(rbind,x)
+            do.call(rbind.fill,x)
           else
             do.call(c,x)}}})
 
