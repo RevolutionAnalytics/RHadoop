@@ -90,8 +90,11 @@ c.or.rbind =
         if(length(x) == 0) 
           list()
         else {
-          if(has.rows(x[[1]]))        
-            do.call(rbind.fill,x)
+          if(has.rows(x[[1]])) { 
+            if(is.data.frame(x[[1]]))
+              do.call(rbind.fill,x)
+            else
+              do.call(rbind, x)}
           else
             do.call(c,x)}}})
 
