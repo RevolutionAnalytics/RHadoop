@@ -132,9 +132,8 @@ graph.data =
 #visualization
 
 library(googleVis)
-qw = function(...) as.character(match.call())[-1]
 graph.data.frame = do.call(rbind, lapply(graph.data, function(x) cbind(x$key, x$val[-1,], x$val[-nrow(x$val),])))
-names(graph.data.frame) = qw(id,time,count, time.1, count.1)
+names(graph.data.frame) = rmr2:::qw(id,time,count, time.1, count.1)
 graph.data.frame$average = with(graph.data.frame, log(count/year.totals[as.character(time),1] * count.1/year.totals[as.character(time.1),1])/2)
 graph.data.frame$difference = with(graph.data.frame, log(count/year.totals[as.character(time),1] / count.1/year.totals[as.character(time.1),1])/2)
-M <- gvisMotionChart(graph.data.frame[,qw(id,time,average,difference)], options = list(height = 1000, width = 2000)); cat(M$html$chart, file="~/Desktop/tmp.html")
+M <- gvisMotionChart(graph.data.frame[,rmr2:::qw(id,time,average,difference)], options = list(height = 1000, width = 2000)); cat(M$html$chart, file="~/Desktop/tmp.html")
