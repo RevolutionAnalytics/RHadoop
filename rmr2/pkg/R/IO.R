@@ -187,7 +187,7 @@ make.input.format =
         hbase = {
           format = make.typedbytes.input.format()
           mode = "binary"
-          streaming.format = "com.intel.bigdata.hbase.mapreduce.TypedBytesTableInputFormat"
+          streaming.format = "com.dappervision.hbase.mapred.TypedBytesTableInputFormat"
           backend.parameters = 
             list(
               hadoop = 
@@ -240,7 +240,7 @@ make.output.format =
         hbase = {
           format = make.typedbytes.output.format()
           mode = "binary"
-          streaming.format = " com.intel.bigdata.hbase.mapreduce.TypedBytesTableOutputFormat"
+          streaming.format = "com.dappervision.mapreduce.TypedBytesTableOutputFormat"
           backend.parameters = 
             list(
               hadoop = 
