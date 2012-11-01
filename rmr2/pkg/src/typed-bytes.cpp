@@ -144,8 +144,6 @@ void unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & obj
        objs_end = objs_end + 1;}
       break;
     case 10: { 
-      Rcpp::Function data_frame("data.frame");
-      Rcpp::Function I("I");
       int length = get_length(data, raw_start);
       Rcpp::List keys(length);
       Rcpp::List values(length);
@@ -155,9 +153,9 @@ void unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & obj
         unserialize(data, raw_start, keys, keys_end);
         unserialize(data, raw_start, values, values_end);}
       objs[objs_end] = 
-          data_frame(
-            Rcpp::Named("keys") = I(keys),
-            Rcpp::Named("values") = I(values));
+          Rcpp::List::create(
+            Rcpp::Named("keys") = keys,
+            Rcpp::Named("values") = values);
        objs_end = objs_end + 1;}
       break;
     case 144: { //R serialization
