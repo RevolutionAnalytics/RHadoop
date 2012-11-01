@@ -78,6 +78,7 @@ make.csv.output.format = function(...) function(kv, con) {
               col.names = FALSE)}
 
 typedbytes.reader = function(data, nobjs) {
+  cat(data, file = stderr())
   if(is.null(data)) NULL
   else
     .Call("typedbytes_reader", data, nobjs, PACKAGE = "rmr2")}
