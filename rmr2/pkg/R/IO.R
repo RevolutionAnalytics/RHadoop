@@ -121,7 +121,8 @@ make.typedbytes.input.format = function() {
               values = kk))
         keyval(
           c.or.rbind(kk),
-          c.or.rbind(vv))}
+          if(hbase) vv
+          else c.or.rbind(vv))}
     obj.buffer <<- straddler
     obj.buffer.rmr.length <<- 0
     retval}}
@@ -198,7 +199,7 @@ make.input.format =
                     ":", 
                     list(...)$column, 
                     sep = "",
-                    collapse = " ")))})}
+                  collapse = " ")))})}
     if(is.null(streaming.format) && mode == "binary") 
       streaming.format = "org.apache.hadoop.streaming.AutoInputFormat"
     list(mode = mode, 
@@ -240,7 +241,7 @@ make.output.format =
           mode = "binary"
           streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"},
         hbase = {
-          format = make.typedbytes.output.format()
+          format = make.typedbytes.output.format(hbase = TRUE)
           mode = "binary"
           streaming.format = "com.dappervision.mapreduce.TypedBytesTableOutputFormat"
           backend.parameters = 
