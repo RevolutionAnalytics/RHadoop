@@ -77,6 +77,7 @@ unsigned char get_type(const raw & data, int & start) {
     throw ReadPastEnd(255, start);}
   unsigned char retval = data[start];
   start = start + 1;
+  std::cerr << (int) retval << std::endl;
   return retval;}
 
 void unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & objs_end, unsigned char type_code = 255){
