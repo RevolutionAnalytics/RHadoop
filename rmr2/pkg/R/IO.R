@@ -87,7 +87,7 @@ typedbytes.writer = function(objects, con, native) {
     .Call("typedbytes_writer", objects, native, PACKAGE = "rmr2"),
     con)}
 
-make.typedbytes.input.format = function() {
+make.typedbytes.input.format = function(hbase = FALSE) {
   obj.buffer = list()
   obj.buffer.rmr.length = 0
   raw.buffer = raw()
@@ -186,7 +186,7 @@ make.input.format =
           format = make.typedbytes.input.format() 
           mode = "binary"},
         hbase = {
-          format = make.typedbytes.input.format()
+          format = make.typedbytes.input.format(hbase = TRUE)
           mode = "binary"
           streaming.format = "com.dappervision.hbase.mapred.TypedBytesTableInputFormat"
           backend.parameters = 
