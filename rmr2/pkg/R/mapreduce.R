@@ -333,11 +333,16 @@ equijoin = function(
         "/", 
         paste(
           "/", 
-          parse_url(url.or.path)$path, 
+          gsub(
+            "part-[0-9]+$", 
+            "", 
+            parse_url(url.or.path)$path), 
           "/", 
           sep = "")) 
   is.left.side = 
     function(left.input) {
+      rmr.str(to.dfs.path(left.input))
+      rmr.str(Sys.getenv("map_input_file"))
       rmr.normalize.path(to.dfs.path(left.input)) ==
         rmr.normalize.path(Sys.getenv("map_input_file"))}
   reduce.split =
