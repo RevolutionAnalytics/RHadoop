@@ -124,7 +124,7 @@ make.typedbytes.input.format = function(hbase = FALSE) {
             c.or.rbind(kk), 
             c.or.rbind(vv))}
         else {
-          keyval(kk, vv)}
+          keyval(kk, vv)}}
     obj.buffer <<- straddler
     obj.buffer.rmr.length <<- 0
     retval}}
