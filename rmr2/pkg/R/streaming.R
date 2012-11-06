@@ -24,7 +24,7 @@ paste.options = function(...) {
           else {
             if (is.logical(x)) {
               if(x) "" else NULL} 
-            else x }}))
+            else paste("'", x, "'", sep = "'")}}))
   if(is.null(optlist)) "" 
   else 
     paste(
