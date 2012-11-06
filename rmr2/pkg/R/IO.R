@@ -114,16 +114,17 @@ make.typedbytes.input.format = function(hbase = FALSE) {
            obj.buffer <<- obj.buffer[-length(obj.buffer)]}
         kk = odd(obj.buffer)
         vv = even(obj.buffer)
-        kk = 
-          inverse.rle(
-            list(
-              lengths = sapply(vv, rmr.length),
-              values = kk))
-        if(hbase) keyval(kk, vv)
-        else  
+        if(!hbase) {
+          kk = 
+            inverse.rle(
+              list(
+                lengths = sapply(vv, rmr.length),
+                values = kk))
           keyval(
             c.or.rbind(kk), 
             c.or.rbind(vv))}
+        else {
+          keyval(kk, vv)}
     obj.buffer <<- straddler
     obj.buffer.rmr.length <<- 0
     retval}}
