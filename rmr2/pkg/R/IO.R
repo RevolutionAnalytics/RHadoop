@@ -119,7 +119,7 @@ make.typedbytes.input.format = function(hbase = FALSE) {
             list(
               lengths = sapply(vv, rmr.length),
               values = kk))
-        if(hbase) keyval(kk, vv)
+        if(hbase) keyval(kk, lapply(vv, list))
         else  
           keyval(
             c.or.rbind(kk), 
