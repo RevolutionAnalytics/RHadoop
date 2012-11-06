@@ -114,7 +114,6 @@ make.typedbytes.input.format = function(hbase = FALSE) {
            obj.buffer <<- obj.buffer[-length(obj.buffer)]}
         kk = odd(obj.buffer)
         vv = even(obj.buffer)
-        if(hbase) vv = lapply(vv, list)
         kk = 
           inverse.rle(
             list(
@@ -196,12 +195,14 @@ make.input.format =
               hadoop = 
                 list(
                   D = paste(
-                    "hbase.mapred.tablecolumns=", 
-                    list(...)$family, 
-                    ":", 
-                    list(...)$column, 
-                    sep = "",
-                  collapse = " ")))})}
+                    "hbase.mapred.tablecolumns=",
+                    paste(
+                      list(...)$family, 
+                      ":", 
+                      list(...)$column, 
+                      sep = "", 
+                      collapse = " "),
+                  sep = "")))})}
     if(is.null(streaming.format) && mode == "binary") 
       streaming.format = "org.apache.hadoop.streaming.AutoInputFormat"
     list(mode = mode, 
