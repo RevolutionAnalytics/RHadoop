@@ -82,7 +82,7 @@ Now on to an example from supervised learning, specifically logistic regression 
 ```{r logistic.regression-signature}
 ```
 
-As you can see we have an input representing the training data. For simplicity we ask to specify a fixed number of iterations, but it would be only slightly more difficult to implement a convergence criterion. Then we need to specify the dimension of the problem, which is redundant because it can be inferred after seeing the first line of input, but we didn't want to put additional logic in the map function, and then we have the learning rate `alpha`.
+As you can see we have an input representing the training data. For simplicity we ask to specify a fixed number of iterations, but it would be only slightly more difficult to implement a convergence criterion. Then we need to specify the dimension of the problem, which is redundant because it can be inferred after seeing the first line of input, but we didn't want to put additional logic in the map function, and then we have the learning rate `alpha`. Now we are going to make a slight departure from the actual order in which the code is written. The source code goes on to define the map and reduce functions, but we are going to delay their presentation slightly.
 
 ```{r logistic.regression-main}
 ```
@@ -99,7 +99,7 @@ The map function simply computes the contribution of a subset of points to the g
 ```{r logistic.regression-reduce}
 ```
 
-The reduce function is just a big sum. Since we have only one key, all the work will fall on one reducer and that's not scalable. Therefore, in this example, it's important to activate the combiner, in this case set to TRUE, which means same as the reducer. Since sums are associative and commutative that's all we need. `mapreduce` also accepts a distinct combiner function. Remember that a combiner's arguments can come from a map or a combine function and its return value can go to a combine or reduce function.
+The reduce function is just a big sum. Since we have only one key, all the work will fall on one reducer and that's not scalable. Therefore, in this example, it's important to activate the combiner, in this case set to TRUE, which means same as the reducer. Since sums are associative and commutative that's all we need. `mapreduce` also accepts a distinct combiner function. Remember that a combiner's arguments can come from a map or a combine function and its return value can go to a combine or reduce function. Finally, a reminder that both map and reduce functions need to be defined inside the logistic regression function to have access to the `g` function and the `plane` vector, so cutting and pasting this code in this order won't work.
 
 To make this example production-level there are several things one needs to do, like having a convergence criterion instead of a fixed iterations number an an adaptive learning rate,  but probably gradient descent just requires too many iterations to be the right approach in a big data context. But this example should give you all the elements to be able to implement, say, conjugate gradient instead. In general, when each iteration requires I/O of a large data set, the number of iterations needs to be modest and algorithms with O(log(N)) number of iterations are natural candidates, even if the work in each iteration may be more substantial.
 

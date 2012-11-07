@@ -24,7 +24,9 @@ The example is trivial, just computing the first 10 squares, but we just want to
 
 ```r
   small.ints = to.dfs(1:1000)
-  mapreduce(input = small.ints, map = function(k,v) cbind(v,v^2))
+  mapreduce(
+    input = small.ints, 
+    map = function(k, v) cbind(v, v^2))
 ```
 
 
@@ -53,7 +55,13 @@ This creates a sample from the binomial and counts how many times each outcome o
 
 ```r
   groups = to.dfs(groups)
-  from.dfs(mapreduce(input = groups, map = function(k,v) keyval(v, 1), reduce = function(k,vv) keyval(k, length(vv))))
+  from.dfs(
+    mapreduce(
+      input = groups, 
+      map = function(., v) keyval(v, 1), 
+      reduce = 
+        function(k, vv) 
+          keyval(k, length(vv))))
 ```
 
 
@@ -70,7 +78,10 @@ Let's now look at the signature.
 
 ```r
 wordcount = 
-  function (input, output = NULL, pattern = " ") {
+  function(
+    input, 
+    output = NULL, 
+    pattern = " "){
 ```
 
 
@@ -79,7 +90,7 @@ There is an input and optional output and a pattern that defines what a word is.
 
 ```r
     wc.map = 
-      function(dummy, lines) {
+      function(., lines) {
         keyval(
           unlist(
             strsplit(
@@ -103,12 +114,13 @@ The reduce function takes a key and a collection of values, in this case a numer
 
 
 ```r
-    mapreduce(input = input ,
-              output = output,
-              input.format = "text",
-              map = wc.map,
-              reduce = wc.reduce,
-              combine = T)}
+    mapreduce(
+      input = input ,
+      output = output,
+      input.format = "text",
+      map = wc.map,
+      reduce = wc.reduce,
+      combine = T)}
 ```
 
 
@@ -124,11 +136,12 @@ Now on to an example from supervised learning, specifically logistic regression 
 
 
 ```r
-logistic.regression = function(input, iterations, dims, alpha){
+logistic.regression = 
+  function(input, iterations, dims, alpha){
 ```
 
 
-As you can see we have an input representing the training data. For simplicity we ask to specify a fixed number of iterations, but it would be only slightly more difficult to implement a convergence criterion. Then we need to specify the dimension of the problem, which is redundant because it can be inferred after seeing the first line of input, but we didn't want to put additional logic in the map function, and then we have the learning rate `alpha`.
+As you can see we have an input representing the training data. For simplicity we ask to specify a fixed number of iterations, but it would be only slightly more difficult to implement a convergence criterion. Then we need to specify the dimension of the problem, which is redundant because it can be inferred after seeing the first line of input, but we didn't want to put additional logic in the map function, and then we have the learning rate `alpha`. Now we are going to make a slight departure from the actual order in which the code is written. The source code goes on to define the map and reduce functions, but we are going to delay their presentation slightly.
 
 
 ```r
@@ -155,11 +168,13 @@ Then we have the main loop where computing the gradient of the loss function is 
 
 ```r
   lr.map =          
-    function(dummy, M) {
-      Y = M[,'y'] 
-      X = M[,c("x1","x2")]
-      keyval(1,
-             Y * X * g(-Y * as.numeric(X %*% t(plane))))}
+    function(., M) {
+      Y = M[,1] 
+      X = M[,-1]
+      keyval(
+        1,
+        Y * X * 
+          g(-Y * as.numeric(X %*% t(plane))))}
 ```
 
 
@@ -168,11 +183,12 @@ The map function simply computes the contribution of a subset of points to the g
 
 ```r
   lr.reduce =
-    function(k, Z) keyval(k, t(as.matrix(apply(Z,2,sum))))
+    function(k, Z) 
+      keyval(k, t(as.matrix(apply(Z,2,sum))))
 ```
 
 
-The reduce function is just a big sum. Since we have only one key, all the work will fall on one reducer and that's not scalable. Therefore, in this example, it's important to activate the combiner, in this case set to TRUE, which means same as the reducer. Since sums are associative and commutative that's all we need. `mapreduce` also accepts a distinct combiner function. Remember that a combiner's arguments can come from a map or a combine function and its return value can go to a combine or reduce function.
+The reduce function is just a big sum. Since we have only one key, all the work will fall on one reducer and that's not scalable. Therefore, in this example, it's important to activate the combiner, in this case set to TRUE, which means same as the reducer. Since sums are associative and commutative that's all we need. `mapreduce` also accepts a distinct combiner function. Remember that a combiner's arguments can come from a map or a combine function and its return value can go to a combine or reduce function. Finally, a reminder that both map and reduce functions need to be defined inside the logistic regression function to have access to the `g` function and the `plane` vector, so cutting and pasting this code in this order won't work.
 
 To make this example production-level there are several things one needs to do, like having a convergence criterion instead of a fixed iterations number an an adaptive learning rate,  but probably gradient descent just requires too many iterations to be the right approach in a big data context. But this example should give you all the elements to be able to implement, say, conjugate gradient instead. In general, when each iteration requires I/O of a large data set, the number of iterations needs to be modest and algorithms with O(log(N)) number of iterations are natural candidates, even if the work in each iteration may be more substantial.
 
@@ -188,8 +204,10 @@ We are talking about k-means. This is not a production ready implementation, but
       function(C, P) {
         apply(C,
               1, 
-              function(x) matrix(rowSums((t(t(P) - x))^2), 
-                                 ncol = length(x)))}
+              function(x) 
+                matrix(
+                  rowSums((t(t(P) - x))^2), 
+                  ncol = length(x)))}
 ```
 
 
@@ -198,10 +216,13 @@ This is simply a distance function, the only noteworthy property of which is tha
 
 ```r
     kmeans.map.1 = 
-      function(k, P) {
+      function(., P) {
         nearest = 
           if(is.null(C)) {
-            sample(1:num.clusters, nrow(P), replace = T)}
+            sample(
+              1:num.clusters, 
+              nrow(P), 
+              replace = T)}
           else {
             D = dist.fun(C, P)
             nearest = max.col(-D)}
@@ -214,7 +235,7 @@ The role of the map function is to compute distances between some points and all
 ```r
     kmeans.reduce.1 = 
       function(x, P) {
-        t(as.matrix(apply(P,2,mean)))}
+        t(as.matrix(apply(P, 2, mean)))}
 ```
 
 
@@ -227,9 +248,16 @@ The reduce function couldn't be simpler as it just computes column averages of a
       C = 
         values(
           from.dfs(
-            mapreduce(P, map = kmeans.map.1, reduce = kmeans.reduce.1)))
+            mapreduce(
+              P, 
+              map = kmeans.map.1, 
+              reduce = kmeans.reduce.1)))
       if(nrow(C) < 5) 
-        C = matrix(rnorm(num.clusters * nrow(C)), ncol = nrow(C)) %*% C }
+        C = 
+          matrix(
+            rnorm(
+              num.clusters * nrow(C)), 
+            ncol = nrow(C)) %*% C }
     C}
 ```
 
@@ -238,7 +266,14 @@ The main loop does nothing but bring into memory the result of a mapreduce job w
 
 ```r
   input = 
-    do.call(rbind, rep(list(matrix(rnorm(10, sd = 10), ncol=2)), 20)) + 
+    do.call(
+      rbind, 
+      rep(
+        list(
+          matrix(
+            rnorm(10, sd = 10), 
+            ncol=2)), 
+        20)) + 
     matrix(rnorm(200), ncol =2)
 ```
 
@@ -247,7 +282,10 @@ The main loop does nothing but bring into memory the result of a mapreduce job w
   
 
 ```r
-    kmeans.mr(to.dfs(input), num.clusters  = 12, num.iter= 5)
+    kmeans.mr(
+      to.dfs(input),
+      num.clusters  = 12, 
+      num.iter= 5)
 ```
 
 
@@ -282,7 +320,9 @@ The next is a reusable reduce function that just sums a list of matrices, ignore
 
 
 ```r
-Sum = function(k, YY) keyval(1, list(Reduce('+', YY)))
+Sum = 
+  function(., YY) 
+    keyval(1, list(Reduce('+', YY)))
 ```
 
 
@@ -296,7 +336,7 @@ XtX =
       mapreduce(
         input = X,
         map = 
-          function(k, Xi) 
+          function(., Xi) 
             keyval(1, list(t(Xi) %*% Xi)),
         reduce = Sum,
         combine = TRUE)))[[1]]
@@ -312,7 +352,7 @@ Xty =
     from.dfs(
       mapreduce(
         input = X,
-        map = function(k, Xi)
+        map = function(., Xi)
           keyval(1, list(t(Xi) %*% y)),
         reduce = Sum,
         combine = TRUE)))[[1]]
