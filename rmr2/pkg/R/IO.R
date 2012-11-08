@@ -14,23 +14,23 @@
 
 m3.to.df = 
   function(m3) {
-    df = data.frame(key = unlist(m3$key))
-    rownames(df) = df$key
-    lapply(seq_along(m3$key),
-           function(i)m3$val, assign.fams)
-    assign.fams = 
-      function(m2) {  
-        lapply(
-          seq_along(m2$key),
-          function(i) assign.cols(m2$key[[i]], m2$val[[i]]))} 
-    assign.cols =
-      function(m) {
-        lapply(
-          seq_along(m$key),
-          function(i) assign.cell(key, family, m$key[[i]], m$val[[i]]))}
     assign.cell =
       function(key, family, column, value) {
         df[key, paste(family, column, sep = ":")] <<- value}
+    assign.cols =
+      function(key, fam, m) {
+        lapply(
+          seq_along(m$key),
+          function(i) assign.cell(key, fam, m$key[[i]], m$val[[i]]))}
+    assign.fams = 
+      function(key, m2) {  
+        lapply(
+          seq_along(m2$key),
+          function(i) assign.cols(key, m2$key[[i]], m2$val[[i]]))} 
+    df = data.frame(key = unlist(m3$key))
+    rownames(df) = df$key
+    lapply(seq_along(m3$key),
+           function(i) assign.fams(m3$key[[i]], m3$val[[i]]))
     df}
   
 make.json.input.format =
