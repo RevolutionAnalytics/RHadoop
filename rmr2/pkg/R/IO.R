@@ -12,26 +12,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-m3.to.df = 
+hbase.rec2df = 
   function(m3) {
+    mapplyl = Curry(mapply, SIMPLIFY = FALSE)
+    do.call.c = 
+      function(l) do.call(c, l)
     assign.cell =
       function(key, family, column, value) {
-        df[key, paste(family, column, sep = ":")] <<- value}
+        list(key = key, family=family, column= column, cell = value)}
     assign.cols =
       function(key, fam, m) {
-        lapply(
-          seq_along(m$key),
-          function(i) assign.cell(key, fam, m$key[[i]], m$val[[i]]))}
+        mapplyl(
+          Curry(assign.cell, key = key, fam = fam), 
+          m$key, 
+          m$val)}
     assign.fams = 
       function(key, m2) {  
-        lapply(
-          seq_along(m2$key),
-          function(i) assign.cols(key, m2$key[[i]], m2$val[[i]]))} 
-    df = data.frame(key = unlist(m3$key))
-    rownames(df) = df$key
-    lapply(seq_along(m3$key),
-           function(i) assign.fams(m3$key[[i]], m3$val[[i]]))
-    df}
+        do.call.c(
+          mapplyl(
+            Curry(assign.cols, key = key), 
+            m2$key, m2$val))} 
+    do.call(
+      data.frame, 
+      do.call(
+        function(...) mapply(..., FUN = c, SIMPLIFY = FALSE), 
+        do.call.c(mapplyl(assign.fams, m3$key, m3$val))))}
   
 make.json.input.format =
   function(key.class = qw(list, vector, data.frame, matrix),
