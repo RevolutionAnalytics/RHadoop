@@ -58,14 +58,8 @@ parse_url <- function(url) {
     port <- username <- password <- hostname <- NULL
   }
   
-  query <- pull_off("\\?(.*)$")
-  if (!is.null(query)) {
-    query <- parse_query(query)
-  }
-  params <- pull_off(";(.*)$")
-  
   structure(list(
     scheme = scheme, hostname = hostname, port = port, path = url,
-    query = query, params = params, username = username, password = password),
+    username = username, password = password),
             class = "url")
 }

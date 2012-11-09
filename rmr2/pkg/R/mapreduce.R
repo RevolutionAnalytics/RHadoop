@@ -287,30 +287,33 @@ mapreduce = function(
 ## equijoin(left.input="/tmp/reljoin.left", right.input="/tmp/reljoin.right", output = "/tmp/reljoin.out")
 ## from.dfs("/tmp/reljoin.out")
 
-equijoin = function(
-  left.input = NULL, 
-  right.input = NULL, 
-  input = NULL, 
-  output = NULL, 
-  outer = c("", "left", "right", "full"), 
-  map.left = to.map(identity), 
-  map.right = to.map(identity), 
-  reduce  = 
-    function(k, vl, vr) {
-      if((is.list(vl) && !is.data.frame(vl)) || 
-           (is.list(vr) && !is.data.frame(vr)))
-        list(left = vl, right = vr)
-      else{
-        if(!is.null(names(vl)))
-          names(vl) = paste(names(vl), "l", sep = ".")
-        if(!is.null(names(vr)))
-          names(vr) = paste(names(vr), "r", sep = ".")
-        if(all(is.na(vl))) vr
-        else {
-          if(all(is.na(vr))) vl
-          else
-            merge(vl, vr, by = NULL)}}}) { 
-  
+reduce.default = 
+  function(k, vl, vr) {
+    if((is.list(vl) && !is.data.frame(vl)) || 
+         (is.list(vr) && !is.data.frame(vr)))
+      list(left = vl, right = vr)
+    else{
+      if(!is.null(names(vl)))
+        names(vl) = paste(names(vl), "l", sep = ".")
+      if(!is.null(names(vr)))
+        names(vr) = paste(names(vr), "r", sep = ".")
+      if(all(is.na(vl))) vr
+      else {
+        if(all(is.na(vr))) vl
+        else
+          merge(vl, vr, by = NULL)}}}
+
+equijoin = 
+  function(
+    left.input = NULL, 
+    right.input = NULL, 
+    input = NULL, 
+    output = NULL, 
+    outer = c("", "left", "right", "full"), 
+    map.left = to.map(identity), 
+    map.right = to.map(identity), 
+    reduce  = reduce.default) { 
+    
   stopifnot(xor(!is.null(left.input), !is.null(input) &&
     (is.null(left.input) == is.null(right.input))))
   outer = match.arg(outer)
