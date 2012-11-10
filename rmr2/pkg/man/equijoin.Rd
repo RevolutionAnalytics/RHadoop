@@ -29,9 +29,7 @@ equijoin(
 will become join keys.}
   \item{map.right}{Function to apply to each record from the right input, follows same conventions as any map function. The returned keys
 will become join keys.}
-  \item{reduce}{Function to be applied, key by key, on the values associated with that key. Those values are in the arguments \code{vl} (left side) and \code{vr} (right side) and their type is determined by the type returned by the map functions, separately for the left side and the right side. The allowable return values are like those of any reduce function, see \code{\link{mapreduce}}. The default performs a \code{merge} with \code{by = NULL} which performs a cartesian product, unless lists are involved in which case the arguments are simply returned in a list.}
-  
-}
+  \item{reduce}{Function to be applied, key by key, on the values associated with that key. Those values are in the arguments \code{vl} (left side) and \code{vr} (right side) and their type is determined by the type returned by the map functions, separately for the left side and the right side. The allowable return values are like those of any reduce function, see \code{\link{mapreduce}}. The default performs a \code{merge} with \code{by = NULL} which performs a cartesian product, unless lists are involved in which case the arguments are simply returned in a list.}}
 
 \value{If output is specified, returns output itself. Otherwise, a \code{\link{big.data.object}}}
 
