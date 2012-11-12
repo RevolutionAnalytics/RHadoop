@@ -12,32 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-hbase.rec2df = 
-  function(m3) {
-    mapplyl = Curry(mapply, SIMPLIFY = FALSE)
-    do.call.c = 
-      function(l) do.call(c, l)
-    assign.cell =
-      function(key, family, column, value) {
-        list(key = key, family=family, column= column, cell = value)}
-    assign.cols =
-      function(key, fam, m) {
-        mapplyl(
-          Curry(assign.cell, key = key, fam = fam), 
-          m$key, 
-          m$val)}
-    assign.fams = 
-      function(key, m2) {  
-        do.call.c(
-          mapplyl(
-            Curry(assign.cols, key = key), 
-            m2$key, m2$val))} 
-    do.call(
-      data.frame, 
-      do.call(
-        function(...) mapply(..., FUN = c, SIMPLIFY = FALSE), 
-        do.call.c(mapplyl(assign.fams, m3$key, m3$val))))}
-  
+
 make.json.input.format =
   function(key.class = qw(list, vector, data.frame, matrix),
            value.class = qw(list, vector, data.frame, matrix)) {
@@ -165,6 +140,40 @@ make.native.or.typedbytes.output.format =
 make.native.output.format = Curry(make.native.or.typedbytes.output.format, native = TRUE)
 make.typedbytes.output.format = Curry(make.native.or.typedbytes.output.format, native = FALSE)
 
+
+make.hbase.input.format = 
+  function(dense) {
+    hbase.rec2df = 
+      function(m3) { #m<n> stands for n times nested map
+        mapplyl = Curry(mapply, SIMPLIFY = FALSE)
+        do.call.c = 
+          function(l) do.call(c, l)
+        assign.cell =
+          function(key, family, column, value) {
+            list(key = key, family=family, column= column, cell = value)}
+        assign.cols =
+          function(key, fam, m) {
+            mapplyl(
+              Curry(assign.cell, key = key, fam = fam), 
+              m$key, 
+              m$val)}
+        assign.fams = 
+          function(key, m2) {  
+            do.call.c(
+              mapplyl(
+                Curry(assign.cols, key = key), 
+                m2$key, m2$val))} 
+        do.call(
+          data.frame, 
+          do.call(
+            function(...) mapply(..., FUN = c, SIMPLIFY = FALSE), 
+            do.call.c(mapplyl(assign.fams, m3$key, m3$val))))}
+    tif = make.typedbytes.input.format(hbase = TRUE)
+    if(is.null(dense) || !dense) dense = FALSE
+    function(con, keyval.length) {
+      df = hbase.rec2df(tif)
+      if(dense) T}}
+
 # I/O 
 
 make.keyval.reader = function(mode, format, keyval.length, con = NULL) {
@@ -213,9 +222,11 @@ make.input.format =
           format = make.typedbytes.input.format() 
           mode = "binary"},
         hbase = {
-          format = make.typedbytes.input.format(hbase = TRUE)
+          format = make.hbase.input.format(list(...)$dense)
           mode = "binary"
-          streaming.format = "com.dappervision.hbase.mapred.TypedBytesTableInputFormat"
+          streaming.format = 
+            "com.dappervision.hbase.mapred.TypedBytesTableInputFormat"
+          familycolumns = list(...)$familycolumns
           backend.parameters = 
             list(
               hadoop = 
@@ -223,12 +234,15 @@ make.input.format =
                   D = paste(
                     "hbase.mapred.tablecolumns=",
                     paste(
-                      list(...)$family, 
-                      ":", 
-                      list(...)$column, 
-                      sep = "", 
+                      sapply(
+                        names(familycolumns), 
+                        function(fam)  
+                          paste(
+                            fam, 
+                            familycolumns[[fam]], 
+                            sep = ":")), 
                       collapse = " "),
-                  sep = "")))})}
+                    sep = "")))})}
     if(is.null(streaming.format) && mode == "binary") 
       streaming.format = "org.apache.hadoop.streaming.AutoInputFormat"
     list(mode = mode, 
