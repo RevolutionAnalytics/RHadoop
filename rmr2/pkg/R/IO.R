@@ -174,9 +174,12 @@ make.hbase.input.format =
     tif = make.typedbytes.input.format(hbase = TRUE)
     if(is.null(dense) || !dense) dense = FALSE
     function(con, keyval.length) {
-      df = hbase.rec2df(tif(con, keyval.length))
-      if(dense) df = dcast(df,  key ~ family + column)
-      keyval(df$key, df)}}
+      rec = tif(con, keyval.length)
+      if(is.null(rec)) NULL
+      else {
+        df = hbase.rec2df(rec)
+        if(dense) df = dcast(df,  key ~ family + column)
+        keyval(df$key, df)}}}
 
 # I/O 
 
