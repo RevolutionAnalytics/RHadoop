@@ -166,9 +166,11 @@ make.hbase.input.format =
                 m2$key, m2$val))} 
         do.call(
           data.frame, 
-          do.call(
-            function(...) mapply(..., FUN = c, SIMPLIFY = FALSE), 
-            do.call.c(mapplyl(assign.fams, m3$key, m3$val))))}
+          lapply(
+            do.call(
+              function(...) mapply(..., FUN = list, SIMPLIFY = FALSE),       
+              do.call.c(mapplyl(assign.fams, m3$key, m3$val))),
+            I))}
     tif = make.typedbytes.input.format(hbase = TRUE)
     if(is.null(dense) || !dense) dense = FALSE
     function(con, keyval.length) {
