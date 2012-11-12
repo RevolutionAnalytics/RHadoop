@@ -15,6 +15,10 @@
 #some option formatting utils
 
 paste.options = function(...) {
+  quote.char =
+    if(.Platform$OS.type == "windows") "\""
+  else "'"
+  
   optlist = 
     unlist(
       sapply(
@@ -24,7 +28,7 @@ paste.options = function(...) {
           else {
             if (is.logical(x)) {
               if(x) "" else NULL} 
-            else paste("\"", x, "\"", sep = "")}}))
+            else paste(quote.char, x, quote.char, sep = "")}}))
   if(is.null(optlist)) "" 
   else 
     paste(
@@ -256,16 +260,30 @@ rmr.stream = function(
                            stream.reduce.input,
                            stream.reduce.output)
  
-  mapper = paste('"Rscript', file.path(work.dir, basename(map.file)), '"')
+  mapper = paste.options(
+    mapper = 
+      paste(
+        '"Rscript', 
+        file.path(work.dir, basename(map.file)), '"'))
   m.fl = paste.options(file = map.file)
   if(!is.null(reduce) ) {
-    reducer  = paste('"Rscript', file.path(work.dir, basename(reduce.file)), '"')
+    reducer = 
+      paste.options(
+        reducer  = 
+          paste(
+            '"Rscript', 
+            file.path(work.dir, basename(reduce.file)), '"'))
     r.fl = paste.options(file = reduce.file)}
   else {
     reducer = ""
     r.fl = "" }
   if(!is.null(combine) && is.function(combine)) {
-    combiner = paste('"Rscript', file.path(work.dir, basename(combine.file)), '"') 
+    combiner = 
+      paste.options(
+        combiner = 
+          paste(
+            '"Rscript', 
+            file.path(work.dir, basename(combine.file)), '"'))  
     c.fl =  paste.options(file = combine.file)}
   else {
     combiner = ""
