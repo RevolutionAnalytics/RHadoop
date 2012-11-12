@@ -145,6 +145,7 @@ make.hbase.input.format =
   function(dense) {
     hbase.rec2df = 
       function(m3) { #m<n> stands for n times nested map
+        rmr.str(m3)
         mapplyl = Curry(mapply, SIMPLIFY = FALSE)
         do.call.c = 
           function(l) do.call(c, l)
