@@ -179,7 +179,7 @@ make.hbase.input.format =
       else {
         df = hbase.rec2df(rec)
         if(dense) df = dcast(df,  key ~ family + column)
-        keyval(df$key, df)}}}
+        keyval(NULL, df)}}}
 
 # I/O 
 
