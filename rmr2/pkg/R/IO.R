@@ -241,13 +241,14 @@ make.input.format =
                   D = paste(
                     "hbase.mapred.tablecolumns=",
                     paste(
-                      sapply(
-                        names(familycolumns), 
-                        function(fam)  
-                          paste(
-                            fam, 
-                            familycolumns[[fam]], 
-                            sep = ":")), 
+                      do.call(
+                        c, 
+                        sapply(
+                          names(familycolumns), 
+                          function(fam) 
+                            paste(
+                              fam, 
+                              unlist(familycolumns[fam]), sep = ":"))), 
                       collapse = " "),
                     sep = "")))})}
     if(is.null(streaming.format) && mode == "binary") 
