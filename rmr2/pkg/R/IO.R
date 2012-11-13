@@ -163,10 +163,10 @@ make.hbase.input.format =
                  family=family, 
                  column= column, 
                  cell = 
-                   if(length(formals(format)) == 1)
+                   if(sum(sapply(formals(format), is.name)) == 1)
                      format(value)
                  else
-                   format(value, family, column))}
+                   format(value, family = family, column = column))}
         assign.cols =
           function(key, fam, m) {
             mapplyl(
@@ -247,7 +247,7 @@ make.input.format =
           format = 
             make.hbase.input.format(
               list(...)$dense, 
-              list(...)$format)
+              list(...)$cell.format)
           mode = "binary"
           streaming.format = 
             "com.dappervision.hbase.mapred.TypedBytesTableInputFormat"
