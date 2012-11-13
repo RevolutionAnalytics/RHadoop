@@ -142,7 +142,15 @@ make.typedbytes.output.format = Curry(make.native.or.typedbytes.output.format, n
 
 
 make.hbase.input.format = 
-  function(dense) {
+  function(dense, format) {
+    if(is.null(format)) format = "raw"
+    if(is.character(format))
+      format =
+      switch(
+        format,
+        native = unserialize,
+        typedbytes = Curry(typedbytes.reader, nobjs = 1),
+        raw = identity)
     hbase.rec2df = 
       function(m3) { #m<n> stands for n times nested map
         rmr.str(m3)
@@ -151,7 +159,14 @@ make.hbase.input.format =
           function(l) do.call(c, l)
         assign.cell =
           function(key, family, column, value) {
-            list(key = key, family=family, column= column, cell = value)}
+            list(key = key, 
+                 family=family, 
+                 column= column, 
+                 cell = 
+                   if(length(formals(format)) == 1)
+                     format(value)
+                 else
+                   format(value, family, column))}
         assign.cols =
           function(key, fam, m) {
             mapplyl(
@@ -172,7 +187,7 @@ make.hbase.input.format =
               do.call.c(mapplyl(assign.fams, m3$key, m3$val))),
             I))}
     tif = make.typedbytes.input.format(hbase = TRUE)
-    if(is.null(dense) || !dense) dense = FALSE
+    if(is.null(dense)) dense = FALSE
     function(con, keyval.length) {
       rec = tif(con, keyval.length)
       if(is.null(rec)) NULL
@@ -229,28 +244,31 @@ make.input.format =
           format = make.typedbytes.input.format() 
           mode = "binary"},
         hbase = {
-          format = make.hbase.input.format(list(...)$dense)
+          format = 
+            make.hbase.input.format(
+              list(...)$dense, 
+              list(...)$format)
           mode = "binary"
           streaming.format = 
             "com.dappervision.hbase.mapred.TypedBytesTableInputFormat"
-          familycolumns = list(...)$familycolumns
+          family.columns = list(...)$family.columns
           backend.parameters = 
             list(
               hadoop = 
                 list(
-                  D = paste(
-                    "hbase.mapred.tablecolumns=",
+                  D = 
                     paste(
-                      do.call(
-                        c, 
+                      c(
+                        "hbase.mapred.tablecolumns=",
                         sapply(
-                          names(familycolumns), 
+                          names(family.columns), 
                           function(fam) 
                             paste(
                               fam, 
-                              unlist(familycolumns[fam]), sep = ":"))), 
-                      collapse = " "),
-                    sep = "")))})}
+                              family.columns[[fam]],
+                              sep = ":", 
+                              collapse = " "))), 
+                      collapse = "")))})}
     if(is.null(streaming.format) && mode == "binary") 
       streaming.format = "org.apache.hadoop.streaming.AutoInputFormat"
     list(mode = mode, 
