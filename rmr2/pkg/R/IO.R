@@ -258,8 +258,10 @@ make.input.format =
                 list(
                   D = 
                     paste(
-                      c(
-                        "hbase.mapred.tablecolumns=",
+                      "hbase.mapred.tablecolumns=",
+                      sep = "",
+                      paste(
+                        collapse = " ",
                         sapply(
                           names(family.columns), 
                           function(fam) 
@@ -267,8 +269,7 @@ make.input.format =
                               fam, 
                               family.columns[[fam]],
                               sep = ":", 
-                              collapse = " "))), 
-                      collapse = " ")))})}
+                              collapse = " "))))))})}
     if(is.null(streaming.format) && mode == "binary") 
       streaming.format = "org.apache.hadoop.streaming.AutoInputFormat"
     list(mode = mode, 
