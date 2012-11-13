@@ -142,15 +142,20 @@ make.typedbytes.output.format = Curry(make.native.or.typedbytes.output.format, n
 
 
 make.hbase.input.format = 
-  function(dense, format) {
-    if(is.null(format)) format = "raw"
-    if(is.character(format))
-      format =
-      switch(
-        format,
-        native = unserialize,
-        typedbytes = Curry(typedbytes.reader, nobjs = 1),
-        raw = identity)
+  function(dense, key.format, cell.format) {
+    format.opt = 
+      function(format) {
+        if(is.null(format)) format = "raw"
+        if(is.character(format))
+          format =
+          switch(
+            format,
+            native = unserialize,
+            typedbytes = Curry(typedbytes.reader, nobjs = 1),
+            raw = identity)
+        format}
+    key.format = format.opt(key.format)
+    cell.format = format.opt(cell.format)
     hbase.rec2df = 
       function(m3) { #m<n> stands for n times nested map
         rmr.str(m3)
@@ -159,14 +164,14 @@ make.hbase.input.format =
           function(l) do.call(c, l)
         assign.cell =
           function(key, family, column, value) {
-            list(key = key, 
-                 family=family, 
-                 column= column, 
+            list(key = key.format(key), 
+                 family = rawToChar(family), 
+                 column = rawToChar(column), 
                  cell = 
                    if(sum(sapply(formals(format), is.name)) == 1)
-                     format(value)
-                 else
-                   format(value, family = family, column = column))}
+                     cell.format(value)
+                   else
+                     cell.format(value, family = family, column = column))}
         assign.cols =
           function(key, fam, m) {
             mapplyl(
@@ -247,6 +252,7 @@ make.input.format =
           format = 
             make.hbase.input.format(
               list(...)$dense, 
+              list(...)$key.format,
               list(...)$cell.format)
           mode = "binary"
           streaming.format = 
