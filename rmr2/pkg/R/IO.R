@@ -268,7 +268,7 @@ make.input.format =
                               family.columns[[fam]],
                               sep = ":", 
                               collapse = " "))), 
-                      collapse = "")))})}
+                      collapse = " ")))})}
     if(is.null(streaming.format) && mode == "binary") 
       streaming.format = "org.apache.hadoop.streaming.AutoInputFormat"
     list(mode = mode, 
