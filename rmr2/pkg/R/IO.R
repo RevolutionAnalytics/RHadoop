@@ -142,7 +142,7 @@ make.typedbytes.output.format = Curry(make.native.or.typedbytes.output.format, n
 
 
 make.hbase.input.format = 
-  function(dense, key.format, cell.format) {
+  function(dense, simplify, key.format, cell.format) {
     format.opt = 
       function(format) {
         if(is.null(format)) format = "raw"
@@ -198,6 +198,7 @@ make.hbase.input.format =
       if(is.null(rec)) NULL
       else {
         df = hbase.rec2df(rec)
+        if(simplify || dense) df = as.data.frame(lapply(z$val, unlist)) 
         if(dense) df = dcast(df,  key ~ family + column)
         keyval(NULL, df)}}}
 
@@ -252,6 +253,7 @@ make.input.format =
           format = 
             make.hbase.input.format(
               list(...)$dense, 
+              list(...)$simplify,
               list(...)$key.format,
               list(...)$cell.format)
           mode = "binary"
