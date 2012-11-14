@@ -377,3 +377,19 @@ equijoin =
     reduce = eqj.reduce,
     input = c(left.input, right.input), 
     output = output)}
+
+status = function(message)
+  cat(
+    sprintf("reporter:status:%s\n", 
+            message), 
+    file = stderr())
+
+make.counter =
+  function(group, counter, increment = 1)
+    function(inc = increment)
+      cat(
+        sprintf(
+          "reporter:counter:%s\n", 
+          paste(group, counter, inc, sep=",")), 
+        file= stderr())
+
