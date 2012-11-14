@@ -168,10 +168,10 @@ make.hbase.input.format =
                  family = rawToChar(family), 
                  column = rawToChar(column), 
                  cell = 
-                   if(sum(sapply(formals(format), is.name)) == 1)
-                     cell.format(value)
-                   else
-                     cell.format(value, family = family, column = column))}
+                   if(all(c("family", "column") %in% names(formals(cell.format))))
+                     cell.format(value, family = family, column = column)
+                 else
+                   cell.format(value))}
         assign.cols =
           function(key, fam, m) {
             mapplyl(
