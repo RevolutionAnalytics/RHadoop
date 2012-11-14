@@ -193,6 +193,7 @@ make.hbase.input.format =
             I))}
     tif = make.typedbytes.input.format(hbase = TRUE)
     if(is.null(dense)) dense = FALSE
+    if(is.null(simplify)) simplify = FALSE
     function(con, keyval.length) {
       rec = tif(con, keyval.length)
       if(is.null(rec)) NULL
