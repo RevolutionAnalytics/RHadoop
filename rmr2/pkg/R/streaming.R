@@ -136,12 +136,15 @@ rmr.stream = function(
   verbose = TRUE, 
   debug = FALSE) {
   ## prepare map and reduce executables
+  work.dir = 
+    if(.Platform$OS.type == "windows") "..\\..\\jars\\"
+  else "."
   rmr.local.env = tempfile(pattern = "rmr-local-env")
   rmr.global.env = tempfile(pattern = "rmr-global-env")
   preamble = paste(sep = "", 'options(warn=1)
  
-  load("',basename(rmr.global.env),'")
-  load("',basename(rmr.local.env),'")  
+  load("',file.path(work.dir, basename(rmr.global.env)),'")
+  load("',file.path(work.dir, basename(rmr.local.env)),'")  
   sink(file = stderr())
   if(!is.null(rmr.update))
     rmr.update(ask = FALSE)
@@ -253,16 +256,16 @@ rmr.stream = function(
                            stream.reduce.input,
                            stream.reduce.output)
  
-  mapper = paste.options(mapper = paste('"Rscript', basename(map.file), '"'))
+  mapper = paste.options(mapper = paste('"Rscript', file.path(work.dir, basename(map.file)), '"'))
   m.fl = paste.options(file = map.file)
   if(!is.null(reduce) ) {
-    reducer = paste.options(reducer  = paste('"Rscript', basename(reduce.file), '"'))
+    reducer = paste.options(reducer  = paste('"Rscript', file.path(work.dir, basename(reduce.file)), '"'))
     r.fl = paste.options(file = reduce.file)}
   else {
     reducer = ""
     r.fl = "" }
   if(!is.null(combine) && is.function(combine)) {
-    combiner = paste.options(combiner = paste('"Rscript', basename(combine.file), '"'))  
+    combiner = paste.options(combiner = paste('"Rscript', file.path(work.dir, basename(combine.file)), '"'))  
     c.fl =  paste.options(file = combine.file)}
   else {
     combiner = ""
