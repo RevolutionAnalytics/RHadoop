@@ -263,7 +263,7 @@ template <typename T> void serialize_vector(T & data, unsigned char type_code, r
       for(typename T::iterator i = data.begin(); i < data.end(); i++) {
         serialize_one(*i, type_code, serialized);}}}}
 
-template <typename T> void serialize_list(const T & data, raw & serialized){
+template <typename T> void serialize_list(T & data, raw & serialized){
   serialized.push_back(8);
   length_header(data.size(), serialized);
   for(typename T::iterator i = data.begin(); i < data.end(); i++) {
