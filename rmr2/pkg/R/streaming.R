@@ -263,16 +263,16 @@ rmr.stream = function(
   mapper = paste.options(
     mapper = 
       paste(
-        '"Rscript', 
-        file.path(work.dir, basename(map.file)), '"'))
+        'Rscript', 
+        file.path(work.dir, basename(map.file))))
   m.fl = paste.options(file = map.file)
   if(!is.null(reduce) ) {
     reducer = 
       paste.options(
         reducer  = 
           paste(
-            '"Rscript', 
-            file.path(work.dir, basename(reduce.file)), '"'))
+            'Rscript', 
+            file.path(work.dir, basename(reduce.file))))
     r.fl = paste.options(file = reduce.file)}
   else {
     reducer = ""
@@ -282,8 +282,8 @@ rmr.stream = function(
       paste.options(
         combiner = 
           paste(
-            '"Rscript', 
-            file.path(work.dir, basename(combine.file)), '"'))  
+            'Rscript', 
+            file.path(work.dir, basename(combine.file))))  
     c.fl =  paste.options(file = combine.file)}
   else {
     combiner = ""
