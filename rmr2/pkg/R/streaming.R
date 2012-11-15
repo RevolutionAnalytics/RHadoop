@@ -24,7 +24,7 @@ paste.options = function(...) {
           else {
             if (is.logical(x)) {
               if(x) "" else NULL} 
-            else paste("'", x, "'", sep = "'")}}))
+            else paste("\"", x, "\"", sep = "")}}))
   if(is.null(optlist)) "" 
   else 
     paste(
@@ -137,7 +137,7 @@ rmr.stream = function(
   debug = FALSE) {
   ## prepare map and reduce executables
   work.dir = 
-    if(.Platform$OS.type == "windows") "..\\..\\jars\\"
+    if(.Platform$OS.type == "windows") "../../jars"
   else "."
   rmr.local.env = tempfile(pattern = "rmr-local-env")
   rmr.global.env = tempfile(pattern = "rmr-global-env")
@@ -256,16 +256,16 @@ rmr.stream = function(
                            stream.reduce.input,
                            stream.reduce.output)
  
-  mapper = paste.options(mapper = paste('"Rscript', file.path(work.dir, basename(map.file)), '"'))
+  mapper = paste('"Rscript', file.path(work.dir, basename(map.file)), '"')
   m.fl = paste.options(file = map.file)
   if(!is.null(reduce) ) {
-    reducer = paste.options(reducer  = paste('"Rscript', file.path(work.dir, basename(reduce.file)), '"'))
+    reducer  = paste('"Rscript', file.path(work.dir, basename(reduce.file)), '"')
     r.fl = paste.options(file = reduce.file)}
   else {
     reducer = ""
     r.fl = "" }
   if(!is.null(combine) && is.function(combine)) {
-    combiner = paste.options(combiner = paste('"Rscript', file.path(work.dir, basename(combine.file)), '"'))  
+    combiner = paste('"Rscript', file.path(work.dir, basename(combine.file)), '"') 
     c.fl =  paste.options(file = combine.file)}
   else {
     combiner = ""

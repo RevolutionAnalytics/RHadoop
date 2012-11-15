@@ -214,6 +214,8 @@ from.dfs = function(input, format = "native") {
 
 dfs.tempfile = function(pattern = "file", tmpdir = tempdir()) {
   fname  = tempfile(pattern, tmpdir)
+  subfname = strsplit(fname, ":")
+  if(length(subfname[[1]]) > 1) fname = subfname[[1]][2]
   namefun = function() {fname}
   reg.finalizer(environment(namefun), 
                 function(e) {
