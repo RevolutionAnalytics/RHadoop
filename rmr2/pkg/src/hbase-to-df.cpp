@@ -19,15 +19,24 @@ SEXP hbase_to_df(SEXP _source, SEXP _dest) {
 	int l = 0;
 	Rcpp::List source(_source);
 	Rcpp::List dest(_dest);
-	  for(int i = 0; i < source[1].size(); i ++) {
-		key = source[1][i];
-		for(int j = 1; j <= length(source[2][i][1]); j++) {
-			family = source[2][i][1][j];
-			for(int k = 1; k <= length(source[2][j][1]); k++) {
-				column = source[2][i][2][j][1][k]
-				cell = source[2][i][2][j][2][k]
-				dest[1][l] = key;
-				dest[2][l] = family;
-				dest[3][l] = column;
-				l++;}}}
+  Rcpp::List key1 = Rcpp::as<Rcpp::List>(source["key"]);
+  Rcpp::List val1 = Rcpp::as<Rcpp::List>(source["val"]);
+  for(int i = 0; i < key1.size(); i ++) {
+  	std::string key = Rcpp::as<std::string>(key1[i]);
+    Rcpp::List key2 = Rcpp::as<Rcpp::List>(val1["key"]);
+    Rcpp::List val2 = Rcpp::as<Rcpp::List>(val1["val"]);
+  	for(int j = 0; j < key2.size(); j++) {
+      std::string family = Rcpp::as<std::string>(key2[j]);
+      Rcpp::List key3 = Rcpp::as<Rcpp::List>(val2["key"]);
+      Rcpp::List val3 = Rcpp::as<Rcpp::List>(val2["val"]);
+      for(int k = 0; k < key3.size(); k++) {
+        std::string column = Rcpp::as<std::string>(key3[k]);
+        std::vector<unsigned char> cell = Rcpp::as<std::vector<unsigned char> >(val3[k]);
+//				dest[1][l] = key;
+//				dest[2][l] = family;
+//				dest[3][l] = column;
+//				l++;}
+  }}}
+  return Rcpp::wrap(_dest);
+}
 		
