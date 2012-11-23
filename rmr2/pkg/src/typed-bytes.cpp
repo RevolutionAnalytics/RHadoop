@@ -63,15 +63,7 @@ double raw2double(const raw & data, int & start) {
   union udouble {
     double d;
     uint64_t u;} ud;
-
-  if(data.size() < start + 8) {
-    throw ReadPastEnd(6, start);  }
-  uint64_t retval = 0;
-  for(int i = 0; i < 8; i++) {
-    retval = retval + (((uint64_t) data[start + i] & 255) << (8*(7 - i)));}
-  start = start + 8; 
-
-  ud.u = retval;
+  ud.u = raw2long(data, start);
   return ud.d;} 
 
 int get_length(const raw & data, int & start) {
@@ -229,14 +221,15 @@ void T2raw(int data, raw & serialized) {
 
 void T2raw(uint64_t data, raw & serialized) {
   for(int i = 0; i < 8; i++) {  
-	  serialized.push_back((data >> (8*(7 - i))) & 255);}}
+    serialized.push_back((data >> (8*(7 - i))) & 255);}}
 
 void T2raw(double data, raw & serialized) {
   union udouble {
     double d;
     uint64_t u;} ud;
-    ud.d = data;
+  ud.d = data;
   T2raw(ud.u, serialized);}
+
 
 void length_header(int len, raw & serialized){
   if(len < 0) {
