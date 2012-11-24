@@ -140,15 +140,21 @@ make.native.or.typedbytes.output.format =
 make.native.output.format = Curry(make.native.or.typedbytes.output.format, native = TRUE)
 make.typedbytes.output.format = Curry(make.native.or.typedbytes.output.format, native = FALSE)
 
-hbase.rec2df.C = 
+hbase.rec2df = 
   function(source) {
+    filler = replicate(length(unlist(source))/2, NULL)
     dest = 
       list(
-        key = as.list(1:10),
-        family = as.list(1:10),
-        column = as.list(1:10),
-        cell = as.list(1:10))
-    .Call("hbase_to_df", source, dest, PACKAGE="rmr2")}
+        key = filler,
+        family = filler,
+        column = filler,
+        cell = filler)
+    z = .Call("hbase_to_df", source, dest, PACKAGE="rmr2")
+    data.frame(
+      key = I(z$key), 
+      family = I(z$family), 
+      column = I(z$column), 
+      cell = I(z$cell))}
 
 make.hbase.input.format = 
   function(dense, simplify, key.format, cell.format) {
@@ -159,47 +165,47 @@ make.hbase.input.format =
           format =
           switch(
             format,
-            native = unserialize,
-            typedbytes = Curry(typedbytes.reader, nobjs = 1),
+            native = function(x) lapply(x, unserialize),
+            typedbytes = function(x) typedbytes.reader(do.call(c, x),  nobjs = length(x)),
             raw = identity)
         format}
     key.format = format.opt(key.format)
     cell.format = format.opt(cell.format)
-    hbase.rec2df = 
-      function(m3) { #m<n> stands for n times nested map
-        rmr.str(m3)
-        mapplyl = Curry(mapply, SIMPLIFY = FALSE)
-        do.call.c = 
-          function(l) do.call(c, l)
-        assign.cell =
-          function(key, family, column, value) {
-            list(key = key.format(key), 
-                 family = rawToChar(family), 
-                 column = rawToChar(column), 
-                 cell = 
-                   if(all(c("family", "column") %in% names(formals(cell.format))))
-                     cell.format(value, family = family, column = column)
-                 else
-                   cell.format(value))}
-        assign.cols =
-          function(key, fam, m) {
-            mapplyl(
-              Curry(assign.cell, key = key, fam = fam), 
-              m$key, 
-              m$val)}
-        assign.fams = 
-          function(key, m2) {  
-            do.call.c(
-              mapplyl(
-                Curry(assign.cols, key = key), 
-                m2$key, m2$val))} 
-        do.call(
-          data.frame, 
-          lapply(
-            do.call(
-              function(...) mapply(..., FUN = list, SIMPLIFY = FALSE),       
-              do.call.c(mapplyl(assign.fams, m3$key, m3$val))),
-            I))}
+#     hbase.rec2df = 
+#       function(m3) { #m<n> stands for n times nested map
+#         rmr.str(m3)
+#         mapplyl = Curry(mapply, SIMPLIFY = FALSE)
+#         do.call.c = 
+#           function(l) do.call(c, l)
+#         assign.cell =
+#           function(key, family, column, value) {
+#             list(key = key.format(key), 
+#                  family = rawToChar(family), 
+#                  column = rawToChar(column), 
+#                  cell = 
+#                    if(all(c("family", "column") %in% names(formals(cell.format))))
+#                      cell.format(value, family = family, column = column)
+#                  else
+#                    cell.format(value))}
+#         assign.cols =
+#           function(key, fam, m) {
+#             mapplyl(
+#               Curry(assign.cell, key = key, fam = fam), 
+#               m$key, 
+#               m$val)}
+#         assign.fams = 
+#           function(key, m2) {  
+#             do.call.c(
+#               mapplyl(
+#                 Curry(assign.cols, key = key), 
+#                 m2$key, m2$val))} 
+#         do.call(
+#           data.frame, 
+#           lapply(
+#             do.call(
+#               function(...) mapply(..., FUN = list, SIMPLIFY = FALSE),       
+#               do.call.c(mapplyl(assign.fams, m3$key, m3$val))),
+#             I))}
     tif = make.typedbytes.input.format(hbase = TRUE)
     if(is.null(dense)) dense = FALSE
     if(is.null(simplify)) simplify = FALSE
