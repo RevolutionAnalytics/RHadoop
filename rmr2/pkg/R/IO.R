@@ -142,9 +142,13 @@ make.typedbytes.output.format = Curry(make.native.or.typedbytes.output.format, n
 
 hbase.rec2df.C = 
   function(source) {
-    dest = as.list(1:100)
-    .Call("hbase_to_df", source, dest, PACKAGE="rmr2")
-  }
+    dest = 
+      list(
+        key = as.list(1:10),
+        family = as.list(1:10),
+        column = as.list(1:10),
+        cell = as.list(1:10))
+    .Call("hbase_to_df", source, dest, PACKAGE="rmr2")}
 
 make.hbase.input.format = 
   function(dense, simplify, key.format, cell.format) {
