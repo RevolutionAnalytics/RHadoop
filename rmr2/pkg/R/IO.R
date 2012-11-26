@@ -150,11 +150,13 @@ hbase.rec2df =
         column = filler,
         cell = filler)
     z = .Call("hbase_to_df", source, dest, PACKAGE="rmr2")
-    data.frame(
+    retval = data.frame(
       key = I(z$key), 
       family = I(z$family), 
       column = I(z$column), 
-      cell = I(z$cell))}
+      cell = I(z$cell))
+    filled.rows = length(unlist(retval$family))
+    as.data.frame(lapply(retval[1:filled.rows, ], unlist))}
 
 make.hbase.input.format = 
   function(dense, simplify, key.format, cell.format) {
