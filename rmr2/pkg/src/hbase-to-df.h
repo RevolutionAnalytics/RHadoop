@@ -19,5 +19,7 @@
 
 
 RcppExport SEXP hbase_to_df(SEXP _source, SEXP _dest);
+RcppExport SEXP p_string_to_raw(SEXP _source);
+RcppExport SEXP raw_list_to_character(SEXP _source);
 
 #endif

@@ -140,8 +140,12 @@ make.native.or.typedbytes.output.format =
 make.native.output.format = Curry(make.native.or.typedbytes.output.format, native = TRUE)
 make.typedbytes.output.format = Curry(make.native.or.typedbytes.output.format, native = FALSE)
 
+raw.list.to.character = 
+  function(rl)
+    .Call("raw_list_to_character", rl, PACKAGE="rmr2")
+
 hbase.rec2df = 
-  function(source) {
+  function(source, atomic, dense, key.deserialize, cell.deserialize) {
     filler = replicate(length(unlist(source))/2, NULL)
     dest = 
       list(
@@ -149,75 +153,73 @@ hbase.rec2df =
         family = filler,
         column = filler,
         cell = filler)
-    z = .Call("hbase_to_df", source, dest, PACKAGE="rmr2")
+    tmp = 
+      .Call(
+        "hbase_to_df", 
+        source, 
+        dest, 
+        PACKAGE="rmr2")
     retval = data.frame(
-      key = I(z$key), 
-      family = I(z$family), 
-      column = I(z$column), 
-      cell = I(z$cell))
-    filled.rows = length(unlist(retval$family))
-    as.data.frame(lapply(retval[1:filled.rows, ], unlist))}
+      key = 
+        I(
+          key.deserialize(
+            tmp$data.frame$key[1:tmp$nrows])), 
+      family = 
+        raw.list.to.character(
+          tmp$data.frame$family[1:tmp$nrows]), 
+      column = 
+        raw.list.to.character(
+          tmp$data.frame$column[1:tmp$nrows]), 
+      cell = 
+        I(
+          cell.deserialize(
+            tmp$data.frame$cell[1:tmp$nrows],
+            tmp$data.frame$family[1:tmp$nrows],
+            tmp$data.frame$column[1:tmp$nrows])))
+    if(atomic) 
+      retval = 
+      as.data.frame(
+        lapply(
+          retval, 
+          function(x) if(is.factor(x)) x else unclass(x)))
+    if(dense) retval = dcast(retval,  key ~ family + column)
+    retval}
+
+# data.frame.to.raw = 
+#   function(a.data.frame)
+#     as.data.frame(
+#       lapply(
+#         a.data.frame, 
+#         function(x) 
+#           I(.Call("p_string_to_raw", as.character(x)))))
 
 make.hbase.input.format = 
-  function(dense, simplify, key.format, cell.format) {
-    format.opt = 
+  function(dense, key.deserialize, cell.deserialize) {
+    deserialize.opt = 
       function(format) {
         if(is.null(format)) format = "raw"
         if(is.character(format))
           format =
           switch(
             format,
-            native = function(x) lapply(x, unserialize),
-            typedbytes = function(x) typedbytes.reader(do.call(c, x),  nobjs = length(x)),
+            native = 
+              function(x) lapply(x, unserialize),
+            typedbytes = 
+              function(x) 
+                typedbytes.reader(
+                  do.call(c, x),  
+                  nobjs = length(x)),
             raw = identity)
         format}
-    key.format = format.opt(key.format)
-    cell.format = format.opt(cell.format)
-#     hbase.rec2df = 
-#       function(m3) { #m<n> stands for n times nested map
-#         rmr.str(m3)
-#         mapplyl = Curry(mapply, SIMPLIFY = FALSE)
-#         do.call.c = 
-#           function(l) do.call(c, l)
-#         assign.cell =
-#           function(key, family, column, value) {
-#             list(key = key.format(key), 
-#                  family = rawToChar(family), 
-#                  column = rawToChar(column), 
-#                  cell = 
-#                    if(all(c("family", "column") %in% names(formals(cell.format))))
-#                      cell.format(value, family = family, column = column)
-#                  else
-#                    cell.format(value))}
-#         assign.cols =
-#           function(key, fam, m) {
-#             mapplyl(
-#               Curry(assign.cell, key = key, fam = fam), 
-#               m$key, 
-#               m$val)}
-#         assign.fams = 
-#           function(key, m2) {  
-#             do.call.c(
-#               mapplyl(
-#                 Curry(assign.cols, key = key), 
-#                 m2$key, m2$val))} 
-#         do.call(
-#           data.frame, 
-#           lapply(
-#             do.call(
-#               function(...) mapply(..., FUN = list, SIMPLIFY = FALSE),       
-#               do.call.c(mapplyl(assign.fams, m3$key, m3$val))),
-#             I))}
+    key.deserialize = format.opt(key.deserialize)
+    cell.deserialize = format.opt(cell.deserialize)
     tif = make.typedbytes.input.format(hbase = TRUE)
     if(is.null(dense)) dense = FALSE
-    if(is.null(simplify)) simplify = FALSE
     function(con, keyval.length) {
       rec = tif(con, keyval.length)
       if(is.null(rec)) NULL
       else {
-        df = hbase.rec2df(rec)
-        if(simplify || dense) df = as.data.frame(lapply(z$val, unlist)) 
-        if(dense) df = dcast(df,  key ~ family + column)
+        df = hbase.rec2df(rec, atomic, dense, key.deserialize, cell.deserialize)
         keyval(NULL, df)}}}
 
 # I/O 
