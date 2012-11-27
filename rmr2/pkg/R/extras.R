@@ -91,8 +91,3 @@ rmr.str =
           match.call() [[2]], 
           capture.output(str(x))), 
         collapse="\n"))}
-
-## coerce data frame to lists of lists row first, faster than mapply
-data.frame.to.list =
-  function(x) {
-    .Call('dataframe_to_list', x, nrow(x), ncol(x), replicate(nrow(x), as.list(1:ncol(x)), simplify=F))}
