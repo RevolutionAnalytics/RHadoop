@@ -140,12 +140,18 @@ make.native.or.typedbytes.output.format =
 make.native.output.format = Curry(make.native.or.typedbytes.output.format, native = TRUE)
 make.typedbytes.output.format = Curry(make.native.or.typedbytes.output.format, native = FALSE)
 
-raw.list.to.character = 
+pRawToChar = 
   function(rl)
     .Call("raw_list_to_character", rl, PACKAGE="rmr2")
 
 hbase.rec2df = 
-  function(source, atomic, dense, key.deserialize, cell.deserialize) {
+  function(
+    source, 
+    atomic, 
+    dense, 
+    key.deserialize = pRawToChar, 
+    cell.deserialize =
+      function(x, column, family) pRawToChar(x)) {
     filler = replicate(length(unlist(source))/2, NULL)
     dest = 
       list(
@@ -165,10 +171,10 @@ hbase.rec2df =
           key.deserialize(
             tmp$data.frame$key[1:tmp$nrows])), 
       family = 
-        raw.list.to.character(
+        pRawToChar(
           tmp$data.frame$family[1:tmp$nrows]), 
       column = 
-        raw.list.to.character(
+        pRawToChar(
           tmp$data.frame$column[1:tmp$nrows]), 
       cell = 
         I(
@@ -196,12 +202,12 @@ hbase.rec2df =
 make.hbase.input.format = 
   function(dense, key.deserialize, cell.deserialize) {
     deserialize.opt = 
-      function(format) {
-        if(is.null(format)) format = "raw"
-        if(is.character(format))
-          format =
+      function(deser) {
+        if(is.null(deser)) deser = "raw"
+        if(is.character(deser))
+          deser =
           switch(
-            format,
+            deser,
             native = 
               function(x) lapply(x, unserialize),
             typedbytes = 
@@ -209,10 +215,12 @@ make.hbase.input.format =
                 typedbytes.reader(
                   do.call(c, x),  
                   nobjs = length(x)),
-            raw = identity)
-        format}
-    key.deserialize = format.opt(key.deserialize)
-    cell.deserialize = format.opt(cell.deserialize)
+            raw = pRawToChar)
+        deser}
+    key.deserialize = deserialize.opt(key.deserialize)
+    cell.deserialize.one.arg = deserialize.opt(cell.deserialize)
+    cell.deserialize = function(x, family, column) {
+      cell.deserialize.one.arg(x)}
     tif = make.typedbytes.input.format(hbase = TRUE)
     if(is.null(dense)) dense = FALSE
     function(con, keyval.length) {
