@@ -230,6 +230,24 @@ make.hbase.input.format =
         df = hbase.rec2df(rec, atomic, dense, key.deserialize, cell.deserialize)
         keyval(NULL, df)}}}
 
+# dfd.cm = melt(dfd.c, id.vars="key")
+# 
+# cbind(
+#   dfd.cm,
+#   as.data.frame(
+#     do.call(
+#       function(...) 
+#         mapply(..., FUN = c, SIMPLIFY = F), 
+#       strsplit(
+#         as.character(dfd.cm$variable), "_"))))
+
+df.to.mn = function(x,ind) {
+  if(length(ind)>0 && nrow(x) > 0) {
+    spl = split(x, x[,ind[1]])
+    lapply(x[,ind[1]], function(y) keyval(as.character(y), df.to.mn(spl[[y]], ind[-1])))}
+  else x$value}
+
+hbdf.to.m3 = Curry(df.to.mn, ind = c("key", "family", "column"))
 # I/O 
 
 make.keyval.reader = function(mode, format, keyval.length, con = NULL) {
