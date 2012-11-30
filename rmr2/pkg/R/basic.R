@@ -16,6 +16,9 @@
 
 qw = function(...) as.character(match.call())[-1]
 
+#assignment
+
+default = function(x, value) if(!is.null(x)) x else value
 
 #functional
 

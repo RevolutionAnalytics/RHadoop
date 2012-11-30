@@ -299,10 +299,10 @@ make.input.format =
           optlist = list(...)
           format = 
             make.hbase.input.format(
-              optlist$dense,
-              optlist$atomic,
-              optlist$key.deserialize,
-              optlist$cell.deserialize)
+              default(optlist$dense, F),
+              default(optlist$atomic, F),
+              default(optlist$key.deserialize, "raw"),
+              default(optlist$cell.deserialize, "raw"))
           mode = "binary"
           streaming.format = 
             "com.dappervision.hbase.mapred.TypedBytesTableInputFormat"
