@@ -200,7 +200,7 @@ hbase.rec2df =
 #           I(.Call("p_string_to_raw", as.character(x)))))
 
 make.hbase.input.format = 
-  function(dense, key.deserialize, cell.deserialize) {
+  function(dense, atomic, key.deserialize, cell.deserialize) {
     deserialize.opt = 
       function(deser) {
         if(is.null(deser)) deser = "raw"
@@ -296,16 +296,17 @@ make.input.format =
           format = make.typedbytes.input.format() 
           mode = "binary"},
         hbase = {
+          optlist = list(...)
           format = 
             make.hbase.input.format(
-              list(...)$dense, 
-              list(...)$simplify,
-              list(...)$key.format,
-              list(...)$cell.format)
+              optlist$dense,
+              optlist$atomic,
+              optlist$key.deserialize,
+              optlist$cell.deserialize)
           mode = "binary"
           streaming.format = 
             "com.dappervision.hbase.mapred.TypedBytesTableInputFormat"
-          family.columns = list(...)$family.columns
+          family.columns = optlist$family.columns
           backend.parameters = 
             list(
               hadoop = 
