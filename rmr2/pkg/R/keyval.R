@@ -121,13 +121,10 @@ split.keyval = function(kv, size) {
              unname(rmr.split(v, k))))}
   else {
     ind = {
-      if (is.data.frame(k))
-        mapply.data.frame(k, function(...)digest(list(...)))
-      else {
-        if(is.list(k))
-          sapply(k, digest)
-        else
-          k}}
+      if(is.list(k) && !is.data.frame(k))
+        sapply(k, digest)
+      else
+        k}
     keyval(lapply(unname(rmr.split(k, ind)), unique), 
            unname(rmr.split(v, ind)))}}
 
