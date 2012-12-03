@@ -49,11 +49,22 @@ wordcount =
 ## @knitr end
 
 rmr.options(backend = "local")
-file.copy("/etc/passwd", "/tmp/wordcount-test")
-out.local = from.dfs(wordcount("/tmp/wordcount-test", pattern = " +"))
-file.remove("/tmp/wordcount-test")
+sourceFile = "/etc/passwd"
+tempFile = "/tmp/wordcount-test"
+
+if(.Platform$OS.type == "windows") {
+    sourceFile = paste(Sys.getenv("HADOOP_HOME"),"/LICENSE.txt",sep="")
+    tempFile = tempfile()
+}
+file.copy(sourceFile, tempFile)
+out.local = from.dfs(wordcount(tempFile, pattern = " +"))
+file.remove(tempFile)
 rmr.options(backend = "hadoop")
-rmr2:::hdfs.put("/etc/passwd", "/tmp/wordcount-test")
-out.hadoop = from.dfs(wordcount("/tmp/wordcount-test", pattern = " +"))
-rmr2:::hdfs.rmr("/tmp/wordcount-test")
+
+subtempFile = strsplit(tempFile, ":")
+if(length(subtempFile[[1]]) > 1) tempFile = subtempFile[[1]][2]
+
+rmr2:::hdfs.put(sourceFile, tempFile)
+out.hadoop = from.dfs(wordcount(tempFile, pattern = " +"))
+rmr2:::hdfs.rmr(tempFile)
 stopifnot(rmr2:::cmp(out.hadoop, out.local))
