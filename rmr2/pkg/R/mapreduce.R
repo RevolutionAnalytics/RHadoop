@@ -194,7 +194,13 @@ from.dfs = function(input, format = "native") {
     tmp = tempfile()
     lapply(src, function(x) {
       hdfs.get(as.character(x), tmp)
-      system(paste('cat', tmp, '>>' , dest))
+	if(.Platform$OS.type == "windows") {
+	  cmd = paste('type', tmp, '>>' , dest)
+	  system(paste(Sys.getenv("COMSPEC"),"/c",cmd))
+	}
+	else {
+	  system(paste('cat', tmp, '>>' , dest))
+        }
       unlink(tmp)})
     dest}
   
