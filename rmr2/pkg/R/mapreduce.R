@@ -338,7 +338,9 @@ equijoin =
                     function(v) {
                       list(val = v, is.left = is.left)}))}
   rmr.normalize.path = 
-    function(url.or.path)
+    function(url.or.path) {
+      if(.Platform$OS.type == "windows")
+        url.or.path = gsub("\\\\","/", url.or.path)
       gsub(
         "/+", 
         "/", 
@@ -349,7 +351,7 @@ equijoin =
             "", 
             parse_url(url.or.path)$path), 
           "/", 
-          sep = "")) 
+          sep = ""))}
   is.left.side = 
     function(left.input) {
       rmr.normalize.path(to.dfs.path(left.input)) ==
