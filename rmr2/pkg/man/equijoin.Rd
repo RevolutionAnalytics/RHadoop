@@ -10,15 +10,16 @@ Equijoins using map reduce
 A generalized form of equijoin, hybrid between the SQL brethen and mapreduce
 }
 
-\usage{equijoin(left.input = NULL, right.input = NULL, input = NULL,
-                 output = NULL, outer = c("", "left", "right", "full"),
-                 map.left = to.map(identity), map.right =
-                 to.map(identity), reduce = function(k, vl, vr) {
-               if ((is.list(vl) && !is.data.frame(vl)) || (is.list(vr) && 
-              !is.data.frame(vr))) 
-              list(left = vl, right = vr)
-          else merge(vl, vr, by = NULL)
-      })}
+\usage{
+equijoin(
+  left.input = NULL, 
+  right.input = NULL, 
+  input = NULL, 
+  output = NULL, 
+  outer = c("", "left", "right", "full"), 
+  map.left = to.map(identity), 
+  map.right = to.map(identity), 
+  reduce  = reduce.default)}
 \arguments{\item{left.input}{The left side input to the join.}
   \item{right.input}{The right side input to the join.}
   \item{input}{The only input in case of a self join. Mutually exclusive with the previous two.}
@@ -28,9 +29,7 @@ A generalized form of equijoin, hybrid between the SQL brethen and mapreduce
 will become join keys.}
   \item{map.right}{Function to apply to each record from the right input, follows same conventions as any map function. The returned keys
 will become join keys.}
-  \item{reduce}{Function to be applied, key by key, on the values associated with that key. Those values are in the arguments \code{vl} (left side) and \code{vr} (right side) and their type is determined by the type returned by the map functions, separately for the left side and the right side. The allowable return values are like those of any reduce function, see \code{\link{mapreduce}}. The default performs a \code{merge} with \code{by = NULL} which performs a cartesian product, unless lists are involved in which case the arguments are simply returned in a list.}
-  
-}
+  \item{reduce}{Function to be applied, key by key, on the values associated with that key. Those values are in the arguments \code{vl} (left side) and \code{vr} (right side) and their type is determined by the type returned by the map functions, separately for the left side and the right side. The allowable return values are like those of any reduce function, see \code{\link{mapreduce}}. The default performs a \code{merge} with \code{by = NULL} which performs a cartesian product, unless lists are involved in which case the arguments are simply returned in a list.}}
 
 \value{If output is specified, returns output itself. Otherwise, a \code{\link{big.data.object}}}
 

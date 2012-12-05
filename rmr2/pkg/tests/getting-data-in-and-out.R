@@ -94,8 +94,7 @@ mapreduce(
     #complicated function here
     keyval(k, vv[[1]])})
 ## @knitr getting-data.create.fields.list
-qw = function(...) as.character(match.call())[-1]
-fields <- qw(mpg, cyl, disp, hp, drat, wt, qsec, vs, am, gear, carb) 
+fields <- rmr2:::qw(mpg, cyl, disp, hp, drat, wt, qsec, vs, am, gear, carb) 
 field.size = 8
 ## @knitr getting-data.fwf.reader
 fwf.reader <- function(con, nrecs) {  

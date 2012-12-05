@@ -287,22 +287,33 @@ mapreduce = function(
 ## equijoin(left.input="/tmp/reljoin.left", right.input="/tmp/reljoin.right", output = "/tmp/reljoin.out")
 ## from.dfs("/tmp/reljoin.out")
 
-equijoin = function(
-  left.input = NULL, 
-  right.input = NULL, 
-  input = NULL, 
-  output = NULL, 
-  outer = c("", "left", "right", "full"), 
-  map.left = to.map(identity), 
-  map.right = to.map(identity), 
-  reduce  = 
-    function(k, vl, vr) {
-      if((is.list(vl) && !is.data.frame(vl)) || 
-           (is.list(vr) && !is.data.frame(vr)))
-        list(left = vl, right = vr)
-      else
-        merge(vl, vr, by = NULL)}) { 
-  
+reduce.default = 
+  function(k, vl, vr) {
+    if((is.list(vl) && !is.data.frame(vl)) || 
+         (is.list(vr) && !is.data.frame(vr)))
+      list(left = vl, right = vr)
+    else{
+      if(!is.null(names(vl)))
+        names(vl) = paste(names(vl), "l", sep = ".")
+      if(!is.null(names(vr)))
+        names(vr) = paste(names(vr), "r", sep = ".")
+      if(all(is.na(vl))) vr
+      else {
+        if(all(is.na(vr))) vl
+        else
+          merge(vl, vr, by = NULL)}}}
+
+equijoin = 
+  function(
+    left.input = NULL, 
+    right.input = NULL, 
+    input = NULL, 
+    output = NULL, 
+    outer = c("", "left", "right", "full"), 
+    map.left = to.map(identity), 
+    map.right = to.map(identity), 
+    reduce  = reduce.default) { 
+    
   stopifnot(xor(!is.null(left.input), !is.null(input) &&
     (is.null(left.input) == is.null(right.input))))
   outer = match.arg(outer)
@@ -325,13 +336,14 @@ equijoin = function(
         "/", 
         paste(
           "/", 
-          parse_url(url.or.path)$path, 
+          gsub(
+            "part-[0-9]+$", 
+            "", 
+            parse_url(url.or.path)$path), 
           "/", 
           sep = "")) 
   is.left.side = 
     function(left.input) {
-      rmr.str(parse_url(to.dfs.path(left.input)))
-      rmr.str(parse_url(Sys.getenv("map_input_file")))
       rmr.normalize.path(to.dfs.path(left.input)) ==
         rmr.normalize.path(Sys.getenv("map_input_file"))}
   reduce.split =
@@ -356,11 +368,28 @@ equijoin = function(
   eqj.reduce = 
     function(k, vv) {
       rs = reduce.split(vv)
-      reduce(k, 
-             pad.side(rs$`TRUE`, right.outer, full.outer), 
-             pad.side(rs$`FALSE`, left.outer, full.outer))}
+      left.side = pad.side(rs$`TRUE`, right.outer, full.outer)
+      right.side = pad.side(rs$`FALSE`, left.outer, full.outer)
+      if(!is.null(left.side) && !is.null(right.side))
+        reduce(k, left.side, right.side)}
   mapreduce(
     map = map, 
     reduce = eqj.reduce,
     input = c(left.input, right.input), 
     output = output)}
+
+status = function(message)
+  cat(
+    sprintf("reporter:status:%s\n", 
+            message), 
+    file = stderr())
+
+make.counter =
+  function(group, counter, increment = 1)
+    function(inc = increment)
+      cat(
+        sprintf(
+          "reporter:counter:%s\n", 
+          paste(group, counter, inc, sep=",")), 
+        file= stderr())
+

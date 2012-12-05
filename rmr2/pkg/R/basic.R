@@ -47,6 +47,8 @@ Make.single.or.multi.arg = function(f, from = c("single", "multi")) {
 
 all.predicate = function(x, P) all(sapply(x, P))
 
+mapply.data.frame = function(data, FUN) do.call(function(...) mapply(FUN = FUN, ...), data)
+
 #data structures
 
 make.fast.list = function(l = list()) {
