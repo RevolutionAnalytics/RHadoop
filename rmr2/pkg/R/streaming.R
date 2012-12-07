@@ -153,7 +153,7 @@ rmr.stream = function(
             if(is.null(rmr.install)) {
               warning(paste("can\'t load", l))}
             else {
-              rmr.install(l)}}))
+              capture.output(rmr.install(l, quiet = T))}}))
   if(!is.null(rmr.install))
     .libPaths(c(.libPaths(), eval(expression(.orig), envir = environment(rmr.install))$lib))
   sink(NULL)
