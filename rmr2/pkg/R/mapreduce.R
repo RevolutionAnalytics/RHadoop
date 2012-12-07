@@ -264,11 +264,11 @@ mapreduce = function(
      keyval.length = rmr.options('keyval.length'),
      rmr.install = {
        if(!is.null(rmr.options('install.args')))
-         do.call(Curry, rmr.options('install.args'))
+         do.call(Curry, c(install.packages,rmr.options('install.args')))
        else NULL},
      rmr.update = {
        if(!is.null(rmr.options('update.args')))
-         do.call(Curry, rmr.options('update.args'))
+         do.call(Curry, c(update.packages, rmr.options('update.args')))
        else NULL}, 
      input.format = input.format, 
      output.format = output.format, 
