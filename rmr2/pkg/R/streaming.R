@@ -154,6 +154,8 @@ rmr.stream = function(
               warning(paste("can\'t load", l))}
             else {
               rmr.install(l)}}))
+  if(!is.null(rmr.install))
+    .libPaths(c(.libPaths(), eval(expression(.orig), envir = environment(rmr.install))$lib))
   sink(NULL)
   
   input.reader = 
