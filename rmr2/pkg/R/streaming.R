@@ -145,6 +145,9 @@ rmr.stream = function(
   sink(file = stderr())
   if(!is.null(rmr.update))
     rmr.update(ask = FALSE)
+  assign("system.default", base::system, baseenv())
+  assign("system.intern", function(...) system.default(intern = T, ignore.stderr = T, ...), baseenv())
+  assignInNamespace("system",system.intern, "base")
   invisible(
     lapply(
       libs, 
@@ -154,6 +157,7 @@ rmr.stream = function(
               warning(paste("can\'t load", l))}
             else {
               capture.output(rmr.install(l, quiet = T))}}))
+  assignInNamespace("system", system.default, "base")
   if(!is.null(rmr.install))
     .libPaths(c(.libPaths(), eval(expression(.orig), envir = environment(rmr.install))$lib))
   sink(NULL)
