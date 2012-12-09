@@ -148,7 +148,8 @@ to.dfs =
     kv, 
     output = dfs.tempfile(), 
     format = "native") {
-    
+    if(!is.keyval(kv))
+      warning("Converting to.dfs argument to keyval with a NULL key")
     kv = as.keyval(kv)
     tmp = tempfile()
     dfsOutput = to.dfs.path(output)
