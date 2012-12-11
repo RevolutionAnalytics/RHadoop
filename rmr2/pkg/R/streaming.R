@@ -146,8 +146,11 @@ rmr.stream = function(
   if(!is.null(rmr.update))
     rmr.update(ask = FALSE)
   assign("system.default", base::system, baseenv())
-  assign("system.intern", function(...) system.default(intern = T, ignore.stderr = T, ...), baseenv())
-  assignInNamespace("system",system.intern, "base")
+  if(!is.null(rmr.install)) {
+    install.args = eval(expression(.orig), envir = environment(rmr.install))
+    .libPaths(c(.libPaths(), install.args$lib))
+     assign("system.intern", function(...) system.default(intern = T, ignore.stderr = T, ...), baseenv())
+     assignInNamespace("system",system.intern, "base")}
   invisible(
     lapply(
       libs, 
@@ -156,12 +159,10 @@ rmr.stream = function(
             if(is.null(rmr.install)) {
               warning(paste("can\'t load", l))}
             else {
-              capture.output(rmr.install(l, quiet = T))
+              install.out = capture.output(rmr.install(l, quiet = T))
               if(!require(l, character.only = T))
-                warning(paste("can\'t install", l))}}))
+                warning(paste("can\'t install", l, "because", install.out))}}))
   assignInNamespace("system", system.default, "base")
-  if(!is.null(rmr.install))
-    .libPaths(c(.libPaths(), eval(expression(.orig), envir = environment(rmr.install))$lib))
   sink(NULL)
   
   input.reader = 
