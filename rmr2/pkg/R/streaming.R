@@ -156,7 +156,9 @@ rmr.stream = function(
             if(is.null(rmr.install)) {
               warning(paste("can\'t load", l))}
             else {
-              capture.output(rmr.install(l, quiet = T))}}))
+              capture.output(rmr.install(l, quiet = T))
+              if(!require(l, character.only = T))
+                warning(paste("can\'t install", l))}}))
   assignInNamespace("system", system.default, "base")
   if(!is.null(rmr.install))
     .libPaths(c(.libPaths(), eval(expression(.orig), envir = environment(rmr.install))$lib))
