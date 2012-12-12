@@ -216,7 +216,7 @@ make.output.format =
           mode = "binary"
           streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"}, 
         sequence.typedbytes = {
-          format = make.native.output.format(keyval.length = rmr.options('keyval.length'))
+          format = make.typedbytes.output.format(keyval.length = rmr.options('keyval.length'))
           mode = "binary"
           streaming.format = "org.apache.hadoop.mapred.SequenceFileOutputFormat"})}
     mode = match.arg(mode)
