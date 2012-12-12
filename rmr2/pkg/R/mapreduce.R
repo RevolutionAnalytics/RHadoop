@@ -379,18 +379,16 @@ equijoin =
     input = c(left.input, right.input), 
     output = output)}
 
-status = function(message)
+status = function(value)
   cat(
     sprintf("reporter:status:%s\n", 
-            message), 
+            value), 
     file = stderr())
 
-make.counter =
+increment.counter =
   function(group, counter, increment = 1)
-    function(inc = increment)
       cat(
         sprintf(
           "reporter:counter:%s\n", 
-          paste(group, counter, inc, sep=",")), 
-        file= stderr())
-
+          paste(group, counter, increment, sep=",")), 
+        file = stderr())
