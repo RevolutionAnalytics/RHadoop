@@ -143,7 +143,14 @@ make.keyval.reader = function(mode, format, keyval.length, con = NULL) {
   if(mode == "text") {
     if(is.null(con)) con = file("stdin", "r")} #not stdin() which is parsed by the interpreter
   else {
-    if(is.null(con)) con = pipe("cat", "rb")}
+    	if(.Platform$OS.type == "windows") {
+  	    catwin = system.file(package="rmr2", "bin", .Platform$r_arch, "catwin.exe")
+      	    if(is.null(con)) con = pipe(catwin, "rb")
+      	 } 
+  	 else {
+            if(is.null(con)) con = pipe("cat", "rb")
+	 }
+   }
   function() 
     format(con, keyval.length)}
 
@@ -151,8 +158,15 @@ make.keyval.writer = function(mode, format, con = NULL) {
   if(mode == "text") {
     if(is.null(con)) con = stdout()}
   else {
-    if(is.null(con)) con = pipe("cat", "wb")}
-  function(kv) format(kv, con)}
+    	if(.Platform$OS.type == "windows") {
+  	    catwin = system.file(package="rmr2", "bin", .Platform$r_arch, "catwin.exe")
+      	    if(is.null(con)) con = pipe(catwin, "wb")
+	 } 
+   	 else {
+            if(is.null(con)) con = pipe("cat", "wb")
+         }
+   }
+   function(kv) format(kv, con)}
 
 IO.formats = c("text", "json", "csv", "native",
                "sequence.typedbytes")
