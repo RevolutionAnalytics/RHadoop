@@ -195,7 +195,13 @@ from.dfs = function(input, format = "native") {
     tmp = tempfile()
     lapply(src, function(x) {
       hdfs.get(as.character(x), tmp)
-      system(paste('cat', tmp, '>>' , dest))
+	if(.Platform$OS.type == "windows") {
+	  cmd = paste('type', tmp, '>>' , dest)
+	  system(paste(Sys.getenv("COMSPEC"),"/c",cmd))
+	}
+	else {
+	  system(paste('cat', tmp, '>>' , dest))
+        }
       unlink(tmp)})
     dest}
   
@@ -215,6 +221,8 @@ from.dfs = function(input, format = "native") {
 
 dfs.tempfile = function(pattern = "file", tmpdir = tempdir()) {
   fname  = tempfile(pattern, tmpdir)
+  subfname = strsplit(fname, ":")
+  if(length(subfname[[1]]) > 1) fname = subfname[[1]][2]
   namefun = function() {fname}
   reg.finalizer(environment(namefun), 
                 function(e) {
@@ -331,7 +339,9 @@ equijoin =
                     function(v) {
                       list(val = v, is.left = is.left)}))}
   rmr.normalize.path = 
-    function(url.or.path)
+    function(url.or.path) {
+      if(.Platform$OS.type == "windows")
+        url.or.path = gsub("\\\\","/", url.or.path)
       gsub(
         "/+", 
         "/", 
@@ -342,7 +352,7 @@ equijoin =
             "", 
             parse_url(url.or.path)$path), 
           "/", 
-          sep = "")) 
+          sep = ""))}
   is.left.side = 
     function(left.input) {
       rmr.normalize.path(to.dfs.path(left.input)) ==

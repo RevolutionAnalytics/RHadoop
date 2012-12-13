@@ -11,6 +11,7 @@ Rprof.out
 #for rmr users
 rmr-*-env*
 rmr-streaming-*
+rmr*.tar.gz
 #for emacs users
 *~
 #for whirr users
@@ -25,9 +26,6 @@ src-x86_64
 *.so
 *.rds
 Rprof.out
-
 *.aup
-
 *.au
-
 *.gz

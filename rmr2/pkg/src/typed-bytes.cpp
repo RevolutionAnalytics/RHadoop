@@ -63,8 +63,17 @@ double raw2double(const raw & data, int & start) {
   union udouble {
     double d;
     uint64_t u;} ud;
-  ud.u = raw2long(data, start);
+
+  if(data.size() < start + 8) {
+    throw ReadPastEnd(6, start);  }
+  uint64_t retval = 0;
+  for(int i = 0; i < 8; i++) {
+    retval = retval + (((uint64_t) data[start + i] & 255) << (8*(7 - i)));}
+  start = start + 8; 
+
+  ud.u = retval;
   return ud.d;} 
+ 
 
 int get_length(const raw & data, int & start) {
   int len = raw2int(data, start);
