@@ -161,7 +161,7 @@ make.keyval.writer = function(mode, format, con = NULL) {
         stdout()
       else {
         cat = {
-          if(.Platformorm$OS.type == "windows") 
+          if(.Platform$OS.type == "windows") 
             system.file(package="rmr2", "bin", .Platform$r_arch, "catwin.exe")
           else 
             "cat"}
