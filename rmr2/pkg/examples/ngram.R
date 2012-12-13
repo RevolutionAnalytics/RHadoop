@@ -19,7 +19,7 @@
 
 library(rmr2)
 library(robustbase)
-#using 1.2.2
+#using 2.0.2
 #fake data
 fake.size = 2000000
 writeLines(
@@ -46,7 +46,9 @@ source = "/tmp/fake-ngram-data"
 rmr.options(backend = "hadoop")
 
 ngram.format = function(lines){
-  data = as.data.frame(do.call(rbind, strsplit(unlist(lines), "\t"))[,1:3])
+  data = 
+    as.data.frame(
+      do.call(rbind, strsplit(lines, "\t"))[,1:3])
   names(data) = c("ngram", "year", "count")
   data$year = as.integer(as.character(data$year))
   data$count = as.integer(as.character(data$count))
@@ -56,13 +58,23 @@ ngram.format = function(lines){
 filter.map = function(k, lines) {
   data = ngram.format(lines)
   data$ngram = tolower(data$ngram)
-  data = data[regexpr("^[a-z+'-]+$", data$ngram) > 0,]
-  keyval(data$ngram[data$year > 1700], data[data$year > 1700, -1])}
+  data = 
+    data[
+      regexpr(
+        "^[a-z+'-]+$", 
+        data$ngram) > 0,]
+  keyval(
+    data$ngram[data$year > 1700], 
+    data[data$year > 1700, -1])}
 
 filter.reduce = 
   function(ngram, year.counts) {
     names(year.counts) = c("year", "counts")
-    keyval(ngram, aggregate(year.counts$counts, by = list(year.counts$year), sum))}
+    keyval(
+      ngram, 
+      aggregate(
+        year.counts$counts, 
+        by = list(year.counts$year), sum))}
 
 filter.norm.data = 
   mapreduce(input = source,
@@ -70,15 +82,19 @@ filter.norm.data =
             map = filter.map,
             reduce = filter.reduce)
   
+from.dfs(rmr.sample(filter.norm.data, method="any", n = 50))
+
 totals.map = 
   function(ngram, year.counts) {
     names(year.counts) = c("year", "counts")
-    keyval(year.counts$year + sample(seq(from=0,to=.9, by = .01), nrow(year.counts), replace = TRUE)
-           , 
-           year.counts$counts)}
+    keyval(
+      year.counts$year + 
+        sample(seq(from=0,to=.9, by = .01), 
+               nrow(year.counts), replace = TRUE), 
+      year.counts$counts)}
 
 totals.reduce = 
-  function(year, counts) keyval(floor(year), sum(unlist(counts), na.rm = TRUE))
+  function(year, counts) keyval(floor(year), sum(counts, na.rm = TRUE))
   
 #group counts by year and find totals
 year.totals = 
@@ -89,36 +105,49 @@ from.dfs(
             combine = TRUE))
 
 names(year.totals) = c("year", "count")
-yt = tapply(year.totals$count, year.totals$year, function(x) sum(x))
-year.totals = data.frame(year = as.integer(names(yt)), count = yt)
-rownames(year.totals) = year.totals$year
+year.totals = tapply(year.totals$count, year.totals$year, function(x) sum(x))
 
-#year.totals = year.totals[-(1:77),]
+#year.totals = year.totals[-(1:77)]
 
 #group by ngram and compute p-values
 
-outlier.map = 
+outlier.ngram =
   function(ngram, count.sparse) {
-    names(count.sparse) = c("year", "count")
+    years = as.numeric(names(year.totals))
     rownames(count.sparse) = count.sparse$year
-    count = rep(min(count.sparse$count) - 1, nrow(year.totals))
-    count[count.sparse$year - min(year.totals$year) + 1] = count.sparse$count
-    log.freq = log((count + 1)/(year.totals$count + 1))
-    keyval(year.totals$year[-1] + sample(seq(from=0,to=.9, by = .1), nrow(year.totals) - 1, replace = TRUE)
-           , cbind(ngram, log.freq[-length(log.freq)], 
-                                     log.freq[-1]))}
+    count = 
+      rep(min(count.sparse$count) - 1, length(year.totals))
+    count[count.sparse$year - min(years) + 1] = 
+      count.sparse$count
+    log.freq = log((count + 1)/(year.totals + 1))
+    keyval(
+      years[-1] + 
+        sample(
+          seq(from = 0, to =.9, by = .1), 
+          length(year.totals) - 1, replace = TRUE), 
+      data.frame(ngram, log.freq[-length(log.freq)], log.freq[-1], stringsAsFactors = FALSE))}
+
+outlier.map = 
+  function(ngrams, count.sparse) {
+    names(count.sparse) = c("year", "count")
+    count.sparse = split(count.sparse, ngrams)
+    c.keyval(lapply(unique(ngrams), function(ng) outlier.ngram(ng, count.sparse[[ng]])))}
 
 outlier.reduce = function(year, log.freqs) {
+  #rmr.str(year)
+  #rmr.str(log.freqs)
   keyval(NULL, unique(log.freqs[!adjOutlyingness(log.freqs[,2:3])$nonOut,1]))}
 
 outlier.ngrams = c()
 outlier.ngrams[
   unique(
     unlist(
+      values(
         from.dfs(
-          mapreduce(input = filter.norm.data,
-                    map = outlier.map,
-                    reduce = outlier.reduce))))] = TRUE
+          mapreduce(
+            input = filter.norm.data,
+            map = outlier.map,
+            reduce = outlier.reduce)))))] = TRUE
 
 ngram.filter = 
   function(ngram) !is.na(outlier.ngrams[ngram])
@@ -132,7 +161,7 @@ graph.data =
 #visualization
 
 library(googleVis)
-graph.data.frame = do.call(rbind, lapply(graph.data, function(x) cbind(x$key, x$val[-1,], x$val[-nrow(x$val),])))
+graph.data.frame = cbind(keys(graph.data), values(graph.data))
 names(graph.data.frame) = rmr2:::qw(id,time,count, time.1, count.1)
 graph.data.frame$average = with(graph.data.frame, log(count/year.totals[as.character(time),1] * count.1/year.totals[as.character(time.1),1])/2)
 graph.data.frame$difference = with(graph.data.frame, log(count/year.totals[as.character(time),1] / count.1/year.totals[as.character(time.1),1])/2)
