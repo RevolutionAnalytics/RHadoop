@@ -15,7 +15,7 @@
 }
 
 \arguments{
-\item{kv, kv1}{key-value pairs}
+\item{kv}{key-value pairs}
 \item{key}{the desired key or keys}
 \item{val}{the desired value or values}
 \item{...}{key-value pairs to concatenate}}
