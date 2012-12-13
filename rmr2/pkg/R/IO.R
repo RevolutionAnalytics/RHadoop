@@ -138,35 +138,29 @@ make.native.output.format = Curry(make.native.or.typedbytes.output.format, nativ
 make.typedbytes.output.format = Curry(make.native.or.typedbytes.output.format, native = FALSE)
 
 # I/O 
+make.keyval.readwriter = 
+  function(mode, format, keyval.length, con = NULL, read) {
+    if(is.null(con)) 
+      con = {
+        if(mode == "text") { 
+          if(read)  file("stdin", "r") #not stdin() which is parsed by the interpreter
+          else stdout()}
+        else {
+          cat  = {
+            if(.Platform$OS.type == "windows")
+              system.file(package="rmr2", "bin", .Platform$r_arch, "catwin.exe")
+            else
+              "cat"}
+          pipe(cat, ifelse(read, "rb", "wb"))}}
+    if (read) {
+      function() 
+        format(con, keyval.length)}
+    else {
+      function(kv)
+        format(kv, con)}}
 
-make.keyval.reader = function(mode, format, keyval.length, con = NULL) {
-  if(is.null(con)) 
-    con = {
-      if(mode == "text") 
-        file("stdin", "r") #not stdin() which is parsed by the interpreter
-      else {
-        cat  = {
-          if(.Platform$OS.type == "windows")
-            system.file(package="rmr2", "bin", .Platform$r_arch, "catwin.exe")
-          else
-            "cat"}
-        pipe(cat, "rb")}} 
-  function() 
-    format(con, keyval.length)}
-
-make.keyval.writer = function(mode, format, con = NULL) {
-  if(is.null(con)) 
-    con = {
-      if(mode == "text") 
-        stdout()
-      else {
-        cat = {
-          if(.Platform$OS.type == "windows") 
-            system.file(package="rmr2", "bin", .Platform$r_arch, "catwin.exe")
-          else 
-            "cat"}
-        pipe(cat, "wb")}}
-  function(kv) format(kv, con)}
+make.keyval.reader = Curry(make.keyval.readwriter, read = TRUE)
+make.keyval.writer = Curry(make.keyval.readwriter, keyval.length = NULL, read = FALSE)
 
 IO.formats = c("text", "json", "csv", "native",
                "sequence.typedbytes")
