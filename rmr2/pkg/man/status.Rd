@@ -1,6 +1,6 @@
 \name{status}
 \alias{status}
-\alias{make.counter}
+\alias{increment.counter}
 \title{
 Set the status and define and increment counters for a Hadoop job
 }
@@ -8,7 +8,7 @@ Set the status and define and increment counters for a Hadoop job
 These are Hadoop features used to monitor and debug jobs. Should be used with a grain of salt as far as their scalability.
 }
 \usage{
-status(message)
+status(value)
 increment.counter(group, counter, increment = 1)
 }
 \arguments{
