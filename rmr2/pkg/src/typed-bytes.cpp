@@ -363,6 +363,7 @@ SEXP typed_bytes_writer(SEXP objs, SEXP native){
     try{
       serialize(Rcpp::wrap(*i), serialized, is_native[0]);}
     catch(UnsupportedType ut){
+      std::cerr << "Unsupported type exception: " << (int)ut.type_code << std::endl;
       return R_NilValue;}}
 	return Rcpp::wrap(serialized);}	
 
