@@ -1,0 +1,19 @@
+BINDIR		= inst/bin$(R_ARCH)
+.PHONY: all bin
+
+PKG_CXXFLAGS=`${R_HOME}/bin/Rscript -e "Rcpp:::CxxFlags()"`
+PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"`
+
+all: $(SHLIB) bin
+
+bin:
+	# binaries
+	make --no-print-directory -C catwin -f Makefile\
+	    CC="$(CC)" CFLAGS="$(CFLAGS)"\
+	    CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)"\
+	    BINDIR="$(BINDIR)"\
+	    install-bin
+ 
+clean:
+	( cd catwin;  make clean )
+	rm -rf ../$(BINDIR)
