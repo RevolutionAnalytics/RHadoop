@@ -5,7 +5,6 @@
 
 
 
-
 # Mapreduce in R
 
 ## My first mapreduce job
@@ -54,7 +53,7 @@ This creates a sample from the binomial and counts how many times each outcome o
   
 
 ```r
-  groups = to.dfs(groups)
+  groups = to.dfs(rbinom(32, n = 50, prob = 0.4))
   from.dfs(
     mapreduce(
       input = groups, 
