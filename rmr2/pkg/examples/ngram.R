@@ -162,7 +162,20 @@ graph.data =
 
 library(googleVis)
 graph.data.frame = cbind(keys(graph.data), values(graph.data))
+graph.data.frame = cbind(graph.data.frame[-nrow(graph.data.frame),],  graph.data.frame[-1,])
+graph.data.frame = graph.data.frame[graph.data.frame[1:10,1] == graph.data.frame[1:10,4],c(1,2,3,5,6)]
+
 names(graph.data.frame) = rmr2:::qw(id,time,count, time.1, count.1)
-graph.data.frame$average = with(graph.data.frame, log(count/year.totals[as.character(time),1] * count.1/year.totals[as.character(time.1),1])/2)
-graph.data.frame$difference = with(graph.data.frame, log(count/year.totals[as.character(time),1] / count.1/year.totals[as.character(time.1),1])/2)
-M <- gvisMotionChart(graph.data.frame[,rmr2:::qw(id,time,average,difference)], options = list(height = 1000, width = 2000)); cat(M$html$chart, file="~/Desktop/tmp.html")
+graph.data.frame$average = 
+  as.vector(
+    with(
+      graph.data.frame, 
+      sqrt((count/year.totals[as.character(time)]) * 
+             (count.1/year.totals[as.character(time.1)]))))
+graph.data.frame$difference = 
+  as.vector(
+    with(
+      graph.data.frame, 
+      (count/year.totals[as.character(time)]) / 
+        (count.1/year.totals[as.character(time.1)])))
+plot(gvisMotionChart(graph.data.frame[,c("id","time","average","difference")], options = list(height = 1000, width = 2000)))
