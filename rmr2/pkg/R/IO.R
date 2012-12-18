@@ -100,9 +100,7 @@ make.typed.bytes.input.format = function() {
       if(length(raw.buffer) == 0) break;
       parsed = typed.bytes.reader(raw.buffer, as.integer(read.size/2))
       obj.buffer <<- c(obj.buffer, parsed$objects)
-      obj.buffer.rmr.length <<- 
-        obj.buffer.rmr.length +
-        sum(sapply(sample(even(parsed$objects), 10, replace = T), rmr.length)) * length(parsed$objects) /20
+      obj.buffer.rmr.length <<- sum(sapply(sample(even(obj.buffer), 10, replace = T), rmr.length)) * length(obj.buffer)/20
       if(parsed$length != 0) raw.buffer <<- raw.buffer[-(1:parsed$length)]}
     read.size = as.integer(read.size/2)
     straddler = list()
