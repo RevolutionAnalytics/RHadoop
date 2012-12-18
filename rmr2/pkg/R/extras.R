@@ -28,6 +28,34 @@ gather = function(input, output = NULL, ...) {
             output, 
             backend.parameters = backend.parameters,
             ...)}
+
+#sampling
+
+rmr.sample = function(input, output = NULL, method = c("any", "Bernoulli"), ...) {
+  method = match.arg(method)
+  if (method == "any") {
+    n = list(...)[['n']]
+    some = function(k, v) 
+      keyval(
+        if(is.null(k))
+          list(NULL)
+        else
+          rmr.slice(k, 1:min(n, rmr.length(k))),
+        rmr.slice(v, 1:min(n, rmr.length(v))))
+    mapreduce(input, 
+              output,
+              map = some,
+              combine = T,
+              reduce = some)}
+  else
+    if(method == "Bernoulli"){
+      p = list(...)[['p']]
+      mapreduce(input,
+                output,
+                map = function(k, v) {
+                  filter = rbinom(rmr.length(k), 1, p) == 1
+                  keyval(rmr.slice(k, filter),
+                         rmr.slice(v, filter))})}}
             
 ##optimizer
 
@@ -50,27 +78,6 @@ optimize = function(mrex) {
                                         .(mapreduce.arg(mrin, 'map'))), 
                 reduce = .(mapreduce.arg(mrex, 'reduce'))))}
   else mrex }
-
-rmr.sample = function(input, output = NULL, method = c("any", "Bernoulli"), ...) {
-  method = match.arg(method)
-  if (method == "any") {
-    n = list(...)[['n']]
-    some = function(k, v) keyval(rmr.slice(k, 1:min(n, length(k))),
-                                 rmr.slice(v, 1:min(n, length(v))))
-    mapreduce(input, 
-              output,
-              map = some,
-              combine = T,
-              reduce = some)}
-    else
-      if(method == "Bernoulli"){
-        p = list(...)[['p']]
-        mapreduce(input,
-                  output,
-                  map = function(k, v) {
-                    filter = rbinom(rmr.length(k),1,p) == 1
-                    keyval(rmr.slice(k, filter),
-                           rmr.slice(v, filter))})}}
 
 ## dev support
 
