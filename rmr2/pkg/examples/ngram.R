@@ -54,88 +54,72 @@ ngram.format = function(lines){
   data$count = as.integer(as.character(data$count))
   data}
 
-#filter and normalize n-grams
-filter.map = function(k, lines) {
-  data = ngram.format(lines)
-  data$ngram = tolower(data$ngram)
-  data = 
-    data[
-      regexpr(
-        "^[a-z+'-]+$", 
-        data$ngram) > 0,]
-  keyval(
-    data$ngram[data$year > 1700], 
-    data[data$year > 1700, -1])}
+#filter n-grams
+filter.map = function(., lines) {
+  ngram.data = ngram.format(lines)
+  ngram.data[
+    regexpr(
+      "^[a-z+'-]+$", 
+      ngram.data$ngram) > -1 & 
+      ngram.data$year > 1700,]}
 
-filter.reduce = 
-  function(ngram, year.counts) {
-    names(year.counts) = c("year", "counts")
-    keyval(
-      ngram, 
-      aggregate(
-        year.counts$counts, 
-        by = list(year.counts$year), sum))}
-
-filter.norm.data = 
+filtered.data = 
   mapreduce(input = source,
             input.format = "text", #comment this on real data
-            map = filter.map,
-            reduce = filter.reduce)
+            map = filter.map)
   
-from.dfs(rmr.sample(filter.norm.data, method="any", n = 50))
+from.dfs(rmr.sample(filtered.data, method="any", n = 50))
+
+key.mult = function(k, n) 
+  k + sample(0:(n-1), length(k), replace = TRUE)/n
+key.demult = floor
 
 totals.map = 
-  function(ngram, year.counts) {
-    names(year.counts) = c("year", "counts")
+  function(., ngram.data) {
     keyval(
-      year.counts$year + 
-        sample(seq(from=0,to=.9, by = .01), 
-               nrow(year.counts), replace = TRUE), 
-      year.counts$counts)}
+      key.mult(ngram.data$year, 100),
+      ngram.data$count)}
 
 totals.reduce = 
-  function(year, counts) keyval(floor(year), sum(counts, na.rm = TRUE))
+  function(year.ish, count) 
+    keyval(key.demult(year.ish), sum(count, na.rm = TRUE))
   
 #group counts by year and find totals
 year.totals = 
-from.dfs(
-  mapreduce(input = filter.norm.data,
-            map = totals.map,
-            reduce = totals.reduce,
-            combine = TRUE))
+  from.dfs(
+    mapreduce(input = filtered.data,
+              map = totals.map,
+              reduce = totals.reduce,
+              combine = TRUE))
 
-names(year.totals) = c("year", "count")
-year.totals = tapply(year.totals$count, year.totals$year, function(x) sum(x))
+year.totals = tapply(values(year.totals), keys(year.totals), sum)
 
 #year.totals = year.totals[-(1:77)]
 
-#group by ngram and compute p-values
+#group by yearish and compute p-values
 
-outlier.ngram =
-  function(ngram, count.sparse) {
-    years = as.numeric(names(year.totals))
-    rownames(count.sparse) = count.sparse$year
-    count = 
-      rep(min(count.sparse$count) - 1, length(year.totals))
-    count[count.sparse$year - min(years) + 1] = 
-      count.sparse$count
-    log.freq = log((count + 1)/(year.totals + 1))
-    keyval(
-      years[-1] + 
-        sample(
-          seq(from = 0, to =.9, by = .1), 
-          length(year.totals) - 1, replace = TRUE), 
-      data.frame(ngram, log.freq[-length(log.freq)], log.freq[-1], stringsAsFactors = FALSE))}
 
 outlier.map = 
-  function(ngrams, count.sparse) {
-    names(count.sparse) = c("year", "count")
-    count.sparse = split(count.sparse, ngrams)
-    c.keyval(lapply(unique(ngrams), function(ng) outlier.ngram(ng, count.sparse[[ng]])))}
+  function(., ngram.data) {
+    kk = ngram$year + cksum(ngram.data$ngram)%100/100
+    c.keyval(
+      keyval(kk, ngram.data),
+      keyval(1 + kk, ngram.data))}
 
-outlier.reduce = function(year, log.freqs) {
-  #rmr.str(year)
-  #rmr.str(log.freqs)
+outlier.reduce =
+  function(ngram.data) {
+    years = range(ngram.data$years)
+    ngram.data = dcast(data=ngram.data, formula = ngram + count ~  year, fill = 0)
+    adjOutlyingness(
+      log(
+        t(
+          t(
+            ngram.data[,3:4])/year.totals[as.character(years)]))$nonOut
+    keyval(
+      key.mult(years[-1], 100), 
+      data.frame(ngram, log.freq[-length(log.freq)], log.freq[-1], stringsAsFactors = FALSE))}
+
+outlier.reduce = function(year.ish, ngram.data) {
   keyval(NULL, unique(log.freqs[!adjOutlyingness(log.freqs[,2:3])$nonOut,1]))}
 
 outlier.ngrams = c()
@@ -145,7 +129,7 @@ outlier.ngrams[
       values(
         from.dfs(
           mapreduce(
-            input = filter.norm.data,
+            input = filtered.data,
             map = outlier.map,
             reduce = outlier.reduce)))))] = TRUE
 
