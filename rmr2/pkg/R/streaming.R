@@ -55,7 +55,9 @@ make.input.files = function(infiles) {
 activate.profiling = function() {
   dir = file.path("/tmp/Rprof", Sys.getenv('mapred_job_id'), Sys.getenv('mapred_tip_id'))
   dir.create(dir, recursive = T)
-  Rprof(file.path(dir, paste(Sys.getenv('mapred_task_id'), Sys.time())))}
+  prof.file = file.path(dir, paste(Sys.getenv('mapred_task_id'), Sys.time())) 
+  warning("Profiling data in ", prof.file)
+  Rprof(prof.file)}
 
 close.profiling = function() Rprof(NULL)
 
