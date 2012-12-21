@@ -39,7 +39,7 @@ source = "/tmp/fake-ngram-data"
 # do  distcp and then scatter
 # hadoop distcp -m 100 s3n://$AWS_ACCESS_KEY_ID:$AWS_SECRET_ACCESS_KEY@datasets.elasticmapreduce/ngrams/books/20090715/eng-all/1gram/ hdfs:///user/antonio/
 
-#source = "hdfs:///user/antonio/1gram/data"
+#source = scatter("hdfs:///user/antonio/1gram/data")
 rmr.options(backend = "hadoop")
 rmr.option(keyval.length = 10^5)
 
@@ -60,7 +60,7 @@ filter.map = function(., lines) {
     regexpr(
       "^[A-za-z+'-]+$", 
       ngram.data$ngram) > -1 & 
-      ngram.data$year > 1700,]}
+      ngram.data$year > 1800,]}
 
 ## @knitr filtered.data
 filtered.data = 
@@ -70,25 +70,20 @@ filtered.data =
 ## @knitr sample-data
 from.dfs(rmr.sample(filtered.data, method="any", n = 50))
 
-## @knitr key.mult
-key.mult = function(k, n) 
-  k + sample(0:(n-1), length(k), replace = TRUE)/n
-key.demult = floor
 
 ## @knitr totals.map
 totals.map = 
   function(., ngram.data) {
-    keyval(
-      key.mult(ngram.data$year, 100),
-      ngram.data$count)}
+    total = tapply(ngram.data$count, ngram.data$year, sum)
+    keyval(names(total), as.vector(total))}
 
 ## @knitr totals.reduce
 totals.reduce = 
-  function(year.ish, count) 
-    keyval(key.demult(year.ish), sum(count, na.rm = TRUE))
+  function(year, count) 
+    keyval(year, sum(count, na.rm = TRUE))
   
 ## @knitr year.totals
-year.totals = 
+year.totals.kv = 
   from.dfs(
     mapreduce(input = filtered.data,
               map = totals.map,
@@ -96,17 +91,16 @@ year.totals =
               combine = TRUE))
 
 ## @knitr year.totals-finish
-year.totals = tapply(values(year.totals), keys(year.totals), sum)
-
-#year.totals = year.totals[-(1:77)]
+year.totals = c()
+year.totals[keys(year.totals)] = values(year.totals)
 
 ## @knitr outlier.map
 outlier.map = 
   function(., ngram.data) {
-    kk = ngram.data$year + cksum(ngram.data$ngram)%%100/100
+    k = ngram.data$year + cksum(ngram.data$ngram)%%10/10
     c.keyval(
-      keyval(kk, ngram.data),
-      keyval(kk + 1, ngram.data))}
+      keyval(k, ngram.data),
+      keyval(k + 1, ngram.data))}
 
 ## @knitr outlier.reduce
 library(robustbase)
@@ -117,13 +111,13 @@ outlier.reduce =
       NULL
     else {
       ngram.data = dcast(ngram.data, ngram ~ year, fill = 0)
-      cat(summary(ngram.data), file=stderr())
       filter = 
         !adjOutlyingness(
           log(
             t(
-              t(
-                ngram.data[,2:3] + 1)/as.vector(year.totals[as.character(years)] + 1))))$nonOut
+              t(ngram.data[,2:3] + 1)/
+                as.vector(year.totals[as.character(years)] + 1)))
+          )$nonOut
       as.character(ngram.data[filter,'ngram'])}}
 
 ## @knitr outlier.ngram
@@ -150,11 +144,17 @@ plot.data =
         map = function(., ngram.data) 
           ngram.data[ngram.filter(ngram.data$ngram),])))
 
-## @knitr plot.data
-plot.data = cbind(plot.data[-nrow(plot.data),],  plot.data[-1,])
-plot.data = plot.data[plot.data[,1] == plot.data[,4],c(1,2,3,5,6)]
-
-names(plot.data) = rmr2:::qw(id,time,count, time.1, count.1)
+## @knitr plot.data.frame
+plot.data = 
+  cbind(
+    plot.data[-nrow(plot.data),],  
+    plot.data[-1,])
+plot.data = 
+  plot.data[
+    plot.data[,1] == plot.data[,4],
+    c(1,2,3,5,6)]
+names(plot.data) = 
+  c("id","time","count", "time.1", "count.1")
 plot.data$average = 
   as.vector(
     with(
@@ -170,4 +170,7 @@ plot.data$ratio =
 
 ## @knitr plot
 library(googleVis)
-plot(gvisMotionChart(plot.data[,c("id","time","average","difference")], options = list(height = 1000, width = 2000)))
+plot(
+  gvisMotionChart(
+    plot.data[,c("id","time","average","difference")], 
+    options = list(height = 1000, width = 2000)))
