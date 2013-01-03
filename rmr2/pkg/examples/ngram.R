@@ -36,21 +36,20 @@ source = "/tmp/fake-ngram-data"
 # rmr.options(backend = "local")
 
 ## @knitr distcp
-# do  distcp and then scatter
-# hadoop distcp -m 100 s3n://$AWS_ACCESS_KEY_ID:$AWS_SECRET_ACCESS_KEY@datasets.elasticmapreduce/ngrams/books/20090715/eng-all/1gram/ hdfs:///user/antonio/
-
-#source = scatter("hdfs:///user/antonio/1gram/data")
-rmr.options(backend = "hadoop")
-rmr.option(keyval.length = 10^5)
+# hadoop distcp s3n://$AWS_ACCESS_KEY_ID:$AWS_SECRET_ACCESS_KEY@datasets.elasticmapreduce/ngrams/books/20090715/eng-all/1gram/ hdfs:///user/antonio/
+## @knitr scatter
+library(rmr2)
+source = scatter("/user/antonio/1gram/data")
 
 ## @knitr ngram.format
 ngram.format = function(lines){
   data = 
     as.data.frame(
-      do.call(rbind, strsplit(lines, "\t"))[,1:3])
+      do.call(rbind, strsplit(lines, "\t"))[,1:3],
+      stringsAsFactors = FALSE)
   names(data) = c("ngram", "year", "count")
-  data$year = as.integer(as.character(data$year))
-  data$count = as.integer(as.character(data$count))
+  data$year = as.integer(data$year)
+  data$count = as.integer(data$count)
   data}
 
 ## @knitr filter.map 
@@ -63,6 +62,7 @@ filter.map = function(., lines) {
       ngram.data$year > 1800,]}
 
 ## @knitr filtered.data
+rmr.option(keyval.length = 10^5)
 filtered.data = 
   mapreduce(input = source,
             input.format = "text", #comment this on real data
@@ -92,9 +92,10 @@ year.totals.kv =
 
 ## @knitr year.totals-finish
 year.totals = c()
-year.totals[keys(year.totals)] = values(year.totals)
+year.totals[keys(year.totals.kv)] = values(year.totals.kv)
 
 ## @knitr outlier.map
+library(bitops)
 outlier.map = 
   function(., ngram.data) {
     k = ngram.data$year + cksum(ngram.data$ngram)%%10/10
@@ -104,6 +105,7 @@ outlier.map =
 
 ## @knitr outlier.reduce
 library(robustbase)
+library(reshape2)
 outlier.reduce =
   function(., ngram.data) {
     years = range(ngram.data$year)
@@ -146,31 +148,37 @@ plot.data =
 
 ## @knitr plot.data.frame
 plot.data = 
+  melt(
+    dcast(
+      plot.data, ngram ~ year, fill = 0), 
+    variable.name="year",
+    value.name = "count")
+plot.data$freq  = 
+  plot.data$count/
+  year.totals[as.character(plot.data$year)]
+plot.data = 
+  plot.data[order(plot.data$ngram, plot.data$year),]
+plot.data = 
   cbind(
     plot.data[-nrow(plot.data),],  
     plot.data[-1,])
 plot.data = 
   plot.data[
-    plot.data[,1] == plot.data[,4],
-    c(1,2,3,5,6)]
+    plot.data[,1] == plot.data[,5],
+    c(1,2,4,8)]
 names(plot.data) = 
-  c("id","time","count", "time.1", "count.1")
+  c("id","time","freq", "freq.prev")
 plot.data$average = 
-  as.vector(
-    with(
-      plot.data, 
-      sqrt((count/year.totals[as.character(time)]) * 
-             (count.1/year.totals[as.character(time.1)]))))
+  sqrt(plot.data$freq*plot.data$freq.prev)
 plot.data$ratio = 
-  as.vector(
-    with(
-      plot.data, 
-      (count/year.totals[as.character(time)]) / 
-        (count.1/year.totals[as.character(time.1)])))
+  plot.data$freq/plot.data$freq.prev
 
 ## @knitr plot
-library(googleVis)
-plot(
+suppressPackageStartupMessages(library(googleVis))
+motion.chart = 
   gvisMotionChart(
-    plot.data[,c("id","time","average","difference")], 
-    options = list(height = 1000, width = 2000)))
+    plot.data[,c("id","time","average","ratio")], 
+    options = list(height = 1000, width = 2000))
+plot.data$time = as.integer(as.character(plot.data$time))
+plot(motion.chart)
+print(motion.chart, "chart")  
