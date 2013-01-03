@@ -16,13 +16,13 @@ branch=dev
 sudo apt-get install -y r-base-core
 sudo apt-get install -y r-cran-rcpp
 sudo R --no-save << EOF
-install.packages(c('RJSONIO', 'itertools', 'digest'), repos="http://cran.revolutionanalytics.com", INSTALL_opts=c('--byte-compile') )
+install.packages(c('RJSONIO', 'digest', 'functional', 'stringr', 'plyr','Rcpp'), repos = "http://cran.us.r-project.org")
 EOF
 
 rm -rf $branch RHadoop
 curl  -L   https://github.com/RevolutionAnalytics/RHadoop/tarball/$branch | tar zx
 mv RevolutionAnalytics-RHadoop* RHadoop
-sudo R CMD INSTALL --byte-compile RHadoop/rmr/pkg/
+sudo R CMD INSTALL --byte-compile RHadoop/rmr2/pkg/
 
 sudo su << EOF1 
 echo ' 
