@@ -16,7 +16,7 @@ branch=dev
 sudo apt-get install -y r-base-core
 sudo apt-get install -y r-cran-rcpp
 sudo R --no-save << EOF
-install.packages(c('RJSONIO', 'digest', 'functional', 'stringr', 'plyr','Rcpp'), repos = "http://cran.us.r-project.org")
+install.packages(c('RJSONIO', 'digest', 'functional', 'stringr', 'plyr'), repos = "http://cran.us.r-project.org", INSTALL_opts=c('--byte-compile') )
 EOF
 
 rm -rf $branch RHadoop
@@ -26,7 +26,8 @@ sudo R CMD INSTALL --byte-compile RHadoop/rmr2/pkg/
 
 sudo su << EOF1 
 echo ' 
-export HADOOP_HOME=/usr/lib/hadoop
+export HADOOP_CMD=/usr/bin/hadoop
+export HADOOP_STREAMING=/usr/lib/hadoop-0.20-mapreduce/contrib/streaming/hadoop-streaming-2.0.0-mr1-cdh4.1.2.jar 
 ' >> /etc/profile 
  
 EOF1
