@@ -57,7 +57,7 @@ pre code {
    display: block; padding: 0.5em;
 }
 
-code.r {
+code.r, code.cpp {
    background-color: #F8F8F8;
 }
 
@@ -131,7 +131,6 @@ hr {
       page-break-after: avoid; 
    }
 }
-
 </style>
 
 <!-- Styles for R syntax highlighter -->
@@ -172,7 +171,9 @@ var hljs=new function(){function m(p){return p.replace(/&/gm,"&amp;").replace(/<
 hljs.initHighlightingOnLoad();
 </script>
 
-
+<!-- MathJax scripts -->
+<script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
 
 
 </head>
@@ -489,4 +490,3 @@ y = as.matrix(rnorm(200))
 </body>
 
 </html>
-
