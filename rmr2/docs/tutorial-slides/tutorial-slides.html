@@ -153,17 +153,17 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <ul class="incremental" style="list-style: none" >
 <li>
 
-<pre class="sourceCode r"><code class="sourceCode r">    input = <span class="kw">to.dfs</span>(<span class="dv">1</span>:input.size)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">  input = <span class="kw">to.dfs</span>(<span class="dv">1</span>:input.size)</code></pre>
 <li>
 
-<pre class="sourceCode r"><code class="sourceCode r">    <span class="kw">from.dfs</span>(input)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">  <span class="kw">from.dfs</span>(input)</code></pre>
 </ul>
 
 </section><section class="slide level2" id="section-4">
 <h1></h1>
-<pre class="sourceCode r"><code class="sourceCode r">    <span class="kw">mapreduce</span>(
-      input, 
-      <span class="dt">map =</span> function(k, v) <span class="kw">keyval</span>(k, v))</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">  <span class="kw">mapreduce</span>(
+    input, 
+    <span class="dt">map =</span> function(k, v) <span class="kw">keyval</span>(k, v))</code></pre>
 </section><section class="slide level2" id="section-5">
 <h1></h1>
 <ul class="incremental" style="list-style: none" >
@@ -173,12 +173,12 @@ code > span.er { color: #ff0000; font-weight: bold; }
     function(., v) <span class="kw">unlist</span>(v)%%<span class="dv">2</span> == <span class="dv">0</span></code></pre>
 <li> 
 
-<pre class="sourceCode r"><code class="sourceCode r">    <span class="kw">mapreduce</span>(
-      input, 
-      <span class="dt">map =</span> 
-        function(k, v) {
-          filter = <span class="kw">predicate</span>(k, v); 
-          <span class="kw">keyval</span>(k[filter], v[filter])})</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">  <span class="kw">mapreduce</span>(
+    input, 
+    <span class="dt">map =</span> 
+      function(k, v) {
+        filter = <span class="kw">predicate</span>(k, v); 
+        <span class="kw">keyval</span>(k[filter], v[filter])}</code></pre>
 </ul>
 </section><section class="slide level2" id="section-6">
 <h1></h1>
@@ -195,8 +195,8 @@ code > span.er { color: #ff0000; font-weight: bold; }
                    <span class="dt">replace=</span><span class="ot">TRUE</span>)))</code></pre>
 <li>
 
-<pre class="sourceCode r"><code class="sourceCode r">    <span class="kw">mapreduce</span>(input.select,
-              <span class="dt">map =</span> function(., v) v$b)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">  <span class="kw">mapreduce</span>(input.select,
+            <span class="dt">map =</span> function(., v) v$b)</code></pre>
 </ul>
 </section><section class="slide level2" id="section-7">
 <h1></h1>
@@ -208,13 +208,13 @@ code > span.er { color: #ff0000; font-weight: bold; }
   input.bigsum = <span class="kw">to.dfs</span>(big.sample)</code></pre>
 <li>
 
-<pre class="sourceCode r"><code class="sourceCode r">    <span class="kw">mapreduce</span>(
-      input.bigsum, 
-      <span class="dt">map  =</span> 
-        function(., v) <span class="kw">keyval</span>(<span class="dv">1</span>, <span class="kw">sum</span>(v)), 
-      <span class="dt">reduce =</span> 
-        function(., v) <span class="kw">keyval</span>(<span class="dv">1</span>, <span class="kw">sum</span>(v)),
-      <span class="dt">combine =</span> <span class="ot">TRUE</span>)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">  <span class="kw">mapreduce</span>(
+    input.bigsum, 
+    <span class="dt">map  =</span> 
+      function(., v) <span class="kw">keyval</span>(<span class="dv">1</span>, <span class="kw">sum</span>(v)), 
+    <span class="dt">reduce =</span> 
+      function(., v) <span class="kw">keyval</span>(<span class="dv">1</span>, <span class="kw">sum</span>(v)),
+    <span class="dt">combine =</span> <span class="ot">TRUE</span>)</code></pre>
 </ul>
 </section><section class="slide level2" id="section-8">
 <h1></h1>
@@ -229,8 +229,8 @@ code > span.er { color: #ff0000; font-weight: bold; }
   aggregate = function(x) <span class="kw">sum</span>(x)</code></pre>
 </section><section class="slide level2" id="section-10">
 <h1></h1>
-<pre class="sourceCode r"><code class="sourceCode r">    <span class="kw">mapreduce</span>(
-      input.ga, 
+<pre class="sourceCode r"><code class="sourceCode r">  <span class="kw">mapreduce</span>(
+    input.ga, 
       <span class="dt">map =</span> 
         function(k, v) 
           <span class="kw">keyval</span>(<span class="kw">group</span>(k, v), v),

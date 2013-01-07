@@ -81,13 +81,13 @@
 <li>
 
 ```r
-    input = to.dfs(1:input.size)
+  input = to.dfs(1:input.size)
 ```
 
 <li>
 
 ```r
-    from.dfs(input)
+  from.dfs(input)
 ```
 
 </ul>
@@ -95,9 +95,9 @@
 ## 
 
 ```r
-    mapreduce(
-      input, 
-      map = function(k, v) keyval(k, v))
+  mapreduce(
+    input, 
+    map = function(k, v) keyval(k, v))
 ```
 
 ## 
@@ -112,12 +112,12 @@
 <li> 
 
 ```r
-    mapreduce(
-      input, 
-      map = 
-        function(k, v) {
-          filter = predicate(k, v); 
-          keyval(k[filter], v[filter])})
+  mapreduce(
+    input, 
+    map = 
+      function(k, v) {
+        filter = predicate(k, v); 
+        keyval(k[filter], v[filter])}
 ```
 
 </ul>
@@ -139,8 +139,8 @@
 <li>
 
 ```r
-    mapreduce(input.select,
-              map = function(., v) v$b)
+  mapreduce(input.select,
+            map = function(., v) v$b)
 ```
 
 </ul>
@@ -157,13 +157,13 @@
 <li>
 
 ```r
-    mapreduce(
-      input.bigsum, 
-      map  = 
-        function(., v) keyval(1, sum(v)), 
-      reduce = 
-        function(., v) keyval(1, sum(v)),
-      combine = TRUE)
+  mapreduce(
+    input.bigsum, 
+    map  = 
+      function(., v) keyval(1, sum(v)), 
+    reduce = 
+      function(., v) keyval(1, sum(v)),
+    combine = TRUE)
 ```
 
 </ul>
@@ -187,8 +187,8 @@
 ## 
 
 ```r
-    mapreduce(
-      input.ga, 
+  mapreduce(
+    input.ga, 
       map = 
         function(k, v) 
           keyval(group(k, v), v),
