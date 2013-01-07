@@ -13,8 +13,9 @@
 # limitations under the License.
 
 library(rmr2)
-#timings from macbook pro i7 2011, standalone CDH3, one core
-  
+#timings from macbook pro i7 2011, standalone CDH4, one core, SDD
+
+report = list()
 for (be in c("local", "hadoop")) {
   rmr.options(backend = be)
 ## @knitr input
@@ -24,33 +25,42 @@ for (be in c("local", "hadoop")) {
     else 
       10^6} 
 ## @knitr end
-  system.time({out = 
+  report[[be]] =
+    rbind(
+      report[[be]], 
+      write = 
+        system.time({
+          out = 
 ## @knitr write
-    input = to.dfs(1:input.size)
+  input = to.dfs(1:input.size)
 ## @knitr end  
-  })
-  #   user  system elapsed 
-  #   3.376   0.217   2.877 
-  system.time({out = 
+        }))
+  
+  report[[be]] =
+    rbind(
+      report[[be]],
+      read = 
+        system.time({
+          out = 
 ## @knitr read
-    from.dfs(input)
+  from.dfs(input)
 ## @knitr end        
-  })
-  #   user  system elapsed 
-  #   9.466   0.266   8.403
+        }))
   stopifnot(
     all(
       1:input.size == sort(values(out))))
   
-  system.time({out = 
+  report[[be]] =
+    rbind(
+      report[[be]],
+      pass.through = system.time({
+        out = 
 ## @knitr pass-through
-    mapreduce(
-      input, 
-      map = function(k, v) keyval(k, v))
+  mapreduce(
+    input, 
+    map = function(k, v) keyval(k, v))
 ## @knitr end        
-              })
-  #   user  system elapsed 
-  #   10.160   0.764   9.443 
+      }))
   stopifnot(
     all(
       1:input.size == 
@@ -60,23 +70,25 @@ for (be in c("local", "hadoop")) {
   predicate = 
     function(., v) unlist(v)%%2 == 0
 ## @knitr end            
-  system.time({out = 
+  report[[be]] =
+    rbind(
+      report[[be]],
+      filter = system.time({
+        out = 
 ## @knitr filter              
-    mapreduce(
-      input, 
-      map = 
-        function(k, v) {
-          filter = predicate(k, v); 
-          keyval(k[filter], v[filter])})
+  mapreduce(
+    input, 
+    map = 
+      function(k, v) {
+        filter = predicate(k, v); 
+        keyval(k[filter], v[filter])}
 ## @knitr end                               
-  })
-  #   user  system elapsed 
-  #   8.671   0.868   8.162 
+          )}))
   stopifnot(
     all(
       2*(1:(input.size/2)) == 
         sort(values(from.dfs(out)))))
-    
+  
 ## @knitr select-input           
   input.select = 
     to.dfs(
@@ -87,14 +99,16 @@ for (be in c("local", "hadoop")) {
                    input.size, 
                    replace=TRUE)))
 ## @knitr end             
-  system.time({out = 
+  report[[be]] =
+    rbind(
+      report[[be]],
+      select = system.time({
+        out = 
 ## @knitr select                 
-    mapreduce(input.select,
-              map = function(., v) v$b)
+  mapreduce(input.select,
+            map = function(., v) v$b)
 ## @knitr end                                   
-              })
-#   user  system elapsed 
-#   11.737   0.712  10.745
+      }))
   stopifnot(
     all(
       1:input.size == 
@@ -105,19 +119,21 @@ for (be in c("local", "hadoop")) {
   big.sample = rnorm(input.size)
   input.bigsum = to.dfs(big.sample)
 ## @knitr end 
-  system.time({out = 
+  report[[be]] =
+    rbind(
+      report[[be]],
+      bigsum = system.time({
+        out = 
 ## @knitr bigsum                
-    mapreduce(
-      input.bigsum, 
-      map  = 
-        function(., v) keyval(1, sum(v)), 
-      reduce = 
-        function(., v) keyval(1, sum(v)),
-      combine = TRUE)
+  mapreduce(
+    input.bigsum, 
+    map  = 
+      function(., v) keyval(1, sum(v)), 
+    reduce = 
+      function(., v) keyval(1, sum(v)),
+    combine = TRUE)
 ## @knitr end                                   
-  })
-#   user  system elapsed 
-#   10.542   0.863   9.672 
+      }))
   stopifnot(
     isTRUE(
       all.equal(
@@ -134,10 +150,14 @@ for (be in c("local", "hadoop")) {
   group = function(k, v) k%%100
   aggregate = function(x) sum(x)
 ## @knitr end             
-  system.time({out = 
+  report[[be]] =
+    rbind(
+      report[[be]],
+      group.aggregate = system.time({
+        out = 
 ## @knitr group-aggregate
-    mapreduce(
-      input.ga, 
+  mapreduce(
+    input.ga, 
       map = 
         function(k, v) 
           keyval(group(k, v), v),
@@ -146,8 +166,7 @@ for (be in c("local", "hadoop")) {
           keyval(k, aggregate(vv)),
       combine = TRUE)
 ## @knitr end                                   
-              })
-#   user  system elapsed 
-#   156.644   2.301 150.737 
-  }
-  
+      }))
+}
+print(report)
+
