@@ -35,3 +35,13 @@ map.fun =
             pmax(data$'1', data[,ncol(data)]),
             data$year),
       data$count)}
+
+system.time({
+  zz = 
+    mapreduce(
+      "../RHadoop.data/ngrams/googlebooks-eng-all-5gram-20090715-519.csv", 
+      input.format=ngram.format, 
+      map = map.fun, 
+      reduce = function(k,vv) keyval(k, sum(vv)), 
+      combine = T)
+  })
