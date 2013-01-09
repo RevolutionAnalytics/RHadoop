@@ -21,7 +21,7 @@ for (be in c("local", "hadoop")) {
 ## @knitr input
   input.size = {  
     if(rmr.options('backend') == "local") 
-      10^4     
+      10^4   
     else 
       10^6} 
 ## @knitr end
@@ -143,12 +143,13 @@ for (be in c("local", "hadoop")) {
 ## @knitr group-aggregate-input
   input.ga = 
     to.dfs(
-      keyval(
+      cbind(
         1:input.size,
         rnorm(input.size)))
 ## @knitr group-aggregate-functions
-  group = function(k, v) k%%100
+  group = function(x) x%%10
   aggregate = function(x) sum(x)
+  rmr.options(keyval.length=10^4)
 ## @knitr end             
   report[[be]] =
     rbind(
@@ -160,7 +161,7 @@ for (be in c("local", "hadoop")) {
     input.ga, 
       map = 
         function(k, v) 
-          keyval(group(k, v), v),
+          keyval(group(v[,1]), v[,2]),
       reduce = 
         function(k, vv) 
           keyval(k, aggregate(vv)),
