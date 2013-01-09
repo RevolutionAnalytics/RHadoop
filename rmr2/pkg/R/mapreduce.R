@@ -17,7 +17,7 @@
 rmr.options.env = new.env(parent=emptyenv())
 rmr.options.env$backend = "hadoop"
 rmr.options.env$keyval.length = 1000
-rmr.options.env$profile.nodes = FALSE
+rmr.options.env$profile.nodes = "off"
 rmr.options.env$depend.check = FALSE
 rmr.options.env$install.args = NULL
 rmr.options.env$update.args = NULL
@@ -25,7 +25,7 @@ rmr.options.env$update.args = NULL
 
 rmr.options = 
   function(backend = c("hadoop", "local"), 
-           profile.nodes = FALSE,
+           profile.nodes = c("off", "calls", "memory", "both"),
            keyval.length = 1000,
            install.args = NULL,
            update.args = NULL#, 

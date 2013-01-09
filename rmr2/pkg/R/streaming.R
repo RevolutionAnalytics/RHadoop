@@ -52,18 +52,25 @@ make.input.files = function(infiles) {
 
 ## loops section, or what runs on the nodes
 
-activate.profiling = function() {
+activate.profiling = function(profile) {
   dir = file.path("/tmp/Rprof", Sys.getenv('mapred_job_id'), Sys.getenv('mapred_tip_id'))
   dir.create(dir, recursive = T)
-  prof.file = file.path(dir, paste(Sys.getenv('mapred_task_id'), Sys.time())) 
-  warning("Profiling data in ", prof.file)
-  Rprof(prof.file)}
+  if(is.element(profile, c("calls", "memory"))) {
+    prof.file = file.path(dir, paste(Sys.getenv('mapred_task_id'), Sys.time())) 
+    warning("Profiling data in ", prof.file)
+    Rprof(prof.file)}
+  else {
+    mem.prof.file = file.path(dir, "mem", paste(Sys.getenv('mapred_task_id'), Sys.time())) 
+    warning("Memory profiling data in ", mem.prof.file)
+    Rprofmem(mem.prof.file)}}
 
-close.profiling = function() Rprof(NULL)
-
+close.profiling = 
+  function() {
+    Rprof(NULL)
+    Rprofmem(NULL)}
 
 map.loop = function(map, keyval.reader, keyval.writer, profile) {
-  if(profile) activate.profiling()
+  if(profile != "off") activate.profiling(profile)
   kv = keyval.reader()
   while(!is.null(kv)) { 
     capture.output({
@@ -72,7 +79,7 @@ map.loop = function(map, keyval.reader, keyval.writer, profile) {
     if(!is.null(out)) {
       keyval.writer(as.keyval(out))}
     kv = keyval.reader()}
-  if(profile) close.profiling()
+  if(profile != "off") close.profiling()
   invisible()}
 
 list.cmp = function(ll, e) sapply(ll, function(l) isTRUE(all.equal(e, l, check.attributes = FALSE)))
@@ -89,7 +96,7 @@ reduce.loop =
               c.or.rbind(vv))},
            file = stderr())
         if(!is.null(out)) keyval.writer(as.keyval(out))}
-    if(profile) activate.profiling()
+    if(profile != "off") activate.profiling(profile)
     kv = keyval.reader()
     current.key = NULL
     vv = make.fast.list()
@@ -108,7 +115,7 @@ reduce.loop =
               vv <<- make.fast.list(list(v))}}})
       kv = keyval.reader()}
     if(length(vv()) > 0) reduce.flush(current.key, vv())
-    if(profile) close.profiling()
+    if(profile != "off") close.profiling()
     invisible()}
 
 # the main function for the hadoop backend
