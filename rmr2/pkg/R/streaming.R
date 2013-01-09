@@ -78,34 +78,38 @@ map.loop = function(map, keyval.reader, keyval.writer, profile) {
 list.cmp = function(ll, e) sapply(ll, function(l) isTRUE(all.equal(e, l, check.attributes = FALSE)))
 ## using isTRUE(all.equal(x)) because identical() was too strict, but on paper it should be it
 
-reduce.loop = function(reduce, keyval.reader, keyval.writer, profile) {
-  reduce.flush = function(current.key, vv) {
-    capture.output({
-      out = reduce(current.key, c.or.rbind(vv))},
-                   file = stderr())
-    if(!is.null(out)) keyval.writer(as.keyval(out))}
-  if(profile) activate.profiling()
-  kv = keyval.reader()
-  current.key = NULL
-  vv = make.fast.list()
-  while(!is.null(kv)) {
-    apply.keyval(
-      kv,
-      function(k, v) {
-        if(length(vv()) == 0) { #start
-          current.key <<- k
-          vv(list(v))}
-        else { #accumulate
-          if(identical(k, current.key)) vv(list(v))
-          else { #flush
-            reduce.flush(current.key, vv())
+reduce.loop = 
+  function(reduce, keyval.reader, keyval.writer, profile) {
+    reduce.flush = 
+      function(current.key, vv) {
+        capture.output({
+          out = 
+            reduce(
+              current.key, 
+              c.or.rbind(vv))},
+           file = stderr())
+        if(!is.null(out)) keyval.writer(as.keyval(out))}
+    if(profile) activate.profiling()
+    kv = keyval.reader()
+    current.key = NULL
+    vv = make.fast.list()
+    while(!is.null(kv)) {
+      apply.keyval(
+        kv,
+        function(k, v) {
+          if(length(vv()) == 0) { #start
             current.key <<- k
-            vv <<- make.fast.list(list(v))}}})
-    kv = keyval.reader()}
-  if(length(vv()) > 0) reduce.flush(current.key, vv())
-  if(profile) close.profiling()
-  invisible()
-}
+            vv(list(v))}
+          else { #accumulate
+            if(identical(k, current.key)) vv(list(v))
+            else { #flush
+              reduce.flush(current.key, vv())
+              current.key <<- k
+              vv <<- make.fast.list(list(v))}}})
+      kv = keyval.reader()}
+    if(length(vv()) > 0) reduce.flush(current.key, vv())
+    if(profile) close.profiling()
+    invisible()}
 
 # the main function for the hadoop backend
 
