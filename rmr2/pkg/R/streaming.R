@@ -202,7 +202,7 @@ rmr.stream = function(
       rmr2:::make.keyval.reader(
         default.input.format$mode, 
         default.input.format$format, 
-        keyval.length = keyval.length)
+        keyval.length = 1000)
   default.writer = 
     function() 
       rmr2:::make.keyval.writer(
