@@ -30,11 +30,14 @@ ngram.parse =
 map.fun = 
   function(k,v) {
     data = ngram.parse(v)
-    keyval(
-      cbind(pmin(data$'1', data[,ncol(data)]),
-            pmax(data$'1', data[,ncol(data)]),
-            data$year),
-      data$count)}
+    sums = 
+      sapply(
+        split(
+          data$count,
+          data[,c(1, 5, ncol(data))],
+          drop = TRUE), 
+        sum)
+    keyval(names(sums), sums)}
 
 system.time({
   zz = 
