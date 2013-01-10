@@ -89,12 +89,12 @@ reduce.loop =
   function(reduce, keyval.reader, keyval.writer, profile) {
     reduce.flush = 
       function(current.key, vv) {
-        capture.output({
+#        capture.output({
           out = 
             reduce(
               current.key, 
-              c.or.rbind(vv))},
-           file = stderr())
+              c.or.rbind(vv))#},
+#           file = stderr())
         if(!is.null(out)) keyval.writer(as.keyval(out))}
     if(profile != "off") activate.profiling(profile)
     kv = keyval.reader()
