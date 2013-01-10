@@ -60,7 +60,7 @@ activate.profiling = function(profile) {
     warning("Profiling data in ", prof.file)
     Rprof(prof.file)}
   else {
-    mem.prof.file = file.path(dir, "mem", paste(Sys.getenv('mapred_task_id'), Sys.time())) 
+    mem.prof.file = file.path(dir, paste(Sys.getenv('mapred_task_id'), Sys.time(), "mem")) 
     warning("Memory profiling data in ", mem.prof.file)
     Rprofmem(mem.prof.file)}}
 
