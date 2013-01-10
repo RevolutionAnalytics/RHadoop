@@ -128,8 +128,10 @@ split.keyval = function(kv, size) {
           as.data.frame(k)
         else 
           k}}
-    keyval(lapply(unname(rmr.split(k, ind)), unique), 
-           unname(rmr.split(v, ind)))}}
+    x = unname(rmr.split(k, ind))
+    if (rmr.length(x) != rmr.length(k))
+      x = lapply(x, unique)
+    keyval(x, unname(rmr.split(v, ind)))}}
 
 apply.keyval = 
   function(
