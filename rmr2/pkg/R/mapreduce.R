@@ -16,7 +16,7 @@
 
 rmr.options.env = new.env(parent=emptyenv())
 rmr.options.env$backend = "hadoop"
-rmr.options.env$keyval.length = 1000
+rmr.options.env$keyval.length = 10000
 rmr.options.env$profile.nodes = "off"
 rmr.options.env$depend.check = FALSE
 rmr.options.env$install.args = NULL
