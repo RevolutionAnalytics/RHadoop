@@ -108,8 +108,11 @@ c.keyval =
   
 rmr.split = 
   function(x, ind) {
-    spl = if(has.rows(x)) split.data.frame else split
-    spl(x,ind, drop = TRUE)}
+    if(rmr.length(ind) == 1)
+      list(x)
+    else {
+      spl = if(has.rows(x)) split.data.frame else split
+      spl(x,ind, drop = TRUE)}}
 
 split.keyval = function(kv, size) {
   k = keys(kv)
@@ -131,7 +134,10 @@ split.keyval = function(kv, size) {
     x = unname(rmr.split(k, ind))
     if (rmr.length(x) != rmr.length(k))
       x = lapply(x, unique)
-    keyval(x, unname(rmr.split(v, ind)))}}
+    y = unname(rmr.split(v, ind))
+    if (rmr.length(y) != rmr.length(v))
+      y = lapply(y, unique)
+    keyval(x, y)}}
 
 apply.keyval = 
   function(
