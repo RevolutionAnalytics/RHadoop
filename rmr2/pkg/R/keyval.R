@@ -18,6 +18,11 @@ all.have.rows = Curry(all.predicate, P = has.rows)
 rmr.length = 
   function(x) if(has.rows(x)) nrow(x) else length(x)
 
+rmr.equal = 
+  function(xx, y) {
+    if(is.atomic(xx) && !is.matrix(xx)) xx == y
+    else sapply(1:rmr.length(xx), function(i) identical(rmr.slice(xx,i), y))}
+    
 length.keyval = 
   function(kv) 
     max(rmr.length(keys(kv)), 
