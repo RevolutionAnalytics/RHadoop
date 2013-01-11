@@ -87,36 +87,62 @@ list.cmp = function(ll, e) sapply(ll, function(l) isTRUE(all.equal(e, l, check.a
 
 reduce.loop = 
   function(reduce, keyval.reader, keyval.writer, profile) {
-    reduce.flush = 
-      function(current.key, vv) {
-#        capture.output({
-          out = 
-            reduce(
-              current.key, 
-              c.or.rbind(vv))#},
-#           file = stderr())
-        if(!is.null(out)) keyval.writer(as.keyval(out))}
     if(profile != "off") activate.profiling(profile)
     kv = keyval.reader()
-    current.key = NULL
-    vv = make.fast.list()
-    while(!is.null(kv)) {
-      apply.keyval(
-        kv,
-        function(k, v) {
-          if(length(vv()) == 0) { #start
-            current.key <<- k
-            vv(list(v))}
-          else { #accumulate
-            if(identical(k, current.key)) vv(list(v))
-            else { #flush
-              reduce.flush(current.key, vv())
-              current.key <<- k
-              vv <<- make.fast.list(list(v))}}})
+    straddler = NULL
+    while(!is.null(kv)){
+      kv = c.keyval(straddler, kv)
+      last.key = rmr.slice(keys(kv), rmr.length(keys(kv)))
+      last.key.mask = rmr.equal(keys(kv), last.key) ## need to generalize this for non atomic keys, even matrices
+      straddler = slice.keyval(kv, last.key.mask)
+      complete = slice.keyval(kv, !last.key.mask)
+      if(length.keyval(complete) > 0)  
+        keyval.writer(
+          c.keyval(
+            apply.keyval(
+              complete, 
+              reduce)))
       kv = keyval.reader()}
-    if(length(vv()) > 0) reduce.flush(current.key, vv())
+    keyval.writer(
+      c.keyval(
+        apply.keyval(
+          straddler, 
+          reduce)))
     if(profile != "off") close.profiling()
     invisible()}
+
+# reduce.loop = 
+#   function(reduce, keyval.reader, keyval.writer, profile) {
+#     reduce.flush = 
+#       function(current.key, vv) {
+# #        capture.output({
+#           out = 
+#             reduce(
+#               current.key, 
+#               c.or.rbind(vv))#},
+# #           file = stderr())
+#         if(!is.null(out)) keyval.writer(as.keyval(out))}
+#     if(profile != "off") activate.profiling(profile)
+#     kv = keyval.reader()
+#     current.key = NULL
+#     vv = make.fast.list()
+#     while(!is.null(kv)) {
+#       apply.keyval(
+#         kv,
+#         function(k, v) {
+#           if(length(vv()) == 0) { #start
+#             current.key <<- k
+#             vv(list(v))}
+#           else { #accumulate
+#             if(identical(k, current.key)) vv(list(v))
+#             else { #flush
+#               reduce.flush(current.key, vv())
+#               current.key <<- k
+#               vv <<- make.fast.list(list(v))}}})
+#       kv = keyval.reader()}
+#     if(length(vv()) > 0) reduce.flush(current.key, vv())
+#     if(profile != "off") close.profiling()
+#     invisible()}
 
 # the main function for the hadoop backend
 
