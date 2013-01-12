@@ -88,6 +88,8 @@ list.cmp = function(ll, e) sapply(ll, function(l) isTRUE(all.equal(e, l, check.a
 reduce.loop = 
   function(reduce, keyval.reader, keyval.writer, profile) {
     if(profile != "off") activate.profiling(profile)
+    reduce.as.keyval = 
+      function(k, vv) as.keyval(reduce(k, vv))
     kv = keyval.reader()
     straddler = NULL
     while(!is.null(kv)){
@@ -96,18 +98,18 @@ reduce.loop =
       last.key.mask = rmr.equal(keys(kv), last.key) ## need to generalize this for non atomic keys, even matrices
       straddler = slice.keyval(kv, last.key.mask)
       complete = slice.keyval(kv, !last.key.mask)
-      if(length.keyval(complete) > 0)  
+      if(length.keyval(complete) > 0)
         keyval.writer(
           c.keyval(
             apply.keyval(
               complete, 
-              reduce)))
+              reduce.as.keyval)))
       kv = keyval.reader()}
     keyval.writer(
       c.keyval(
         apply.keyval(
           straddler, 
-          reduce)))
+          reduce.as.keyval)))
     if(profile != "off") close.profiling()
     invisible()}
 
