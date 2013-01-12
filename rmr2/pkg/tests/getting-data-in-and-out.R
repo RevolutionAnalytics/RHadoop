@@ -24,7 +24,11 @@ tsv.reader = function(con, nrecs){
     NULL
   else {
     delim = strsplit(lines, split = "\t")
-    keyval(sapply(delim, function(x) x[1]), sapply(delim, function(x) x[-1]))}} 
+    keyval(
+      sapply(delim, 
+             function(x) x[1]), 
+      sapply(delim, 
+             function(x) x[-1]))}} 
 ## first column is the key, note that column indexes moved by 1
 ## @knitr getting-data.tsv.input.format
 tsv.format = 
@@ -33,7 +37,14 @@ tsv.format =
     mode = "text")
 ## @knitr getting-data.generate.tsv.data
 
-tsv.data = to.dfs(data.frame(x = 1:100, y = rnorm(100), z = runif(100), w = 1:100), format = make.output.format("csv", sep = "\t"))
+tsv.data = 
+  to.dfs(
+    data.frame(
+      x = 1:100, y = rnorm(100), 
+      z = runif(100), 
+      w = 1:100), 
+    format = 
+      make.output.format("csv", sep = "\t"))
 ## @knitr getting-data.frequency.count
 freq.counts = 
   mapreduce(
@@ -59,7 +70,7 @@ tsv.reader =
 ## @knitr getting-data.tsv.input.format.1
 tsv.format = 
   make.input.format(
-    format=tsv.reader,
+    format = tsv.reader,
     mode = "text")
 ## @knitr getting-data.named.column.access
 freq.counts =
