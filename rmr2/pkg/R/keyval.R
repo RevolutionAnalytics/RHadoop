@@ -48,7 +48,6 @@ is.keyval =
       !is.null(names(x)) && 
       all(names(x) == qw(key, val))
 
-
 as.keyval = 
   function(x) {
     if(is.keyval(x)) x
@@ -65,7 +64,7 @@ rmr.recycle =
   function(x,y) {
     recycle.length = 
       function(z) {
-        if(is.null(z) || rmr.length(z) == 0) 1 
+        if(rmr.length(z) == 0) 1 
         else rmr.length(z) }
     lx = recycle.length(x)
     ly = recycle.length(y)
