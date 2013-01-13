@@ -110,11 +110,12 @@ reduce.loop =
               complete, 
               reduce.as.keyval)))
       kv = keyval.reader()}
-    keyval.writer(
-      c.keyval(
-        apply.keyval(
-          straddler, 
-          reduce.as.keyval)))
+    if(!is.null(straddler))
+      keyval.writer(
+        c.keyval(
+          apply.keyval(
+            straddler, 
+            reduce.as.keyval)))
     if(profile != "off") close.profiling()
     invisible()}
 
