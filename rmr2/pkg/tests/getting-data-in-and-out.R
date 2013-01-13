@@ -131,15 +131,16 @@ fwf.writer <- function(kv, con, keyval.size) {
   ser =
     function(df) 
       paste(
-          apply(df,
-                1, 
-                function(x) 
-                  paste(
-                    format(
-                      x, 
-                      width = field.size), 
-                    collapse = "")), 
-        collapse = "\n")
+          apply(
+            df,
+            1, 
+            function(x) 
+              paste(
+                format(
+                  x, 
+                  width = field.size), 
+                collapse = "")), 
+          collapse = "\n")
   out = ser(values(kv))
   writeLines(out, con = con)}
 fwf.output.format = make.output.format(mode = "text", format = fwf.writer)
