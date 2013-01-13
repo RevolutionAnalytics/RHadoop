@@ -77,7 +77,7 @@ map.loop = function(map, keyval.reader, keyval.writer, profile) {
       out = map(keys(kv), values(kv))},
                    file = stderr())
     out = as.keyval(out)
-    if(keyval.length(out) > 0) {
+    if(length.keyval(out) > 0) {
       keyval.writer(as.keyval(out))}
     kv = keyval.reader()}
   if(profile != "off") close.profiling()
@@ -92,7 +92,7 @@ reduce.loop =
     reduce.as.keyval = 
       function(k, vv) {
         kv = as.keyval(reduce(k, vv))
-        if(keyval.length(kv) > 0) kv
+        if(length.keyval(kv) > 0) kv
         else as.keyval(NULL)}
     kv = keyval.reader()
     straddler = NULL
