@@ -100,7 +100,7 @@ reduce.loop =
       if(!is.null(straddler))
         kv = c.keyval(straddler, kv)
       last.key = rmr.slice(keys(kv), rmr.length(keys(kv)))
-      last.key.mask = rmr.equal(keys(kv), last.key) ## need to generalize this for non atomic keys, even matrices
+      last.key.mask = rmr.equal(keys(kv), last.key)
       straddler = slice.keyval(kv, last.key.mask)
       complete = slice.keyval(kv, !last.key.mask)
       if(length.keyval(complete) > 0)
