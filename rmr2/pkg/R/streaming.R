@@ -75,7 +75,7 @@ map.loop = function(map, keyval.reader, keyval.writer, profile) {
   while(!is.null(kv)) { 
     capture.output({
       out = map(keys(kv), values(kv))},
-                   file = stderr())
+      file = stderr())
     out = as.keyval(out)
     if(length.keyval(out) > 0) {
       keyval.writer(as.keyval(out))}
