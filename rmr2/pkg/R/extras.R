@@ -96,7 +96,7 @@ rmr.str =
           capture.output(
             str(sc)), 
           match.call() [[2]], 
-          str(x)), 
+          capture.output(str(x))), 
         collapse="\n"))}
 
 ## coerce data frame to lists of lists row first, faster than mapply
