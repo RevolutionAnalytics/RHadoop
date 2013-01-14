@@ -106,7 +106,7 @@ reduce.loop =
           c.keyval(
             apply.keyval(
               complete, 
-              reduce.as.keyval)),
+              reduce.as.keyval))
         if(length.keyval(out) > 0)
           keyval.writer(out)}
       kv = keyval.reader()}
