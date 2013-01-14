@@ -170,4 +170,13 @@ for (be in c("local", "hadoop")) {
       }))
 }
 print(report)
-
+# 
+# $hadoop
+# user.self sys.self elapsed user.child sys.child
+# write               1.155    0.043   3.688      2.465     0.315
+# read                0.843    0.099   3.028      3.201     0.269
+# pass.through        0.887    0.014   5.472      5.375     0.749
+# filter              0.173    0.007   4.760      5.025     0.773
+# select              0.199    0.008   6.828      6.633     1.100
+# bigsum              0.728    0.024   6.683      6.683     0.970
+# group.aggregate     0.726    0.029  12.860     12.260     1.595
