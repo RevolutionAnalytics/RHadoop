@@ -91,7 +91,7 @@ make.typed.bytes.input.format = function() {
   obj.buffer = list()
   obj.buffer.rmr.length = 0
   raw.buffer = raw()
-  read.size = 1000
+  read.size = 10^6
   function(con, keyval.length) {
     while(length(obj.buffer) < 2 || 
       obj.buffer.rmr.length < keyval.length) {
