@@ -32,16 +32,16 @@ paste.options = function(...) {
   if(is.null(optlist)) "" 
   else 
     paste(
-    " ",
-    unlist(
-      rbind(
-        paste(
-          "-", 
-          names(optlist), 
-          sep = ""), 
-        optlist)), 
-    " ",
-    collapse = " ")}
+      " ",
+      unlist(
+        rbind(
+          paste(
+            "-", 
+            names(optlist), 
+            sep = ""), 
+          optlist)), 
+      " ",
+      collapse = " ")}
 
 make.input.files = function(infiles) {
   if(length(infiles) == 0) return(" ")
