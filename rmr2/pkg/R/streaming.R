@@ -73,9 +73,7 @@ map.loop = function(map, keyval.reader, keyval.writer, profile) {
   if(profile != "off") activate.profiling(profile)
   kv = keyval.reader()
   while(!is.null(kv)) { 
-    capture.output({
-      out = map(keys(kv), values(kv))},
-      file = stderr())
+    out = map(keys(kv), values(kv))
     out = as.keyval(out)
     if(length.keyval(out) > 0) {
       keyval.writer(as.keyval(out))}
@@ -103,19 +101,23 @@ reduce.loop =
       last.key.mask = rmr.equal(keys(kv), last.key)
       straddler = slice.keyval(kv, last.key.mask)
       complete = slice.keyval(kv, !last.key.mask)
-      if(length.keyval(complete) > 0)
-        keyval.writer(
+      if(length.keyval(complete) > 0) {
+        out =
           c.keyval(
             apply.keyval(
               complete, 
-              reduce.as.keyval)))
+              reduce.as.keyval)),
+        if(length.keyval(out) > 0)
+          keyval.writer(out)}
       kv = keyval.reader()}
-    if(!is.null(straddler))
-      keyval.writer(
+    if(!is.null(straddler)){
+      out = 
         c.keyval(
           apply.keyval(
             straddler, 
-            reduce.as.keyval)))
+            reduce.as.keyval))
+      if(length.keyval(out) > 0)
+        keyval.writer(out)}    
     if(profile != "off") close.profiling()
     invisible()}
 
