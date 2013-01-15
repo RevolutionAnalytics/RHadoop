@@ -112,7 +112,6 @@ list.cmp = function(ll, e) sapply(ll, function(l) isTRUE(all.equal(e, l, check.a
 
 reduce.loop = 
   function(reduce, keyval.reader, keyval.writer, profile) {
-    rmr.str(reduce)
     if(profile != "off") activate.profiling(profile)
     kv = keyval.reader()
     straddler = NULL
@@ -206,7 +205,6 @@ rmr.stream = function(
               if(!require(l, character.only = T))
                 warning(paste("can\'t install", l, "because", install.out))}}))
   sink(NULL)
-  rmr.str(reduce)
   input.reader = 
     function()
       rmr2:::make.keyval.reader(
