@@ -252,6 +252,7 @@ mapreduce = function(
   combine = NULL, 
   input.format = "native", 
   output.format = "native", 
+  in.mem.combine = FALSE,
   backend.parameters = list(), 
   verbose = TRUE) {
   
@@ -290,6 +291,7 @@ mapreduce = function(
        else NULL}, 
      input.format = input.format, 
      output.format = output.format, 
+     in.mem.combine = in.mem.combine,
      backend.parameters = backend.parameters[[backend]], 
      verbose = verbose)
   output

@@ -23,6 +23,7 @@ mr.local = function(map,
                     rmr.update,
                     input.format, 
                     output.format, 
+                    in.mem.combine,
                     backend.parameters, 
                     verbose = verbose) {
   

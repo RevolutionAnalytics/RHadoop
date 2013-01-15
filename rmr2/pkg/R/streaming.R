@@ -69,13 +69,28 @@ close.profiling =
     Rprof(NULL)
     Rprofmem(NULL)}
 
-map.loop = function(map, keyval.reader, keyval.writer, profile) {
+reduce.as.keyval = 
+  function(k, vv) {
+    kv = as.keyval(reduce(k, vv))
+    if(length.keyval(kv) > 0) kv
+    else as.keyval(NULL)}
+
+apply.reduce =
+  function(kv)
+    c.keyval(
+      apply.keyval(
+        kv, 
+        reduce.as.keyval))
+
+map.loop = function(map, keyval.reader, keyval.writer, profile, in.mem.combine) {
   if(profile != "off") activate.profiling(profile)
   kv = keyval.reader()
   while(!is.null(kv)) { 
     out = map(keys(kv), values(kv))
     out = as.keyval(out)
     if(length.keyval(out) > 0) {
+      if(in.mem.combine)
+        out = apply.reduce(out)
       keyval.writer(as.keyval(out))}
     kv = keyval.reader()}
   if(profile != "off") close.profiling()
@@ -87,11 +102,6 @@ list.cmp = function(ll, e) sapply(ll, function(l) isTRUE(all.equal(e, l, check.a
 reduce.loop = 
   function(reduce, keyval.reader, keyval.writer, profile) {
     if(profile != "off") activate.profiling(profile)
-    reduce.as.keyval = 
-      function(k, vv) {
-        kv = as.keyval(reduce(k, vv))
-        if(length.keyval(kv) > 0) kv
-        else as.keyval(NULL)}
     kv = keyval.reader()
     straddler = NULL
     while(!is.null(kv)){
@@ -102,20 +112,12 @@ reduce.loop =
       straddler = slice.keyval(kv, last.key.mask)
       complete = slice.keyval(kv, !last.key.mask)
       if(length.keyval(complete) > 0) {
-        out =
-          c.keyval(
-            apply.keyval(
-              complete, 
-              reduce.as.keyval))
+        out = apply.reduce(complete)
         if(length.keyval(out) > 0)
           keyval.writer(out)}
       kv = keyval.reader()}
     if(!is.null(straddler)){
-      out = 
-        c.keyval(
-          apply.keyval(
-            straddler, 
-            reduce.as.keyval))
+      out = apply.reduce(straddler)
       if(length.keyval(out) > 0)
         keyval.writer(out)}    
     if(profile != "off") close.profiling()
@@ -153,14 +155,16 @@ rmr.stream = function(
   input.format, 
   output.format, 
   backend.parameters, 
-  verbose = TRUE, 
-  debug = FALSE) {
+  in.mem.combine,
+  verbose, 
+  debug) {
   ## prepare map and reduce executables
   work.dir = 
     if(.Platform$OS.type == "windows") "../../jars"
   else "."
   rmr.local.env = tempfile(pattern = "rmr-local-env")
   rmr.global.env = tempfile(pattern = "rmr-global-env")
+  
   preamble = paste(sep = "", 'options(warn=1)
  
   load("',file.path(work.dir, basename(rmr.global.env)),'")
@@ -222,7 +226,8 @@ rmr.stream = function(
         output.writer()}
       else {
         default.writer()},
-    profile = profile.nodes)'
+    profile = profile.nodes,
+    in.mem.combine = in.mem.combine)'
   reduce.line  =  '  
   rmr2:::reduce.loop(
     reduce = reduce, 
