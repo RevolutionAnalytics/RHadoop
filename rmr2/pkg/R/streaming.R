@@ -70,40 +70,56 @@ close.profiling =
     Rprofmem(NULL)}
 
 reduce.as.keyval = 
-  function(k, vv) {
+  function(k, vv, reduce) {
     kv = as.keyval(reduce(k, vv))
     if(length.keyval(kv) > 0) kv
     else as.keyval(NULL)}
 
 apply.reduce =
-  function(kv)
+  function(kv, reduce)
     c.keyval(
       apply.keyval(
         kv, 
-        reduce.as.keyval))
+        reduce))
 
-map.loop = function(map, keyval.reader, keyval.writer, profile, in.mem.combine) {
-  if(profile != "off") activate.profiling(profile)
-  kv = keyval.reader()
-  while(!is.null(kv)) { 
-    out = map(keys(kv), values(kv))
-    out = as.keyval(out)
-    if(length.keyval(out) > 0) {
-      if(in.mem.combine)
-        out = apply.reduce(out)
-      keyval.writer(as.keyval(out))}
-    kv = keyval.reader()}
-  if(profile != "off") close.profiling()
-  invisible()}
+map.loop = 
+  function(
+    map, 
+    keyval.reader, 
+    keyval.writer, 
+    profile, 
+    in.mem.combine, 
+    combine) {
+    if(profile != "off") activate.profiling(profile)
+    combine.as.kv =
+      Curry(
+        reduce.as.keyval,
+        reduce = combine)
+    kv = keyval.reader()
+    while(!is.null(kv)) { 
+      out = map(keys(kv), values(kv))
+      out = as.keyval(out)
+      if(length.keyval(out) > 0) {
+        if(in.mem.combine)
+          out = apply.reduce(out, combine.as.kv)
+        keyval.writer(as.keyval(out))}
+      kv = keyval.reader()}
+    if(profile != "off") close.profiling()
+    invisible()}
 
 list.cmp = function(ll, e) sapply(ll, function(l) isTRUE(all.equal(e, l, check.attributes = FALSE)))
 ## using isTRUE(all.equal(x)) because identical() was too strict, but on paper it should be it
 
 reduce.loop = 
   function(reduce, keyval.reader, keyval.writer, profile) {
+    rmr.str(reduce)
     if(profile != "off") activate.profiling(profile)
     kv = keyval.reader()
     straddler = NULL
+    red.as.kv = 
+      Curry(
+        reduce.as.keyval, 
+        reduce = reduce)
     while(!is.null(kv)){
       if(!is.null(straddler))
         kv = c.keyval(straddler, kv)
@@ -112,12 +128,12 @@ reduce.loop =
       straddler = slice.keyval(kv, last.key.mask)
       complete = slice.keyval(kv, !last.key.mask)
       if(length.keyval(complete) > 0) {
-        out = apply.reduce(complete)
+        out = apply.reduce(complete, red.as.kv)
         if(length.keyval(out) > 0)
           keyval.writer(out)}
       kv = keyval.reader()}
     if(!is.null(straddler)){
-      out = apply.reduce(straddler)
+      out = apply.reduce(straddler, red.as.kv)
       if(length.keyval(out) > 0)
         keyval.writer(out)}    
     if(profile != "off") close.profiling()
@@ -166,18 +182,18 @@ rmr.stream = function(
   rmr.global.env = tempfile(pattern = "rmr-global-env")
   
   preamble = paste(sep = "", 'options(warn=1)
- 
+
+  assign("system.intern", function(...) system.default(intern = T, ignore.stderr = T, ...), baseenv())
+  assignInNamespace("system",system.intern, "base")
   load("',file.path(work.dir, basename(rmr.global.env)),'")
+  (function(){
   load("',file.path(work.dir, basename(rmr.local.env)),'")  
   sink(file = stderr())
   if(!is.null(rmr.update))
     rmr.update(ask = FALSE)
-  assign("system.default", base::system, baseenv())
   if(!is.null(rmr.install)) {
     install.args = eval(expression(.orig), envir = environment(rmr.install))
-    .libPaths(c(.libPaths(), install.args$lib))
-     assign("system.intern", function(...) system.default(intern = T, ignore.stderr = T, ...), baseenv())
-     assignInNamespace("system",system.intern, "base")}
+    .libPaths(c(.libPaths(), install.args$lib))}
   invisible(
     lapply(
       libs, 
@@ -189,9 +205,8 @@ rmr.stream = function(
               install.out = capture.output(rmr.install(l, quiet = T))
               if(!require(l, character.only = T))
                 warning(paste("can\'t install", l, "because", install.out))}}))
-  assignInNamespace("system", system.default, "base")
   sink(NULL)
-  
+  rmr.str(reduce)
   input.reader = 
     function()
       rmr2:::make.keyval.reader(
@@ -227,19 +242,20 @@ rmr.stream = function(
       else {
         default.writer()},
     profile = profile.nodes,
-    in.mem.combine = in.mem.combine)'
+    in.mem.combine = in.mem.combine, 
+    combine = combine)})()'
   reduce.line  =  '  
   rmr2:::reduce.loop(
     reduce = reduce, 
     keyval.reader = default.reader(), 
     keyval.writer = output.writer(),
-    profile = profile.nodes)'
+    profile = profile.nodes)})()'
   combine.line = '  
   rmr2:::reduce.loop(
     reduce = combine, 
     keyval.reader = default.reader(),
     keyval.writer = default.writer(), 
-  profile = profile.nodes)'
+  profile = profile.nodes)})()'
 
   map.file = tempfile(pattern = "rmr-streaming-map")
   writeLines(c(preamble, map.line), con = map.file)
