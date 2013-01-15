@@ -16,7 +16,7 @@ library(rmr2)
 
 ## @knitr kmeans-signature
 kmeans.mr = 
-  function(P, num.clusters, num.iter) {
+  function(P, num.clusters, num.iter, combine, in.mem.combine) {
 ## @knitr kmeans-dist.fun
     dist.fun = 
       function(C, P) {
@@ -27,7 +27,7 @@ kmeans.mr =
                   rowSums((t(t(P) - x))^2), 
                   ncol = length(x)))}
 ## @knitr kmeans.map.1
-    kmeans.map.1 = 
+    kmeans.map = 
       function(., P) {
         nearest = 
           if(is.null(C)) {
@@ -35,14 +35,22 @@ kmeans.mr =
               1:num.clusters, 
               nrow(P), 
               replace = T)}
-          else {
-            D = dist.fun(C, P)
-            nearest = max.col(-D)}
-        keyval(nearest, P) }
+        else {
+          D = dist.fun(C, P)
+          nearest = max.col(-D)}
+        if(!(combine || in.mem.combine))
+          keyval(nearest, P) 
+        else 
+          keyval(nearest, cbind(1, P))}
 ## @knitr kmeans.reduce.1
-    kmeans.reduce.1 = 
-      function(x, P) {
-        t(as.matrix(apply(P, 2, mean)))}
+    kmeans.reduce = {
+      if (!(combine || in.mem.combine) ) 
+        function(x, P) 
+          t(as.matrix(apply(P, 2, mean)))
+## @knitr kmeans.reduce.2
+      else 
+        function(k, P) 
+          keyval(k, t(as.matrix(apply(P, 2, sum))))}
 ## @knitr kmeans-main    
     C = NULL
     for(i in 1:num.iter ) {
@@ -51,14 +59,18 @@ kmeans.mr =
           from.dfs(
             mapreduce(
               P, 
-              map = kmeans.map.1, 
-              reduce = kmeans.reduce.1)))
-      if(nrow(C) < 5) 
+              map = kmeans.map,
+              reduce = kmeans.reduce)))
+      if(combine || in.mem.combine)
+        C = C[, -1]/C[, 1]
+      if(nrow(C) < num.clusters) {
         C = 
-          matrix(
-            rnorm(
-              num.clusters * nrow(C)), 
-            ncol = nrow(C)) %*% C }
+          rbind(
+            C,
+            matrix(
+              rnorm(
+                (num.clusters - nrow(C)) * nrow(C)), 
+              ncol = nrow(C)) %*% C) }}
     C}
 ## @knitr end
 
@@ -71,7 +83,7 @@ for(be in c("local", "hadoop")) {
   rmr.options(backend = be)
   set.seed(0)
 ## @knitr kmeans-data
-  input = 
+  P = 
     do.call(
       rbind, 
       rep(
@@ -85,9 +97,11 @@ for(be in c("local", "hadoop")) {
   out[[be]] = 
 ## @knitr kmeans-run    
     kmeans.mr(
-      to.dfs(input),
+      to.dfs(P),
       num.clusters  = 12, 
-      num.iter= 5)
+      num.iter= 5,
+      combine = FALSE,
+      in.mem.combine = FALSE)
 ## @knitr end
 }
 
