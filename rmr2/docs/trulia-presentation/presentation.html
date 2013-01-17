@@ -2,6 +2,25 @@
 <head>
 <meta charset="utf-8">
   <title></title>
+  <style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+  </style>
 <style>
   html { background-color: black; }
   body { background-color: white; border-radius: 12px}
@@ -75,18 +94,427 @@
 </style>
 </head>
 <body>
-<section class="slide level2" id="rhadoop">
-<h1>RHadoop</h1>
+<section class="slide level2" id="scalable-analytics-in-r-with-rmr">
+<h1>Scalable Analytics in R with rmr</h1>
 <h3 id="revolution-analytics">Revolution Analytics</h3>
-<h4 id="antonio-piccolboni">Antonio Piccolboni</h4>
-<h4 id="rhadooprevolutionanalytics.com">rhadoop@revolutionanalytics.com</h4>
-<h4 id="antoniopiccolboni.info">antonio@piccolboni.info</h4>
+<h5 id="antonio-piccolboni">Antonio Piccolboni</h5>
 </section>
-<section class="titleslide slide level1" id="section"><h1><img src="R.png"></h1></section><section class="slide level2" id="section-1">
+<section class="titleslide slide level1" id="rhadoop"><h1>RHadoop</h1></section>
+<section class="titleslide slide level1" id="section"><h1><img src="../resources/R.png"></h1></section><section class="slide level2" id="section-1">
 <h1><img src="https://r4stats.files.wordpress.com/2012/04/fig_10_cran.png" width=75%></h1>
+<p><details><a href="http://r4stats.com/popularity">r4stats</a> </details></p>
 </section><section class="slide level2" id="section-2">
-<h1><img src="http://r4stats.files.wordpress.com/2012/04/fig_7a_scholarlyimpactbig6.png" width=75%></h1>
-<p>Source: <a href="http://r4stats.com/popularity">r4stats</a></p>
+<h1><img src="../resources/revo-home.png" width=75%></h1>
+</section><section class="slide level2" id="section-3">
+<h1><img src="../resources/rhadoop.png" width=50%></h1>
+<p><details> hadoop brings horizontal scalability – r sophisticated analytics – combination could be powerful<br></details></p>
+</section><section class="slide level2" id="section-4">
+<h1></h1>
+<ul class="incremental">
+<li>rhdfs</li>
+<li>rhbase</li>
+<li><em>rmr2</em></li>
+</ul>
+<p><details> why RHadoop for the R dev – The data is in Hadoop – The biggest cluster is Hadoop </details></p>
+</section><section class="slide level2" id="section-5">
+<h1></h1>
+<pre class="sourceCode r"><code class="sourceCode r">    <span class="kw">library</span>(rmr2)
+  
+    <span class="kw">mapreduce</span>(input, ...)</code></pre>
+<p><details> Just a library Not a special run-time Not a different language Not a special purpose language Incrementally port your code Use all packages </details></p>
+</section><section class="slide level2" id="section-6">
+<h1></h1>
+<pre class="sourceCode r"><code class="sourceCode r">    <span class="kw">sapply</span>(data, function)
+
+    <span class="kw">mapreduce</span>(big.data, <span class="dt">map =</span> function)</code></pre>
+<p><details> Very R-like, building on the functional characteristics of R Upholds scope rules </details></p>
+</section><section class="slide level2" id="section-7">
+<h1></h1>
+<table width=75% align=center>
+<thead>
+<th>
+Direct MR
+</th><th>
+Indirect MR
+</th>
+</thead> 
+<tr><td>
+ 
+</td></tr>
+<tr>
+<td></td><td>
+<em>Hive, Pig</em>
+</td>
+</tr>
+<tr><td>
+ 
+</td></tr>
+<tr>
+<td>
+<strong>Rmr</strong>, Rhipe, Dumbo, Pydoop, Hadoopy
+</td><td>
+Cascalog, Scalding, Scrunch
+</td>
+</tr>
+<tr><td>
+ 
+</td></tr>
+<tr> 
+<td>
+Java, C++
+</td><td>
+Cascading, Crunch
+</td>
+</tr>
+</table>
+
+<p><details> Much simpler than writing Java Not as simple as Hive, Pig at what they do, but more general, a real language Great for prototyping, can transition to production – optimize instead of rewriting! Lower risk, always executable. </details></p>
+</section><section class="slide level2" id="section-8">
+<h1></h1>
+<pre class="sourceCode python" style="font-size:12px"><code class="sourceCode python"><span class="co">#!/usr/bin/python</span>
+<span class="ch">import</span> sys
+<span class="ch">from</span> math <span class="ch">import</span> fabs
+<span class="ch">from</span> org.apache.pig.scripting <span class="ch">import</span> Pig
+
+filename = <span class="st">&quot;student.txt&quot;</span>
+k = <span class="dv">4</span>
+tolerance = <span class="fl">0.01</span>
+
+MAX_SCORE = <span class="dv">4</span>
+MIN_SCORE = <span class="dv">0</span>
+MAX_ITERATION = <span class="dv">100</span>
+
+<span class="co"># initial centroid, equally divide the space</span>
+initial_centroids = <span class="st">&quot;&quot;</span>
+last_centroids = [<span class="ot">None</span>] * k
+<span class="kw">for</span> i in <span class="dt">range</span>(k):
+  last_centroids[i] = MIN_SCORE + <span class="dt">float</span>(i)/k*(MAX_SCORE-MIN_SCORE)
+  initial_centroids = initial_centroids + <span class="dt">str</span>(last_centroids[i])
+  <span class="kw">if</span> i!=k<span class="dv">-1</span>:
+    initial_centroids = initial_centroids + <span class="st">&quot;:&quot;</span>
+
+P = Pig.<span class="dt">compile</span>(<span class="st">&quot;&quot;&quot;register udf.jar</span>
+<span class="st">          DEFINE find_centroid FindCentroid(&#39;$centroids&#39;);</span>
+<span class="st">          raw = load &#39;student.txt&#39; as (name:chararray, age:int, gpa:double);</span>
+<span class="st">          centroided = foreach raw generate gpa, find_centroid(gpa) as centroid;</span>
+<span class="st">          grouped = group centroided by centroid;</span>
+<span class="st">          result = foreach grouped generate group, AVG(centroided.gpa);</span>
+<span class="st">          store result into &#39;output&#39;;</span>
+<span class="st">        &quot;&quot;&quot;</span>)
+
+converged = <span class="ot">False</span>
+iter_num = <span class="dv">0</span>
+<span class="kw">while</span> iter_num&lt;MAX_ITERATION:
+  Q = P.bind({<span class="st">&#39;centroids&#39;</span>:initial_centroids})
+  results = Q.runSingle()</code></pre>
+</section><section class="slide level2" id="section-9">
+<h1></h1>
+<pre class="sourceCode python" style="font-size:12px"><code class="sourceCode python">  <span class="kw">if</span> results.isSuccessful() == <span class="st">&quot;FAILED&quot;</span>:
+    <span class="kw">raise</span> <span class="st">&quot;Pig job failed&quot;</span>
+  <span class="dt">iter</span> = results.result(<span class="st">&quot;result&quot;</span>).iterator()
+  centroids = [<span class="ot">None</span>] * k
+  distance_move = <span class="dv">0</span>
+  <span class="co"># get new centroid of this iteration, caculate the moving distance with last iteration</span>
+  <span class="kw">for</span> i in <span class="dt">range</span>(k):
+    <span class="dt">tuple</span> = <span class="dt">iter</span>.<span class="dt">next</span>()
+    centroids[i] = <span class="dt">float</span>(<span class="dt">str</span>(<span class="dt">tuple</span>.get(<span class="dv">1</span>)))
+    distance_move = distance_move + fabs(last_centroids[i]-centroids[i])
+  distance_move = distance_move / k;
+  Pig.fs(<span class="st">&quot;rmr output&quot;</span>)
+  <span class="kw">print</span>(<span class="st">&quot;iteration &quot;</span> + <span class="dt">str</span>(iter_num))
+  <span class="kw">print</span>(<span class="st">&quot;average distance moved: &quot;</span> + <span class="dt">str</span>(distance_move))
+  <span class="kw">if</span> distance_move&lt;tolerance:
+    sys.stdout.write(<span class="st">&quot;k-means converged at centroids: [&quot;</span>)
+    sys.stdout.write(<span class="st">&quot;,&quot;</span>.join(<span class="dt">str</span>(v) <span class="kw">for</span> v in centroids))
+    sys.stdout.write(<span class="st">&quot;]</span><span class="ch">\n</span><span class="st">&quot;</span>)
+    converged = <span class="ot">True</span>
+    <span class="kw">break</span>
+  last_centroids = centroids[:]
+  initial_centroids = <span class="st">&quot;&quot;</span>
+  <span class="kw">for</span> i in <span class="dt">range</span>(k):
+    initial_centroids = initial_centroids + <span class="dt">str</span>(last_centroids[i])
+    <span class="kw">if</span> i!=k<span class="dv">-1</span>:
+      initial_centroids = initial_centroids + <span class="st">&quot;:&quot;</span>
+  iter_num += <span class="dv">1</span>
+
+<span class="kw">if</span> not converged:
+  <span class="kw">print</span>(<span class="st">&quot;not converge after &quot;</span> + <span class="dt">str</span>(iter_num) + <span class="st">&quot; iterations&quot;</span>)
+  sys.stdout.write(<span class="st">&quot;last centroids: [&quot;</span>)
+  sys.stdout.write(<span class="st">&quot;,&quot;</span>.join(<span class="dt">str</span>(v) <span class="kw">for</span> v in last_centroids))
+  sys.stdout.write(<span class="st">&quot;]</span><span class="ch">\n</span><span class="st">&quot;</span>)</code></pre>
+</section><section class="slide level2" id="section-10">
+<h1></h1>
+<pre class="sourceCode java" style="font-size:12px"><code class="sourceCode java"><span class="kw">import java.io.IOException;</span>
+
+<span class="kw">import org.apache.pig.EvalFunc;</span>
+<span class="kw">import org.apache.pig.data.Tuple;</span>
+
+
+<span class="kw">public</span> <span class="kw">class</span> FindCentroid <span class="kw">extends</span> EvalFunc&lt;Double&gt; {
+  <span class="dt">double</span>[] centroids;
+  <span class="kw">public</span> <span class="fu">FindCentroid</span>(String initialCentroid) {
+    String[] centroidStrings = initialCentroid.<span class="fu">split</span>(<span class="st">&quot;:&quot;</span>);
+    centroids = <span class="kw">new</span> <span class="dt">double</span>[centroidStrings.<span class="fu">length</span>];
+    <span class="kw">for</span> (<span class="dt">int</span> i=<span class="dv">0</span>;i&lt;centroidStrings.<span class="fu">length</span>;i++)
+      centroids[i] = Double.<span class="fu">parseDouble</span>(centroidStrings[i]);
+  }
+  @Override
+  <span class="kw">public</span> Double <span class="fu">exec</span>(Tuple input) <span class="kw">throws</span> IOException {
+    <span class="dt">double</span> min_distance = Double.<span class="fu">MAX_VALUE</span>;
+    <span class="dt">double</span> closest_centroid = <span class="dv">0</span>;
+    <span class="kw">for</span> (<span class="dt">double</span> centroid : centroids) {
+      <span class="dt">double</span> distance = Math.<span class="fu">abs</span>(centroid - (Double)input.<span class="fu">get</span>(<span class="dv">0</span>));
+      <span class="kw">if</span> (distance &lt; min_distance) {
+        min_distance = distance;
+        closest_centroid = centroid;
+      }
+    }
+    <span class="kw">return</span> closest_centroid;
+  }
+
+}</code></pre>
+</section>
+<section class="titleslide slide level1" id="read-and-write"><h1>read and write</h1></section><section class="slide level2" id="section-11">
+<h1></h1>
+<ul class="incremental" style="list-style: none" >
+<li>
+
+<pre class="sourceCode r"><code class="sourceCode r">  input = <span class="kw">to.dfs</span>(<span class="dv">1</span>:input.size)</code></pre>
+<li>
+
+<pre class="sourceCode r"><code class="sourceCode r">  <span class="kw">from.dfs</span>(input)</code></pre>
+</ul>
+
+</section>
+<section class="titleslide slide level1" id="identity"><h1>Identity</h1></section><section class="slide level2" id="section-12">
+<h1></h1>
+<pre class="sourceCode r"><code class="sourceCode r">  <span class="kw">mapreduce</span>(
+    input, 
+    <span class="dt">map =</span> function(k, v) <span class="kw">keyval</span>(k, v))</code></pre>
+</section>
+<section class="titleslide slide level1" id="filter"><h1>Filter</h1></section><section class="slide level2" id="section-13">
+<h1></h1>
+<ul class="incremental" style="list-style: none" >
+<li>
+
+<pre class="sourceCode r"><code class="sourceCode r">  predicate = 
+    function(., v) v%%<span class="dv">2</span> == <span class="dv">0</span></code></pre>
+<li> 
+
+<pre class="sourceCode r"><code class="sourceCode r">  <span class="kw">mapreduce</span>(
+    input, 
+    <span class="dt">map =</span> 
+      function(k, v) {
+        filter = <span class="kw">predicate</span>(k, v)
+        <span class="kw">keyval</span>(k[filter], v[filter])}</code></pre>
+</ul>
+
+</section>
+<section class="titleslide slide level1" id="select"><h1>Select</h1></section><section class="slide level2" id="section-14">
+<h1></h1>
+<ul class="incremental" style="list-style: none" >
+<li>
+
+<pre class="sourceCode r"><code class="sourceCode r">  input.select = 
+    <span class="kw">to.dfs</span>(
+      <span class="kw">data.frame</span>(
+        <span class="dt">a =</span> <span class="kw">rnorm</span>(input.size),
+        <span class="dt">b =</span> <span class="dv">1</span>:input.size,
+        <span class="dt">c =</span> <span class="kw">sample</span>(<span class="kw">as.character</span>(<span class="dv">1</span>:<span class="dv">10</span>),
+                   input.size, 
+                   <span class="dt">replace=</span><span class="ot">TRUE</span>)))</code></pre>
+<li>
+
+<pre class="sourceCode r"><code class="sourceCode r">  <span class="kw">mapreduce</span>(input.select,
+            <span class="dt">map =</span> function(., v) v$b)</code></pre>
+</ul>
+
+</section>
+<section class="titleslide slide level1" id="sum"><h1>Sum</h1></section><section class="slide level2" id="section-15">
+<h1></h1>
+<ul class="incremental" style="list-style: none" >
+<li>
+
+<pre class="sourceCode r"><code class="sourceCode r">  <span class="kw">set.seed</span>(<span class="dv">0</span>)
+  big.sample = <span class="kw">rnorm</span>(input.size)
+  input.bigsum = <span class="kw">to.dfs</span>(big.sample)</code></pre>
+<li>
+
+<pre class="sourceCode r"><code class="sourceCode r">  <span class="kw">mapreduce</span>(
+    input.bigsum, 
+    <span class="dt">map  =</span> 
+      function(., v) <span class="kw">keyval</span>(<span class="dv">1</span>, <span class="kw">sum</span>(v)), 
+    <span class="dt">reduce =</span> 
+      function(., v) <span class="kw">keyval</span>(<span class="dv">1</span>, <span class="kw">sum</span>(v)),
+    <span class="dt">combine =</span> <span class="ot">TRUE</span>)</code></pre>
+</ul>
+
+</section>
+<section class="titleslide slide level1" id="group-and-aggregate"><h1>Group and Aggregate</h1></section><section class="slide level2" id="section-16">
+<h1></h1>
+<pre class="sourceCode r"><code class="sourceCode r">  input.ga = 
+    <span class="kw">to.dfs</span>(
+      <span class="kw">cbind</span>(
+        <span class="dv">1</span>:input.size,
+        <span class="kw">rnorm</span>(input.size)))</code></pre>
+</section><section class="slide level2" id="section-17">
+<h1></h1>
+<pre class="sourceCode r"><code class="sourceCode r">  group = function(x) x%%<span class="dv">10</span>
+  aggregate = function(x) <span class="kw">sum</span>(x)</code></pre>
+</section><section class="slide level2" id="section-18">
+<h1></h1>
+<pre class="sourceCode r"><code class="sourceCode r">  <span class="kw">mapreduce</span>(
+    input.ga, 
+      <span class="dt">map =</span> 
+        function(k, v) 
+          <span class="kw">keyval</span>(<span class="kw">group</span>(v[,<span class="dv">1</span>]), v[,<span class="dv">2</span>]),
+      <span class="dt">reduce =</span> 
+        function(k, vv) 
+          <span class="kw">keyval</span>(k, <span class="kw">aggregate</span>(vv)),
+      <span class="dt">combine =</span> <span class="ot">TRUE</span>)</code></pre>
+</section>
+<section class="titleslide slide level1" id="wordcount"><h1>Wordcount</h1></section><section class="slide level2" id="section-19">
+<h1></h1>
+<ul class="incremental" style="list-style: none" >
+<li>
+
+<pre class="sourceCode r"><code class="sourceCode r">wordcount = 
+  function(
+    input, 
+    <span class="dt">output =</span> <span class="ot">NULL</span>, 
+    <span class="dt">pattern =</span> <span class="st">&quot; &quot;</span>){</code></pre>
+<li>
+
+<pre class="sourceCode r"><code class="sourceCode r">    <span class="kw">mapreduce</span>(
+      <span class="dt">input =</span> input ,
+      <span class="dt">output =</span> output,
+      <span class="dt">input.format =</span> <span class="st">&quot;text&quot;</span>,
+      <span class="dt">map =</span> wc.map,
+      <span class="dt">reduce =</span> wc.reduce,
+      <span class="dt">combine =</span> T)<span class="er">}</span></code></pre>
+</ul>
+
+</section><section class="slide level2" id="section-20">
+<h1></h1>
+<ul class="incremental" style="list-style: none" >
+<li>
+
+<pre class="sourceCode r"><code class="sourceCode r">    wc.map = 
+      function(., lines) {
+        <span class="kw">keyval</span>(
+          <span class="kw">unlist</span>(
+            <span class="kw">strsplit</span>(
+              <span class="dt">x =</span> lines,
+              <span class="dt">split =</span> pattern)),
+          <span class="dv">1</span>)}</code></pre>
+<li>
+
+<pre class="sourceCode r"><code class="sourceCode r">    wc.reduce =
+      function(word, counts ) {
+        <span class="kw">keyval</span>(word, <span class="kw">sum</span>(counts))}</code></pre>
+</ul>
+
+</section>
+<section class="titleslide slide level1" id="k-means"><h1>K-means</h1></section><section class="slide level2" id="section-21">
+<h1></h1>
+<pre class="sourceCode r"><code class="sourceCode r">    dist.fun = 
+      function(C, P) {
+        <span class="kw">apply</span>(
+          C,
+          <span class="dv">1</span>, 
+          function(x) 
+            <span class="kw">colSums</span>((<span class="kw">t</span>(P) - x)^<span class="dv">2</span>))}</code></pre>
+</section><section class="slide level2" id="section-22">
+<h1></h1>
+<pre class="sourceCode r"><code class="sourceCode r">    kmeans.map = 
+      function(., P) {
+        nearest = {
+          if(<span class="kw">is.null</span>(C)) 
+            <span class="kw">sample</span>(
+              <span class="dv">1</span>:num.clusters, 
+              <span class="kw">nrow</span>(P), 
+              <span class="dt">replace =</span> T)
+          else {
+            D = <span class="kw">dist.fun</span>(C, P)
+            nearest = <span class="kw">max.col</span>(-D)}}
+        if(!(combine || in.mem.combine))
+          <span class="kw">keyval</span>(nearest, P) 
+        else 
+          <span class="kw">keyval</span>(nearest, <span class="kw">cbind</span>(<span class="dv">1</span>, P))}</code></pre>
+</section><section class="slide level2" id="section-23">
+<h1></h1>
+<pre class="sourceCode r"><code class="sourceCode r">    kmeans.reduce = {
+      if (!(combine || in.mem.combine) ) 
+        function(., P) 
+          <span class="kw">t</span>(<span class="kw">as.matrix</span>(<span class="kw">apply</span>(P, <span class="dv">2</span>, mean)))
+      else 
+        function(k, P) 
+          <span class="kw">keyval</span>(
+            k, 
+            <span class="kw">t</span>(<span class="kw">as.matrix</span>(<span class="kw">apply</span>(P, <span class="dv">2</span>, sum))))}</code></pre>
+</section><section class="slide level2" id="section-24">
+<h1></h1>
+<pre class="sourceCode r"><code class="sourceCode r">kmeans.mr = 
+  function(
+    P, 
+    num.clusters, 
+    num.iter, 
+    combine, 
+    in.mem.combine) {</code></pre>
+</section><section class="slide level2" id="section-25">
+<h1></h1>
+<pre class="sourceCode r"><code class="sourceCode r">    C = <span class="ot">NULL</span>
+    for(i in <span class="dv">1</span>:num.iter ) {
+      C = 
+        <span class="kw">values</span>(
+          <span class="kw">from.dfs</span>(
+            <span class="kw">mapreduce</span>(
+              P, 
+              <span class="dt">map =</span> kmeans.map,
+              <span class="dt">reduce =</span> kmeans.reduce)))
+      if(combine || in.mem.combine)
+        C = C[, -<span class="dv">1</span>]/C[, <span class="dv">1</span>]
+      <span class="kw">points</span>(C, <span class="dt">col =</span> i + <span class="dv">1</span>, <span class="dt">pch =</span> <span class="dv">19</span>)</code></pre>
+</section><section class="slide level2" id="section-26">
+<h1></h1>
+<pre class="sourceCode r"><code class="sourceCode r">      if(<span class="kw">nrow</span>(C) &lt; num.clusters) {
+        C = 
+          <span class="kw">rbind</span>(
+            C,
+            <span class="kw">matrix</span>(
+              <span class="kw">rnorm</span>(
+                (num.clusters - 
+                   <span class="kw">nrow</span>(C)) * <span class="kw">nrow</span>(C)), 
+              <span class="dt">ncol =</span> <span class="kw">nrow</span>(C)) %*% C) }<span class="er">}</span>
+        C<span class="er">}</span></code></pre>
+</section><section class="slide level2" id="section-27">
+<h1></h1>
+<pre class="sourceCode r"><code class="sourceCode r">  P = 
+    <span class="kw">do.call</span>(
+      rbind, 
+      <span class="kw">rep</span>(
+        <span class="kw">list</span>(
+          <span class="kw">matrix</span>(
+            <span class="kw">rnorm</span>(<span class="dv">10</span>, <span class="dt">sd =</span> <span class="dv">10</span>), 
+            <span class="dt">ncol=</span><span class="dv">2</span>)), 
+        <span class="dv">20</span>)) + 
+    <span class="kw">matrix</span>(<span class="kw">rnorm</span>(<span class="dv">200</span>), <span class="dt">ncol =</span><span class="dv">2</span>)
+  <span class="kw">x11</span>()
+  <span class="kw">plot</span>(P)
+  <span class="kw">points</span>(P)</code></pre>
+</section><section class="slide level2" id="section-28">
+<h1></h1>
+<pre class="sourceCode r"><code class="sourceCode r">    <span class="kw">kmeans.mr</span>(
+      <span class="kw">to.dfs</span>(P),
+      <span class="dt">num.clusters =</span> <span class="dv">12</span>, 
+      <span class="dt">num.iter =</span> <span class="dv">5</span>,
+      <span class="dt">combine =</span> <span class="ot">FALSE</span>,
+      <span class="dt">in.mem.combine =</span> <span class="ot">FALSE</span>)</code></pre>
+<p><details> Other features: easy composition of jobs, joins, local modes, combine </details> ##</p>
+<h4 id="revolution-analytics-1">Revolution Analytics</h4>
+<h3 id="rhadooprevolutionanalytics.com">rhadoop@revolutionanalytics.com</h3>
+<h4 id="antonio-piccolboni-1">Antonio Piccolboni</h4>
+<h3 id="antoniopiccolboni.info">antonio@piccolboni.info</h3>
 </section>
 <!-- {{{{ dzslides core
 #
