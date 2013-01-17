@@ -19,8 +19,8 @@
 
 - R + Hadoop
 - OSS
-- <img src="revolution.jpeg" width="20%">
-- <img src="rhadoop.png" width="20%">
+- <img src="../resources/revolution.jpeg" width="20%">
+- <img src="../resources/rhadoop.png" width="20%">
 - rhdfs
 - rhbase
 - rmr2
@@ -172,21 +172,32 @@
 ```
  
 ##
-```{r kmeans.map.1}
+
+```{r kmeans.map}
 ```
 
 ##
-```{r kmeans.reduce.1}
+
+```{r kmeans.reduce}
 ```
 
 ##
+
 ```{r kmeans-signature}
 ```
+
 ##
-```{r kmeans-main}
+
+```{r kmeans-main-1}
 ```
 
 ##
+
+```{r kmeans-main-2}
+```
+
+##
+
 <ul class="incremental" style="list-style: none" >
 <li>
 ```{r kmeans-data}

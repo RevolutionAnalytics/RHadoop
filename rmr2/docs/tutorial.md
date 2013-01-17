@@ -215,31 +215,38 @@ This is simply a distance function, the only noteworthy property of which is tha
 
 
 ```r
-    kmeans.map.1 = 
+    kmeans.map = 
       function(., P) {
-        nearest = 
-          if(is.null(C)) {
+        nearest = {
+          if(is.null(C)) 
             sample(
               1:num.clusters, 
               nrow(P), 
-              replace = T)}
+              replace = T)
           else {
             D = dist.fun(C, P)
-            nearest = max.col(-D)}
-        keyval(nearest, P) }
+            nearest = max.col(-D)}}
+        if(!(combine || in.mem.combine))
+          keyval(nearest, P) 
+        else 
+          keyval(nearest, cbind(1, P))}
 ```
 
 The role of the map function is to compute distances between some points and all centers and return for each point the closest center. It has two flavors controlled by the main `if`: the first iteration when no candidate centers are available and all the following ones. Please note that while the points are stored in HDFS and provided to the map function as its second argument, the centers are simply stored in a matrix and available in the map function because of normal scope rules. In the first iteration, each point is randomly assigned to a center, whereas in the following ones a min distance criterion is used. Finally notice the vectorized use of keyval whereby all the center-point pairs are returned in one statement (the correspondence is positional, with the second dimension used when present).
 
 
 ```r
-    kmeans.reduce.1 = 
-      function(x, P) {
-        t(as.matrix(apply(P, 2, mean)))}
+    kmeans.reduce = {
+      if (!(combine || in.mem.combine) ) 
+        function(x, P) 
+          t(as.matrix(apply(P, 2, mean)))
+      else 
+        function(k, P) 
+          keyval(k, t(as.matrix(apply(P, 2, sum))))}
 ```
 
 
-The reduce function couldn't be simpler as it just computes column averages of a matrix of points sharing a center, which is the key. If you  wonder why the `.1` in the name of these two functions, it's because we plan to explore some optimizations in future installments.
+The reduce function couldn't be simpler as it just computes column averages of a matrix of points sharing a center, which is the key.
 
 
 ```r
@@ -250,22 +257,33 @@ The reduce function couldn't be simpler as it just computes column averages of a
           from.dfs(
             mapreduce(
               P, 
-              map = kmeans.map.1, 
-              reduce = kmeans.reduce.1)))
-      if(nrow(C) < 5) 
-        C = 
-          matrix(
-            rnorm(
-              num.clusters * nrow(C)), 
-            ncol = nrow(C)) %*% C }
-    C}
+              map = kmeans.map,
+              reduce = kmeans.reduce)))
+      if(combine || in.mem.combine)
+        C = C[, -1]/C[, 1]
+      points(C, col = i + 1, pch = 19)
 ```
+
+
+
+```r
+      if(nrow(C) < num.clusters) {
+        C = 
+          rbind(
+            C,
+            matrix(
+              rnorm(
+                (num.clusters - nrow(C)) * nrow(C)), 
+              ncol = nrow(C)) %*% C) }}
+        C}
+```
+
 
 The main loop does nothing but bring into memory the result of a mapreduce job with the two above functions as mapper and reducer and the big data object with the points as input. Once the keys are discarded, the values form a matrix which become the new centers. The last two lines before the return value are a heuristic to keep the number of centers the desired one (when centers are nearest to no points, they are lost). To run this function we need some data:
 
 
 ```r
-  input = 
+  P = 
     do.call(
       rbind, 
       rep(
@@ -275,6 +293,7 @@ The main loop does nothing but bring into memory the result of a mapreduce job w
             ncol=2)), 
         20)) + 
     matrix(rnorm(200), ncol =2)
+  plot(P)
 ```
 
 
@@ -283,9 +302,11 @@ The main loop does nothing but bring into memory the result of a mapreduce job w
 
 ```r
     kmeans.mr(
-      to.dfs(input),
+      to.dfs(P),
       num.clusters  = 12, 
-      num.iter= 5)
+      num.iter= 5,
+      combine = FALSE,
+      in.mem.combine = FALSE)
 ```
 
 

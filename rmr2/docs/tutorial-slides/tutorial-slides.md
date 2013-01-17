@@ -19,8 +19,8 @@
 
 - R + Hadoop
 - OSS
-- <img src="revolution.jpeg" width="20%">
-- <img src="rhadoop.png" width="20%">
+- <img src="../resources/revolution.jpeg" width="20%">
+- <img src="../resources/rhadoop.png" width="20%">
 - rhdfs
 - rhbase
 - rmr2
@@ -106,7 +106,7 @@
 
 ```r
   predicate = 
-    function(., v) unlist(v)%%2 == 0
+    function(., v) v%%2 == 0
 ```
 
 <li> 
@@ -172,7 +172,7 @@
 ```r
   input.ga = 
     to.dfs(
-      keyval(
+      cbind(
         1:input.size,
         rnorm(input.size)))
 ```
@@ -180,8 +180,9 @@
 ## 
 
 ```r
-  group = function(k, v) k%%100
+  group = function(x) x%%10
   aggregate = function(x) sum(x)
+  rmr.options(keyval.length=10^4)
 ```
 
 ## 
@@ -191,7 +192,7 @@
     input.ga, 
       map = 
         function(k, v) 
-          keyval(group(k, v), v),
+          keyval(group(v[,1]), v[,2]),
       reduce = 
         function(k, vv) 
           keyval(k, aggregate(vv)),
@@ -359,39 +360,56 @@ logistic.regression =
  
 ##
 
+
 ```r
-    kmeans.map.1 = 
+    kmeans.map = 
       function(., P) {
-        nearest = 
-          if(is.null(C)) {
+        nearest = {
+          if(is.null(C)) 
             sample(
               1:num.clusters, 
               nrow(P), 
-              replace = T)}
+              replace = T)
           else {
             D = dist.fun(C, P)
-            nearest = max.col(-D)}
-        keyval(nearest, P) }
+            nearest = max.col(-D)}}
+        if(!(combine || in.mem.combine))
+          keyval(nearest, P) 
+        else 
+          keyval(nearest, cbind(1, P))}
 ```
 
 
 ##
+
 
 ```r
-    kmeans.reduce.1 = 
-      function(x, P) {
-        t(as.matrix(apply(P, 2, mean)))}
+    kmeans.reduce = {
+      if (!(combine || in.mem.combine) ) 
+        function(x, P) 
+          t(as.matrix(apply(P, 2, mean)))
+      else 
+        function(k, P) 
+          keyval(k, t(as.matrix(apply(P, 2, sum))))}
 ```
 
 
 ##
+
 
 ```r
 kmeans.mr = 
-  function(P, num.clusters, num.iter) {
+  function(
+    P, 
+    num.clusters, 
+    num.iter, 
+    combine, 
+    in.mem.combine) {
 ```
 
+
 ##
+
 
 ```r
     C = NULL
@@ -401,24 +419,37 @@ kmeans.mr =
           from.dfs(
             mapreduce(
               P, 
-              map = kmeans.map.1, 
-              reduce = kmeans.reduce.1)))
-      if(nrow(C) < 5) 
-        C = 
-          matrix(
-            rnorm(
-              num.clusters * nrow(C)), 
-            ncol = nrow(C)) %*% C }
-    C}
+              map = kmeans.map,
+              reduce = kmeans.reduce)))
+      if(combine || in.mem.combine)
+        C = C[, -1]/C[, 1]
+      points(C, col = i + 1, pch = 19)
 ```
 
 
 ##
+
+
+```r
+      if(nrow(C) < num.clusters) {
+        C = 
+          rbind(
+            C,
+            matrix(
+              rnorm(
+                (num.clusters - nrow(C)) * nrow(C)), 
+              ncol = nrow(C)) %*% C) }}
+        C}
+```
+
+
+##
+
 <ul class="incremental" style="list-style: none" >
 <li>
 
 ```r
-  input = 
+  P = 
     do.call(
       rbind, 
       rep(
@@ -428,15 +459,18 @@ kmeans.mr =
             ncol=2)), 
         20)) + 
     matrix(rnorm(200), ncol =2)
+  plot(P)
 ```
 
 <li>
 
 ```r
     kmeans.mr(
-      to.dfs(input),
+      to.dfs(P),
       num.clusters  = 12, 
-      num.iter= 5)
+      num.iter= 5,
+      combine = FALSE,
+      in.mem.combine = FALSE)
 ```
 
 </ul>
