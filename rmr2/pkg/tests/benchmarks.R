@@ -68,7 +68,7 @@ for (be in c("local", "hadoop")) {
   
 ## @knitr predicate            
   predicate = 
-    function(., v) unlist(v)%%2 == 0
+    function(., v) v%%2 == 0
 ## @knitr end            
   report[[be]] =
     rbind(
@@ -80,7 +80,7 @@ for (be in c("local", "hadoop")) {
     input, 
     map = 
       function(k, v) {
-        filter = predicate(k, v); 
+        filter = predicate(k, v)
         keyval(k[filter], v[filter])}
 ## @knitr end                               
           )}))
