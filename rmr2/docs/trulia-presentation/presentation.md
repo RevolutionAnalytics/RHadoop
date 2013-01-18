@@ -215,7 +215,7 @@ public class FindCentroid extends EvalFunc<Double> {
 }
 ```
 
-#read and write
+# Read and Write
 
 ## 
 
@@ -547,6 +547,7 @@ kmeans.mr =
 <details>
 Other features: easy composition of jobs, joins, local modes, combine 
 </details>
+
 ##
 
 #### Revolution Analytics
