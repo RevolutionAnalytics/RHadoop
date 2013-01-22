@@ -56,11 +56,11 @@ activate.profiling = function(profile) {
   dir = file.path("/tmp/Rprof", Sys.getenv('mapred_job_id'), Sys.getenv('mapred_tip_id'))
   dir.create(dir, recursive = T)
   if(is.element(profile, c("calls", "memory"))) {
-    prof.file = file.path(dir, paste(Sys.getenv('mapred_task_id'), Sys.time())) 
+    prof.file = file.path(dir, paste(Sys.getenv('mapred_task_id'), Sys.time(), sep = "-")) 
     warning("Profiling data in ", prof.file)
     Rprof(prof.file)}
   else {
-    mem.prof.file = file.path(dir, paste(Sys.getenv('mapred_task_id'), Sys.time(), "mem")) 
+    mem.prof.file = file.path(dir, paste(Sys.getenv('mapred_task_id'), Sys.time(), "mem", sep = "-")) 
     warning("Memory profiling data in ", mem.prof.file)
     Rprofmem(mem.prof.file)}}
 
@@ -120,12 +120,15 @@ reduce.loop =
         reduce.as.keyval, 
         reduce = reduce)
     while(!is.null(kv)){
+      rmr.str(kv)
+      rmr.str(straddler)
       if(!is.null(straddler))
         kv = c.keyval(straddler, kv)
       last.key = rmr.slice(keys(kv), rmr.length(keys(kv)))
       last.key.mask = rmr.equal(keys(kv), last.key)
       straddler = slice.keyval(kv, last.key.mask)
       complete = slice.keyval(kv, !last.key.mask)
+      rmr.str(complete)
       if(length.keyval(complete) > 0) {
         out = apply.reduce(complete, red.as.kv)
         if(length.keyval(out) > 0)

@@ -32,16 +32,14 @@ rmr.options =
            #depend.check = FALSE, 
            #managed.dir = FALSE
   ) {
-    profile.nodes = {
-      if (is.logical(profile.nodes)) {
+    args = as.list(sys.call())[-1]
+    this.call = match.call()
+    if (is.logical(profile.nodes)) {
+      this.call[["profile.nodes"]] = {
         if(profile.nodes)
           "calls"
         else
-          "off"}
-      else
-        profile.nodes}
-    args = as.list(sys.call())[-1]
-    this.call = match.call()
+          "off"}}
     lapply(
       names(args),
       function(x) {
