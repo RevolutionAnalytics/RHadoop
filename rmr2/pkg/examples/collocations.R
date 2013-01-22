@@ -11,7 +11,7 @@ ngram.format =
 
 ngram.parse = 
   function(ngram.data) {
-    ngram.split = str_split_fixed(ngram.data$ngram, " ", 5)
+    ngram.split = do.call(rbind, strsplit(paste0(ngram.data$ngram, "     "), " "))[,1:5]
     filter = ngram.split[,ncol(ngram.split)] != "" 
     cbind(ngram.data[,-1], ngram.split, stringsAsFactors = FALSE)[filter,]}
   
@@ -30,9 +30,9 @@ ngram.parse =
 map.fun = 
   function(k,v) {
     increment.counter("rmr","map calls")
-    rmr.str(v)
+    #rmr.str(v)
     data = ngram.parse(v)
-    rmr.str(data)
+    #rmr.str(data)
     sums = 
       sapply(
         split(
@@ -40,16 +40,17 @@ map.fun =
           data[,c(1, 5, ncol(data))],
           drop = TRUE), 
         sum)
-    rmr.str(sums)
+    #rmr.str(sums)
     keyval(names(sums), sums)}
 
 system.time({
   zz = 
     mapreduce(
-      "/user/ngrams/googlebooks-eng-all-5gram-20090715-756.csv", 
-#      "../RHadoop.data/ngrams/1000000.csv",      
+#      "/user/ngrams/googlebooks-eng-all-5gram-20090715-756.csv", 
+      "../RHadoop.data/ngrams/1000000.csv",      
       input.format=ngram.format, 
       map = map.fun, 
-      reduce = function(k,vv) {rmr.str(k); rmr.str(vv); keyval(k, sum(vv))}, 
+      reduce = function(k,vv) {#rmr.str(k); #rmr.str(vv); 
+        keyval(k, sum(vv))}, 
       combine = TRUE)
   })
