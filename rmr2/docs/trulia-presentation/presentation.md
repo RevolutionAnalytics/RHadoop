@@ -21,6 +21,9 @@
 ## <img src="https://r4stats.files.wordpress.com/2012/04/fig_10_cran.png" width=75%>
 
 <details>[r4stats](http://r4stats.com/popularity)
+Google from niche to main language
+oreilly hot language
+SAS and mathematica compatibility
 </details>
 
 ## <img src="../resources/revo-home.png" width=75%>
