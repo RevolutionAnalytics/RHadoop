@@ -11,7 +11,7 @@ ngram.format =
 
 ngram.parse = 
   function(ngram.data) {
-    ngram.split = do.call(rbind, strsplit(paste0(ngram.data$ngram, "     "), " "))[,1:5]
+    ngram.split = do.call(rbind, strsplit(paste(ngram.data$ngram, "     "), " "))[,1:5]
     filter = ngram.split[,ncol(ngram.split)] != "" 
     cbind(ngram.data[,-1], ngram.split, stringsAsFactors = FALSE)[filter,]}
   
@@ -52,5 +52,5 @@ system.time({
       map = map.fun, 
       reduce = function(k,vv) {#rmr.str(k); #rmr.str(vv); 
         keyval(k, sum(vv))}, 
-      combine = TRUE)
+      combine = FALSE)
   })
