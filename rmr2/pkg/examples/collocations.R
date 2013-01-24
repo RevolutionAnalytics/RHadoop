@@ -38,7 +38,7 @@ map.fun =
           data[,c(1, 5, ncol(data))],
           drop = TRUE), 
         sum)
-    keyval(names(sums), sums)}
+    keyval(names(sums), unname(sums))}
 
 system.time({
   zz = 
@@ -47,6 +47,7 @@ system.time({
       "../RHadoop.data/ngrams/1000000.csv",      
       input.format=ngram.format, 
       map = map.fun, 
+      reduce = function(k,vv) {
         keyval(k, sum(vv))}, 
       combine = FALSE)
   })
