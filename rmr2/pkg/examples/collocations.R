@@ -30,9 +30,7 @@ ngram.parse =
 map.fun = 
   function(k,v) {
     increment.counter("rmr","map calls")
-    #rmr.str(v)
     data = ngram.parse(v)
-    #rmr.str(data)
     sums = 
       sapply(
         split(
@@ -40,7 +38,6 @@ map.fun =
           data[,c(1, 5, ncol(data))],
           drop = TRUE), 
         sum)
-    #rmr.str(sums)
     keyval(names(sums), sums)}
 
 system.time({
@@ -50,7 +47,6 @@ system.time({
       "../RHadoop.data/ngrams/1000000.csv",      
       input.format=ngram.format, 
       map = map.fun, 
-      reduce = function(k,vv) {#rmr.str(k); #rmr.str(vv); 
         keyval(k, sum(vv))}, 
       combine = FALSE)
   })
