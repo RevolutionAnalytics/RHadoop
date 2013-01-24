@@ -192,6 +192,17 @@ void unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & obj
       objs[objs_end] = unlist(Rcpp::wrap(list));
       objs_end = objs_end + 1;}
       break;
+    case 146: {
+      int raw_length = get_length(data, raw_start);
+      int length = get_length(data, raw_start);
+      Rcpp::List list(length);
+      int list_end = 0; 
+      for(int i = 0; i < length; i++) {
+        unserialize(data, raw_start, list, list_end);}
+      Rcpp::Function unlist("unlist");
+      objs[objs_end] = unlist(Rcpp::wrap(list));
+      objs_end = objs_end + 1;}
+      break;
     default: {
       throw UnsupportedType(type_code);}}}
 
@@ -307,6 +318,17 @@ void serialize(const SEXP & object, raw & serialized, bool native) {
           Rcpp::NumericVector data(object);  
           serialize_vector(data, 6, serialized, TRUE);}}
       break;
+      case STRSXP: { //character
+        Rcpp::CharacterVector data(object);
+        serialized.push_back(146);
+        int raw_size = data.size() * 5 + 4;
+        for(int i = 0; i < data.size(); i++) {
+          raw_size += data[i].size();}
+        length_header(raw_size, serialized);
+        length_header(data.size(), serialized);
+        for(int i = 0; i < data.size(); i++) {
+          serialize_many(data[i], 7, serialized);}}
+      break; 
       case INTSXP: {
         if(has_attr) {
           serialize_native(object, serialized);}
