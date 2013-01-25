@@ -14,7 +14,16 @@
 
 # RHadoop
 
+# <img src="../resources/hadoop-logo.gif">
 
+## <img src = "../resources/Mapreduce.png">
+
+<details>
+operating system of the cloud --
+focus is scalability --
+different from HPC --
+storage, fault tolerance built in, programming model
+</details>
 
 # <img src="../resources/R.png">
 

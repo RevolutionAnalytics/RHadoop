@@ -14,15 +14,24 @@
 
 # RHadoop
 
+# <img src="../resources/hadoop-logo.gif">
 
+## <img src = "../resources/Mapreduce.png">
+
+<details>
+operating system of the cloud --
+focus is scalability --
+different from HPC --
+storage, fault tolerance built in, programming model
+</details>
 
 # <img src="../resources/R.png">
 
 ## <img src="https://r4stats.files.wordpress.com/2012/04/fig_10_cran.png" width=75%>
 
-<details>[r4stats](http://r4stats.com/popularity)
-Google from niche to main language
-oreilly hot language
+<details>[r4stats](http://r4stats.com/popularity) --
+Google from niche to main language --
+oreilly hot language --
 SAS and mathematica compatibility
 </details>
 
