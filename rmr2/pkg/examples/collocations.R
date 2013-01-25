@@ -42,9 +42,9 @@ map.fun =
 
 system.time({
   zz = 
-    mapreduce(
+    mapreduce(ngdata,
 #      "/user/ngrams/googlebooks-eng-all-5gram-20090715-756.csv", 
-      "../RHadoop.data/ngrams/1000000.csv",      
+#      "../RHadoop.data/ngrams/1000000.csv",      
       input.format=ngram.format, 
       map = map.fun, 
       reduce = function(k,vv) {
