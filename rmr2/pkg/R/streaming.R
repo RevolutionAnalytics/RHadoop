@@ -127,7 +127,7 @@ reduce.loop =
       straddler = slice.keyval(kv, last.key.mask)
       complete = slice.keyval(kv, !last.key.mask)
       if(length.keyval(complete) > 0) {
-        increment.counter("rmr", "reduce.calls", length.keyval(complete))
+        increment.counter("rmr", "reduce calls", length.keyval(complete))
         out = apply.reduce(complete, red.as.kv)
         if(length.keyval(out) > 0)
           keyval.writer(out)}
