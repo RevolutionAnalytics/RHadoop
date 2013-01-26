@@ -88,6 +88,55 @@ unsigned char get_type(const raw & data, int & start) {
   start = start + 1;
   return retval;}
 
+void unserialize_fixed(const raw & data, int & raw_start, Rcpp::List & objs, int & objs_end, unsigned char vec_type_code, int length) {
+    switch(vec_type_code) {
+      case 1: { //byte
+      if(data.size() < raw_start + length) {
+        throw ReadPastEnd(vec_type_code, raw_start);}
+      std::vector<unsigned char> vec;
+      for(int i = 0; i < length; i++) {
+        vec.push_back((unsigned char)(data[raw_start]));
+        raw_start = raw_start + 1;}
+      objs[objs_end] = Rcpp::wrap(vec);
+      objs_end = objs_end + 1;}
+      break;
+      case 2: { //boolean
+        if(data.size() < raw_start + length) {
+          throw ReadPastEnd(vec_type_code, raw_start);}
+        std::vector<bool> vec;
+        for(int i = 0; i < length; i++) {
+          vec.push_back((bool)(data[raw_start]));
+          raw_start = raw_start + 1;}
+        objs[objs_end] = Rcpp::wrap(vec);
+        objs_end = objs_end + 1;}
+        break;
+      case 3: { //integer
+        std::vector<int> vec;
+        for(int i = 0; i < length; i++) {
+          vec.push_back(raw2int(data, raw_start));}
+        objs[objs_end] = Rcpp::wrap(vec);
+        objs_end = objs_end + 1;}
+        break;
+      case 4: { //long
+        std::vector<int> vec;
+        for(int i = 0; i < length; i++) {
+          vec.push_back(raw2long(data, raw_start));}
+        objs[objs_end] = Rcpp::wrap(vec);
+        objs_end = objs_end + 1;}
+        break;
+      case 5: { //float
+        throw UnsupportedType(vec_type_code);}
+        break;
+      case 6: { //double
+        std::vector<double> vec;
+        for(int i = 0; i < length; i++) {
+          vec.push_back(raw2double(data, raw_start));}
+        objs[objs_end] = Rcpp::wrap(vec);
+        objs_end = objs_end + 1;}
+        break;
+      default: {
+          throw UnsupportedType(vec_type_code);}}}
+  
 void unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & objs_end, unsigned char type_code = 255){
   if(type_code == 255) {
     type_code = get_type(data, raw_start);}
@@ -168,29 +217,27 @@ void unserialize(const raw & data, int & raw_start, Rcpp::List & objs, int & obj
       int length;
       switch(vec_type_code) {
         case 1:{
-          length = raw_length - 1;}
+          length = raw_length - 1;
+          unserialize_fixed(data, raw_start, objs, objs_end, vec_type_code, length);}
         break;
         case 2:{
-          length = raw_length - 1;}
+          length = raw_length - 1;
+          unserialize_fixed(data, raw_start, objs, objs_end, vec_type_code, length);}
         break;
         case 3:{
-          length = (raw_length - 1)/4;}
+          length = (raw_length - 1)/4;
+          unserialize_fixed(data, raw_start, objs, objs_end, vec_type_code, length);}
         break;
         case 4:{
-          length = (raw_length - 1)/8;}
+          length = (raw_length - 1)/8;
+          unserialize_fixed(data, raw_start, objs, objs_end, vec_type_code, length);}
         break;
         case 6:{
-          length = (raw_length -1 )/8;}
+          length = (raw_length - 1 )/8;
+          unserialize_fixed(data, raw_start, objs, objs_end, vec_type_code, length);}
         break;
         default: {
-          throw UnsupportedType(vec_type_code);}}
-      Rcpp::List list(length);
-      int list_end = 0; 
-      for(int i = 0; i < length; i++) {
-        unserialize(data, raw_start, list, list_end, vec_type_code);}
-      Rcpp::Function unlist("unlist");
-      objs[objs_end] = unlist(Rcpp::wrap(list));
-      objs_end = objs_end + 1;}
+          throw UnsupportedType(vec_type_code);}}}
       break;
     case 146: {
       int raw_length = get_length(data, raw_start);
@@ -256,18 +303,21 @@ void length_header(int len, raw & serialized){
   	throw NegativeLength();}
   T2raw(len, serialized);}
 
-template <typename T> void serialize_one(const T & data, unsigned char type_code, raw & serialized) {
+template <typename T>
+void serialize_one(const T & data, unsigned char type_code, raw & serialized) {
   if(type_code != 255) serialized.push_back(type_code);
   T2raw(data, serialized);}
 
-template <typename T> void serialize_many(const T & data, unsigned char type_code, raw & serialized){
+template <typename T> 
+void serialize_many(const T & data, unsigned char type_code, raw & serialized){
   serialized.push_back(type_code);
   length_header(data.size(), serialized);
   serialized.insert(serialized.end(), data.begin(), data.end());}
 
 void serialize(const SEXP & object, raw & serialized, bool native); 
 
-template <typename T> void serialize_vector(T & data, unsigned char type_code, raw & serialized, bool native){  
+template <typename T> 
+void serialize_vector(T & data, unsigned char type_code, raw & serialized, bool native){  
   if(data.size() == 1) {
     serialize_one(data[0], type_code, serialized);}
   else {
