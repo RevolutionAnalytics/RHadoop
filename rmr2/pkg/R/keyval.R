@@ -143,10 +143,7 @@ split.keyval = function(kv, size) {
     x = unname(rmr.split(k, ind))
     if (rmr.length(x) != rmr.length(k))
       x = lapply(x, unique)
-    y = unname(rmr.split(v, ind))
-    if (rmr.length(y) != rmr.length(v))
-      y = lapply(y, unique)
-    keyval(x, y)}}
+    keyval(x, unname(rmr.split(v, ind)))}}
 
 apply.keyval = 
   function(
