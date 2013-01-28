@@ -22,6 +22,16 @@ typedef std::deque<unsigned char> raw;
 #include <string>
 #include <iostream>
 
+void safe_stop(std::string message) {
+  try{
+    Rcpp::stop(message);}
+  catch( std::exception &ex ) {
+    forward_exception_to_r( ex );}}
+    
+template<typename T>
+void stop_unimplemented(std::string what){
+  safe_stop(what + " unimplemented for " + typeid(T).name());}
+    
 class ReadPastEnd {
 public:
   std::string type_code;
@@ -41,7 +51,8 @@ public:
   NegativeLength(){}};
   
 template <typename T> 
-int nbytes(){Rcpp::stop("unimplemented");}
+int nbytes(){
+  stop_unimplemented<T>("nbytes");}
 
 template<>
 int nbytes<int>(){return 4;}
@@ -50,15 +61,25 @@ template<>
 int nbytes<long>(){return 8;}
 
 template<>
+int nbytes<double>(){return 8;}
+
+template<>
 int nbytes<bool>(){return 1;}
 
 template<>
 int nbytes<unsigned char>(){return 1;}
 
+template<>
+int nbytes<char>(){return 1;}
+
+template <typename T>
+void check_length(const raw & data, int start, int length = nbytes<T>()) {
+  if(data.size() < start + length) {
+      throw ReadPastEnd(typeid(T).name(), start);}}
+
 template <typename T> 
 T unserialize_integer(const raw & data, int & start) {
-  if(data.size() < start + nbytes<T>()) {
-    throw ReadPastEnd(typeid(T).name(), start);}
+  check_length<T>(data, start);
   int retval = 0;
   for (int i = 0; i < nbytes<T>(); i ++) {
     retval = retval + ((data[start + i] & 255) << (8*((nbytes<T>()-1) - i)));}
@@ -67,15 +88,14 @@ T unserialize_integer(const raw & data, int & start) {
 
 template <typename T>
 T unserialize_numeric(const raw & data, int & start){
-  Rcpp::stop("unimplemented");}
+  stop_unimplemented<T>("unserialize_numeric called");}
 
 template<>
 double unserialize_numeric<double>(const raw & data, int & start) {
   union udouble {
     double d;
     uint64_t u;} ud;
-  if(data.size() < start + 8) {
-    throw ReadPastEnd("double", start);  }
+  check_length<double>(data, start);
   uint64_t retval = 0;
   for(int i = 0; i < 8; i++) {
     retval = retval + (((uint64_t) data[start + i] & 255) << (8*(7 - i)));}
@@ -84,103 +104,107 @@ double unserialize_numeric<double>(const raw & data, int & start) {
   return ud.d;} 
  
 template <typename T>
-T unserialize_one(const raw & data, int & start){
+T unserialize_scalar(const raw & data, int & start){
   if(nbytes<T>() > 1) {
-    Rcpp::stop("Need template specialization for multibyte types");}
-  if(data.size() < start + nbytes<T>()){
-    throw ReadPastEnd(typeid(T).name(), start);}
+    stop_unimplemented<T>("Multibyte unserialize_scalar ");}
+  check_length<T>(data, start);
   start = start + nbytes<T>();
-  return (T)data[start -1];}
+  return (T)data[start - nbytes<T>()];}
 
 template<>
-int unserialize_one<int>(const raw & data, int & start){
+int unserialize_scalar<int>(const raw & data, int & start){
   return unserialize_integer<int>(data, start);}
   
 template<>
-long unserialize_one<long>(const raw & data, int & start){
+long unserialize_scalar<long>(const raw & data, int & start){
   return unserialize_integer<long>(data, start);}
   
 template<>
-double unserialize_one<double>(const raw & data, int & start){
+double unserialize_scalar<double>(const raw & data, int & start){
   return unserialize_numeric<double>(data, start);}
   
 template<>
-float unserialize_one<float>(const raw & data, int & start){
+float unserialize_scalar<float>(const raw & data, int & start){
   return unserialize_numeric<float>(data, start);}
     
 int get_length(const raw & data, int & start) {
-  int len = unserialize_one<int>(data, start);
+  int len = unserialize_scalar<int>(data, start);
   if(len < 0) {
   	throw NegativeLength();}
   return len;}
-
-unsigned char get_type(const raw & data, int & start) {
-  return unserialize_one<unsigned char>(data, start);}
+  
+int get_type(const raw & data, int & start) {
+  int debug = (int)unserialize_scalar<unsigned char>(data, start); 
+  return debug;}
   
 template <typename T>
 std::vector<T> unserialize_vector(const raw & data, int & start, int raw_length) {
-  if(data.size() < start + raw_length) {
-    throw ReadPastEnd(typeid(T).name(), start);}
   int length = raw_length/nbytes<T>();
   std::vector<T> vec(length);
   for(int i = 0; i < length; i++) {
-    vec[i] = unserialize_one<T>(data, start);}
+    vec[i] = unserialize_scalar<T>(data, start);}
   return vec;}
   
 template <>
 std::vector<std::string> unserialize_vector<std::string>(const raw & data, int & start, int raw_length) {
-  int length = get_length(data, start);
-  std::vector<std::string> retval(length);
-  for(int i = 0; i < length; i++) {
+  int v_length = get_length(data, start);
+  std::vector<std::string> retval(v_length);
+  for(int i = 0; i < v_length; i++) {
     get_type(data, start); //we know it's 07 already
-    int length = get_length(data, start);
-    std::vector<char> tmp_vec_char = unserialize_vector<char>(data, start, length);
+    int str_length = get_length(data, start);
+    std::vector<char> tmp_vec_char = unserialize_vector<char>(data, start, str_length);
     std::string tmp_string(tmp_vec_char.begin(), tmp_vec_char.end());
     retval[i] = tmp_string;}
   return retval;}
       
 template <>
-SEXP unserialize_one<SEXP>(const raw & data, int & start) {
+SEXP unserialize_scalar<SEXP>(const raw & data, int & start) {
   int length = get_length(data, start);
-  if(data.size() < start + length) {
-    throw ReadPastEnd("SEXP", start);}
+  check_length<SEXP>(data, start, length);
   Rcpp::Function r_unserialize("unserialize");
   raw tmp(data.begin() + start, data.begin() + start + length);
   start = start + length;
   return r_unserialize(Rcpp::wrap(tmp));}
 
+template <typename T>
+SEXP wrap_unserialize_vector(const raw & data, int & start, int length) {
+  return Rcpp::wrap(unserialize_vector<T>(data, start, length));}
 
-  
-void unserialize(const raw & data, int & start, Rcpp::List & objs, int & objs_end, unsigned char type_code = 255){
+template <typename T>
+SEXP wrap_unserialize_scalar(const raw & data, int & start) {
+  return Rcpp::wrap(unserialize_scalar<T>(data, start));}
+
+void unserialize(const raw & data, int & start, Rcpp::List & objs, int & objs_end, int type_code = 255){
   Rcpp::RObject new_object;
   if(type_code == 255) {
     type_code = get_type(data, start);}
   switch(type_code) {
     case 0: { //byte vector
       int length = get_length(data, start);
-      new_object = Rcpp::wrap(unserialize_vector<unsigned char>(data, start, length));}
+      new_object = wrap_unserialize_vector<unsigned char>(data, start, length);}
       break;
     case 1: { //byte
-      new_object = Rcpp::wrap(unserialize_one<unsigned char>(data, start));}
+      new_object = wrap_unserialize_scalar<unsigned char>(data, start);}
       break;
     case 2: { //boolean
-      new_object = Rcpp::wrap(unserialize_one<bool>(data, start));}
+      new_object = wrap_unserialize_scalar<bool>(data, start);}
       break;
     case 3: { //integer
-      new_object = Rcpp::wrap(unserialize_one<int>(data, start));}      
+      new_object = wrap_unserialize_scalar<int>(data, start);}      
       break;
     case 4: { //long
-      new_object = Rcpp::wrap(unserialize_one<long>(data, start));} 
+      new_object = wrap_unserialize_scalar<long>(data, start);} 
       break;
     case 5: { //float
       throw UnsupportedType(type_code);}
       break;
     case 6: { //double
-      new_object = Rcpp::wrap(unserialize_one<double>(data, start));}
+      new_object = wrap_unserialize_scalar<double>(data, start);}
       break;
     case 7: { //string
       int length = get_length(data, start);
-      new_object = Rcpp::wrap(unserialize_vector<char>(data, start, length));}
+      std::vector<char> vec_tmp = unserialize_vector<char>(data, start, length);
+      new_object =  Rcpp::wrap(std::string(vec_tmp.begin(), vec_tmp.end()));}
       break;
     case 8: { //vector
       int length = get_length(data, start);
@@ -195,7 +219,7 @@ void unserialize(const raw & data, int & start, Rcpp::List & objs, int & objs_en
       throw UnsupportedType(type_code);}
       break;
     case 144: { //R serialization
-      new_object = unserialize_one<SEXP>(data, start);}
+      new_object = unserialize_scalar<SEXP>(data, start);}
       break;
     case 145: {
       int raw_length = get_length(data, start);
@@ -203,29 +227,29 @@ void unserialize(const raw & data, int & start, Rcpp::List & objs, int & objs_en
       raw_length = raw_length - 1;
       switch(vec_type_code) {
         case 1:{
-          new_object = Rcpp::wrap(unserialize_vector<unsigned char>(data, start, raw_length));}
+          new_object = wrap_unserialize_vector<unsigned char>(data, start, raw_length);}
         break;
         case 2:{
-          new_object = Rcpp::wrap(unserialize_vector<bool>(data, start, raw_length));}
+          new_object = wrap_unserialize_vector<bool>(data, start, raw_length);}
         break;
         case 3:{
-          new_object = Rcpp::wrap(unserialize_vector<int>(data, start, raw_length));}
+          new_object = wrap_unserialize_vector<int>(data, start, raw_length);}
         break;
         case 4:{
-          new_object = Rcpp::wrap(unserialize_vector<long>(data, start, raw_length));}
+          new_object = wrap_unserialize_vector<long>(data, start, raw_length);}
         break;
         case 5:{
-          new_object = Rcpp::wrap(unserialize_vector<float>(data, start, raw_length));}
+          new_object = wrap_unserialize_vector<float>(data, start, raw_length);}
         break;
         case 6:{
-          new_object = Rcpp::wrap(unserialize_vector<double>(data, start, raw_length));}
+          new_object = wrap_unserialize_vector<double>(data, start, raw_length);}
         break;
         default: {
           throw UnsupportedType(vec_type_code);}}}
       break;
     case 146: {
        int raw_length = get_length(data, start);
-   }
+       new_object = wrap_unserialize_vector<std::string>(data, start, raw_length);}
       break;
     default: {
       throw UnsupportedType(type_code);}}
@@ -247,11 +271,9 @@ SEXP typed_bytes_reader(SEXP data, SEXP _nobjs){
     catch (ReadPastEnd rpe){
       break;}
 		catch (UnsupportedType ue) {
-      std::cerr << "Unsupported type exception: " << (int)ue.type_code << std::endl;
-      return R_NilValue;}
+      safe_stop("Unsupported type: " + (int)ue.type_code);}
 		catch (NegativeLength nl) {
-            std::cerr << "Negative length exception" << std::endl;
-      return R_NilValue;}}
+      safe_stop("Negative length exception");}}
   Rcpp::List list_tmp(objs.begin(), objs.begin() + objs_end);
 	return Rcpp::wrap(
     Rcpp::List::create(
@@ -283,7 +305,7 @@ void length_header(int len, raw & serialized){
   T2raw(len, serialized);}
 
 template <typename T>
-void serialize_one(const T & data, unsigned char type_code, raw & serialized) {
+void serialize_scalar(const T & data, unsigned char type_code, raw & serialized) {
   if(type_code != 255) serialized.push_back(type_code);
   T2raw(data, serialized);}
 
@@ -298,19 +320,19 @@ void serialize(const SEXP & object, raw & serialized, bool native);
 template <typename T> 
 void serialize_vector(T & data, unsigned char type_code, raw & serialized, bool native){  
   if(data.size() == 1) {
-    serialize_one(data[0], type_code, serialized);}
+    serialize_scalar(data[0], type_code, serialized);}
   else {
     if(native) {
       serialized.push_back(145);
       length_header(data.size() * sizeof(data[0]) + 1, serialized); 
       serialized.push_back(type_code);
       for(typename T::iterator i = data.begin(); i < data.end(); i++) {
-        serialize_one(*i, 255, serialized);}}
+        serialize_scalar(*i, 255, serialized);}}
     else {
       serialized.push_back(8);
       length_header(data.size(), serialized); 
       for(typename T::iterator i = data.begin(); i < data.end(); i++) {
-        serialize_one(*i, type_code, serialized);}}}}
+        serialize_scalar(*i, type_code, serialized);}}}}
 
 template <typename T> void serialize_list(T & data, raw & serialized){
   serialized.push_back(8);
@@ -414,8 +436,7 @@ SEXP typed_bytes_writer(SEXP objs, SEXP native){
     try{
       serialize(Rcpp::wrap(*i), serialized, is_native[0]);}
     catch(UnsupportedType ut){
-      std::cerr << "Unsupported type exception: " << (int)ut.type_code << std::endl;
-      return R_NilValue;}}
+      safe_stop("Unsupported type: " + (int)ut.type_code);}}
 	return Rcpp::wrap(serialized);}	
 
 
