@@ -16,7 +16,7 @@
 #include <deque>
 #include <iostream>
 #include <algorithm>
-#include <stdint.h>
+#include <math.h>
 
 typedef std::deque<unsigned char> raw;
 #include <string>
@@ -24,7 +24,7 @@ typedef std::deque<unsigned char> raw;
 
 void safe_stop(std::string message) {
   try{
-    Rcpp::stop(message);}
+    throw Rcpp::exception(message.c_str());}
   catch( std::exception &ex ) {
     forward_exception_to_r( ex );}}
     
@@ -258,7 +258,7 @@ void unserialize(const raw & data, int & start, Rcpp::List & objs, int & objs_en
 
 SEXP typed_bytes_reader(SEXP data, SEXP _nobjs){
 	Rcpp::NumericVector nobjs(_nobjs);
-	Rcpp::List objs(nobjs[0]);
+	Rcpp::List objs(floor(nobjs[0]));
 	Rcpp::RawVector tmp(data);
 	raw rd(tmp.begin(), tmp.end());
 	int start = 0;
