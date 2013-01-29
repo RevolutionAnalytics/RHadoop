@@ -24,7 +24,7 @@ typedef std::deque<unsigned char> raw;
 
 void safe_stop(std::string message) {
   try{
-    throw Rcpp::exception(message.c_str(), "typed-bytes.cpp", 27);}//swithc to rcpp::stop when available for revoR
+    throw Rcpp::exception(message.c_str(), "typed-bytes.cpp", 27);}//switch to rcpp::stop when available for revoR
   catch( std::exception &ex ) {
     forward_exception_to_r( ex );}}
     
