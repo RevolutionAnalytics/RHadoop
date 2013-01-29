@@ -15,6 +15,7 @@
 mr.local = function(map, 
                     reduce, 
                     combine, 
+                    vectorized.reduce,
                     in.folder, 
                     out.folder, 
                     profile.nodes, 
@@ -46,15 +47,20 @@ mr.local = function(map,
                 as.keyval(map(k, v))}, 
             keyval.length))))
   map.out = from.dfs(to.dfs(map.out))
-  reduce.helper = function(kk, vv) reduce(rmr.slice(kk,1), vv)
-  reduce.out = 
-    if(!is.null(reduce))
-      c.keyval(
-        lapply(
+  reduce.helper = 
+    function(kk, vv) as.keyval(reduce(rmr.slice(kk,1), vv))
+  reduce.out = { 
+    if(!is.null(reduce)){
+      if(!power.reduce){
+        c.keyval(
           apply.keyval(
             map.out, 
-            reduce.helper), 
-          as.keyval))
+            reduce.helper))}
+      else{
+        as.keyval(
+          reduce(
+            lapply(keys(map.out), Curry(rmr.slice, r = 1)), 
+            values(map.out)))}}    
     else
-      map.out
+      map.out}
   to.dfs(reduce.out, out.folder, format = output.format)}

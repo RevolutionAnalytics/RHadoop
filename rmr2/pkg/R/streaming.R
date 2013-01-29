@@ -111,7 +111,7 @@ list.cmp = function(ll, e) sapply(ll, function(l) isTRUE(all.equal(e, l, check.a
 ## using isTRUE(all.equal(x)) because identical() was too strict, but on paper it should be it
 
 reduce.loop = 
-  function(reduce, keyval.reader, keyval.writer, profile) {
+  function(reduce, vectorized, keyval.reader, keyval.writer, profile) {
     if(profile != "off") activate.profiling(profile)
     kv = keyval.reader()
     straddler = NULL
@@ -127,14 +127,22 @@ reduce.loop =
       straddler = slice.keyval(kv, last.key.mask)
       complete = slice.keyval(kv, !last.key.mask)
       if(length.keyval(complete) > 0) {
-        increment.counter("rmr", "reduce calls", length.keyval(complete))
-        out = apply.reduce(complete, red.as.kv)
+        if(!vectorized) {
+          increment.counter("rmr", "reduce calls", length.keyval(complete))
+          out = apply.reduce(complete, red.as.kv)}
+        else {
+          increment.counter("rmr", "reduce calls", 1)
+          out = reduce(keys(complete), values(complete))}
         if(length.keyval(out) > 0)
           keyval.writer(out)}
       kv = keyval.reader()}
     if(!is.null(straddler)){
-      increment.counter("rmr", "reduce calls", length.keyval(complete))
-      out = apply.reduce(straddler, red.as.kv)
+      if(!vectorized) {
+        increment.counter("rmr", "reduce calls", length.keyval(complete))
+        out = apply.reduce(straddler, red.as.kv)}
+      else{
+        increment.counter("rmr", "reduce calls", 1)
+        out = reduce(keys(straddler), values(straddler))}
       if(length.keyval(out) > 0)
         keyval.writer(out)}    
     if(profile != "off") close.profiling()
@@ -163,6 +171,7 @@ rmr.stream = function(
   map, 
   reduce, 
   combine, 
+  vectorized.reduce,
   in.folder, 
   out.folder, 
   profile.nodes, 
@@ -247,12 +256,14 @@ rmr.stream = function(
   reduce.line  =  '  
   rmr2:::reduce.loop(
     reduce = reduce, 
+    vectorized = vectorized.reduce,
     keyval.reader = default.reader(), 
     keyval.writer = output.writer(),
     profile = profile.nodes)})()'
   combine.line = '  
   rmr2:::reduce.loop(
     reduce = combine, 
+    vectorized = vectorized.reduce,
     keyval.reader = default.reader(),
     keyval.writer = default.writer(), 
   profile = profile.nodes)})()'
