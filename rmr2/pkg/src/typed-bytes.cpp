@@ -174,7 +174,7 @@ template <typename T>
 SEXP wrap_unserialize_scalar(const raw & data, int & start) {
   return Rcpp::wrap(unserialize_scalar<T>(data, start));}
 
-void unserialize(const raw & data, int & start, Rcpp::List & objs, int & objs_end, int type_code = 255){
+SEXP unserialize(const raw & data, int & start, int type_code = 255){
   Rcpp::RObject new_object;
   if(type_code == 255) {
     type_code = get_type(data, start);}
@@ -211,7 +211,7 @@ void unserialize(const raw & data, int & start, Rcpp::List & objs, int & objs_en
       Rcpp::List list(length);
       int list_end = 0; 
       for(int i = 0; i < length; i++) {
-        unserialize(data, start, list, list_end);}
+        list[i] = unserialize(data, start);}
       new_object = Rcpp::wrap(list);}
       break;
     case 9: // list (255 terminated vector)
@@ -253,8 +253,7 @@ void unserialize(const raw & data, int & start, Rcpp::List & objs, int & objs_en
       break;
     default: {
       throw UnsupportedType(type_code);}}
-      objs[objs_end] = new_object;
-      objs_end = objs_end + 1;}
+      return new_object;}
 
 SEXP typed_bytes_reader(SEXP data, SEXP _nobjs){
 	Rcpp::NumericVector nobjs(_nobjs);
@@ -266,7 +265,8 @@ SEXP typed_bytes_reader(SEXP data, SEXP _nobjs){
 	int objs_end = 0;
 	while(rd.size() > start && objs_end < nobjs[0]) {
  		try{
-      unserialize(rd, start, objs, objs_end);
+      objs[objs_end] = unserialize(rd, start);
+      objs_end = objs_end + 1;
       parsed_start = start;}
     catch (ReadPastEnd rpe){
       break;}
