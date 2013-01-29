@@ -68,7 +68,8 @@ kmeans.mr =
               reduce = kmeans.reduce)))
       if(combine || in.mem.combine)
         C = C[, -1]/C[, 1]
-      points(C, col = i + 1, pch = 19)
+## @knitr end
+#      points(C, col = i + 1, pch = 19)
 ## @knitr kmeans-main-2
       if(nrow(C) < num.clusters) {
         C = 
@@ -101,10 +102,10 @@ for(be in c("local", "hadoop")) {
             ncol=2)), 
         20)) + 
     matrix(rnorm(200), ncol =2)
-  x11()
-  plot(P)
-  points(P)
 ## @knitr end
+#  x11()
+#  plot(P)
+#  points(P)
   out[[be]] = 
 ## @knitr kmeans-run    
     kmeans.mr(
