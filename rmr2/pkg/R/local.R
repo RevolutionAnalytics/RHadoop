@@ -51,7 +51,7 @@ mr.local = function(map,
     function(kk, vv) as.keyval(reduce(rmr.slice(kk,1), vv))
   reduce.out = { 
     if(!is.null(reduce)){
-      if(!power.reduce){
+      if(!vectorized.reduce){
         c.keyval(
           apply.keyval(
             map.out, 

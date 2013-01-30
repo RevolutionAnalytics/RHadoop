@@ -29,7 +29,6 @@ ngram.parse =
 
 map.fun = 
   function(k,v) {
-    increment.counter("rmr","map calls")
     data = ngram.parse(v)
     sums = 
       sapply(
@@ -43,11 +42,12 @@ map.fun =
   system.time({
     zz = 
       mapreduce(
-        "/user/ngrams/googlebooks-eng-all-5gram-20090715-734.csv",
-  #      "../RHadoop.data/ngrams/1000000.csv",      
+  #      "/user/ngrams/googlebooks-eng-all-5gram-20090715-734.csv",
+        "../RHadoop.data/ngrams/10000.csv",      
         input.format=ngram.format, 
         map = map.fun, 
         reduce = function(k,vv) {
-          keyval(k, sum(vv))}, 
+          keyval(k, psum(vv))},
+        vectorized.reduce= TRUE,
         combine = FALSE)
     })

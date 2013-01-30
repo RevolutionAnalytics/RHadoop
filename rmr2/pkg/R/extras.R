@@ -103,3 +103,12 @@ rmr.str =
 data.frame.to.list =
   function(x) {
     .Call('dataframe_to_list', x, nrow(x), ncol(x), replicate(nrow(x), as.list(1:ncol(x)), simplify=F))}
+
+## fast cpp extensions
+
+psum = 
+  function(data) {
+    if(is.list(data)) 
+      .Call("psum", data, PACKAGE = "rmr2")
+    else  
+      stop(paste("can't psum a ", class(data)))}
