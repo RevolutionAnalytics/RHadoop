@@ -281,7 +281,12 @@ rmr.stream = function(
   ## set up the execution environment for map and reduce
   if (!is.null(combine) && is.logical(combine) && combine) {
     combine = reduce}
-  
+  if (in.memory.combine) {
+    in.memory.combine = {
+      if(is.function(combine))
+        combine 
+      else 
+        reduce)}}
   save.env = function(fun = NULL, name) {
     envir = 
       if(is.null(fun)) parent.env(environment()) else {
