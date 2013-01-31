@@ -24,12 +24,15 @@ reduce.fun =
   function(k,vv) {
     vv = split(vv, as.data.frame(k), drop = TRUE)
     keyval(names(vv), psum(vv))}
+    #keyval(names(vv), sapply(vv, sum))} 
+    #this alone changes the runtime from 49' to 1h 27' 
+    #on a 5 node cluster with 10 reducer slots
 
 system.time({
   zz = 
     mapreduce(
-      "/user/ngrams/googlebooks-eng-all-5gram-20090715-159.csv",
-      #"../RHadoop.data/ngrams/1000000.csv",      
+      "/user/ngrams/",
+      #"../RHadoop.data/ngrams/10000000.csv",      
       input.format = ngram.format, 
       map = map.fun, 
       reduce = reduce.fun,
