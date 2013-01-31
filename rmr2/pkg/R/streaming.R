@@ -100,7 +100,7 @@ map.loop =
       out = map(keys(kv), values(kv))
       out = as.keyval(out)
       if(length.keyval(out) > 0) {
-        if(!(is.null(combine)) {
+        if(!(is.null(combine))) {
           if(!vectorized) 
             out = apply.reduce(out, combine.as.kv)
           else 
@@ -286,7 +286,7 @@ rmr.stream = function(
       if(is.function(combine))
         combine 
       else 
-        reduce)}}
+        reduce}}
   save.env = function(fun = NULL, name) {
     envir = 
       if(is.null(fun)) parent.env(environment()) else {
