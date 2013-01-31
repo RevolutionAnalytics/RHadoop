@@ -184,7 +184,7 @@ rmr.stream = function(
   input.format, 
   output.format, 
   backend.parameters, 
-  in.mem.combine,
+  in.memory.combine,
   verbose, 
   debug) {
   ## prepare map and reduce executables
