@@ -100,7 +100,7 @@ map.loop =
       increment.counter("rmr", "map calls", 1)    
       out = as.keyval(map(keys(kv), values(kv)))
       if(length.keyval(out) > 0) {
-        if(!is.function(combine)) {
+        if(is.function(combine)) {
           if(!vectorized) {
             increment.counter("rmr", "reduce calls", length.keyval(kv))
             out = apply.reduce(out, combine.as.kv)}
