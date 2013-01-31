@@ -281,7 +281,7 @@ rmr.stream = function(
   writeLines(c(preamble, combine.line), con = combine.file)
   
   ## set up the execution environment for map and reduce
-  if (!is.null(combine) && is.logical(combine) && combine) {
+  if (is.logical(combine) && combine) {
     combine = reduce}
   if (in.memory.combine) {
     in.memory.combine = {
