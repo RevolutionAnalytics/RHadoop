@@ -88,8 +88,8 @@ map.loop =
     keyval.reader, 
     keyval.writer, 
     profile, 
-    in.mem.combine, 
-    combine) {
+    combine, 
+    vectorized) {
     if(profile != "off") activate.profiling(profile)
     combine.as.kv =
       Curry(
