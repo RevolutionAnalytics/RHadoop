@@ -97,8 +97,8 @@ map.loop =
         reduce = combine)
     kv = keyval.reader()
     while(!is.null(kv)) { 
-      out = map(keys(kv), values(kv))
-      out = as.keyval(out)
+      increment.counter("rmr", "map calls", length.keyval(kv))
+      out = as.keyval(map(keys(kv), values(kv)))
       if(length.keyval(out) > 0) {
         if(!(is.null(combine))) {
           if(!vectorized) 
