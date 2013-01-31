@@ -254,8 +254,8 @@ rmr.stream = function(
       else {
         default.writer()},
     profile = profile.nodes,
-    in.mem.combine = in.mem.combine, 
-    combine = combine)})()'
+    combine = in.memory.combine,
+    vectorized = vectorized.reduce)})()'
   reduce.line  =  '  
   rmr2:::reduce.loop(
     reduce = reduce, 
