@@ -344,7 +344,7 @@ rmr.stream = function(
   else {
     reducer = ""
     r.fl = "" }
-  if(!is.null(combine) && is.function(combine)) {
+  if(is.function(combine)) {
     combiner = 
       paste.options(
         combiner = 
