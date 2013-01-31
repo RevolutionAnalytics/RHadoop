@@ -28,12 +28,11 @@ reduce.fun =
 system.time({
   zz = 
     mapreduce(
-      #      "/user/ngrams/googlebooks-eng-all-5gram-20090715-734.csv",
-      "../RHadoop.data/ngrams/1000000.csv",      
+      "/user/ngrams/googlebooks-eng-all-5gram-20090715-159.csv",
+      #"../RHadoop.data/ngrams/1000000.csv",      
       input.format = ngram.format, 
       map = map.fun, 
       reduce = reduce.fun,
       vectorized.reduce = TRUE,
       in.memory.combine = TRUE,
-      combine = T)
-})
+      combine = FALSE)})
