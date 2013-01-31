@@ -14,18 +14,6 @@ ngram.parse =
     ngram.split = suppressWarnings(do.call(rbind, strsplit(paste(ngram.data$ngram, "     "), " "))[,1:5])
     filter = ngram.split[,ncol(ngram.split)] != "" 
     cbind(ngram.data[,-1], ngram.split, stringsAsFactors = FALSE)[filter,]}
-  
-# 
-# def map(record):
-#   (ngram, year, count) = unpack(record)
-# // ensure word1 has the lexicographically first word:
-#   (word1, word2) = sorted(ngram[first], ngram[last])
-# key = (word1, word2, year)
-# emit(key, count)
-# 
-# def reduce(key, values):
-#   emit(key, sum(values))
-
 
 map.fun = 
   function(k,v) {
