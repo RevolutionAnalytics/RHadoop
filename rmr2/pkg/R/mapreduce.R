@@ -251,7 +251,7 @@ mapreduce = function(
   vectorized.reduce = FALSE,
   input.format = "native", 
   output.format = "native", 
-  in.mem.combine = FALSE,
+  in.memory.combine = FALSE,
   backend.parameters = list(), 
   verbose = TRUE) {
   
@@ -291,7 +291,7 @@ mapreduce = function(
        else NULL}, 
      input.format = input.format, 
      output.format = output.format, 
-     in.mem.combine = in.mem.combine,
+     in.memory.combine = in.memory.combine,
      backend.parameters = backend.parameters[[backend]], 
      verbose = verbose)
   output
