@@ -59,7 +59,7 @@ mr.local = function(map,
       else{
         as.keyval(
           reduce(
-            lapply(keys(map.out), Curry(rmr.slice, r = 1)), 
+            keys(map.out), 
             values(map.out)))}}    
     else
       map.out}
