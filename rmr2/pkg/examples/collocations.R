@@ -16,26 +16,24 @@ ngram.parse =
     cbind(ngram.data[,-1], ngram.split, stringsAsFactors = FALSE)[filter,]}
 
 map.fun = 
-  function(k,v) {
+  function(k, v) {
     data = ngram.parse(v)
-    sums = 
-      sapply(
-        split(
-          data$count,
-          data[,c(1, 5, ncol(data))],
-          drop = TRUE), 
-        sum)
-    keyval(names(sums), unname(sums))}
+    keyval(as.matrix(data[, c("year", "1", names(data)[ncol(data)])]), data$count)}
 
-  system.time({
-    zz = 
-      mapreduce(
-  #      "/user/ngrams/googlebooks-eng-all-5gram-20090715-734.csv",
-        "../RHadoop.data/ngrams/10000.csv",      
-        input.format=ngram.format, 
-        map = map.fun, 
-        reduce = function(k,vv) {
-          keyval(k, psum(vv))},
-        vectorized.reduce= TRUE,
-        combine = FALSE)
-    })
+reduce.fun = 
+  function(k,vv) {
+    vv = split(vv, as.data.frame(k), drop = TRUE)
+    keyval(names(vv), psum(vv))}
+
+system.time({
+  zz = 
+    mapreduce(
+      #      "/user/ngrams/googlebooks-eng-all-5gram-20090715-734.csv",
+      "../RHadoop.data/ngrams/1000000.csv",      
+      input.format = ngram.format, 
+      map = map.fun, 
+      reduce = reduce.fun,
+      vectorized.reduce = TRUE,
+      in.memory.combine = TRUE,
+      combine = T)
+})
