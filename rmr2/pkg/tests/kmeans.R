@@ -21,7 +21,7 @@ kmeans.mr =
     num.clusters, 
     num.iter, 
     combine, 
-    in.mem.combine) {
+    in.memory.combine) {
 ## @knitr kmeans-dist.fun
     dist.fun = 
       function(C, P) {
@@ -42,13 +42,13 @@ kmeans.mr =
           else {
             D = dist.fun(C, P)
             nearest = max.col(-D)}}
-        if(!(combine || in.mem.combine))
+        if(!(combine || in.memory.combine))
           keyval(nearest, P) 
         else 
           keyval(nearest, cbind(1, P))}
 ## @knitr kmeans.reduce
     kmeans.reduce = {
-      if (!(combine || in.mem.combine) ) 
+      if (!(combine || in.memory.combine) ) 
         function(., P) 
           t(as.matrix(apply(P, 2, mean)))
       else 
@@ -66,7 +66,7 @@ kmeans.mr =
               P, 
               map = kmeans.map,
               reduce = kmeans.reduce)))
-      if(combine || in.mem.combine)
+      if(combine || in.memory.combine)
         C = C[, -1]/C[, 1]
 ## @knitr end
 #      points(C, col = i + 1, pch = 19)
@@ -113,7 +113,7 @@ for(be in c("local", "hadoop")) {
       num.clusters = 12, 
       num.iter = 5,
       combine = FALSE,
-      in.mem.combine = FALSE)
+      in.memory.combine = FALSE)
 ## @knitr end
 }
 
