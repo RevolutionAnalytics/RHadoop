@@ -100,8 +100,11 @@ map.loop =
       out = map(keys(kv), values(kv))
       out = as.keyval(out)
       if(length.keyval(out) > 0) {
-        if(in.mem.combine)
-          out = apply.reduce(out, combine.as.kv)
+        if(!(is.null(combine)) {
+          if(!vectorized) 
+            out = apply.reduce(out, combine.as.kv)
+          else 
+            out = combine.as.kv(keys(out), values(out))}
         keyval.writer(as.keyval(out))}
       kv = keyval.reader()}
     if(profile != "off") close.profiling()
