@@ -97,14 +97,16 @@ map.loop =
         reduce = combine)
     kv = keyval.reader()
     while(!is.null(kv)) { 
-      increment.counter("rmr", "map calls", length.keyval(kv))
+      increment.counter("rmr", "map calls", 1)    
       out = as.keyval(map(keys(kv), values(kv)))
       if(length.keyval(out) > 0) {
         if(!(is.null(combine))) {
-          if(!vectorized) 
-            out = apply.reduce(out, combine.as.kv)
-          else 
-            out = combine.as.kv(keys(out), values(out))}
+          if(!vectorized) {
+            increment.counter("rmr", "reduce calls", length.keyval(kv))
+            out = apply.reduce(out, combine.as.kv)}
+          else {
+            increment.counter("rmr", "reduce calls", 1)
+            out = combine.as.kv(keys(out), values(out))}}
         keyval.writer(as.keyval(out))}
       kv = keyval.reader()}
     if(profile != "off") close.profiling()
