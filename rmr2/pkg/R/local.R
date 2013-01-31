@@ -24,7 +24,7 @@ mr.local = function(map,
                     rmr.update,
                     input.format, 
                     output.format, 
-                    in.mem.combine,
+                    in.memory.combine,
                     backend.parameters, 
                     verbose = verbose) {
   
