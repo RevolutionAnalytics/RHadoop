@@ -247,11 +247,11 @@ mapreduce = function(
   output = NULL, 
   map = to.map(identity), 
   reduce = NULL, 
-  combine = NULL, 
   vectorized.reduce = FALSE,
+  combine = NULL, 
+  in.memory.combine = FALSE,  
   input.format = "native", 
   output.format = "native", 
-  in.memory.combine = FALSE,
   backend.parameters = list(), 
   verbose = TRUE) {
   

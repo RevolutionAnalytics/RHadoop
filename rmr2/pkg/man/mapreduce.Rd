@@ -10,7 +10,9 @@
   output = NULL,
   map = to.map(identity),
   reduce = NULL,
+  vectorized.reduce = FALSE,
   combine = NULL,
+  in.memory.combine = FALSE,
   input.format = "native",
   output.format = "native",
   backend.parameters = list(),
@@ -21,8 +23,10 @@
     or or the return value of another \code{mapreduce} or a \code{\link{to.dfs}} call}
 \item{output}{A path to the destination folder (on HDFS); if missing, a \code{\link{big.data.object}} is returned, see "Value" below}
 \item{map}{An optional R function of two arguments, returning either NULL or the return value of \code{\link{keyval}}, that specifies the map operation to execute as part of a mapreduce job. The two arguments represent multiple key-value pairs according to the definition of the mapreduce model. They can be any of the following: list, vector, matrix, data frame or NULL (the last one only allowed for keys). Keys are matched to the corresponding values by position, according to the second dimension if it is defined (that is rows in matrices and data frames, position otherwise), analogous to the behavior of \code{cbind}, see \code{\link{keyval}} for details.}
-\item{reduce}{An optional R function of two arguments, a key and a data structure representing all the values associated with that key (the same type as returned by the map call, merged with \code{rbind} for matrices and data frames and \code{c} otherwise), returning either NULL or the return value of \code{\link{keyval}}, that specifies the reduce operation to  execute as part of a mapreduce job. The default is no reduce phase, that is the output of the map phase is the output of the mapreduce job}
-\item{combine}{A function with the same signature and possible return values as the reduce function, or TRUE, which means use the reduce function as combiner. NULL or FALSE means no combiner is used.}
+\item{reduce}{An optional R function of two arguments, a key and a data structure representing all the values associated with that key (the same type as returned by the map call, merged with \code{rbind} for matrices and data frames and \code{c} otherwise), returning either NULL or the return value of \code{\link{keyval}}, that specifies the reduce operation to  execute as part of a mapreduce job. The default is no reduce phase, that is the output of the map phase is the output of the mapreduce job, see the \code{vectorized.reduce} argument for an alternate interface}
+\item{vectorized.reduce}{The argument to the reduce should be construed as a collection of keys and values associated to them by position (by row when 2-dimensional). Identical keys are consecutive and once a key is present once, all the records associated with that key will be passed to the same reduce call (complete group guarantee). This form of reduce has been introduced mostly for efficiency reasons when processing small reduce groups, because the records are small and few of them are associated with the same key. This option affects the combiner too.}
+\item{combine}{A function with the same signature and possible return values as the reduce function, or TRUE, which means use the reduce function as combiner. NULL means no combiner is used.}
+\item{in.memory.combine}{Apply the combiner just after calling the map function, before returning the results to hadoop. This is useful to reduce the amount of I/O and (de)serialization work when combining on small sets of records has any effect (you may want to experiment with larger \code{keyval.length} values when using this option, see \code{\link{rmr.options}})}
 \item{input.format}{Input format specification, see  \code{\link{make.input.format}}}
 \item{output.format}{Output format specification, see  \code{\link{make.output.format}}}
 \item{backend.parameters}{This option is for advanced users only and may be removed in the future. Specify additional, backend-specific
