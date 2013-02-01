@@ -54,6 +54,7 @@ template <typename T>
 int nbytes(){
   stop_unimplemented<T>("nbytes");}
 
+//nbytes provides the size of a typedbytes type corresponding to a C type
 template<>
 int nbytes<int>(){return 4;}
 
@@ -97,9 +98,9 @@ double unserialize_numeric<double>(const raw & data, int & start) {
     uint64_t u;} ud;
   check_length<double>(data, start);
   uint64_t retval = 0;
-  for(int i = 0; i < 8; i++) {
+  for(int i = 0; i < nbytes<double>(); i++) {
     retval = retval + (((uint64_t) data[start + i] & 255) << (8*(7 - i)));}
-  start = start + 8; 
+  start = start + nbytes<double>(); 
   ud.u = retval;
   return ud.d;} 
  
