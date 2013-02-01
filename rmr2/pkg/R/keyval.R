@@ -145,6 +145,9 @@ split.keyval = function(kv, size) {
       x = lapply(x, unique)
     keyval(x, unname(rmr.split(v, ind)))}}
 
+unsplit.keyval = function(kv) {
+  c.keyval(mapply(keyval, keys(kv), values(kv), SIMPLIFY = FALSE))}
+
 apply.keyval = 
   function(
     kv, 
