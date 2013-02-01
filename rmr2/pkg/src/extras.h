@@ -17,6 +17,6 @@
 
 #include <Rcpp.h>
 
-RcppExport SEXP psum(SEXP xx);
+RcppExport SEXP vsum(SEXP xx);
 
 #endif

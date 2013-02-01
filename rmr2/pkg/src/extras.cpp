@@ -16,7 +16,7 @@
 #include <vector>
 #include <Rcpp.h>
 
-SEXP psum(SEXP xx) {
+SEXP vsum(SEXP xx) {
   Rcpp::List xx_ (xx);
   std::vector<double> results(xx_.size());
   for(int i = 0; i < xx_.size(); i ++) {

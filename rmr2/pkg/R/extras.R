@@ -106,9 +106,9 @@ data.frame.to.list =
 
 ## fast cpp extensions
 
-psum = 
-  function(data) {
-    if(is.list(data)) 
-      .Call("psum", data, PACKAGE = "rmr2")
+vsum = 
+  function(x) {
+    if(is.list(x)) 
+      .Call("vsum", x, PACKAGE = "rmr2")
     else  
-      stop(paste("can't psum a ", class(data)))}
+      stop(paste("can't vsum a ", class(x)))}
