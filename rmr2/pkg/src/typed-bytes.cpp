@@ -158,8 +158,7 @@ std::vector<std::string> unserialize_vector<std::string>(const raw & data, int &
     retval[i] = tmp_string;}
   return retval;}
       
-template <>
-SEXP unserialize_scalar<SEXP>(const raw & data, int & start) {
+SEXP unserialize_SEXP(const raw & data, int & start) {
   int length = get_length(data, start);
   check_length<SEXP>(data, start, length);
   Rcpp::Function r_unserialize("unserialize");
@@ -220,7 +219,7 @@ SEXP unserialize(const raw & data, int & start, int type_code = 255){
       throw UnsupportedType(type_code);}
       break;
     case 144: { //R serialization
-      new_object = unserialize_scalar<SEXP>(data, start);}
+      new_object = unserialize_SEXP(data, start);}
       break;
     case 145: {
       int raw_length = get_length(data, start);
@@ -298,7 +297,6 @@ void T2raw(double data, raw & serialized) {
     uint64_t u;} ud;
   ud.d = data;
   T2raw(ud.u, serialized);}
-
 
 void length_header(int len, raw & serialized){
   if(len < 0) {
