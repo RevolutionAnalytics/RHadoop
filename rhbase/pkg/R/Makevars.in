@@ -1,2 +1,0 @@
-CXXFLAGS+= -I. -g  -DHAVE_UINTPTR_T  `pkg-config --cflags thrift` -Wall
-PKG_LIBS+= `pkg-config --libs thrift` 
