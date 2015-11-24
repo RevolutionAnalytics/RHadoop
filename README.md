@@ -1,4 +1,6 @@
-This repo is now read-only for the source code part. The issues will be progressively closed and transitioned to one of the specific repos. The wiki will remain here.
+## This repo is now read-only for the source code part. 
+
+The issues will be progressively closed and transitioned to one of the specific repos. The wiki will remain here.
 
 
 This repo is no longer used to develop the RHadoop packages, which have moved into separate repos: 
